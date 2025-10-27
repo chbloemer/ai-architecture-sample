@@ -110,7 +110,7 @@ src/main/java/de/sample/aiarchitecture/
 │           └── InMemoryShoppingCartRepository.java
 └── infrastructure/
     ├── api/                              # Public SPI
-    │   └── AsyncInitialize.java
+    │   └── DomainEventPublisher.java
     └── config/
         ├── SecurityConfiguration.java
         └── DomainConfiguration.java

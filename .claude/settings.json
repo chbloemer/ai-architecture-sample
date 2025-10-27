@@ -1,9 +1,14 @@
 {
+  "enableAllProjectMcpServers": true,
+  "enabledMcpjsonServers": [
+    "product-catalog"
+  ],
   "permissions": {
     "allow": [
       "Bash(./gradlew build:*)",
       "Bash(./gradlew bootRun --no-daemon)",
-      "Bash(./gradlew test-architecture:*)"
+      "Bash(./gradlew test-architecture:*)",
+      "mcp__product-catalog__all-products"
     ],
     "deny": [],
     "ask": []

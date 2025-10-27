@@ -1,0 +1,57 @@
+// Common test configuration and versions
+ext {
+  groovyVersion = '5.0.2'
+  springBootVersion = '3.5.6'
+  spockVersion = '2.4-M6-groovy-4.0'
+  archunitVersion = '1.4.1'
+  byteBuddyVersion = '1.17.8'
+}
+
+// Common test dependencies closure
+ext.addCommonTestDependencies = { configurationName ->
+  dependencies {
+    "${configurationName}"("org.apache.groovy:groovy-all:${groovyVersion}")
+    "${configurationName}"("org.springframework.boot:spring-boot-starter-test:${springBootVersion}") {
+      exclude(module: 'commons-logging')
+    }
+    "${configurationName}"("org.spockframework:spock-core:${spockVersion}") {
+      exclude(module: 'groovy-all')
+    }
+  }
+}
+
+// Common test task configuration
+ext.configureTestTask = { testTask, outputDir = null ->
+  testTask.configure {
+    useJUnitPlatform()
+
+    // Filter support
+    if (project.hasProperty('filter')) {
+      filter {
+        includeTestsMatching "*${project.property('filter')}"
+      }
+    }
+
+    // Logging configuration
+    testLogging {
+      events 'skipped', 'failed'
+      displayGranularity = 2
+      exceptionFormat = 'full'
+      showExceptions = true
+      showStandardStreams = false
+      stackTraceFilters 'TRUNCATE', 'GROOVY', 'ENTRY_POINT'
+    }
+    // Output directory
+    if (outputDir) {
+      reports.html.outputLocation = reporting.baseDirectory.dir(outputDir)
+    }
+  }
+}
+
+// Common Groovy compilation configuration
+ext.configureGroovyCompilation = {
+  tasks.withType(GroovyCompile).configureEach {
+    options.encoding = 'UTF-8'
+    groovyOptions.forkOptions.memoryMaximumSize = "2g"
+  }
+}

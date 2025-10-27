@@ -1,0 +1,26 @@
+// Apply common test dependencies
+addCommonTestDependencies('testImplementation')
+
+// Configure Groovy compilation
+configureGroovyCompilation()
+
+// Configure main test task
+configureTestTask(test, "test")
+
+test {
+  jvmArgs "-Xshare:off"
+
+  // Debug logging support
+  if (project.hasProperty('log-debug')) {
+    beforeTest { descriptor ->
+      logger.lifecycle("# ${descriptor.className}: ${descriptor.name}")
+    }
+    testLogging {
+      events 'started', 'passed', 'skipped', 'failed'
+    }
+  } else {
+    testLogging {
+      events 'skipped', 'failed'
+    }
+  }
+}

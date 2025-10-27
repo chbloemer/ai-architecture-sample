@@ -1,0 +1,27 @@
+sourceSets {
+  testArchitecture {
+    java.srcDir file("src/test-architecture/java")
+    groovy.srcDir file("src/test-architecture/groovy")
+    resources.srcDir file("src/test-architecture/resources")
+  }
+}
+
+configurations {
+  testArchitectureImplementation.extendsFrom(implementation)
+}
+
+// Apply common test dependencies
+addCommonTestDependencies('testArchitectureImplementation')
+
+dependencies {
+  testArchitectureImplementation sourceSets.main.output
+  testArchitectureImplementation("com.tngtech.archunit:archunit:${archunitVersion}")
+}
+
+tasks.register('test-architecture', Test) {
+  testClassesDirs = sourceSets.testArchitecture.output.classesDirs
+  classpath = sourceSets.testArchitecture.runtimeClasspath
+}
+
+// Apply common test configuration
+configureTestTask(tasks.getByName('test-architecture'), "test-architecture")

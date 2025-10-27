@@ -1,0 +1,99 @@
+plugins {
+  id 'java'
+  id 'groovy'
+  id 'idea'
+  id 'org.springframework.boot' version '3.5.6'
+  id 'io.spring.dependency-management' version '1.1.7'
+  id 'io.franzbecker.gradle-lombok' version '5.0.0'
+}
+
+// Test Configurations
+apply from: "gradle/plugins/test-common.gradle"
+apply from: "gradle/plugins/test-unit.gradle"
+apply from: "gradle/plugins/test-architecture.gradle"
+
+// Project Configuration
+group = 'de.sample'
+version = '0.0.1-SNAPSHOT'
+
+java {
+  toolchain {
+    languageVersion = JavaLanguageVersion.of(21)
+  }
+}
+
+lombok {
+  version = '1.18.42'
+  sha256 = ""
+}
+
+springBoot {
+  mainClass = 'de.sample.aiarchitecture.AiArchitectureApplication'
+}
+
+configurations {
+  compileOnly {
+    extendsFrom annotationProcessor
+  }
+}
+
+// Repositories
+repositories {
+  mavenCentral()
+  maven { url 'https://repo.spring.io/milestone' }
+}
+
+ext {
+  set('springCloudVersion', "2025.0.0")
+  set('springAiVersion', "1.1.0-M3")
+}
+
+// Dependencies
+dependencies {
+  implementation 'org.springframework.boot:spring-boot-starter-actuator'
+  implementation 'org.springframework.boot:spring-boot-starter-web'
+  implementation 'org.springframework.boot:spring-boot-starter-validation'
+  implementation 'org.springframework.boot:spring-boot-starter-security'
+  implementation 'org.springframework:spring-tx'
+  compileOnly 'org.springframework.boot:spring-boot-configuration-processor'
+
+  // Lombok
+  compileOnly 'org.projectlombok:lombok'
+  annotationProcessor 'org.projectlombok:lombok'
+
+  // JSpecify for nullability annotations
+  implementation('org.jspecify:jspecify:1.0.0')
+
+  // Apache Commons
+  implementation('org.apache.commons:commons-collections4:4.5.0')
+  implementation('org.apache.commons:commons-lang3:3.17.0')
+
+  // Pug4j Template Engine
+  implementation 'de.neuland-bfi:spring-pug4j:3.4.0'
+
+  // Spring AI MCP Server
+  implementation 'org.springframework.ai:spring-ai-starter-mcp-server-webmvc'
+
+  // Test dependencies are configured in test-common.gradle
+}
+
+// Dependency Management
+dependencyManagement {
+  imports {
+    mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+    mavenBom "org.springframework.ai:spring-ai-bom:${springAiVersion}"
+  }
+}
+
+// Application Configuration
+jar {
+  enabled = false
+}
+
+bootRun {
+  jvmArgs "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005"
+  if (project.hasProperty('log-debug')) {
+    args '--debug'
+  }
+  systemProperties System.properties
+}

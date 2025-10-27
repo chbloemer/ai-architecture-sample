@@ -1,5 +1,6 @@
 package de.sample.aiarchitecture
 
+import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses
 import static com.tngtech.archunit.library.Architectures.layeredArchitecture
 
@@ -47,6 +48,17 @@ class LayeredArchitectureArchUnitTest extends BaseArchUnitTest {
       .that().resideInAPackage(APPLICATION_PACKAGE)
       .should().dependOnClassesThat(INFRASTRUCTURE_IMPLEMENTATION)
       .because("Application services should only use infrastructure.api (public SPI), not infrastructure implementation details")
+      .check(allClasses)
+  }
+
+  def "infrastructure.api sollte nur Interfaces enthalten (Service Provider Interface)"() {
+    expect:
+    classes()
+      .that().resideInAPackage(INFRASTRUCTURE_API_PACKAGE)
+      .should().beInterfaces()
+      .because("infrastructure.api is the Service Provider Interface (SPI) and should only contain abstractions/contracts, " +
+      "not concrete implementations. This ensures the application layer remains framework-independent and " +
+      "follows the Dependency Inversion Principle. Implementations belong in infrastructure.config or other infrastructure packages.")
       .check(allClasses)
   }
 }

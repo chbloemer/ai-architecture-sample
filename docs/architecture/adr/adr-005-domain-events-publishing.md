@@ -132,7 +132,7 @@ public interface DomainEventPublisher {
 ```
 
 ```java
-// infrastructure/spring/SpringDomainEventPublisher.java
+// infrastructure/config/SpringDomainEventPublisher.java
 @Component
 public class SpringDomainEventPublisher implements DomainEventPublisher {
 

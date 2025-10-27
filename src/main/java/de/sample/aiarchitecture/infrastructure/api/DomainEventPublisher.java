@@ -1,94 +1,58 @@
 package de.sample.aiarchitecture.infrastructure.api;
 
+import de.sample.aiarchitecture.domain.model.ddd.AggregateRoot;
 import de.sample.aiarchitecture.domain.model.ddd.DomainEvent;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.stereotype.Component;
 
 /**
- * Infrastructure service for publishing domain events.
+ * Service Provider Interface (SPI) for publishing domain events.
  *
- * <p>This service bridges the domain layer and Spring's event infrastructure by publishing
- * domain events to Spring's ApplicationEventPublisher, enabling loose coupling between
- * aggregates and event handlers.
+ * <p>This interface defines the contract for publishing domain events from the application layer to
+ * the infrastructure layer, enabling loose coupling between aggregates and event handlers.
+ *
+ * <p>The application layer depends on this interface (in infrastructure.api), while concrete
+ * implementations reside in the infrastructure layer, following the Dependency Inversion Principle.
  *
  * <p><b>Usage Pattern:</b>
  *
  * <pre>
  * // In Application Service after saving aggregate:
  * Product product = productRepository.save(product);
- * domainEventPublisher.publishEvents(product);
+ * domainEventPublisher.publishAndClearEvents(product);
  * </pre>
  *
  * <p><b>Benefits:</b>
  * <ul>
- *   <li>Domain layer remains framework-independent
+ *   <li>Application layer remains framework-independent
  *   <li>Events are published only after successful persistence
  *   <li>Enables asynchronous event handling
  *   <li>Supports eventual consistency across aggregates
+ *   <li>Easy to swap implementations or mock for testing
  * </ul>
+ *
+ * <p><b>Implementation Note:</b> Concrete implementations should ensure events are published only
+ * after successful persistence to maintain data consistency.
  */
-@Component
-public class DomainEventPublisher {
-
-  private static final Logger log = LoggerFactory.getLogger(DomainEventPublisher.class);
-
-  private final ApplicationEventPublisher eventPublisher;
-
-  public DomainEventPublisher(final ApplicationEventPublisher eventPublisher) {
-    this.eventPublisher = eventPublisher;
-  }
+public interface DomainEventPublisher {
 
   /**
    * Publishes a single domain event.
    *
-   * <p>The event will be published synchronously by default unless event listeners are configured
-   * with @Async.
+   * <p>The event will be published to the underlying event infrastructure (e.g., Spring's
+   * ApplicationEventPublisher, message broker, etc.).
    *
    * @param event the domain event to publish
+   * @throws IllegalArgumentException if event is null
    */
-  public void publish(final DomainEvent event) {
-    if (event == null) {
-      throw new IllegalArgumentException("Domain event cannot be null");
-    }
-
-    log.debug(
-        "Publishing domain event: {} (ID: {}, timestamp: {})",
-        event.getClass().getSimpleName(),
-        event.eventId(),
-        event.occurredOn());
-
-    eventPublisher.publishEvent(event);
-  }
+  void publish(DomainEvent event);
 
   /**
    * Publishes all domain events from an aggregate and clears them.
    *
-   * <p>This method should be called after successfully persisting an aggregate. It publishes
-   * all collected events and then clears them to prevent duplicate publishing.
+   * <p>This method should be called after successfully persisting an aggregate. It publishes all
+   * collected events and then clears them to prevent duplicate publishing.
    *
    * @param aggregate the aggregate containing domain events
+   * @throws IllegalArgumentException if aggregate is null
    */
-  public void publishAndClearEvents(
-      final de.sample.aiarchitecture.domain.model.ddd.AggregateRoot<?, ?> aggregate) {
-    if (aggregate == null) {
-      throw new IllegalArgumentException("Aggregate cannot be null");
-    }
-
-    final var events = aggregate.domainEvents();
-
-    if (events.isEmpty()) {
-      return;
-    }
-
-    log.debug(
-        "Publishing {} domain event(s) from aggregate: {}",
-        events.size(),
-        aggregate.getClass().getSimpleName());
-
-    events.forEach(this::publish);
-
-    aggregate.clearDomainEvents();
-  }
+  void publishAndClearEvents(AggregateRoot<?, ?> aggregate);
 }

@@ -368,8 +368,44 @@ public class ProductEventListener {
 
 **Implementation:**
 - Interface: `de.sample.aiarchitecture.domain.model.ddd.DomainEvent`
-- Publisher: `de.sample.aiarchitecture.infrastructure.api.DomainEventPublisher`
+- Publisher Interface (SPI): `de.sample.aiarchitecture.infrastructure.api.DomainEventPublisher`
+- Publisher Implementation: `de.sample.aiarchitecture.infrastructure.config.SpringDomainEventPublisher`
 - Examples: `ProductCreated`, `ProductPriceChanged`, `CartItemAddedToCart`, `CartCheckedOut`
+
+**Event Publishing Infrastructure:**
+
+The event publishing infrastructure follows the Dependency Inversion Principle to keep the application layer framework-independent:
+
+```java
+// Interface (SPI) in infrastructure.api - application layer depends on this
+public interface DomainEventPublisher {
+    void publish(DomainEvent event);
+    void publishAndClearEvents(AggregateRoot<?, ?> aggregate);
+}
+
+// Implementation in infrastructure.config - uses Spring framework
+@Component
+public class SpringDomainEventPublisher implements DomainEventPublisher {
+    private final ApplicationEventPublisher eventPublisher;
+
+    @Override
+    public void publish(DomainEvent event) {
+        eventPublisher.publishEvent(event);
+    }
+
+    @Override
+    public void publishAndClearEvents(AggregateRoot<?, ?> aggregate) {
+        aggregate.domainEvents().forEach(this::publish);
+        aggregate.clearDomainEvents();
+    }
+}
+```
+
+**Benefits:**
+- Application layer remains framework-independent (depends on interface, not Spring)
+- Easy to mock for testing
+- Can swap implementations (e.g., message broker, in-memory for tests)
+- Follows Hexagonal Architecture (port defined in infrastructure.api, adapter in infrastructure.config)
 
 #### Factory
 
@@ -590,6 +626,61 @@ Onion Architecture ensures that dependencies flow inward toward the domain core,
 - Contains framework-specific code
 - Implements ports defined in inner layers
 
+#### Infrastructure.api (Service Provider Interface)
+
+**Location:** `de.sample.aiarchitecture.infrastructure.api`
+
+The `infrastructure.api` package serves as a **Service Provider Interface (SPI)** - a special layer that allows the application layer to depend on infrastructure abstractions without violating the Dependency Inversion Principle.
+
+**Purpose:**
+- Provides interfaces for infrastructure services needed by the application layer
+- Enables the application layer to remain framework-independent
+- Acts as a "port" in Hexagonal Architecture terminology
+
+**Pattern:**
+```
+Application Layer → infrastructure.api (interface) ← infrastructure.config (implementation)
+```
+
+**Example:**
+```java
+// infrastructure.api.DomainEventPublisher (interface)
+public interface DomainEventPublisher {
+    void publish(DomainEvent event);
+    void publishAndClearEvents(AggregateRoot<?, ?> aggregate);
+}
+
+// infrastructure.config.SpringDomainEventPublisher (implementation)
+@Component
+public class SpringDomainEventPublisher implements DomainEventPublisher {
+    private final ApplicationEventPublisher eventPublisher;
+    // Spring-specific implementation...
+}
+```
+
+**Rules:**
+1. **infrastructure.api must contain ONLY interfaces** (enforced by ArchUnit)
+2. No concrete classes, no annotations, no framework dependencies
+3. Implementations reside in `infrastructure.config` or other infrastructure packages
+4. Application layer may depend on `infrastructure.api`, never on implementations
+
+**Benefits:**
+- Application layer remains testable (easy to mock interfaces)
+- Can swap infrastructure implementations without changing application code
+- Follows Dependency Inversion Principle (depend on abstractions, not concretions)
+- Supports framework-independent business logic
+
+**What Belongs in infrastructure.api:**
+- ✅ Event publisher interfaces
+- ✅ Service interfaces needed by application layer
+- ✅ Abstractions for infrastructure concerns
+
+**What Does NOT Belong:**
+- ❌ Concrete classes
+- ❌ Spring annotations (@Component, @Service)
+- ❌ Framework-specific code
+- ❌ Domain interfaces (those belong in `domain.model`)
+
 ---
 
 ## Layered Architecture
@@ -658,10 +749,11 @@ de.sample.aiarchitecture
 │           └── CartTotalCalculator      # Domain Service
 │
 ├── infrastructure                       # Infrastructure Configuration
-│   ├── api                              # Public SPI
-│   │   └── DomainEventPublisher
+│   ├── api                              # Public SPI (Service Provider Interface)
+│   │   └── DomainEventPublisher        # Event publisher interface (SPI)
 │   └── config                           # Spring Configuration
-│       └── SecurityConfiguration
+│       ├── SecurityConfiguration
+│       └── SpringDomainEventPublisher  # Event publisher implementation
 │
 └── portadapter                          # Adapters (Hexagonal Architecture)
     ├── incoming                         # Incoming Adapters (Primary/Driving)
@@ -832,6 +924,7 @@ All architectural rules are automatically tested and enforced using ArchUnit.
 2. Primary adapters may not be accessed by any layer
 3. Secondary adapters may not be accessed by any layer
 4. Application services may only be accessed by primary adapters
+5. **infrastructure.api must contain only interfaces** (Service Provider Interface pattern)
 
 #### Naming Conventions
 

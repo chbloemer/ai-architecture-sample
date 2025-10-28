@@ -453,7 +453,7 @@ public class ProductResource {  // ✅ Correct - ends with "Resource"
 **File**: `src/test-architecture/groovy/de/sample/aiarchitecture/NamingConventionsArchUnitTest.groovy`
 
 ```groovy
-def "Controller Klassen müssen mit 'Controller' enden"() {
+def "Controller classes must end with 'Controller'"() {
   expect:
   classes()
     .that().resideInAPackage(PRIMARY_ADAPTER_PACKAGE)
@@ -463,7 +463,7 @@ def "Controller Klassen müssen mit 'Controller' enden"() {
     .check(allClasses)
 }
 
-def "REST Controllers müssen mit 'Resource' enden (REST best practice)"() {
+def "REST Controllers must end with 'Resource' (REST best practice)"() {
   expect:
   classes()
     .that().resideInAPackage(PRIMARY_ADAPTER_PACKAGE)

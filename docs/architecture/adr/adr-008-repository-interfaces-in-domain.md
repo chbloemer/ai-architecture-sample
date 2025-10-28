@@ -328,7 +328,7 @@ public class SpringConfiguration {
 ```groovy
 // DddTacticalPatternsArchUnitTest.groovy
 
-def "Repository Interfaces müssen im domain Package liegen"() {
+def "Repository Interfaces must reside in domain package"() {
   expect:
   classes()
     .that().haveSimpleNameEndingWith("Repository")
@@ -337,7 +337,7 @@ def "Repository Interfaces müssen im domain Package liegen"() {
     .check(allClasses)
 }
 
-def "Repository Implementierungen müssen im portadapter.outgoing Package liegen"() {
+def "Repository Implementations must reside in portadapter.outgoing package"() {
   expect:
   classes()
     .that().implement(Repository.class)
@@ -346,7 +346,7 @@ def "Repository Implementierungen müssen im portadapter.outgoing Package liegen
     .check(allClasses)
 }
 
-def "Repositories dürfen nur für Aggregate Roots existieren"() {
+def "Repositories must only exist for Aggregate Roots"() {
   expect:
   classes()
     .that().haveSimpleNameEndingWith("Repository")
@@ -449,8 +449,8 @@ public class InMemoryProductRepository implements ProductRepository {
 ./gradlew test-architecture
 
 # Expected:
-# Repository Interfaces müssen im domain Package liegen PASSED ✅
-# Repository Implementierungen müssen im portadapter.outgoing Package liegen PASSED ✅
+# Repository Interfaces must reside in domain package PASSED ✅
+# Repository Implementations must reside in portadapter.outgoing package PASSED ✅
 ```
 
 ### Dependency Check

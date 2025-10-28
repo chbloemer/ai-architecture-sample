@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.RestController
  */
 class NamingConventionsArchUnitTest extends BaseArchUnitTest {
 
-  def "Application Services müssen mit 'ApplicationService' enden"() {
+  def "Application Services must end with 'ApplicationService'"() {
     expect:
     classes()
       .that().resideInAPackage(APPLICATION_PACKAGE)
@@ -30,7 +30,7 @@ class NamingConventionsArchUnitTest extends BaseArchUnitTest {
       .check(allClasses)
   }
 
-  def "Application Services müssen @Service annotiert sein"() {
+  def "Application Services must be annotated with @Service"() {
     expect:
     classes()
       .that().resideInAPackage(APPLICATION_PACKAGE)
@@ -40,7 +40,7 @@ class NamingConventionsArchUnitTest extends BaseArchUnitTest {
       .check(allClasses)
   }
 
-  def "Repository Interfaces müssen mit 'Repository' enden"() {
+  def "Repository Interfaces must end with 'Repository'"() {
     expect:
     classes()
       .that().resideInAPackage(DOMAIN_PACKAGE)
@@ -51,7 +51,7 @@ class NamingConventionsArchUnitTest extends BaseArchUnitTest {
       .check(allClasses)
   }
 
-  def "Controller Klassen müssen mit 'Controller' enden"() {
+  def "Controller classes must end with 'Controller'"() {
     expect:
     classes()
       .that().resideInAPackage(INCOMING_ADAPTER_PACKAGE)
@@ -62,7 +62,7 @@ class NamingConventionsArchUnitTest extends BaseArchUnitTest {
       .check(allClasses)
   }
 
-  def "REST Controllers müssen mit 'Resource' enden (REST best practice)"() {
+  def "REST Controllers must end with 'Resource' (REST best practice)"() {
     expect:
     classes()
       .that().resideInAPackage(INCOMING_ADAPTER_PACKAGE)
@@ -72,7 +72,7 @@ class NamingConventionsArchUnitTest extends BaseArchUnitTest {
       .check(allClasses)
   }
 
-  def "DTOs müssen im portadapter Package liegen (nicht in domain oder application)"() {
+  def "DTOs must reside in portadapter package (not in domain or application)"() {
     expect:
     classes()
       .that().haveSimpleNameEndingWith("Dto")
@@ -83,7 +83,7 @@ class NamingConventionsArchUnitTest extends BaseArchUnitTest {
       .check(allClasses)
   }
 
-  def "Konverter müssen im portadapter Package liegen"() {
+  def "Converters must reside in portadapter package"() {
     expect:
     classes()
       .that().haveSimpleNameEndingWith("Converter")

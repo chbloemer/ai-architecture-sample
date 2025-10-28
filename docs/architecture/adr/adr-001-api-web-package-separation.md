@@ -210,7 +210,7 @@ The package structure reinforces this distinction:
 
 ```groovy
 // NamingConventionsArchUnitTest.groovy
-def "REST Controllers müssen mit 'Resource' enden"() {
+def "REST Controllers must end with 'Resource' (REST best practice)"() {
   classes()
     .that().resideInAPackage("..primary.api..")  // ← Package check
     .and().areAnnotatedWith(RestController.class)
@@ -218,7 +218,7 @@ def "REST Controllers müssen mit 'Resource' enden"() {
     .check(allClasses)
 }
 
-def "MVC Controllers müssen mit 'Controller' enden"() {
+def "Controller classes must end with 'Controller'"() {
   classes()
     .that().resideInAPackage("..primary.web..")  // ← Package check
     .and().areAnnotatedWith(Controller.class)

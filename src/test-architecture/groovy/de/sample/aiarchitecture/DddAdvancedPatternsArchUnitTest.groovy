@@ -38,7 +38,7 @@ class DddAdvancedPatternsArchUnitTest extends BaseArchUnitTest {
   // ============================================================================
 
   @Ignore("Pending decision: ProductPriceChanged and ProductCreated need to be renamed")
-  def "Domain Events sollten DomainEvent Marker Interface implementieren"() {
+  def "Domain Events should implement DomainEvent Marker Interface"() {
     expect:
     // NOTE: This is a SHOULD rule for new code - existing events may not implement it yet
     classes()
@@ -49,7 +49,7 @@ class DddAdvancedPatternsArchUnitTest extends BaseArchUnitTest {
       .check(allClasses)
   }
 
-  def "Domain Events müssen im domain.model Package liegen"() {
+  def "Domain Events must reside in domain.model package"() {
     expect:
     classes()
       .that().implement(DomainEvent.class)
@@ -59,7 +59,7 @@ class DddAdvancedPatternsArchUnitTest extends BaseArchUnitTest {
       .check(allClasses)
   }
 
-  def "Domain Events sollten immutable sein (final oder records)"() {
+  def "Domain Events should be immutable (final or records)"() {
     expect:
     classes()
       .that().resideInAPackage(DOMAIN_MODEL_PACKAGE)
@@ -73,7 +73,7 @@ class DddAdvancedPatternsArchUnitTest extends BaseArchUnitTest {
       .check(allClasses)
   }
 
-  def "Domain Events dürfen keine Spring Annotationen haben"() {
+  def "Domain Events must not have Spring annotations"() {
     expect:
     noClasses()
       .that().resideInAPackage(DOMAIN_MODEL_PACKAGE)
@@ -86,7 +86,7 @@ class DddAdvancedPatternsArchUnitTest extends BaseArchUnitTest {
       .check(allClasses)
   }
 
-  def "Domain Events müssen ein Timestamp Feld haben"() {
+  def "Domain Events must have a timestamp field"() {
     when:
     def domainEventClasses = allClasses.stream()
       .filter { it.isAssignableTo(DomainEvent.class) }
@@ -123,7 +123,7 @@ class DddAdvancedPatternsArchUnitTest extends BaseArchUnitTest {
   // ============================================================================
 
   @Ignore("Pending decision: CartTotalCalculator and PricingService need to be renamed")
-  def "Domain Services sollten DomainService Marker Interface implementieren"() {
+  def "Domain Services should implement DomainService Marker Interface"() {
     expect:
     // NOTE: This is a SHOULD rule for new code - existing domain services may not implement it yet
     classes()
@@ -134,7 +134,7 @@ class DddAdvancedPatternsArchUnitTest extends BaseArchUnitTest {
       .check(allClasses)
   }
 
-  def "Domain Services müssen im domain.model Package liegen"() {
+  def "Domain Services must reside in domain.model package"() {
     expect:
     classes()
       .that().implement(DomainService.class)
@@ -144,7 +144,7 @@ class DddAdvancedPatternsArchUnitTest extends BaseArchUnitTest {
       .check(allClasses)
   }
 
-  def "Domain Services dürfen keine Spring Annotationen haben"() {
+  def "Domain Services must not have Spring annotations"() {
     expect:
     noClasses()
       .that().implement(DomainService.class)
@@ -155,7 +155,7 @@ class DddAdvancedPatternsArchUnitTest extends BaseArchUnitTest {
       .check(allClasses)
   }
 
-  def "Domain Services sollten stateless sein (nur final Felder für Abhängigkeiten)"() {
+  def "Domain Services should be stateless (only final fields for dependencies)"() {
     expect:
     classes()
       .that().implement(DomainService.class)
@@ -170,7 +170,7 @@ class DddAdvancedPatternsArchUnitTest extends BaseArchUnitTest {
   // FACTORIES PATTERN
   // ============================================================================
 
-  def "Factories sollten Factory Marker Interface implementieren"() {
+  def "Factories should implement Factory Marker Interface"() {
     expect:
     classes()
       .that().implement(de.sample.aiarchitecture.domain.model.ddd.Factory.class)
@@ -180,7 +180,7 @@ class DddAdvancedPatternsArchUnitTest extends BaseArchUnitTest {
       .check(allClasses)
   }
 
-  def "Factories müssen im domain.model Package liegen"() {
+  def "Factories must reside in domain.model package"() {
     expect:
     classes()
       .that().implement(de.sample.aiarchitecture.domain.model.ddd.Factory.class)
@@ -190,7 +190,7 @@ class DddAdvancedPatternsArchUnitTest extends BaseArchUnitTest {
       .check(allClasses)
   }
 
-  def "Factories dürfen keine Spring Annotationen haben"() {
+  def "Factories must not have Spring annotations"() {
     expect:
     noClasses()
       .that().implement(de.sample.aiarchitecture.domain.model.ddd.Factory.class)
@@ -202,7 +202,7 @@ class DddAdvancedPatternsArchUnitTest extends BaseArchUnitTest {
       .check(allClasses)
   }
 
-  def "Factories sollten stateless sein (nur final Felder für Abhängigkeiten)"() {
+  def "Factories should be stateless (only final fields for dependencies)"() {
     expect:
     classes()
       .that().implement(de.sample.aiarchitecture.domain.model.ddd.Factory.class)
@@ -217,7 +217,7 @@ class DddAdvancedPatternsArchUnitTest extends BaseArchUnitTest {
   // SPECIFICATION PATTERN
   // ============================================================================
 
-  def "Specifications müssen mit 'Specification' enden"() {
+  def "Specifications must end with 'Specification'"() {
     expect:
     classes()
       .that().haveSimpleNameEndingWith("Specification")
@@ -229,7 +229,7 @@ class DddAdvancedPatternsArchUnitTest extends BaseArchUnitTest {
       .check(allClasses)
   }
 
-  def "Specifications dürfen keine Spring Annotationen haben"() {
+  def "Specifications must not have Spring annotations"() {
     expect:
     noClasses()
       .that().haveSimpleNameEndingWith("Specification")

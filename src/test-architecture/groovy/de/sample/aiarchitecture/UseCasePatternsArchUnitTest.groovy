@@ -29,7 +29,7 @@ class UseCasePatternsArchUnitTest extends BaseArchUnitTest {
   // USE CASE INTERFACE PATTERN (Input Ports)
   // ============================================================================
 
-  def "Use Case Interfaces müssen mit 'UseCase' enden"() {
+  def "Use Case Interfaces must end with 'UseCase'"() {
     expect:
     classes()
       .that().areInterfaces()
@@ -44,7 +44,7 @@ class UseCasePatternsArchUnitTest extends BaseArchUnitTest {
   // USE CASE INPUT MODEL PATTERN
   // ============================================================================
 
-  def "Use Case Input Models müssen mit 'Input' enden und im application Package liegen"() {
+  def "Use Case Input Models must end with 'Input' and reside in application package"() {
     expect:
     classes()
       .that().haveSimpleNameEndingWith("Input")
@@ -55,7 +55,7 @@ class UseCasePatternsArchUnitTest extends BaseArchUnitTest {
       .check(allClasses)
   }
 
-  def "Use Case Input Models sollten immutable sein (final oder records)"() {
+  def "Use Case Input Models should be immutable (final or records)"() {
     expect:
     classes()
       .that().haveSimpleNameEndingWith("Input")
@@ -72,7 +72,7 @@ class UseCasePatternsArchUnitTest extends BaseArchUnitTest {
   // USE CASE OUTPUT MODEL PATTERN
   // ============================================================================
 
-  def "Use Case Output Models müssen mit 'Output' enden und im application Package liegen"() {
+  def "Use Case Output Models must end with 'Output' and reside in application package"() {
     expect:
     classes()
       .that().haveSimpleNameEndingWith("Output")
@@ -83,7 +83,7 @@ class UseCasePatternsArchUnitTest extends BaseArchUnitTest {
       .check(allClasses)
   }
 
-  def "Use Case Output Models sollten immutable sein (final oder records)"() {
+  def "Use Case Output Models should be immutable (final or records)"() {
     expect:
     classes()
       .that().haveSimpleNameEndingWith("Output")
@@ -100,7 +100,7 @@ class UseCasePatternsArchUnitTest extends BaseArchUnitTest {
   // MAPPING STRATEGY (DTOs)
   // ============================================================================
 
-  def "DTOs dürfen nicht in der Domain Layer verwendet werden"() {
+  def "DTOs must not be used in the Domain Layer"() {
     expect:
     noClasses()
       .that().resideInAPackage(DOMAIN_PACKAGE)
@@ -109,7 +109,7 @@ class UseCasePatternsArchUnitTest extends BaseArchUnitTest {
       .check(allClasses)
   }
 
-  def "DTOs dürfen nicht in der Application Layer verwendet werden"() {
+  def "DTOs must not be used in the Application Layer"() {
     expect:
     noClasses()
       .that().resideInAPackage(APPLICATION_PACKAGE)

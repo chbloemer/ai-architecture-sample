@@ -26,7 +26,7 @@ import org.springframework.stereotype.Service
  */
 class OnionArchitectureArchUnitTest extends BaseArchUnitTest {
 
-  def "Domain darf nicht auf Application Services zugreifen (Onion Architecture - Domain ist innerste Schicht)"() {
+  def "Domain must not access Application Services (Onion Architecture - Domain is innermost layer)"() {
     expect:
     noClasses()
     .that().resideInAPackage(DOMAIN_PACKAGE)
@@ -35,7 +35,7 @@ class OnionArchitectureArchUnitTest extends BaseArchUnitTest {
     .check(allClasses)
   }
 
-  def "Das Domain Model sollte Framework unabhängig sein und nach Möglichkeit keine 3rd Party Libraries benutzen"() {
+  def "The Domain Model should be framework independent and should not use 3rd party libraries when possible"() {
     expect:
     final JavaClasses importedClasses = new ClassFileImporter()
     .withImportOption(ImportOption.Predefined.DO_NOT_INCLUDE_TESTS)
@@ -54,7 +54,7 @@ class OnionArchitectureArchUnitTest extends BaseArchUnitTest {
     domainClassesMustNotDependOnAnyFrameworkOr3rdParty.check(importedClasses)
   }
 
-  def "Domain Models dürfen keine Spring/JPA Annotationen haben"() {
+  def "Domain Models must not have Spring/JPA annotations"() {
     expect:
     noClasses()
     .that().resideInAPackage(DOMAIN_MODEL_PACKAGE)

@@ -148,7 +148,7 @@ public void on(ProductPriceChanged event) {
 ### ArchUnit Enforcement
 
 ```groovy
-def "Bounded Contexts dürfen nicht direkt aufeinander zugreifen"() {
+def "Bounded Contexts must not directly access each other"() {
   expect:
   noClasses()
     .that().resideInAPackage("..cart..")
@@ -156,7 +156,7 @@ def "Bounded Contexts dürfen nicht direkt aufeinander zugreifen"() {
     .check(allClasses)
 }
 
-def "Contexts sollten nur über IDs referenzieren"() {
+def "Contexts should only reference via IDs"() {
   // Enforced by aggregate reference rules
 }
 ```

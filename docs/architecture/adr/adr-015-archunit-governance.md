@@ -60,7 +60,7 @@ def "Domain darf keine Abhängigkeiten auf Infrastructure haben"() {
 ### 2. **Living Documentation**
 
 ```groovy
-def "Aggregate Roots dürfen keine anderen Aggregate Roots enthalten"() {
+def "Aggregate Roots must not have fields with other Aggregate Root types"() {
   // This test IS the documentation
   // Always up-to-date (or build fails)
 }
@@ -140,10 +140,10 @@ Build fails immediately! Architecture protected.
 ./gradlew test-architecture
 
 # Expected output:
-# DddTacticalPatternsArchUnitTest > Aggregate Roots dürfen keine anderen Aggregate Roots enthalten PASSED ✅
-# DddTacticalPatternsArchUnitTest > Entities müssen ein ID Feld haben PASSED ✅
-# OnionArchitectureArchUnitTest > Domain darf nicht auf Infrastructure zugreifen PASSED ✅
-# HexagonalArchitectureArchUnitTest > Portadapter dürfen nicht direkt miteinander kommunizieren PASSED ✅
+# DddTacticalPatternsArchUnitTest > Aggregate Roots must not have fields with other Aggregate Root types PASSED ✅
+# DddTacticalPatternsArchUnitTest > Entities must have an ID field PASSED ✅
+# OnionArchitectureArchUnitTest > Domain must not access Application Services (Onion Architecture - Domain is innermost layer) PASSED ✅
+# HexagonalArchitectureArchUnitTest > Port adapters (incoming and outgoing) must not communicate directly with each other PASSED ✅
 # ... 20+ more tests
 ```
 
@@ -160,7 +160,7 @@ class DddTacticalPatternsArchUnitTest extends Specification {
         .importPackages("de.sample.aiarchitecture")
   }
 
-  def "Aggregate Roots dürfen keine Felder mit anderen Aggregate Root Typen haben"() {
+  def "Aggregate Roots must not have fields with other Aggregate Root types"() {
     expect:
     "Aggregate Roots should only reference other Aggregates by ID, not by direct reference"
 
@@ -171,7 +171,7 @@ class DddTacticalPatternsArchUnitTest extends Specification {
         .check(allClasses)
   }
 
-  def "Repository Interfaces müssen im domain Package liegen"() {
+  def "Repository Interfaces must reside in domain package"() {
     expect:
     classes()
         .that().haveSimpleNameEndingWith("Repository")

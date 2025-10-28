@@ -146,9 +146,9 @@ public class CartTotalCalculator implements DomainService {
 ### ArchUnit Enforcement
 
 ```groovy
-def "Domain Services müssen DomainService Interface implementieren"() { ... }
-def "Domain Services müssen im domain.model Package liegen"() { ... }
-def "Domain Services sollten zustandslos sein"() { ... }
+def "Domain Services should implement DomainService Marker Interface"() { ... }
+def "Domain Services must reside in domain.model package"() { ... }
+def "Domain Services should be stateless (only final fields for dependencies)"() { ... }
 ```
 
 ---

@@ -17,7 +17,7 @@ import static com.tngtech.archunit.library.dependencies.SlicesRuleDefinition.sli
  */
 class PackageCyclesArchUnitTest extends BaseArchUnitTest {
 
-  def "Domain Packages dürfen keine zyklischen Abhängigkeiten haben"() {
+  def "Domain Packages must not have cyclic dependencies"() {
     expect:
     slices()
       .matching("${BASE_PACKAGE}.domain.model.(*)..")
@@ -27,7 +27,7 @@ class PackageCyclesArchUnitTest extends BaseArchUnitTest {
       .check(allClasses)
   }
 
-  def "Application Layer darf keine zyklischen Abhängigkeiten haben"() {
+  def "Application Layer must not have cyclic dependencies"() {
     expect:
     slices()
       .matching("${BASE_PACKAGE}.application.(*)..")
@@ -37,7 +37,7 @@ class PackageCyclesArchUnitTest extends BaseArchUnitTest {
       .check(allClasses)
   }
 
-  def "Secondary Adapter Packages dürfen keine zyklischen Abhängigkeiten haben"() {
+  def "Secondary Adapter Packages must not have cyclic dependencies"() {
     expect:
     slices()
       .matching("${BASE_PACKAGE}.portadapter.secondary.(*)..")
@@ -47,7 +47,7 @@ class PackageCyclesArchUnitTest extends BaseArchUnitTest {
       .check(allClasses)
   }
 
-  def "Primary Adapter Packages dürfen keine zyklischen Abhängigkeiten haben"() {
+  def "Primary Adapter Packages must not have cyclic dependencies"() {
     expect:
     slices()
       .matching("${BASE_PACKAGE}.portadapter.primary.(*)..")
@@ -57,7 +57,7 @@ class PackageCyclesArchUnitTest extends BaseArchUnitTest {
       .check(allClasses)
   }
 
-  def "Primary Web Sub-Packages dürfen keine zyklischen Abhängigkeiten haben"() {
+  def "Primary Web Sub-Packages must not have cyclic dependencies"() {
     expect:
     slices()
       .matching("${BASE_PACKAGE}.portadapter.primary.web.(*)..")

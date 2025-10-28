@@ -28,7 +28,7 @@ class DddTacticalPatternsArchUnitTest extends BaseArchUnitTest {
   // AGGREGATE ROOT PATTERN
   // ============================================================================
 
-  def "Aggregate Roots müssen AggregateRoot<T, ID> implementieren"() {
+  def "Aggregate Roots must implement AggregateRoot<T, ID>"() {
     expect:
     classes()
       .that().resideInAPackage(DOMAIN_MODEL_PACKAGE)
@@ -41,7 +41,7 @@ class DddTacticalPatternsArchUnitTest extends BaseArchUnitTest {
       .check(allClasses)
   }
 
-  def "Aggregate Roots dürfen keine Felder mit anderen Aggregate Root Typen haben"() {
+  def "Aggregate Roots must not have fields with other Aggregate Root types"() {
     expect:
     // This test enforces Vaughn Vernon's Aggregate Design Rule #2:
     // "Reference other Aggregates by Identity"
@@ -93,7 +93,7 @@ class DddTacticalPatternsArchUnitTest extends BaseArchUnitTest {
   // ENTITY PATTERN
   // ============================================================================
 
-  def "Entities müssen ein ID Feld haben"() {
+  def "Entities must have an ID field"() {
     when:
     def entityClasses = allClasses.stream()
       .filter { it.isAssignableTo(de.sample.aiarchitecture.domain.model.ddd.Entity.class) }
@@ -122,7 +122,7 @@ class DddTacticalPatternsArchUnitTest extends BaseArchUnitTest {
     true
   }
 
-  def "Entities dürfen nicht direkt von außerhalb des Aggregates instanziiert werden"() {
+  def "Entities must not be instantiated directly from outside the aggregate"() {
     when:
     // Entities (except Aggregate Roots) should not have public constructors
     // They should only be created through their aggregate root
@@ -154,7 +154,7 @@ class DddTacticalPatternsArchUnitTest extends BaseArchUnitTest {
     true
   }
 
-  def "Entities dürfen keine Felder mit Aggregate Root Typen haben"() {
+  def "Entities must not have fields with Aggregate Root types"() {
     when:
     def entityClasses = allClasses.stream()
       .filter { it.isAssignableTo(de.sample.aiarchitecture.domain.model.ddd.Entity.class) }
@@ -198,7 +198,7 @@ class DddTacticalPatternsArchUnitTest extends BaseArchUnitTest {
   // VALUE OBJECT PATTERN
   // ============================================================================
 
-  def "Value Objects dürfen keine Aggregate Roots oder Entities enthalten"() {
+  def "Value Objects must not contain Aggregate Roots or Entities"() {
     when:
     def valueObjectClasses = allClasses.stream()
       .filter { it.isAssignableTo(Value.class) }
@@ -251,7 +251,7 @@ class DddTacticalPatternsArchUnitTest extends BaseArchUnitTest {
     true
   }
 
-  def "Value Object Klassen sollten final sein (Immutabilität)"() {
+  def "Value Object classes should be final (immutability)"() {
     expect:
     classes()
       .that().resideInAPackage(DOMAIN_MODEL_PACKAGE)
@@ -264,7 +264,7 @@ class DddTacticalPatternsArchUnitTest extends BaseArchUnitTest {
       .check(allClasses)
   }
 
-  def "Value Object Felder müssen final sein (tiefe Immutabilität)"() {
+  def "Value Object fields must be final (deep immutability)"() {
     when:
     // All fields in value objects must be final to ensure deep immutability
     // Records automatically have final fields, but regular classes need this check
@@ -297,7 +297,7 @@ class DddTacticalPatternsArchUnitTest extends BaseArchUnitTest {
     true
   }
 
-  def "Value Objects dürfen keine Setter Methoden haben"() {
+  def "Value Objects must not have setter methods"() {
     when:
     // Value Objects are immutable, so they should not have setter methods
     // Records don't have setters, but regular classes need this check
@@ -329,7 +329,7 @@ class DddTacticalPatternsArchUnitTest extends BaseArchUnitTest {
     true
   }
 
-  def "Records für Value Objects sind zulässig (bevorzugtes Pattern für einfache Value Objects)"() {
+  def "Records for Value Objects are allowed (preferred pattern for simple Value Objects)"() {
     expect:
     classes()
       .that().resideInAPackage(DOMAIN_MODEL_PACKAGE)
@@ -344,7 +344,7 @@ class DddTacticalPatternsArchUnitTest extends BaseArchUnitTest {
   // REPOSITORY PATTERN
   // ============================================================================
 
-  def "Repository Interfaces sollten Repository Marker Interface erweitern"() {
+  def "Repository Interfaces should extend Repository Marker Interface"() {
     expect:
     classes()
       .that().resideInAPackage(DOMAIN_PACKAGE)
@@ -357,7 +357,7 @@ class DddTacticalPatternsArchUnitTest extends BaseArchUnitTest {
       .check(allClasses)
   }
 
-  def "Repository Interfaces müssen im domain Package liegen"() {
+  def "Repository Interfaces must reside in domain package"() {
     expect:
     classes()
       .that().implement(Repository.class)
@@ -368,7 +368,7 @@ class DddTacticalPatternsArchUnitTest extends BaseArchUnitTest {
       .check(allClasses)
   }
 
-  def "Repository Implementierungen müssen im portadapter.outgoing Package liegen"() {
+  def "Repository Implementations must reside in portadapter.outgoing package"() {
     expect:
     classes()
       .that().implement(Repository.class)
@@ -379,7 +379,7 @@ class DddTacticalPatternsArchUnitTest extends BaseArchUnitTest {
       .check(allClasses)
   }
 
-  def "Repositories dürfen nur für Aggregate Roots existieren"() {
+  def "Repositories must only exist for Aggregate Roots"() {
     when:
     def repositoryInterfaces = allClasses.stream()
       .filter { it.isAssignableTo(Repository.class) }
@@ -417,7 +417,7 @@ class DddTacticalPatternsArchUnitTest extends BaseArchUnitTest {
     true
   }
 
-  def "Repository Methoden müssen Aggregate Roots zurückgeben"() {
+  def "Repository methods must return Aggregate Roots"() {
     when:
     // Repository methods should return Aggregate Roots or collections of Aggregate Roots
     // Not entities or value objects

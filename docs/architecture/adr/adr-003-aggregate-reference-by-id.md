@@ -293,7 +293,7 @@ public void addItemToCart(
 ```groovy
 // DddTacticalPatternsArchUnitTest.groovy
 
-def "Aggregate Roots dürfen keine Felder mit anderen Aggregate Root Typen haben"() {
+def "Aggregate Roots must not have fields with other Aggregate Root types"() {
   given:
   def aggregateRootClasses = getAggregateRootClasses()
 
@@ -308,7 +308,7 @@ def "Aggregate Roots dürfen keine Felder mit anderen Aggregate Root Typen haben
     .check(allClasses)
 }
 
-def "Entities dürfen keine Felder mit Aggregate Root Typen haben"() {
+def "Entities must not have fields with Aggregate Root types"() {
   expect:
   "Entities should only reference Aggregates by ID"
 
@@ -399,8 +399,8 @@ def "Entities dürfen keine Felder mit Aggregate Root Typen haben"() {
 ./gradlew test-architecture
 
 # Expected output:
-# DddTacticalPatternsArchUnitTest > Aggregate Roots dürfen keine Felder mit anderen Aggregate Root Typen haben PASSED ✅
-# DddTacticalPatternsArchUnitTest > Entities dürfen keine Felder mit Aggregate Root Typen haben PASSED ✅
+# DddTacticalPatternsArchUnitTest > Aggregate Roots must not have fields with other Aggregate Root types PASSED ✅
+# DddTacticalPatternsArchUnitTest > Entities must not have fields with Aggregate Root types PASSED ✅
 ```
 
 ### Code Review Checklist

@@ -17,7 +17,7 @@ import static com.tngtech.archunit.library.Architectures.layeredArchitecture
  */
 class LayeredArchitectureArchUnitTest extends BaseArchUnitTest {
 
-  def "Die Regeln der Layered Architektur sollten eingehalten werden"() {
+  def "The rules of the Layered Architecture should be followed"() {
     expect:
     layeredArchitecture()
       .consideringAllDependencies()
@@ -33,7 +33,7 @@ class LayeredArchitectureArchUnitTest extends BaseArchUnitTest {
       .check(allClasses)
   }
 
-  def "Domain darf keine Abhängigkeiten auf Infrastructure haben"() {
+  def "Domain must not have dependencies on Infrastructure"() {
     expect:
     noClasses()
       .that().resideInAPackage(DOMAIN_PACKAGE)
@@ -42,7 +42,7 @@ class LayeredArchitectureArchUnitTest extends BaseArchUnitTest {
       .check(allClasses)
   }
 
-  def "Application Services dürfen nur infrastructure.api verwenden (nicht infrastructure Implementierungen)"() {
+  def "Application Services must only use infrastructure.api (not infrastructure implementations)"() {
     expect:
     noClasses()
       .that().resideInAPackage(APPLICATION_PACKAGE)
@@ -51,7 +51,7 @@ class LayeredArchitectureArchUnitTest extends BaseArchUnitTest {
       .check(allClasses)
   }
 
-  def "infrastructure.api sollte nur Interfaces enthalten (Service Provider Interface)"() {
+  def "infrastructure.api should only contain interfaces (Service Provider Interface)"() {
     expect:
     classes()
       .that().resideInAPackage(INFRASTRUCTURE_API_PACKAGE)

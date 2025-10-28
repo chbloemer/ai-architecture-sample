@@ -17,7 +17,7 @@ import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses
  */
 class HexagonalArchitectureArchUnitTest extends BaseArchUnitTest {
 
-  def "Klassen aus der Domäne sollen keinen Zugriff auf die Portadapter haben"() {
+  def "Classes from the domain should not access port adapters"() {
     expect:
     noClasses()
       .that().resideInAPackage(DOMAIN_MODEL_PACKAGE)
@@ -26,7 +26,7 @@ class HexagonalArchitectureArchUnitTest extends BaseArchUnitTest {
       .check(allClasses)
   }
 
-  def "Application Services sollen keinen Zugriff auf die Portadapter haben"() {
+  def "Application Services should not access port adapters"() {
     expect:
     noClasses()
       .that().resideInAPackage(APPLICATION_PACKAGE)
@@ -35,7 +35,7 @@ class HexagonalArchitectureArchUnitTest extends BaseArchUnitTest {
       .check(allClasses)
   }
 
-  def "Incoming Adapters dürfen nur infrastructure.api verwenden (nicht infrastructure Implementierungen)"() {
+  def "Incoming Adapters must only use infrastructure.api (not infrastructure implementations)"() {
     expect:
     noClasses()
       .that().resideInAPackage(INCOMING_ADAPTER_PACKAGE)
@@ -44,7 +44,7 @@ class HexagonalArchitectureArchUnitTest extends BaseArchUnitTest {
       .check(allClasses)
   }
 
-  def "Outgoing Adapters dürfen nur infrastructure.api verwenden (nicht infrastructure Implementierungen)"() {
+  def "Outgoing Adapters must only use infrastructure.api (not infrastructure implementations)"() {
     expect:
     noClasses()
       .that().resideInAPackage(OUTGOING_ADAPTER_PACKAGE)
@@ -53,7 +53,7 @@ class HexagonalArchitectureArchUnitTest extends BaseArchUnitTest {
       .check(allClasses)
   }
 
-  def "Portadapter (incoming und outgoing) dürfen nicht direkt miteinander kommunizieren"() {
+  def "Port adapters (incoming and outgoing) must not communicate directly with each other"() {
     expect:
     noClasses()
       .that().resideInAPackage(INCOMING_ADAPTER_PACKAGE)
@@ -68,7 +68,7 @@ class HexagonalArchitectureArchUnitTest extends BaseArchUnitTest {
       .check(allClasses)
   }
 
-  def "Repository Implementierungen müssen im portadapter.outgoing Package liegen"() {
+  def "Repository Implementations must reside in portadapter.outgoing package"() {
     expect:
     ArchRuleDefinition.classes()
       .that().haveSimpleNameEndingWith("Repository")

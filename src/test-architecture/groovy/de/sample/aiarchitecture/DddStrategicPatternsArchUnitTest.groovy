@@ -34,7 +34,7 @@ class DddStrategicPatternsArchUnitTest extends BaseArchUnitTest {
   // SHARED KERNEL PATTERN
   // ============================================================================
 
-  def "Shared Kernel darf keine Abhängigkeiten auf bounded contexts haben"() {
+  def "Shared Kernel must not have dependencies on bounded contexts"() {
     expect:
     // The Shared Kernel should be truly shared - no dependencies on specific contexts
     noClasses()
@@ -49,7 +49,7 @@ class DddStrategicPatternsArchUnitTest extends BaseArchUnitTest {
   // BOUNDED CONTEXT ISOLATION
   // ============================================================================
 
-  def "Product Context darf Cart Context nicht direkt zugreifen"() {
+  def "Product Context must not directly access Cart Context"() {
     expect:
     // Product context should not access Cart context directly
     // Integration must happen through Shared Kernel or domain events
@@ -60,7 +60,7 @@ class DddStrategicPatternsArchUnitTest extends BaseArchUnitTest {
       .check(allClasses)
   }
 
-  def "Cart Context darf Product Context nicht direkt zugreifen"() {
+  def "Cart Context must not directly access Product Context"() {
     expect:
     // Cart context should not access Product context directly
     // Cart can reference Product by ProductId (from Shared Kernel), but not the Product aggregate itself

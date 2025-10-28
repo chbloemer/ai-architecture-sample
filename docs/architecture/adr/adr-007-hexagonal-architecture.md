@@ -357,7 +357,7 @@ public class InMemoryProductRepository implements ProductRepository {
 ```groovy
 // HexagonalArchitectureArchUnitTest.groovy
 
-def "Klassen aus der Domäne sollen keinen Zugriff auf die Portadapter haben"() {
+def "Classes from the domain should not access port adapters"() {
   expect:
   noClasses()
     .that().resideInAPackage("..domain..")
@@ -365,7 +365,7 @@ def "Klassen aus der Domäne sollen keinen Zugriff auf die Portadapter haben"() 
     .check(allClasses)
 }
 
-def "Application Services sollen keinen Zugriff auf die Portadapter haben"() {
+def "Application Services should not access port adapters"() {
   expect:
   noClasses()
     .that().resideInAPackage("..application..")
@@ -373,7 +373,7 @@ def "Application Services sollen keinen Zugriff auf die Portadapter haben"() {
     .check(allClasses)
 }
 
-def "Portadapter dürfen nicht direkt miteinander kommunizieren"() {
+def "Port adapters (incoming and outgoing) must not communicate directly with each other"() {
   expect:
   noClasses()
     .that().resideInAPackage("..portadapter.incoming..")
@@ -459,9 +459,9 @@ Presentation → Business Logic → Data Access
 ./gradlew test-architecture
 
 # Expected:
-# HexagonalArchitectureArchUnitTest > Klassen aus der Domäne sollen keinen Zugriff auf die Portadapter haben PASSED ✅
-# HexagonalArchitectureArchUnitTest > Application Services sollen keinen Zugriff auf die Portadapter haben PASSED ✅
-# HexagonalArchitectureArchUnitTest > Portadapter dürfen nicht direkt miteinander kommunizieren PASSED ✅
+# HexagonalArchitectureArchUnitTest > Classes from the domain should not access port adapters PASSED ✅
+# HexagonalArchitectureArchUnitTest > Application Services should not access port adapters PASSED ✅
+# HexagonalArchitectureArchUnitTest > Port adapters (incoming and outgoing) must not communicate directly with each other PASSED ✅
 ```
 
 ### Manual Verification

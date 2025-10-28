@@ -350,7 +350,7 @@ public void changePrice(@NonNull final Price newPrice) {
 ```groovy
 // DddAdvancedPatternsArchUnitTest.groovy
 
-def "Domain Events müssen DomainEvent Interface implementieren"() {
+def "Domain Events must reside in domain.model package"() {
   expect:
   classes()
     .that().implement(DomainEvent.class)
@@ -358,7 +358,7 @@ def "Domain Events müssen DomainEvent Interface implementieren"() {
     .check(allClasses)
 }
 
-def "Domain Events sollten Records sein (Immutabilität)"() {
+def "Domain Events should be immutable (final or records)"() {
   expect:
   classes()
     .that().resideInAPackage("..domain.model..")
@@ -368,7 +368,7 @@ def "Domain Events sollten Records sein (Immutabilität)"() {
     .check(allClasses)
 }
 
-def "Domain Event Namen sollten in Vergangenheit sein"() {
+def "Domain Event names should be in past tense"() {
   expect:
   classes()
     .that().implement(DomainEvent.class)
@@ -471,8 +471,8 @@ public interface ProductPriceChanged extends DomainEvent {
 ./gradlew test-architecture
 
 # Expected:
-# Domain Events sollten Records sein PASSED ✅
-# Domain Event Namen sollten in Vergangenheit sein PASSED ✅
+# Domain Events should be immutable (final or records) PASSED ✅
+# Domain Event names should be in past tense PASSED ✅
 ```
 
 ### Unit Tests

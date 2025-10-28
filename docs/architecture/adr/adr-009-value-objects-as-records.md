@@ -246,7 +246,7 @@ public record Category(@NonNull String name) implements Value { ... }
 
 ```bash
 ./gradlew test-architecture
-# "Value Objects sollten Records oder final Klassen sein" PASSED ✅
+# "Value Object classes should be final (immutability)" PASSED ✅
 ```
 
 ---

@@ -143,7 +143,7 @@ public final class Product extends BaseAggregateRoot<Product, ProductId> {
 **ArchUnit Enforcement**:
 ```groovy
 // DddTacticalPatternsArchUnitTest.groovy:45-91
-def "Aggregate Roots dürfen keine Felder mit anderen Aggregate Root Typen haben"() {
+def "Aggregate Roots must not have fields with other Aggregate Root types"() {
   // Enforces Vernon's Rule #2: "Reference other Aggregates by Identity"
   // Checks that aggregates don't hold direct references to other aggregates
   // Only IDs allowed - maintains transaction consistency
@@ -226,12 +226,12 @@ public final class CartItem implements Entity<CartItem, CartItemId> {
 **ArchUnit Enforcement**:
 ```groovy
 // DddTacticalPatternsArchUnitTest.groovy:97-124
-def "Entities müssen ein ID Feld haben"() {
+def "Entities must have an ID field"() {
   // Verifies all entities have an ID field
   // Ensures identity-based equality
 }
 
-def "Entities dürfen keine Felder mit Aggregate Root Typen haben"() {
+def "Entities must not have fields with Aggregate Root types"() {
   // Enforces that entities reference aggregates by ID only
   // Prevents violation of aggregate boundaries
 }
@@ -323,12 +323,12 @@ public record Money(
 **ArchUnit Enforcement**:
 ```groovy
 // DddTacticalPatternsArchUnitTest.groovy:170-221
-def "Value Objects dürfen keine Aggregate Roots oder Entities enthalten"() {
+def "Value Objects must not contain Aggregate Roots or Entities"() {
   // Ensures value objects only contain other value objects or primitives
   // Vernon's DDD recommendation
 }
 
-def "Value Object Klassen sollten final sein (Immutabilität)"() {
+def "Value Object classes should be final (immutability)"() {
   // Enforces immutability through final modifier
   // For non-record value objects
 }
@@ -452,13 +452,13 @@ public class InMemoryProductRepository implements ProductRepository {
 **ArchUnit Enforcement**:
 ```groovy
 // DddTacticalPatternsArchUnitTest.groovy:250-322
-def "Repository Interfaces sollten Repository Marker Interface erweitern"()
-def "Repository Interfaces müssen im domain Package liegen"()
-def "Repository Implementierungen müssen im portadapter.outgoing Package liegen"()
-def "Repositories dürfen nur für Aggregate Roots existieren"()
+def "Repository Interfaces should extend Repository Marker Interface"()
+def "Repository Interfaces must reside in domain package"()
+def "Repository Implementations must reside in portadapter.outgoing package"()
+def "Repositories must only exist for Aggregate Roots"()
 
 // HexagonalArchitectureArchUnitTest.groovy:71-79
-def "Repository Implementierungen müssen im portadapter.outgoing Package liegen"()
+def "Repository Implementations must reside in portadapter.outgoing package"()
 ```
 
 **Strengths**:
@@ -558,10 +558,10 @@ public class CartTotalCalculator implements DomainService {
 **ArchUnit Enforcement**:
 ```groovy
 // DddAdvancedPatternsArchUnitTest.groovy
-def "Domain Services müssen DomainService Interface implementieren"()
-def "Domain Services müssen im domain.model Package liegen"()
-def "Domain Services dürfen keine Framework-Annotationen haben"()
-def "Domain Services sollten zustandslos sein"()
+def "Domain Services should implement DomainService Marker Interface"()
+def "Domain Services must reside in domain.model package"()
+def "Domain Services must not have Spring annotations"()
+def "Domain Services should be stateless (only final fields for dependencies)"()
 ```
 
 **Strengths**:
@@ -779,10 +779,10 @@ public Product createProduct(...) {
 **ArchUnit Enforcement**:
 ```groovy
 // DddAdvancedPatternsArchUnitTest.groovy
-def "Domain Events müssen DomainEvent Interface implementieren"()
-def "Domain Events sollten Records sein (Immutabilität)"()
-def "Domain Event Namen sollten in Vergangenheit sein"()
-def "Domain Events müssen im domain.model Package liegen"()
+def "Domain Events must reside in domain.model package"()
+def "Domain Events should be immutable (final or records)"()
+def "Domain Event names should be in past tense"()
+def "Domain Events must reside in domain.model package"()
 ```
 
 **Strengths**:
@@ -872,9 +872,9 @@ public class ProductFactory implements Factory {
 **ArchUnit Enforcement**:
 ```groovy
 // DddAdvancedPatternsArchUnitTest.groovy
-def "Factories müssen Factory Interface implementieren"()
-def "Factories müssen im domain.model Package liegen"()
-def "Factories dürfen keine Framework-Annotationen haben"()
+def "Factories should implement Factory Marker Interface"()
+def "Factories must reside in domain.model package"()
+def "Factories must not have Spring annotations"()
 ```
 
 **Strengths**:
@@ -980,9 +980,9 @@ List<Product> products = productRepository.findAll().stream()
 **ArchUnit Enforcement**:
 ```groovy
 // DddAdvancedPatternsArchUnitTest.groovy
-def "Specifications müssen Specification Interface implementieren"()
-def "Specifications müssen im domain.model Package liegen"()
-def "Specifications sollten unveränderlich sein"()
+def "Specifications must end with 'Specification'"()
+def "Specifications must end with 'Specification'"()
+def "Specifications must not have Spring annotations"()
 ```
 
 **Strengths**:
@@ -1075,8 +1075,8 @@ U/D = Upstream/Downstream (Customer-Supplier relationship)
 **ArchUnit Enforcement**:
 ```groovy
 // DddStrategicPatternsArchUnitTest.groovy
-def "Bounded Contexts dürfen nicht direkt aufeinander zugreifen"()
-def "Contexts sollten nur über IDs referenzieren"()
+def "Bounded Contexts must not directly access each other"()
+def "Contexts should only reference via IDs"()
 ```
 
 **Book Alignment**:
@@ -1316,11 +1316,11 @@ public class InMemoryProductRepository implements ProductRepository {
 **ArchUnit Enforcement**:
 ```groovy
 // HexagonalArchitectureArchUnitTest.groovy
-def "Klassen aus der Domäne sollen keinen Zugriff auf die Portadapter haben"()
-def "Application Services sollen keinen Zugriff auf die Portadapter haben"()
-def "Primary Adapters dürfen nur infrastructure.api verwenden"()
-def "Secondary Adapters dürfen nur infrastructure.api verwenden"()
-def "Portadapter dürfen nicht direkt miteinander kommunizieren"()
+def "Classes from the domain should not access port adapters"()
+def "Application Services should not access port adapters"()
+def "Incoming Adapters must only use infrastructure.api (not infrastructure implementations)"()
+def "Outgoing Adapters must only use infrastructure.api (not infrastructure implementations)"()
+def "Port adapters (incoming and outgoing) must not communicate directly with each other"()
 ```
 
 **Strengths**:
@@ -1379,7 +1379,7 @@ def "Domain darf nicht auf Application zugreifen"()
 def "Domain darf nicht auf Infrastructure zugreifen"()
 def "Domain darf nicht auf Portadapter zugreifen"()
 def "Application darf nur Domain und infrastructure.api verwenden"()
-def "Portadapter dürfen nicht untereinander kommunizieren"()
+def "Port adapters (incoming and outgoing) must not communicate directly with each other"()
 ```
 
 **Framework Independence**:

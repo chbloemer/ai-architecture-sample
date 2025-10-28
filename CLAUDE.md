@@ -437,16 +437,16 @@ For significant architectural decisions, create an Architecture Decision Record 
 
 ### Architecture Test Failures
 
-**Problem:** `Domain darf keine Abhängigkeiten auf Infrastructure haben`
+**Problem:** `Domain must not have dependencies on Infrastructure`
 - **Solution:** Remove infrastructure imports from domain layer
 
-**Problem:** `Application Services dürfen nur infrastructure.api verwenden`
+**Problem:** `Application Services must only use infrastructure.api (not infrastructure implementations)`
 - **Solution:** Move class from `infrastructure.*` to `infrastructure.api.*`
 
-**Problem:** `Entities müssen ein ID Feld haben`
+**Problem:** `Entities must have an ID field`
 - **Solution:** Add an `id` field to entity class
 
-**Problem:** `Aggregate Roots dürfen keine anderen Aggregate Roots enthalten`
+**Problem:** `Aggregate Roots must not have fields with other Aggregate Root types`
 - **Solution:** Reference other aggregates by ID, not by direct reference
 
 ### Build Failures

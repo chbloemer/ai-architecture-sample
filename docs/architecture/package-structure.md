@@ -193,7 +193,7 @@ Our architecture tests enforce this structure:
 ```groovy
 // NamingConventionsArchUnitTest.groovy
 
-def "REST Controllers müssen mit 'Resource' enden"() {
+def "REST Controllers must end with 'Resource' (REST best practice)"() {
   classes()
     .that().resideInAPackage("..incoming.api..")
     .and().areAnnotatedWith(RestController.class)
@@ -201,7 +201,7 @@ def "REST Controllers müssen mit 'Resource' enden"() {
     .check(allClasses)
 }
 
-def "Controller Klassen müssen mit 'Controller' enden"() {
+def "Controller classes must end with 'Controller'"() {
   classes()
     .that().resideInAPackage("..incoming.web..")
     .and().areAnnotatedWith(Controller.class)

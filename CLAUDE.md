@@ -91,7 +91,8 @@ After making code changes, verify:
 - [ ] Rules and best practices are updated
 - [ ] Package structure diagrams are current
 - [ ] References to specific files/classes are accurate
-- [ ] Benefits and trade-offs are documented
+- [ ] Documentation is concise - no bloat, duplicates, or unnecessary sections
+- [ ] Links to related documentation instead of repeating information
 
 ### Example: Documenting a New Pattern
 
@@ -297,6 +298,59 @@ This document must include:
 6. **Bounded Contexts** description
 7. **Architectural Rules** enforced by ArchUnit
 
+### Documentation Writing Style
+
+**⚠️ CRITICAL: All documentation must be concise and straight to the point.**
+
+When creating or updating documentation:
+
+1. **Go straight to the point** - No lengthy introductions or marketing-style content
+2. **Only necessary information** - Remove bloat, verbose explanations, and redundant sections
+3. **No duplicates** - Never repeat information already documented elsewhere
+4. **Link instead of repeating** - Reference other documentation files for details covered there
+5. **Compact format** - Use concise examples, skip excessive "benefits" sections
+6. **No gibberish** - Remove filler content, excessive summaries, and author metadata
+
+**Example of What to Avoid:**
+
+❌ **Bloated Documentation:**
+- Long "Table of Contents" for short documents
+- "Overview" sections repeating what's already clear
+- Multiple "Summary" or "Key Takeaways" sections
+- Verbose "Benefits" and "Why Use This" sections
+- Redundant examples showing the same concept
+- Author information, version metadata (unless critical)
+
+✅ **Concise Documentation:**
+- Direct topic headings
+- One clear example per concept
+- References to related docs: "See [architecture-principles.md](architecture-principles.md) for DDD patterns"
+- Minimal but complete - all necessary info, nothing more
+
+**Template for Integration Documentation:**
+
+```markdown
+# [Technology] Integration
+
+[One-line description]
+
+## Dependencies
+[Build configuration]
+
+## Configuration
+[Configuration code with file paths]
+
+## Usage Example
+[One clear example]
+
+## Quick Reference
+[Essential syntax/commands]
+
+## Related Documentation
+- [Link to related doc 1]
+- [Link to related doc 2]
+```
+
 ### Design Decisions
 
 For significant architectural decisions, create an Architecture Decision Record (ADR) in `docs/architecture/design-decisions.md`:
@@ -464,15 +518,16 @@ For significant architectural decisions, create an Architecture Decision Record 
 ### Key Principles
 
 1. ✅ **Always update architecture documentation** after code changes
-2. ✅ Keep domain layer framework-independent
-3. ✅ Follow DDD patterns and principles
-4. ✅ Respect architectural boundaries
-5. ✅ Run architecture tests before committing
-6. ✅ Use ubiquitous language throughout
-7. ✅ Document design decisions
-8. ✅ Keep aggregates small and focused
-9. ✅ Raise domain events for important occurrences
-10. ✅ Maintain clean, well-documented code
+2. ✅ **Keep documentation concise** - straight to the point, no bloat or duplicates
+3. ✅ Keep domain layer framework-independent
+4. ✅ Follow DDD patterns and principles
+5. ✅ Respect architectural boundaries
+6. ✅ Run architecture tests before committing
+7. ✅ Use ubiquitous language throughout
+8. ✅ Document design decisions
+9. ✅ Keep aggregates small and focused
+10. ✅ Raise domain events for important occurrences
+11. ✅ Maintain clean, well-documented code
 
 ### Documentation Workflow
 

@@ -1,31 +1,70 @@
 package de.sample.aiarchitecture.application;
 
+import de.sample.aiarchitecture.domain.model.product.Product;
+import de.sample.aiarchitecture.domain.model.product.ProductRepository;
+import de.sample.aiarchitecture.domain.model.shared.Money;
+import de.sample.aiarchitecture.domain.model.shared.Price;
+import de.sample.aiarchitecture.domain.model.shared.ProductId;
+import de.sample.aiarchitecture.infrastructure.api.DomainEventPublisher;
+import java.util.Currency;
 import org.jspecify.annotations.NonNull;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
- * Use Case for updating a product's price.
+ * Use case for updating a product's price.
  *
- * <p>This use case handles price changes for products in the catalog.
- * Price changes are important business events and are tracked via domain events.
- *
- * <p><b>Business Rules:</b>
- * <ul>
- *   <li>Product must exist</li>
- *   <li>New price must be positive</li>
- * </ul>
- *
- * <p><b>Domain Events:</b>
- * Publishes {@link de.sample.aiarchitecture.domain.model.product.ProductPriceChanged} event.
+ * <p>This use case orchestrates the price update by:
+ * <ol>
+ *   <li>Retrieving the product</li>
+ *   <li>Changing the price (business logic in aggregate)</li>
+ *   <li>Persisting the updated product</li>
+ *   <li>Publishing domain events</li>
+ * </ol>
  */
-public interface UpdateProductPriceUseCase extends UseCase<UpdateProductPriceInput, UpdateProductPriceOutput> {
+@Service
+@Transactional
+public class UpdateProductPriceUseCase implements UseCase<UpdateProductPriceInput, UpdateProductPriceOutput> {
 
-  /**
-   * Updates a product's price.
-   *
-   * @param input the price update data
-   * @return the updated product details
-   * @throws IllegalArgumentException if product not found or price invalid
-   */
+  private final ProductRepository productRepository;
+  private final DomainEventPublisher eventPublisher;
+
+  public UpdateProductPriceUseCase(
+      final ProductRepository productRepository,
+      final DomainEventPublisher eventPublisher) {
+    this.productRepository = productRepository;
+    this.eventPublisher = eventPublisher;
+  }
+
   @Override
-  @NonNull UpdateProductPriceOutput execute(@NonNull UpdateProductPriceInput input);
+  public @NonNull UpdateProductPriceOutput execute(@NonNull final UpdateProductPriceInput input) {
+    final ProductId productId = ProductId.of(input.productId());
+
+    final Product product =
+        productRepository
+            .findById(productId)
+            .orElseThrow(() -> new IllegalArgumentException("Product not found: " + input.productId()));
+
+    // Capture old price for output
+    final Price oldPrice = product.price();
+
+    // Business logic: change price (validates in aggregate)
+    final Price newPrice = new Price(new Money(input.newPriceAmount(), Currency.getInstance(input.newPriceCurrency())));
+    product.changePrice(newPrice);
+
+    // Persist
+    productRepository.save(product);
+
+    // Publish domain events
+    eventPublisher.publishAndClearEvents(product);
+
+    // Map to output
+    return new UpdateProductPriceOutput(
+        product.id().value().toString(),
+        oldPrice.value().amount(),
+        oldPrice.value().currency().getCurrencyCode(),
+        newPrice.value().amount(),
+        newPrice.value().currency().getCurrencyCode()
+    );
+  }
 }

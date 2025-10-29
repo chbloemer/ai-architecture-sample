@@ -1,24 +1,43 @@
 package de.sample.aiarchitecture.application;
 
+import de.sample.aiarchitecture.domain.model.product.Product;
+import de.sample.aiarchitecture.domain.model.product.ProductRepository;
+import java.util.List;
 import org.jspecify.annotations.NonNull;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
- * Use Case for retrieving all products.
+ * Use case for retrieving all products.
  *
- * <p>This is a query use case (read-only) that retrieves all products
- * in the catalog without modifying state.
- *
- * <p><b>Note:</b>
- * In production systems, this should support pagination to handle large datasets.
+ * <p>This is a query use case that retrieves all products without modifying state.
  */
-public interface GetAllProductsUseCase extends UseCase<GetAllProductsInput, GetAllProductsOutput> {
+@Service
+@Transactional(readOnly = true)
+public class GetAllProductsUseCase implements UseCase<GetAllProductsInput, GetAllProductsOutput> {
 
-  /**
-   * Retrieves all products in the catalog.
-   *
-   * @param input the query parameters (currently empty, could add filters/pagination)
-   * @return the list of products
-   */
+  private final ProductRepository productRepository;
+
+  public GetAllProductsUseCase(final ProductRepository productRepository) {
+    this.productRepository = productRepository;
+  }
+
   @Override
-  @NonNull GetAllProductsOutput execute(@NonNull GetAllProductsInput input);
+  public @NonNull GetAllProductsOutput execute(@NonNull final GetAllProductsInput input) {
+    final List<Product> products = productRepository.findAll();
+
+    final List<GetAllProductsOutput.ProductSummary> summaries = products.stream()
+        .map(product -> new GetAllProductsOutput.ProductSummary(
+            product.id().value().toString(),
+            product.sku().value(),
+            product.name().value(),
+            product.price().value().amount(),
+            product.price().value().currency().getCurrencyCode(),
+            product.category().name(),
+            product.stock().quantity()
+        ))
+        .toList();
+
+    return new GetAllProductsOutput(summaries);
+  }
 }

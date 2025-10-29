@@ -1,8 +1,6 @@
 package de.sample.aiarchitecture.portadapter.incoming.web.product;
 
-import de.sample.aiarchitecture.application.ProductApplicationService;
-import de.sample.aiarchitecture.domain.model.product.Product;
-import de.sample.aiarchitecture.domain.model.shared.ProductId;
+import de.sample.aiarchitecture.application.*;
 import java.util.List;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -14,8 +12,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
  * MVC Controller for rendering product pages using Pug templates.
  *
  * <p>This controller handles traditional server-side rendered pages using Pug4j templates.
- * Unlike {@link ProductResource} which returns JSON for REST APIs, this controller
- * returns HTML views.
+ * Unlike REST API controllers which return JSON, this controller returns HTML views.
+ *
+ * <p><b>Clean Architecture:</b> This controller depends on use case interfaces (input ports)
+ * instead of application services, following the Dependency Inversion Principle.
  *
  * <p><b>Naming Convention:</b> MVC controllers use {@code @Controller} annotation and
  * end with "Controller" suffix. REST controllers use {@code @RestController} and end
@@ -23,17 +23,19 @@ import org.springframework.web.bind.annotation.RequestMapping;
  *
  * <p><b>Template Location:</b> {@code src/main/resources/templates/product/}
  * <p><b>Template Engine:</b> Pug4j (Java implementation of Pug/Jade)
- *
- * @see ProductResource REST API controller
  */
 @Controller
 @RequestMapping("/products")
 public class ProductPageController {
 
-  private final ProductApplicationService productApplicationService;
+  private final GetAllProductsUseCase getAllProductsUseCase;
+  private final GetProductByIdUseCase getProductByIdUseCase;
 
-  public ProductPageController(final ProductApplicationService productApplicationService) {
-    this.productApplicationService = productApplicationService;
+  public ProductPageController(
+      final GetAllProductsUseCase getAllProductsUseCase,
+      final GetProductByIdUseCase getProductByIdUseCase) {
+    this.getAllProductsUseCase = getAllProductsUseCase;
+    this.getProductByIdUseCase = getProductByIdUseCase;
   }
 
   /**
@@ -46,7 +48,9 @@ public class ProductPageController {
    */
   @GetMapping
   public String showProductCatalog(final Model model) {
-    final List<Product> products = productApplicationService.getAllProducts();
+    final GetAllProductsOutput output = getAllProductsUseCase.execute(new GetAllProductsInput());
+
+    final List<GetAllProductsOutput.ProductSummary> products = output.products();
 
     model.addAttribute("products", products);
     model.addAttribute("title", "Product Catalog");
@@ -66,16 +70,17 @@ public class ProductPageController {
    */
   @GetMapping("/{id}")
   public String showProductDetail(@PathVariable final String id, final Model model) {
-    return productApplicationService
-        .findProductById(ProductId.of(id))
-        .map(
-            product -> {
-              model.addAttribute("product", product);
-              model.addAttribute("title", product.name().value());
-              model.addAttribute("isAvailable", product.isAvailable());
-              return "product/detail";
-            })
-        .orElse("error/404");
+    final GetProductByIdOutput output = getProductByIdUseCase.execute(new GetProductByIdInput(id));
+
+    if (!output.found()) {
+      return "error/404";
+    }
+
+    model.addAttribute("product", output);
+    model.addAttribute("title", output.name());
+    model.addAttribute("isAvailable", output.stockQuantity() > 0);
+
+    return "product/detail";
   }
 
   /**

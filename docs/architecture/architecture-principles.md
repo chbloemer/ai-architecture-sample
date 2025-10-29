@@ -480,22 +480,22 @@ A **Use Case** represents a single user action or system operation. In Clean Arc
 
 #### Core Concepts
 
-**Interface Segregation:**
-Each use case is a separate interface with a single `execute()` method. This follows the Interface Segregation Principle and allows clients to depend only on the specific use cases they need.
+**Generic UseCase Contract:**
+All use cases implement a generic `UseCase<I,O>` interface with a single `execute()` method. This provides a consistent contract while keeping implementations focused and testable.
 
 **Input/Output Models:**
 Use cases accept Input models and return Output models to decouple the application layer from presentation and infrastructure concerns.
 
-**Framework Independence:**
-Use cases are defined as pure Java interfaces without framework dependencies, making them easy to test and understand.
+**Single Responsibility:**
+Each use case class represents one specific business operation (Command or Query), following the Single Responsibility Principle.
 
 ### Example: Create Product Use Case
 
-**Use Case Interface**
+**Base UseCase Interface**
 
 ```java
-public interface CreateProductUseCase extends UseCase<CreateProductInput, CreateProductOutput> {
-    CreateProductOutput execute(CreateProductInput input);
+public interface UseCase<I, O> {
+    @NonNull O execute(@NonNull I input);
 }
 ```
 
@@ -541,13 +541,13 @@ public record CreateProductOutput(
 ```java
 @Service
 @Transactional
-class CreateProductUseCaseImpl implements CreateProductUseCase {
+public class CreateProductUseCase implements UseCase<CreateProductInput, CreateProductOutput> {
     private final ProductRepository productRepository;
     private final ProductFactory productFactory;
     private final DomainEventPublisher eventPublisher;
 
     @Override
-    public CreateProductOutput execute(CreateProductInput input) {
+    public @NonNull CreateProductOutput execute(@NonNull CreateProductInput input) {
         // 1. Validate business rules
         SKU sku = new SKU(input.sku());
         if (productRepository.existsBySku(sku)) {
@@ -695,53 +695,61 @@ public class ProductApplicationService {
 
 **Use Case Approach:**
 ```java
-// Separate interface per use case
-interface CreateProductUseCase { CreateProductOutput execute(CreateProductInput input); }
-interface UpdateProductPriceUseCase { UpdateProductPriceOutput execute(UpdateProductPriceInput input); }
-interface GetProductByIdUseCase { GetProductByIdOutput execute(GetProductByIdInput input); }
-interface GetAllProductsUseCase { GetAllProductsOutput execute(GetAllProductsInput input); }
+// Generic UseCase interface
+interface UseCase<I, O> { O execute(I input); }
 
-// Each implemented separately
-@Service class CreateProductUseCaseImpl implements CreateProductUseCase { }
-@Service class UpdateProductPriceUseCaseImpl implements UpdateProductPriceUseCase { }
+// Separate class per use case, each implementing UseCase<I,O>
+@Service
+public class CreateProductUseCase implements UseCase<CreateProductInput, CreateProductOutput> {
+    public CreateProductOutput execute(CreateProductInput input) { ... }
+}
+
+@Service
+public class UpdateProductPriceUseCase implements UseCase<UpdateProductPriceInput, UpdateProductPriceOutput> {
+    public UpdateProductPriceOutput execute(UpdateProductPriceInput input) { ... }
+}
 ```
 
 **Advantages of Use Case Approach:**
 - Single Responsibility Principle (one use case per class)
-- Interface Segregation Principle (clients depend on specific interfaces)
+- Interface Segregation (clients inject only the specific use cases they need)
 - Easier to test (smaller, focused classes)
 - Clearer naming (use case name reflects business operation)
 - Better suited for microservices (can deploy use cases independently)
+- Generic contract enforces consistency across all use cases
 
 ### Implementation
 
 **Base Interface:** `de.sample.aiarchitecture.application.UseCase<I, O>`
 
 **Product Use Cases:**
-- Interface: `CreateProductUseCase`, `UpdateProductPriceUseCase`, `GetProductByIdUseCase`, `GetAllProductsUseCase`
-- Implementation: `CreateProductUseCaseImpl`, `UpdateProductPriceUseCaseImpl`, etc. (package-private)
-- Input/Output: `CreateProductInput`, `CreateProductOutput`, etc.
+- `CreateProductUseCase implements UseCase<CreateProductInput, CreateProductOutput>`
+- `UpdateProductPriceUseCase implements UseCase<UpdateProductPriceInput, UpdateProductPriceOutput>`
+- `GetProductByIdUseCase implements UseCase<GetProductByIdInput, GetProductByIdOutput>`
+- `GetAllProductsUseCase implements UseCase<GetAllProductsInput, GetAllProductsOutput>`
 
 **Shopping Cart Use Cases:**
-- Interface: `CreateCartUseCase`, `AddItemToCartUseCase`, `CheckoutCartUseCase`, `GetCartByIdUseCase`
-- Implementation: `CreateCartUseCaseImpl`, `AddItemToCartUseCaseImpl`, etc. (package-private)
-- Input/Output: `CreateCartInput`, `CreateCartOutput`, etc.
+- `CreateCartUseCase implements UseCase<CreateCartInput, CreateCartOutput>`
+- `AddItemToCartUseCase implements UseCase<AddItemToCartInput, AddItemToCartOutput>`
+- `CheckoutCartUseCase implements UseCase<CheckoutCartInput, CheckoutCartOutput>`
+- `GetCartByIdUseCase implements UseCase<GetCartByIdInput, GetCartByIdOutput>`
 
 **Naming Convention:**
-- Use case interfaces end with "UseCase"
+- Use case classes end with "UseCase"
 - Input models end with "Input"
 - Output models end with "Output"
-- Implementations end with "UseCaseImpl" (package-private)
+- All use cases are public classes implementing `UseCase<I,O>`
 
 ### Relationship to Hexagonal Architecture
 
 In Hexagonal Architecture terminology:
-- **Use Case Interfaces** = Input Ports (Primary Ports)
+- **UseCase Interface** = Base contract for all Input Ports (Primary Ports)
+- **Use Case Classes** = Concrete Input Ports (e.g., CreateProductUseCase, GetCartByIdUseCase)
 - **Input/Output Models** = Port Data Structures
 - **Use Case Implementations** = Application Core
-- **REST Controllers** = Primary Adapters (invoke use cases)
+- **REST Controllers** = Primary Adapters (invoke use cases via dependency injection)
 
-This alignment ensures the patterns work together cohesively.
+This alignment ensures the patterns work together cohesively. Clients inject specific use case instances they need, maintaining Interface Segregation despite using a generic contract.
 
 ---
 

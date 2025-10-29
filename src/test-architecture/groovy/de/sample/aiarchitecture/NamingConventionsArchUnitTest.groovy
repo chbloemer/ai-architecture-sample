@@ -22,14 +22,15 @@ import org.springframework.web.bind.annotation.RestController
  */
 class NamingConventionsArchUnitTest extends BaseArchUnitTest {
 
-  def "Application layer use case implementations must end with 'UseCaseImpl'"() {
+  def "Application layer use cases must end with 'UseCase'"() {
     expect:
     classes()
       .that().resideInAPackage(APPLICATION_PACKAGE)
       .and().areNotInterfaces()
+      .and().areNotRecords()
       .and().implement(de.sample.aiarchitecture.application.UseCase.class)
-      .should().haveSimpleNameEndingWith("UseCaseImpl")
-      .because("Use case implementations should follow consistent naming conventions (Clean Architecture pattern)")
+      .should().haveSimpleNameEndingWith("UseCase")
+      .because("Use case classes should follow consistent naming conventions (Clean Architecture pattern)")
       .allowEmptyShould(true)
       .check(allClasses)
   }

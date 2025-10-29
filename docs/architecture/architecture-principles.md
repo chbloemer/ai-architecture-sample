@@ -6,12 +6,13 @@ This document describes the architectural patterns and principles used in the AI
 
 1. [Overview](#overview)
 2. [Domain-Driven Design (DDD)](#domain-driven-design-ddd)
-3. [Hexagonal Architecture](#hexagonal-architecture)
-4. [Onion Architecture](#onion-architecture)
-5. [Layered Architecture](#layered-architecture)
-6. [Package Structure](#package-structure)
-7. [Bounded Contexts](#bounded-contexts)
-8. [Architectural Rules](#architectural-rules)
+3. [Clean Architecture (Use Cases)](#clean-architecture-use-cases)
+4. [Hexagonal Architecture](#hexagonal-architecture)
+5. [Onion Architecture](#onion-architecture)
+6. [Layered Architecture](#layered-architecture)
+7. [Package Structure](#package-structure)
+8. [Bounded Contexts](#bounded-contexts)
+9. [Architectural Rules](#architectural-rules)
 
 ---
 
@@ -20,7 +21,8 @@ This document describes the architectural patterns and principles used in the AI
 This sample project demonstrates a modern, maintainable architecture for enterprise applications using three complementary architectural patterns:
 
 - **Domain-Driven Design (DDD)**: Focus on the core domain and domain logic
-- **Hexagonal Architecture**: Separation of business logic from technical concerns
+- **Clean Architecture**: Use case driven approach with explicit input/output models
+- **Hexagonal Architecture**: Separation of business logic from technical concerns (Ports & Adapters)
 - **Onion Architecture**: Dependencies flow inward toward the domain core
 
 These patterns work together to create a flexible, testable, and maintainable codebase that can evolve with changing business requirements.
@@ -468,6 +470,281 @@ public class ProductAvailableSpecification implements Specification<Product> {
 
 ---
 
+## Clean Architecture (Use Cases)
+
+Clean Architecture, as defined by Robert C. Martin, emphasizes organizing code around use cases - explicit representations of what users can do with the system. This section describes how we implement the Use Case pattern in the application layer.
+
+### Use Case Pattern
+
+A **Use Case** represents a single user action or system operation. In Clean Architecture, use cases are the primary organizing principle of the application layer, replacing traditional "service" classes with many methods.
+
+#### Core Concepts
+
+**Interface Segregation:**
+Each use case is a separate interface with a single `execute()` method. This follows the Interface Segregation Principle and allows clients to depend only on the specific use cases they need.
+
+**Input/Output Models:**
+Use cases accept Input models and return Output models to decouple the application layer from presentation and infrastructure concerns.
+
+**Framework Independence:**
+Use cases are defined as pure Java interfaces without framework dependencies, making them easy to test and understand.
+
+### Example: Create Product Use Case
+
+**Use Case Interface**
+
+```java
+public interface CreateProductUseCase extends UseCase<CreateProductInput, CreateProductOutput> {
+    CreateProductOutput execute(CreateProductInput input);
+}
+```
+
+**Input Model**
+
+```java
+public record CreateProductInput(
+    String sku,
+    String name,
+    String description,
+    BigDecimal priceAmount,
+    String priceCurrency,
+    String category,
+    int stockQuantity
+) {
+    // Validation in compact constructor
+    public CreateProductInput {
+        if (sku == null || sku.isBlank()) {
+            throw new IllegalArgumentException("SKU cannot be null or blank");
+        }
+        // ... more validation
+    }
+}
+```
+
+**Output Model**
+
+```java
+public record CreateProductOutput(
+    String productId,
+    String sku,
+    String name,
+    String description,
+    BigDecimal priceAmount,
+    String priceCurrency,
+    String category,
+    int stockQuantity
+) {}
+```
+
+**Use Case Implementation**
+
+```java
+@Service
+@Transactional
+class CreateProductUseCaseImpl implements CreateProductUseCase {
+    private final ProductRepository productRepository;
+    private final ProductFactory productFactory;
+    private final DomainEventPublisher eventPublisher;
+
+    @Override
+    public CreateProductOutput execute(CreateProductInput input) {
+        // 1. Validate business rules
+        SKU sku = new SKU(input.sku());
+        if (productRepository.existsBySku(sku)) {
+            throw new IllegalArgumentException("Product with SKU already exists");
+        }
+
+        // 2. Convert input to domain objects
+        ProductName name = new ProductName(input.name());
+        Price price = new Price(new Money(input.priceAmount(), Currency.getInstance(input.priceCurrency())));
+        // ...
+
+        // 3. Execute domain logic
+        Product product = productFactory.createProduct(sku, name, ...);
+
+        // 4. Persist
+        productRepository.save(product);
+
+        // 5. Publish events
+        eventPublisher.publishAndClearEvents(product);
+
+        // 6. Map to output
+        return new CreateProductOutput(
+            product.id().value().toString(),
+            product.sku().value(),
+            ...
+        );
+    }
+}
+```
+
+### Use Case Categories
+
+#### Command Use Cases (Write)
+
+Commands modify system state and publish domain events.
+
+**Examples:**
+- `CreateProductUseCase` - Creates a new product
+- `UpdateProductPriceUseCase` - Changes product price
+- `AddItemToCartUseCase` - Adds item to cart
+- `CheckoutCartUseCase` - Completes cart checkout
+
+**Characteristics:**
+- Transactional (`@Transactional`)
+- Validate business rules
+- Modify aggregate state
+- Publish domain events
+- Return result data
+
+#### Query Use Cases (Read)
+
+Queries retrieve data without modifying state.
+
+**Examples:**
+- `GetProductByIdUseCase` - Retrieves a product
+- `GetAllProductsUseCase` - Lists all products
+- `GetCartByIdUseCase` - Retrieves a cart
+
+**Characteristics:**
+- Read-only (`@Transactional(readOnly = true)`)
+- No state changes
+- No domain events
+- Return read models
+
+### Input/Output Model Design
+
+#### Input Models
+
+**Rules:**
+1. Immutable (Java records preferred)
+2. Contain only primitive types and Strings (no domain objects)
+3. Validate format in compact constructor
+4. Reside in `application` package
+5. Named with "Input" suffix
+
+**Purpose:**
+- Decouple use case from presentation layer DTOs
+- Define explicit contract for use case
+- Enable easy testing
+
+**Example:**
+
+```java
+public record AddItemToCartInput(
+    String cartId,
+    String productId,
+    int quantity
+) {
+    public AddItemToCartInput {
+        if (quantity <= 0) {
+            throw new IllegalArgumentException("Quantity must be positive");
+        }
+    }
+}
+```
+
+#### Output Models
+
+**Rules:**
+1. Immutable (Java records preferred)
+2. Contain only data needed by presentation layer
+3. Primitive types, Strings, and nested records
+4. Reside in `application` package
+5. Named with "Output" suffix
+
+**Purpose:**
+- Prevent leaking domain entities to outer layers
+- Control what data is exposed
+- Enable API versioning
+
+**Example:**
+
+```java
+public record CreateProductOutput(
+    String productId,
+    String sku,
+    String name,
+    BigDecimal priceAmount,
+    String priceCurrency
+) {}
+```
+
+### Benefits
+
+1. **Explicit Contracts**: Each use case is a clear, testable contract
+2. **Interface Segregation**: Clients depend only on what they use
+3. **Decoupling**: Input/Output models decouple layers
+4. **Testability**: Easy to mock and test use cases
+5. **Documentation**: Use cases document what the system does
+6. **API Stability**: Output models provide versioning boundary
+
+### Use Cases vs Application Services
+
+**Traditional Application Service:**
+```java
+@Service
+public class ProductApplicationService {
+    public Product createProduct(...) { }
+    public void updatePrice(...) { }
+    public Product findById(...) { }
+    public List<Product> findAll() { }
+    // Many methods in one class
+}
+```
+
+**Use Case Approach:**
+```java
+// Separate interface per use case
+interface CreateProductUseCase { CreateProductOutput execute(CreateProductInput input); }
+interface UpdateProductPriceUseCase { UpdateProductPriceOutput execute(UpdateProductPriceInput input); }
+interface GetProductByIdUseCase { GetProductByIdOutput execute(GetProductByIdInput input); }
+interface GetAllProductsUseCase { GetAllProductsOutput execute(GetAllProductsInput input); }
+
+// Each implemented separately
+@Service class CreateProductUseCaseImpl implements CreateProductUseCase { }
+@Service class UpdateProductPriceUseCaseImpl implements UpdateProductPriceUseCase { }
+```
+
+**Advantages of Use Case Approach:**
+- Single Responsibility Principle (one use case per class)
+- Interface Segregation Principle (clients depend on specific interfaces)
+- Easier to test (smaller, focused classes)
+- Clearer naming (use case name reflects business operation)
+- Better suited for microservices (can deploy use cases independently)
+
+### Implementation
+
+**Base Interface:** `de.sample.aiarchitecture.application.UseCase<I, O>`
+
+**Product Use Cases:**
+- Interface: `CreateProductUseCase`, `UpdateProductPriceUseCase`, `GetProductByIdUseCase`, `GetAllProductsUseCase`
+- Implementation: `CreateProductUseCaseImpl`, `UpdateProductPriceUseCaseImpl`, etc. (package-private)
+- Input/Output: `CreateProductInput`, `CreateProductOutput`, etc.
+
+**Shopping Cart Use Cases:**
+- Interface: `CreateCartUseCase`, `AddItemToCartUseCase`, `CheckoutCartUseCase`, `GetCartByIdUseCase`
+- Implementation: `CreateCartUseCaseImpl`, `AddItemToCartUseCaseImpl`, etc. (package-private)
+- Input/Output: `CreateCartInput`, `CreateCartOutput`, etc.
+
+**Naming Convention:**
+- Use case interfaces end with "UseCase"
+- Input models end with "Input"
+- Output models end with "Output"
+- Implementations end with "UseCaseImpl" (package-private)
+
+### Relationship to Hexagonal Architecture
+
+In Hexagonal Architecture terminology:
+- **Use Case Interfaces** = Input Ports (Primary Ports)
+- **Input/Output Models** = Port Data Structures
+- **Use Case Implementations** = Application Core
+- **REST Controllers** = Primary Adapters (invoke use cases)
+
+This alignment ensures the patterns work together cohesively.
+
+---
+
 ## Hexagonal Architecture
 
 Hexagonal Architecture (Ports and Adapters) separates the core business logic from external concerns through explicit ports and adapters.
@@ -712,9 +989,26 @@ Secondary Adapters (Persistence)
 
 ```
 de.sample.aiarchitecture
-├── application                          # Application Services (Use Cases)
-│   ├── CartApplicationService
-│   └── ProductApplicationService
+├── application                          # Application Layer (Use Cases)
+│   ├── UseCase                          # Base use case interface
+│   │
+│   ├── CreateProductUseCase             # Use case interfaces
+│   ├── CreateProductUseCaseImpl         # Use case implementations (package-private)
+│   ├── CreateProductInput               # Input models
+│   ├── CreateProductOutput              # Output models
+│   │
+│   ├── UpdateProductPriceUseCase
+│   ├── UpdateProductPriceUseCaseImpl
+│   ├── UpdateProductPriceInput
+│   ├── UpdateProductPriceOutput
+│   │
+│   ├── AddItemToCartUseCase
+│   ├── AddItemToCartUseCaseImpl
+│   ├── AddItemToCartInput
+│   ├── AddItemToCartOutput
+│   │
+│   ├── ProductApplicationService        # (Legacy - being replaced by use cases)
+│   └── ShoppingCartApplicationService   # (Legacy - being replaced by use cases)
 │
 ├── domain                               # Domain Layer (Core Business Logic)
 │   └── model
@@ -899,10 +1193,23 @@ All architectural rules are automatically tested and enforced using ArchUnit.
 
 #### Application Layer Rules
 
-1. Application Services must end with "ApplicationService"
+1. Application Services must end with "ApplicationService" (legacy pattern)
 2. Application Services must be annotated with `@Service`
 3. Application Services must NOT depend on portadapters
 4. Application Services may only use `infrastructure.api` (not implementation)
+
+#### Clean Architecture (Use Case) Rules
+
+1. Use Case interfaces must end with "UseCase"
+2. Use Case interfaces must reside in `application` package
+3. Use Case Input models must end with "Input"
+4. Use Case Input models must be immutable (records or final classes)
+5. Use Case Input models must reside in `application` package
+6. Use Case Output models must end with "Output"
+7. Use Case Output models must be immutable (records or final classes)
+8. Use Case Output models must reside in `application` package
+9. Application layer must NOT depend on DTOs (presentation concern)
+10. Input/Output models must contain only primitives, Strings, or nested records (no domain entities)
 
 #### Hexagonal Architecture Rules
 

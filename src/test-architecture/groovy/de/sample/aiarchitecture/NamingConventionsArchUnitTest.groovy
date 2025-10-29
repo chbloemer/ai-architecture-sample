@@ -1,7 +1,9 @@
 package de.sample.aiarchitecture
 
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes
+import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses
 
+import com.tngtech.archunit.core.domain.JavaClass
 import org.springframework.stereotype.Service
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.RestController
@@ -20,13 +22,26 @@ import org.springframework.web.bind.annotation.RestController
  */
 class NamingConventionsArchUnitTest extends BaseArchUnitTest {
 
-  def "Application Services must end with 'ApplicationService'"() {
+  def "Application layer use case implementations must end with 'UseCaseImpl'"() {
     expect:
     classes()
       .that().resideInAPackage(APPLICATION_PACKAGE)
       .and().areNotInterfaces()
+      .and().implement(de.sample.aiarchitecture.application.UseCase.class)
+      .should().haveSimpleNameEndingWith("UseCaseImpl")
+      .because("Use case implementations should follow consistent naming conventions (Clean Architecture pattern)")
+      .allowEmptyShould(true)
+      .check(allClasses)
+  }
+
+  def "Legacy Application Services must end with 'ApplicationService'"() {
+    expect:
+    classes()
+      .that().resideInAPackage(APPLICATION_PACKAGE)
+      .and().haveSimpleNameEndingWith("ApplicationService")
       .should().haveSimpleNameEndingWith("ApplicationService")
-      .because("Application services should follow consistent naming conventions")
+      .because("Legacy application services should follow consistent naming conventions")
+      .allowEmptyShould(true)
       .check(allClasses)
   }
 

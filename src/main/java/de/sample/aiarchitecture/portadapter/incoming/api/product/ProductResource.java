@@ -1,6 +1,6 @@
 package de.sample.aiarchitecture.portadapter.incoming.api.product;
 
-import de.sample.aiarchitecture.application.*;
+import de.sample.aiarchitecture.application.product.*;
 import jakarta.validation.Valid;
 import java.util.List;
 import org.springframework.http.HttpStatus;

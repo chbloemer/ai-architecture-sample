@@ -1,4 +1,4 @@
-package de.sample.aiarchitecture.application;
+package de.sample.aiarchitecture.application.cart;
 
 import java.math.BigDecimal;
 import java.time.Instant;

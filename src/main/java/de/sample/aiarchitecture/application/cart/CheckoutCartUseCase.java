@@ -1,4 +1,6 @@
-package de.sample.aiarchitecture.application;
+package de.sample.aiarchitecture.application.cart;
+
+import de.sample.aiarchitecture.application.UseCase;
 
 import de.sample.aiarchitecture.domain.model.cart.CartId;
 import de.sample.aiarchitecture.domain.model.cart.ShoppingCart;

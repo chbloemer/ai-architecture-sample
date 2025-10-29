@@ -1,4 +1,4 @@
-package de.sample.aiarchitecture.application;
+package de.sample.aiarchitecture.application.product;
 
 import java.math.BigDecimal;
 import org.jspecify.annotations.NonNull;

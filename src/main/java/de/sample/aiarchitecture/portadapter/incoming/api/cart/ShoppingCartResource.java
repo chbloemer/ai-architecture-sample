@@ -1,6 +1,6 @@
 package de.sample.aiarchitecture.portadapter.incoming.api.cart;
 
-import de.sample.aiarchitecture.application.*;
+import de.sample.aiarchitecture.application.cart.*;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

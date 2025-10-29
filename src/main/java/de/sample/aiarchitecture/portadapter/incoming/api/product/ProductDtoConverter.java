@@ -1,8 +1,8 @@
 package de.sample.aiarchitecture.portadapter.incoming.api.product;
 
-import de.sample.aiarchitecture.application.CreateProductOutput;
-import de.sample.aiarchitecture.application.GetAllProductsOutput;
-import de.sample.aiarchitecture.application.GetProductByIdOutput;
+import de.sample.aiarchitecture.application.product.CreateProductOutput;
+import de.sample.aiarchitecture.application.product.GetAllProductsOutput;
+import de.sample.aiarchitecture.application.product.GetProductByIdOutput;
 import de.sample.aiarchitecture.domain.model.product.Product;
 import org.springframework.stereotype.Component;
 

@@ -1,6 +1,6 @@
 package de.sample.aiarchitecture.portadapter.incoming.api.cart;
 
-import de.sample.aiarchitecture.application.*;
+import de.sample.aiarchitecture.application.cart.*;
 import de.sample.aiarchitecture.domain.model.cart.CartItem;
 import de.sample.aiarchitecture.domain.model.cart.ShoppingCart;
 import de.sample.aiarchitecture.domain.model.shared.Money;

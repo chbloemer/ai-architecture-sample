@@ -1,4 +1,4 @@
-package de.sample.aiarchitecture.application;
+package de.sample.aiarchitecture.application.product;
 
 /**
  * Input model for retrieving all products.

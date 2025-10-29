@@ -1,6 +1,6 @@
 package de.sample.aiarchitecture.portadapter.incoming.web.product;
 
-import de.sample.aiarchitecture.application.*;
+import de.sample.aiarchitecture.application.product.*;
 import java.util.List;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;

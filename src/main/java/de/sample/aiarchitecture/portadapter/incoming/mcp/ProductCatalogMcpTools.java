@@ -1,6 +1,6 @@
 package de.sample.aiarchitecture.portadapter.incoming.mcp;
 
-import de.sample.aiarchitecture.application.*;
+import de.sample.aiarchitecture.application.product.*;
 import de.sample.aiarchitecture.portadapter.incoming.api.product.ProductDto;
 import de.sample.aiarchitecture.portadapter.incoming.api.product.ProductDtoConverter;
 import java.util.List;

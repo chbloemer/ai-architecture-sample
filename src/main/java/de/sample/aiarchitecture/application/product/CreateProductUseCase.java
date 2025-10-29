@@ -1,5 +1,6 @@
-package de.sample.aiarchitecture.application;
+package de.sample.aiarchitecture.application.product;
 
+import de.sample.aiarchitecture.application.UseCase;
 import de.sample.aiarchitecture.domain.model.product.*;
 import de.sample.aiarchitecture.domain.model.shared.Money;
 import de.sample.aiarchitecture.domain.model.shared.Price;

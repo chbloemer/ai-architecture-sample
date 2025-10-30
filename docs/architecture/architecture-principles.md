@@ -740,6 +740,44 @@ public class UpdateProductPriceUseCase implements UseCase<UpdateProductPriceInpu
 - Output models end with "Output"
 - All use cases are public classes implementing `UseCase<I,O>`
 
+### Organization by Bounded Context
+
+Use cases are organized into subpackages matching the bounded contexts from the domain layer. This creates a clear alignment between the application layer and domain layer.
+
+**Package Structure:**
+```
+application/
+├── UseCase                  # Base interface
+├── product/                 # Product context use cases
+│   ├── CreateProductUseCase
+│   ├── CreateProductInput
+│   └── CreateProductOutput
+└── cart/                    # Cart context use cases
+    ├── AddItemToCartUseCase
+    ├── AddItemToCartInput
+    └── AddItemToCartOutput
+```
+
+**Benefits:**
+
+1. **Alignment with Domain Model** - Application layer structure mirrors domain layer bounded contexts
+2. **Clear Ownership** - Each bounded context owns its use cases, making team boundaries explicit
+3. **Reduced Coupling** - Use cases in different contexts are physically separated
+4. **Easier Navigation** - Developers can quickly find use cases by context
+5. **Scalability** - Teams can work on different bounded contexts independently
+6. **Microservices Ready** - Each bounded context can be extracted to a microservice
+
+**Rules:**
+
+1. Use cases reside in subpackages matching their bounded context (`application.product`, `application.cart`)
+2. Use cases may only orchestrate domain objects from their own bounded context
+3. Cross-context coordination happens via domain events, not direct use case calls
+4. Input/Output models reside alongside their use cases in the same subpackage
+
+**Location:**
+- Product Use Cases: `de.sample.aiarchitecture.application.product`
+- Cart Use Cases: `de.sample.aiarchitecture.application.cart`
+
 ### Relationship to Hexagonal Architecture
 
 In Hexagonal Architecture terminology:
@@ -1000,20 +1038,33 @@ de.sample.aiarchitecture
 ├── application                          # Application Layer (Use Cases)
 │   ├── UseCase                          # Base use case interface
 │   │
-│   ├── CreateProductUseCase             # Use case interfaces
-│   ├── CreateProductUseCaseImpl         # Use case implementations (package-private)
-│   ├── CreateProductInput               # Input models
-│   ├── CreateProductOutput              # Output models
+│   ├── product/                         # Product Bounded Context Use Cases
+│   │   ├── CreateProductUseCase
+│   │   ├── CreateProductInput
+│   │   ├── CreateProductOutput
+│   │   ├── UpdateProductPriceUseCase
+│   │   ├── UpdateProductPriceInput
+│   │   ├── UpdateProductPriceOutput
+│   │   ├── GetProductByIdUseCase
+│   │   ├── GetProductByIdInput
+│   │   ├── GetProductByIdOutput
+│   │   ├── GetAllProductsUseCase
+│   │   ├── GetAllProductsInput
+│   │   └── GetAllProductsOutput
 │   │
-│   ├── UpdateProductPriceUseCase
-│   ├── UpdateProductPriceUseCaseImpl
-│   ├── UpdateProductPriceInput
-│   ├── UpdateProductPriceOutput
-│   │
-│   ├── AddItemToCartUseCase
-│   ├── AddItemToCartUseCaseImpl
-│   ├── AddItemToCartInput
-│   ├── AddItemToCartOutput
+│   ├── cart/                            # Shopping Cart Bounded Context Use Cases
+│   │   ├── CreateCartUseCase
+│   │   ├── CreateCartInput
+│   │   ├── CreateCartOutput
+│   │   ├── AddItemToCartUseCase
+│   │   ├── AddItemToCartInput
+│   │   ├── AddItemToCartOutput
+│   │   ├── CheckoutCartUseCase
+│   │   ├── CheckoutCartInput
+│   │   ├── CheckoutCartOutput
+│   │   ├── GetCartByIdUseCase
+│   │   ├── GetCartByIdInput
+│   │   └── GetCartByIdOutput
 │   │
 │   ├── ProductApplicationService        # (Legacy - being replaced by use cases)
 │   └── ShoppingCartApplicationService   # (Legacy - being replaced by use cases)

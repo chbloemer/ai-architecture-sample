@@ -9,7 +9,8 @@ import com.tngtech.archunit.core.domain.JavaModifier
  * ArchUnit tests for Use Case and Mapping Patterns.
  *
  * Tests patterns for clean architecture use cases:
- * - Use Case interfaces (input ports)
+ * - Base UseCase interface (generic contract)
+ * - Use Case implementations
  * - Use Case Input/Output models
  * - DTOs and mapping strategy
  *
@@ -26,17 +27,16 @@ import com.tngtech.archunit.core.domain.JavaModifier
 class UseCasePatternsArchUnitTest extends BaseArchUnitTest {
 
   // ============================================================================
-  // USE CASE INTERFACE PATTERN (Input Ports)
+  // USE CASE INTERFACE PATTERN (Base Contract)
   // ============================================================================
 
-  def "Use Case Interfaces must end with 'UseCase'"() {
+  def "Base UseCase interface must be in application package"() {
     expect:
     classes()
       .that().areInterfaces()
-      .and().haveSimpleNameEndingWith("UseCase")
+      .and().haveSimpleName("UseCase")
       .should().resideInAPackage(APPLICATION_PACKAGE)
-      .because("Use case interfaces define input ports and should be in application layer (Hexagonal Architecture)")
-      .allowEmptyShould(true)
+      .because("Base UseCase interface defines the generic contract for all use cases (Clean Architecture)")
       .check(allClasses)
   }
 

@@ -10,3 +10,5 @@ build/
 
 # Claude Code
 settings.local.json
+
+slides/node_modules

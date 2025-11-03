@@ -1,4 +1,4 @@
-package de.sample.aiarchitecture.domain.model.ddd;
+package de.sample.aiarchitecture.domain.model.shared.ddd;
 
 /**
  * Marker interface for Factories.

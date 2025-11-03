@@ -1,6 +1,6 @@
 package de.sample.aiarchitecture.domain.model.product;
 
-import de.sample.aiarchitecture.domain.model.ddd.BaseAggregateRoot;
+import de.sample.aiarchitecture.domain.model.shared.ddd.BaseAggregateRoot;
 import de.sample.aiarchitecture.domain.model.shared.Price;
 import de.sample.aiarchitecture.domain.model.shared.ProductId;
 import org.jspecify.annotations.NonNull;

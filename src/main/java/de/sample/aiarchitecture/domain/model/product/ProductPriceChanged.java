@@ -1,6 +1,6 @@
 package de.sample.aiarchitecture.domain.model.product;
 
-import de.sample.aiarchitecture.domain.model.ddd.DomainEvent;
+import de.sample.aiarchitecture.domain.model.shared.ddd.DomainEvent;
 import de.sample.aiarchitecture.domain.model.shared.Price;
 import de.sample.aiarchitecture.domain.model.shared.ProductId;
 import java.time.Instant;

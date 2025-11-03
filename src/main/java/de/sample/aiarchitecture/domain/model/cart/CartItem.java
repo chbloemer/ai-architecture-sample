@@ -1,6 +1,6 @@
 package de.sample.aiarchitecture.domain.model.cart;
 
-import de.sample.aiarchitecture.domain.model.ddd.Entity;
+import de.sample.aiarchitecture.domain.model.shared.ddd.Entity;
 import de.sample.aiarchitecture.domain.model.shared.Price;
 import de.sample.aiarchitecture.domain.model.shared.ProductId;
 import org.jspecify.annotations.NonNull;

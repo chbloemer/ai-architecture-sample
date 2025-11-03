@@ -1,6 +1,6 @@
 package de.sample.aiarchitecture.domain.model.product;
 
-import de.sample.aiarchitecture.domain.model.ddd.Value;
+import de.sample.aiarchitecture.domain.model.shared.ddd.Value;
 import org.jspecify.annotations.NonNull;
 
 /**

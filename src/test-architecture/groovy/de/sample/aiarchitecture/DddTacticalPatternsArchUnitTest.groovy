@@ -1,8 +1,9 @@
 package de.sample.aiarchitecture
 
-import de.sample.aiarchitecture.domain.model.ddd.AggregateRoot
-import de.sample.aiarchitecture.domain.model.ddd.Repository
-import de.sample.aiarchitecture.domain.model.ddd.Value
+import de.sample.aiarchitecture.domain.model.shared.ddd.AggregateRoot
+import de.sample.aiarchitecture.domain.model.shared.ddd.Repository
+import de.sample.aiarchitecture.domain.model.shared.ddd.Value
+import de.sample.aiarchitecture.domain.model.shared.ddd.Entity
 
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes
 
@@ -96,7 +97,7 @@ class DddTacticalPatternsArchUnitTest extends BaseArchUnitTest {
   def "Entities must have an ID field"() {
     when:
     def entityClasses = allClasses.stream()
-      .filter { it.isAssignableTo(de.sample.aiarchitecture.domain.model.ddd.Entity.class) }
+      .filter { it.isAssignableTo(Entity.class) }
       .filter { !it.isInterface() }
       .filter { !it.getModifiers().contains(JavaModifier.ABSTRACT) }
       .collect()
@@ -129,7 +130,7 @@ class DddTacticalPatternsArchUnitTest extends BaseArchUnitTest {
     // This enforces aggregate boundaries and ensures invariants
 
     def entityClasses = allClasses.stream()
-      .filter { it.isAssignableTo(de.sample.aiarchitecture.domain.model.ddd.Entity.class) }
+      .filter { it.isAssignableTo(Entity.class) }
       .filter { !it.isAssignableTo(AggregateRoot.class) }  // Exclude aggregate roots
       .filter { !it.isInterface() }
       .filter { !it.isRecord() }  // Records always have public constructors
@@ -157,7 +158,7 @@ class DddTacticalPatternsArchUnitTest extends BaseArchUnitTest {
   def "Entities must not have fields with Aggregate Root types"() {
     when:
     def entityClasses = allClasses.stream()
-      .filter { it.isAssignableTo(de.sample.aiarchitecture.domain.model.ddd.Entity.class) }
+      .filter { it.isAssignableTo(Entity.class) }
       .filter { !it.isInterface() }
       .filter { !it.isAssignableTo(AggregateRoot.class) }
       .collect()
@@ -215,7 +216,7 @@ class DddTacticalPatternsArchUnitTest extends BaseArchUnitTest {
           violations.add("${voClass.getName()} has field '${field.getName()}' of type ${fieldType.getName()} which is an aggregate root")
         }
 
-        if (fieldType.isAssignableTo(de.sample.aiarchitecture.domain.model.ddd.Entity.class) &&
+        if (fieldType.isAssignableTo(Entity.class) &&
           !fieldType.isAssignableTo(AggregateRoot.class) &&
           !fieldType.isInterface()) {
           violations.add("${voClass.getName()} has field '${field.getName()}' of type ${fieldType.getName()} which is an entity")
@@ -232,7 +233,7 @@ class DddTacticalPatternsArchUnitTest extends BaseArchUnitTest {
               violations.add("${voClass.getName()} has field '${field.getName()}' containing ${typeArg.getName()} which is an aggregate root")
             }
 
-            if (erasure.isAssignableTo(de.sample.aiarchitecture.domain.model.ddd.Entity.class) &&
+            if (erasure.isAssignableTo(Entity.class) &&
               !erasure.isAssignableTo(AggregateRoot.class) &&
               !erasure.isInterface()) {
               violations.add("${voClass.getName()} has field '${field.getName()}' containing ${typeArg.getName()} which is an entity")
@@ -451,14 +452,14 @@ class DddTacticalPatternsArchUnitTest extends BaseArchUnitTest {
           returnType.getName().startsWith("java.util.Collection")) {
           // Check generic type parameter
           method.getRawReturnType().tryGetComponentType().ifPresent { componentType ->
-            if (componentType.isAssignableTo(de.sample.aiarchitecture.domain.model.ddd.Entity.class) &&
+            if (componentType.isAssignableTo(Entity.class) &&
               !componentType.isAssignableTo(AggregateRoot.class)) {
               violations.add("${repoInterface.getName()}.${method.getName()} returns collection of ${componentType.getName()} which is an Entity but not an Aggregate Root")
             }
           }
         } else {
           // Check if direct return type is an Entity but not Aggregate Root
-          if (returnType.isAssignableTo(de.sample.aiarchitecture.domain.model.ddd.Entity.class) &&
+          if (returnType.isAssignableTo(Entity.class) &&
             !returnType.isAssignableTo(AggregateRoot.class) &&
             !returnType.isInterface()) {
             violations.add("${repoInterface.getName()}.${method.getName()} returns ${returnType.getName()} which is an Entity but not an Aggregate Root")

@@ -1,7 +1,6 @@
 package de.sample.aiarchitecture.domain.model.product;
 
-import de.sample.aiarchitecture.domain.model.ddd.Value;
-import org.jspecify.annotations.NonNull;
+import de.sample.aiarchitecture.domain.model.shared.ddd.Value;
 
 /**
  * Value Object representing the stock quantity of a product.

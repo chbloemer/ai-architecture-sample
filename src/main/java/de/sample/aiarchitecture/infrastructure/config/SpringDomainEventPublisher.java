@@ -1,7 +1,7 @@
 package de.sample.aiarchitecture.infrastructure.config;
 
-import de.sample.aiarchitecture.domain.model.ddd.AggregateRoot;
-import de.sample.aiarchitecture.domain.model.ddd.DomainEvent;
+import de.sample.aiarchitecture.domain.model.shared.ddd.AggregateRoot;
+import de.sample.aiarchitecture.domain.model.shared.ddd.DomainEvent;
 import de.sample.aiarchitecture.infrastructure.api.DomainEventPublisher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -1,6 +1,6 @@
 package de.sample.aiarchitecture.domain.model.cart;
 
-import de.sample.aiarchitecture.domain.model.ddd.Value;
+import de.sample.aiarchitecture.domain.model.shared.ddd.Value;
 
 /**
  * Value Object representing the status of a shopping cart.

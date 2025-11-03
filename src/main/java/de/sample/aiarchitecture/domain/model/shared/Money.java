@@ -1,6 +1,6 @@
 package de.sample.aiarchitecture.domain.model.shared;
 
-import de.sample.aiarchitecture.domain.model.ddd.Value;
+import de.sample.aiarchitecture.domain.model.shared.ddd.Value;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Currency;

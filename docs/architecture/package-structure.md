@@ -95,6 +95,12 @@ de.sample.aiarchitecture
 │           └── persistence/
 │               └── InMemoryShoppingCartRepository
 │
+├── portal                          # Portal Bounded Context
+│   └── adapter                    # Adapters
+│       └── incoming               # Incoming Adapters (Primary)
+│           └── web/
+│               └── HomePageController
+│
 └── infrastructure                  # Infrastructure (cross-cutting)
     ├── api                        # Public SPI (interfaces only)
     │   └── DomainEventPublisher

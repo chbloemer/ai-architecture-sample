@@ -4,9 +4,10 @@ A comprehensive demonstration of **Domain-Driven Design (DDD)**, **Hexagonal Arc
 
 ## Overview
 
-This project showcases best practices for structuring a Spring Boot application with clean architecture principles. It implements two bounded contexts:
+This project showcases best practices for structuring a Spring Boot application with clean architecture principles. It implements three bounded contexts:
 - **Product Catalog** - Product management with pricing and inventory
 - **Shopping Cart** - Customer shopping cart with checkout functionality
+- **Portal** - Application home page and navigation
 
 ### Key Features
 
@@ -152,6 +153,12 @@ src/main/java/de/sample/aiarchitecture/
 │       └── outgoing/                     # Outgoing adapters
 │           └── persistence/
 │               └── InMemoryShoppingCartRepository.java
+│
+├── portal/                               # Portal bounded context
+│   └── adapter/                          # Adapters
+│       └── incoming/                     # Incoming adapters
+│           └── web/
+│               └── HomePageController.java
 │
 └── infrastructure/                       # Infrastructure (cross-cutting)
     ├── api/                              # Public SPI

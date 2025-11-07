@@ -1,4 +1,4 @@
-package de.sample.aiarchitecture.portadapter.incoming.web;
+package de.sample.aiarchitecture.portal.adapter.incoming.web;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -10,9 +10,8 @@ import org.springframework.web.bind.annotation.GetMapping;
  * <p>This controller handles the root URL ("/") and displays a landing page
  * with navigation to the main features of the application.
  *
- * <p><b>Package Location:</b> Placed directly in {@code portadapter.primary.web}
- * rather than a subdomain package because the home page is cross-cutting and
- * provides navigation to multiple bounded contexts.
+ * <p><b>Bounded Context:</b> Portal - Entry point providing navigation to
+ * Product Catalog, Shopping Cart, and other application features.
  *
  * <p><b>Template Location:</b> {@code src/main/resources/templates/home/index.pug}
  * <p><b>Template Engine:</b> Pug4j (Java implementation of Pug/Jade)

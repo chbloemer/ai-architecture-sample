@@ -11,3 +11,5 @@ build/
 # Claude Code
 settings.local.json
 slides
+bin
+.serena

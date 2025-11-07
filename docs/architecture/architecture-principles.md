@@ -39,19 +39,19 @@ Domain-Driven Design is an approach to software development that centers the dev
 
 A bounded context is an explicit boundary within which a domain model is defined and applicable. Our e-commerce application has two bounded contexts plus a shared kernel:
 
-1. **Shared Kernel** (`de.sample.aiarchitecture.domain.model.shared`)
+1. **Shared Kernel** (`de.sample.aiarchitecture.sharedkernel.domain.common`)
    - Small, carefully curated domain model shared across contexts
    - Value Objects: `Money`, `ProductId`, `Price`
    - **Pattern**: Shared Kernel (Eric Evans, DDD Chapter 14)
    - **Trade-off**: Creates coupling but ensures consistency for universal concepts
 
-2. **Product Catalog Context** (`de.sample.aiarchitecture.domain.model.product`)
+2. **Product Catalog Context** (`de.sample.aiarchitecture.product.domain.model`)
    - Manages products, pricing, inventory
    - Aggregate Root: `Product`
    - Value Objects: `SKU`, `ProductName`, `ProductDescription`, `ProductStock`, `Category`
    - Depends on: Shared Kernel
 
-3. **Shopping Cart Context** (`de.sample.aiarchitecture.domain.model.cart`)
+3. **Shopping Cart Context** (`de.sample.aiarchitecture.cart.domain.model`)
    - Manages shopping carts and checkout
    - Aggregate Root: `ShoppingCart`
    - Entity: `CartItem`
@@ -110,7 +110,7 @@ public final class Product implements AggregateRoot<Product, ProductId> {
 2. Aggregate boundaries ensure invariants are maintained
 3. Aggregates reference other aggregates by identity only
 
-**Implementation:** See `de.sample.aiarchitecture.domain.model.ddd.AggregateRoot`
+**Implementation:** See `de.sample.aiarchitecture.sharedkernel.domain.marker.AggregateRoot`
 
 #### Entity
 
@@ -137,7 +137,7 @@ public final class CartItem implements Entity<CartItem, CartItemId> {
 2. Identity remains constant through state changes
 3. Equality based on identity, not attributes
 
-**Implementation:** See `de.sample.aiarchitecture.domain.model.ddd.Entity`
+**Implementation:** See `de.sample.aiarchitecture.sharedkernel.domain.marker.Entity`
 
 #### Value Object
 
@@ -172,8 +172,8 @@ public record Money(@NonNull BigDecimal amount, @NonNull Currency currency) impl
 5. Universal value objects belong in Shared Kernel
 
 **Implementation:**
-- Interface: `de.sample.aiarchitecture.domain.model.ddd.Value`
-- Shared Value Objects: `de.sample.aiarchitecture.domain.model.shared.Money`, `ProductId`, `Price`
+- Interface: `de.sample.aiarchitecture.sharedkernel.domain.marker.Value`
+- Shared Value Objects: `de.sample.aiarchitecture.sharedkernel.domain.common.Money`, `ProductId`, `Price`
 - Context-specific Value Objects: In their respective bounded contexts
 
 #### Repository
@@ -260,7 +260,7 @@ public class InMemoryProductRepository implements ProductRepository {
 - Fluent API: save() returning aggregate enables method chaining
 
 **Implementation:**
-- Base Interface: `de.sample.aiarchitecture.domain.model.ddd.Repository`
+- Base Interface: `de.sample.aiarchitecture.sharedkernel.domain.marker.Repository`
 - Domain Interfaces: `ProductRepository`, `ShoppingCartRepository`
 - Implementations: `InMemoryProductRepository`, `InMemoryShoppingCartRepository` (in `portadapter.outgoing`)
 
@@ -291,7 +291,7 @@ public class CartTotalCalculator implements DomainService {
 3. Operates on domain objects
 4. Named after activities, not entities
 
-**Implementation:** See `de.sample.aiarchitecture.domain.model.ddd.DomainService`
+**Implementation:** See `de.sample.aiarchitecture.sharedkernel.domain.marker.DomainService`
 
 #### Domain Event
 
@@ -369,7 +369,7 @@ public class ProductEventListener {
 - Time-travel debugging
 
 **Implementation:**
-- Interface: `de.sample.aiarchitecture.domain.model.ddd.DomainEvent`
+- Interface: `de.sample.aiarchitecture.sharedkernel.domain.marker.DomainEvent`
 - Publisher Interface (SPI): `de.sample.aiarchitecture.infrastructure.api.DomainEventPublisher`
 - Publisher Implementation: `de.sample.aiarchitecture.infrastructure.config.SpringDomainEventPublisher`
 - Examples: `ProductCreated`, `ProductPriceChanged`, `CartItemAddedToCart`, `CartCheckedOut`
@@ -443,7 +443,7 @@ public class ProductFactory implements Factory {
 3. Framework-independent
 4. Stateless
 
-**Implementation:** See `de.sample.aiarchitecture.domain.model.ddd.Factory`
+**Implementation:** See `de.sample.aiarchitecture.sharedkernel.domain.marker.Factory`
 
 #### Specification
 
@@ -466,7 +466,7 @@ public class ProductAvailableSpecification implements Specification<Product> {
 3. Framework-independent
 4. Reusable across use cases
 
-**Implementation:** See `de.sample.aiarchitecture.domain.model.ddd.Specification`
+**Implementation:** See `de.sample.aiarchitecture.sharedkernel.domain.marker.Specification`
 
 ---
 

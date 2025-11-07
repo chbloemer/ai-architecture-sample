@@ -6,56 +6,132 @@ Package organization of the ai-architecture project.
 
 ```
 de.sample.aiarchitecture
-├── application                     # Application Services (Use Cases)
-│   ├── CartApplicationService
-│   └── ProductApplicationService
 │
-├── domain.model                    # Domain Layer (Core)
-│   ├── ddd                        # DDD Marker Interfaces
-│   ├── shared                     # Shared Kernel
-│   │   ├── Money, ProductId, Price
-│   ├── product                    # Product Bounded Context
-│   │   ├── Product (Aggregate Root)
-│   │   ├── SKU, ProductName (Value Objects)
-│   │   ├── ProductRepository (Interface)
-│   │   └── ProductFactory
-│   └── cart                       # Cart Bounded Context
-│       ├── ShoppingCart (Aggregate Root)
-│       ├── CartItem (Entity)
-│       ├── CartId, Quantity (Value Objects)
-│       └── CartRepository (Interface)
+├── sharedkernel                    # Shared Kernel (cross-context)
+│   ├── domain
+│   │   ├── marker                 # DDD Marker Interfaces
+│   │   │   ├── AggregateRoot, Entity, Value
+│   │   │   ├── Repository, DomainService
+│   │   │   └── Factory, Specification, DomainEvent
+│   │   └── common                 # Shared Value Objects
+│   │       ├── Money, Price, ProductId
+│   └── application
+│       └── marker                 # Use Case Patterns
+│           ├── InputPort
+│           └── OutputPort
 │
-├── infrastructure                  # Infrastructure
-│   ├── api                        # Public SPI (interfaces only)
-│   │   └── DomainEventPublisher
-│   └── config                     # Spring Configuration
-│       ├── SecurityConfiguration
-│       └── SpringDomainEventPublisher
+├── product                         # Product Bounded Context
+│   ├── domain
+│   │   ├── model                  # Domain Model
+│   │   │   ├── Product (Aggregate Root)
+│   │   │   ├── SKU, ProductName, ProductDescription
+│   │   │   ├── ProductStock, Category (Value Objects)
+│   │   │   ├── ProductFactory
+│   │   │   └── ProductAvailabilitySpecification
+│   │   ├── service                # Domain Services
+│   │   │   └── PricingService
+│   │   └── event                  # Domain Events
+│   │       ├── ProductCreated
+│   │       └── ProductPriceChanged
+│   ├── application                # Application Layer
+│   │   ├── ProductApplicationService
+│   │   ├── port
+│   │   │   └── out                # Output Ports (secondary ports)
+│   │   │       └── ProductRepository (interface)
+│   │   └── usecase                # Use Cases (input ports)
+│   │       ├── createproduct/
+│   │       │   ├── CreateProductUseCase
+│   │       │   ├── CreateProductCommand
+│   │       │   └── CreateProductResponse
+│   │       ├── getallproducts/
+│   │       ├── getproductbyid/
+│   │       └── updateproductprice/
+│   └── adapter                    # Adapters
+│       ├── incoming               # Incoming Adapters (Primary)
+│       │   ├── api/
+│       │   │   ├── ProductResource
+│       │   │   ├── ProductDto
+│       │   │   └── CreateProductRequest
+│       │   ├── mcp/
+│       │   │   └── ProductCatalogMcpTools
+│       │   └── web/
+│       │       └── ProductPageController
+│       └── outgoing               # Outgoing Adapters (Secondary)
+│           └── persistence/
+│               ├── InMemoryProductRepository
+│               └── SampleDataInitializer
 │
-└── portadapter                    # Adapters
-    ├── incoming                   # Primary Adapters (Driving)
-    │   ├── api                   # REST API (JSON)
-    │   │   ├── product/
-    │   │   │   ├── ProductResource
-    │   │   │   ├── ProductDto
-    │   │   │   └── ProductDtoConverter
-    │   │   └── cart/
-    │   ├── mcp                   # MCP Server (AI)
-    │   │   └── ProductCatalogMcpTools
-    │   └── web                   # Web MVC (HTML)
-    │       └── product/
-    │           └── ProductPageController
-    │
-    └── outgoing                   # Secondary Adapters (Driven)
-        ├── product/
-        │   └── InMemoryProductRepository
-        └── cart/
-            └── InMemoryShoppingCartRepository
+├── cart                            # Cart Bounded Context
+│   ├── domain
+│   │   ├── model                  # Domain Model
+│   │   │   ├── ShoppingCart (Aggregate Root)
+│   │   │   ├── CartItem (Entity)
+│   │   │   ├── CartId, CartItemId (Value Objects)
+│   │   │   ├── CustomerId, Quantity
+│   │   │   └── CartStatus
+│   │   ├── service                # Domain Services
+│   │   │   └── CartTotalCalculator
+│   │   └── event                  # Domain Events
+│   │       ├── CartCheckedOut
+│   │       └── CartItemAddedToCart
+│   ├── application                # Application Layer
+│   │   ├── ShoppingCartApplicationService
+│   │   ├── port
+│   │   │   └── out                # Output Ports
+│   │   │       └── ShoppingCartRepository (interface)
+│   │   └── usecase                # Use Cases
+│   │       ├── createcart/
+│   │       ├── additemtocart/
+│   │       ├── checkoutcart/
+│   │       └── getcartbyid/
+│   └── adapter                    # Adapters
+│       ├── incoming               # Incoming Adapters
+│       │   └── api/
+│       │       ├── ShoppingCartResource
+│       │       ├── ShoppingCartDto
+│       │       ├── AddToCartRequest
+│       │       └── ShoppingCartDtoConverter
+│       └── outgoing               # Outgoing Adapters
+│           └── persistence/
+│               └── InMemoryShoppingCartRepository
+│
+└── infrastructure                  # Infrastructure (cross-cutting)
+    ├── api                        # Public SPI (interfaces only)
+    │   └── DomainEventPublisher
+    ├── config                     # Spring Configuration
+    │   ├── SecurityConfiguration
+    │   ├── TransactionConfiguration
+    │   └── SpringDomainEventPublisher
+    └── event                      # Event Listeners
+        └── CartEventListener
+```
+
+## Bounded Context Organization
+
+Each bounded context (product, cart) follows the same internal structure:
+
+```
+{context}/
+├── domain/             # Domain layer (innermost)
+│   ├── model/          # Aggregates, entities, value objects
+│   ├── service/        # Domain services
+│   └── event/          # Domain events
+├── application/        # Application layer
+│   ├── port/           # Ports (interfaces)
+│   │   └── out/        # Output ports (repositories, external services)
+│   └── usecase/        # Use cases (input ports)
+└── adapter/            # Adapter layer (outermost)
+    ├── incoming/       # Incoming adapters (primary/driving)
+    │   ├── api/        # REST API
+    │   ├── web/        # Web MVC
+    │   └── mcp/        # MCP server
+    └── outgoing/       # Outgoing adapters (secondary/driven)
+        └── persistence/ # Repository implementations
 ```
 
 ## Primary Adapters: API vs Web vs MCP
 
-| Aspect | API (`api/`) | Web (`web/`) | MCP (`mcp/`) |
+| Aspect | API (`adapter.incoming.api`) | Web (`adapter.incoming.web`) | MCP (`adapter.incoming.mcp`) |
 |--------|-------------|--------------|--------------|
 | **Annotation** | `@RestController` | `@Controller` | `@Component` |
 | **Naming** | `*Resource` | `*Controller` | `*McpTools` |
@@ -67,12 +143,12 @@ de.sample.aiarchitecture
 
 ## ArchUnit Enforcement
 
-Naming conventions are enforced by ArchUnit tests:
+Naming conventions and architectural rules are enforced by ArchUnit tests:
 
 ```groovy
 def "REST Controllers must end with 'Resource'"() {
   classes()
-    .that().resideInAPackage("..incoming.api..")
+    .that().resideInAPackage("..adapter.incoming.api..")
     .and().areAnnotatedWith(RestController.class)
     .should().haveSimpleNameEndingWith("Resource")
     .check(allClasses)
@@ -80,9 +156,31 @@ def "REST Controllers must end with 'Resource'"() {
 
 def "MVC Controllers must end with 'Controller'"() {
   classes()
-    .that().resideInAPackage("..incoming.web..")
+    .that().resideInAPackage("..adapter.incoming.web..")
     .and().areAnnotatedWith(Controller.class)
     .should().haveSimpleNameEndingWith("Controller")
+    .check(allClasses)
+}
+
+def "Repository Interfaces must reside in application output port package"() {
+  classes()
+    .that().implement(Repository.class)
+    .and().areInterfaces()
+    .should().resideInAnyPackage(
+      "..product.application.port.out..",
+      "..cart.application.port.out.."
+    )
+    .check(allClasses)
+}
+
+def "Repository Implementations must reside in adapter.outgoing package"() {
+  classes()
+    .that().implement(Repository.class)
+    .and().areNotInterfaces()
+    .should().resideInAnyPackage(
+      "..product.adapter.outgoing..",
+      "..cart.adapter.outgoing.."
+    )
     .check(allClasses)
 }
 ```
@@ -98,27 +196,52 @@ def "MVC Controllers must end with 'Controller'"() {
 
 | File Type | Location | Example |
 |-----------|----------|---------|
-| REST controller | `api/{domain}/*Resource.java` | `api/product/ProductResource.java` |
-| MVC controller | `web/{domain}/*Controller.java` | `web/product/ProductPageController.java` |
-| DTO | `api/{domain}/*Dto.java` | `api/product/ProductDto.java` |
-| DTO converter | `api/{domain}/*DtoConverter.java` | `api/product/ProductDtoConverter.java` |
-| Pug template | `resources/templates/{domain}/` | `templates/product/catalog.pug` |
-| Domain aggregate | `domain.model.{context}/` | `domain.model.product/Product.java` |
-| Repository interface | `domain.model.{context}/` | `domain.model.product/ProductRepository.java` |
-| Repository impl | `portadapter.outgoing.{context}/` | `portadapter.outgoing.product/InMemoryProductRepository.java` |
+| REST controller | `{context}.adapter.incoming.api/` | `product.adapter.incoming.api/ProductResource.java` |
+| MVC controller | `{context}.adapter.incoming.web/` | `product.adapter.incoming.web/ProductPageController.java` |
+| MCP tool | `{context}.adapter.incoming.mcp/` | `product.adapter.incoming.mcp/ProductCatalogMcpTools.java` |
+| DTO | `{context}.adapter.incoming.api/` | `product.adapter.incoming.api/ProductDto.java` |
+| DTO converter | `{context}.adapter.incoming.api/` | `product.adapter.incoming.api/ProductDtoConverter.java` |
+| Request DTO | `{context}.adapter.incoming.api/` | `product.adapter.incoming.api/CreateProductRequest.java` |
+| Pug template | `resources/templates/{context}/` | `templates/product/catalog.pug` |
+| Domain aggregate | `{context}.domain.model/` | `product.domain.model/Product.java` |
+| Value object | `{context}.domain.model/` | `product.domain.model/SKU.java` |
+| Domain event | `{context}.domain.event/` | `product.domain.event/ProductCreated.java` |
+| Domain service | `{context}.domain.service/` | `product.domain.service/PricingService.java` |
+| Factory | `{context}.domain.model/` | `product.domain.model/ProductFactory.java` |
+| Repository interface | `{context}.application.port.out/` | `product.application.port.out/ProductRepository.java` |
+| Repository impl | `{context}.adapter.outgoing.persistence/` | `product.adapter.outgoing.persistence/InMemoryProductRepository.java` |
+| Use case | `{context}.application.usecase.{name}/` | `product.application.usecase.createproduct/CreateProductUseCase.java` |
+| Command/Query | `{context}.application.usecase.{name}/` | `product.application.usecase.createproduct/CreateProductCommand.java` |
+| Response | `{context}.application.usecase.{name}/` | `product.application.usecase.createproduct/CreateProductResponse.java` |
+| Shared value object | `sharedkernel.domain.common/` | `sharedkernel.domain.common/Money.java` |
 
 ## Why This Structure?
 
+**Bounded Context per Package:**
+- Each bounded context is a self-contained package
+- Clear ownership and boundaries
+- Independent evolution of contexts
+- Enables future extraction to microservices
+
 **Separation by Interface Type:**
-- REST APIs (`api/`) - Machine-to-machine
-- Web Pages (`web/`) - Human-to-machine
-- MCP Server (`mcp/`) - AI-to-machine
+- REST APIs (`adapter.incoming.api/`) - Machine-to-machine
+- Web Pages (`adapter.incoming.web/`) - Human-to-machine
+- MCP Server (`adapter.incoming.mcp/`) - AI-to-machine
+
+**Hexagonal Architecture (Ports & Adapters):**
+- Input ports defined in application.usecase (use case interfaces)
+- Output ports defined in application.port.out (repository interfaces)
+- Incoming adapters implement/use input ports
+- Outgoing adapters implement output ports
+- Dependencies point inward toward domain
 
 **Benefits:**
 - Clear intent from package name
-- Independent evolution of each interface
+- Bounded contexts are isolated
+- Independent evolution of each context and interface
 - Different security policies per interface type
-- Team ownership per interface
+- Framework-independent domain layer
+- Team ownership per bounded context
 
 See [ADR-001: API/Web Package Separation](adr/adr-001-api-web-package-separation.md)
 

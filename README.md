@@ -29,91 +29,139 @@ This project showcases best practices for structuring a Spring Boot application 
 - **Aggregates**: Product, ShoppingCart
 - **Entities**: CartItem
 - **Value Objects**: ProductId, SKU, Price, Money, Quantity, Category, etc.
-- **Repositories**: Defined in domain, implemented in adapters
+- **Repositories**: Interfaces in application.port.out, implementations in adapters
 - **Domain Services**: PricingService, CartTotalCalculator
 - **Domain Events**: ProductCreated, ProductPriceChanged, CartCheckedOut, CartItemAddedToCart
 - **Factories**: ProductFactory
 - **Specifications**: ProductAvailabilitySpecification
 
 ### Hexagonal Architecture (Ports and Adapters)
-- **Primary Ports**: Application Services (use cases)
-- **Primary Adapters**: REST Controllers, MCP Server
-- **Secondary Ports**: Repository interfaces (defined in domain)
-- **Secondary Adapters**: In-memory repository implementations
+- **Input Ports**: Use case interfaces (defined in application layer)
+- **Output Ports**: Repository and service interfaces (defined in application.port.out)
+- **Incoming Adapters** (Primary): REST Controllers, MCP Server, Web MVC
+- **Outgoing Adapters** (Secondary): In-memory repository implementations
 
 ### Onion Architecture
 Layers (from innermost to outermost):
-1. **Domain Model** (`domain.model.*`) - Pure business logic, framework-independent
-2. **Application Services** (`application.*`) - Use case orchestration
-3. **Adapters** (`portadapter.*`) - External interfaces
-4. **Infrastructure** (`infrastructure.*`) - Cross-cutting concerns
+1. **Domain Model** (per bounded context) - Pure business logic, framework-independent
+2. **Application Services** (per bounded context) - Use case orchestration
+3. **Adapters** (per bounded context) - External interfaces
+4. **Shared Kernel** - Cross-context shared concepts
+5. **Infrastructure** - Cross-cutting concerns
 
 ## Project Structure
 
 ```
 src/main/java/de/sample/aiarchitecture/
-├── domain/
-│   └── model/
-│       ├── ddd/                          # DDD marker interfaces
-│       │   ├── AggregateRoot.java
-│       │   ├── Entity.java
-│       │   ├── Value.java
-│       │   ├── Repository.java
-│       │   ├── DomainService.java
-│       │   ├── Factory.java
-│       │   ├── Specification.java
-│       │   └── DomainEvent.java
-│       ├── shared/                       # Shared Kernel
-│       │   ├── ProductId.java            # Cross-context ID
-│       │   ├── Money.java                # Cross-context value
-│       │   └── Price.java                # Cross-context value
-│       ├── product/                      # Product Catalog bounded context
-│       │   ├── Product.java              # Aggregate Root
-│       │   ├── SKU.java, ProductName.java # Value Objects
-│       │   ├── ProductRepository.java    # Repository interface
-│       │   ├── ProductFactory.java       # Factory
-│       │   ├── PricingService.java       # Domain Service
-│       │   ├── ProductAvailabilitySpecification.java
-│       │   └── ProductCreated.java       # Domain Event
-│       └── cart/                         # Shopping Cart bounded context
-│           ├── ShoppingCart.java         # Aggregate Root
-│           ├── CartItem.java             # Entity
-│           ├── CartId.java, Quantity.java # Value Objects
-│           ├── ShoppingCartRepository.java # Repository interface
-│           ├── CartTotalCalculator.java  # Domain Service
-│           └── CartCheckedOut.java       # Domain Event
-├── application/
-│   ├── ProductApplicationService.java
-│   └── ShoppingCartApplicationService.java
-├── portadapter/
-│   ├── incoming/                         # Incoming Adapters (Primary/Driving)
-│   │   ├── api/                          # REST API (JSON/XML)
-│   │   │   ├── product/
-│   │   │   │   ├── ProductResource.java
-│   │   │   │   ├── ProductDto.java
-│   │   │   │   └── ProductDtoConverter.java
-│   │   │   └── cart/
-│   │   │       ├── ShoppingCartResource.java
-│   │   │       ├── ShoppingCartDto.java
-│   │   │       └── ShoppingCartDtoConverter.java
-│   │   ├── mcp/                          # MCP Server (AI interface)
-│   │   │   └── ProductCatalogMcpTools.java
-│   │   └── web/                          # Web MVC (HTML)
-│   │       ├── product/
-│   │       │   └── ProductPageController.java
-│   │       └── cart/
-│   └── outgoing/                         # Outgoing Adapters (Secondary/Driven)
-│       ├── product/
-│       │   ├── InMemoryProductRepository.java
-│       │   └── SampleDataInitializer.java
-│       └── cart/
-│           └── InMemoryShoppingCartRepository.java
-└── infrastructure/
+├── sharedkernel/                         # Shared Kernel (cross-context)
+│   ├── domain/
+│   │   ├── marker/                       # DDD marker interfaces
+│   │   │   ├── AggregateRoot.java
+│   │   │   ├── Entity.java
+│   │   │   ├── Value.java
+│   │   │   ├── Repository.java
+│   │   │   ├── DomainService.java
+│   │   │   ├── Factory.java
+│   │   │   ├── Specification.java
+│   │   │   └── DomainEvent.java
+│   │   └── common/                       # Shared value objects
+│   │       ├── ProductId.java            # Cross-context ID
+│   │       ├── Money.java                # Cross-context value
+│   │       └── Price.java                # Cross-context value
+│   └── application/
+│       └── marker/                       # Use case patterns
+│           ├── InputPort.java            # Input port interface
+│           └── OutputPort.java           # Output port interface
+│
+├── product/                              # Product Catalog bounded context
+│   ├── domain/
+│   │   ├── model/                        # Domain model
+│   │   │   ├── Product.java              # Aggregate Root
+│   │   │   ├── SKU.java                  # Value Objects
+│   │   │   ├── ProductName.java
+│   │   │   ├── ProductDescription.java
+│   │   │   ├── ProductStock.java
+│   │   │   ├── Category.java
+│   │   │   ├── ProductFactory.java       # Factory
+│   │   │   └── ProductAvailabilitySpecification.java
+│   │   ├── service/                      # Domain services
+│   │   │   └── PricingService.java
+│   │   └── event/                        # Domain events
+│   │       ├── ProductCreated.java
+│   │       └── ProductPriceChanged.java
+│   ├── application/                      # Application layer
+│   │   ├── ProductApplicationService.java
+│   │   ├── port/
+│   │   │   └── out/                      # Output ports (secondary ports)
+│   │   │       └── ProductRepository.java
+│   │   └── usecase/                      # Use cases (input ports)
+│   │       ├── createproduct/
+│   │       │   ├── CreateProductUseCase.java
+│   │       │   ├── CreateProductCommand.java
+│   │       │   └── CreateProductResponse.java
+│   │       ├── getallproducts/
+│   │       ├── getproductbyid/
+│   │       └── updateproductprice/
+│   └── adapter/                          # Adapters
+│       ├── incoming/                     # Incoming adapters (primary)
+│       │   ├── api/
+│       │   │   ├── ProductResource.java  # REST API
+│       │   │   ├── CreateProductRequest.java
+│       │   │   └── ProductDto.java
+│       │   ├── mcp/
+│       │   │   └── ProductCatalogMcpTools.java
+│       │   └── web/
+│       │       └── ProductPageController.java
+│       └── outgoing/                     # Outgoing adapters (secondary)
+│           └── persistence/
+│               ├── InMemoryProductRepository.java
+│               └── SampleDataInitializer.java
+│
+├── cart/                                 # Shopping Cart bounded context
+│   ├── domain/
+│   │   ├── model/                        # Domain model
+│   │   │   ├── ShoppingCart.java         # Aggregate Root
+│   │   │   ├── CartItem.java             # Entity
+│   │   │   ├── CartId.java               # Value Objects
+│   │   │   ├── CartItemId.java
+│   │   │   ├── CustomerId.java
+│   │   │   ├── Quantity.java
+│   │   │   └── CartStatus.java
+│   │   ├── service/                      # Domain services
+│   │   │   └── CartTotalCalculator.java
+│   │   └── event/                        # Domain events
+│   │       ├── CartCheckedOut.java
+│   │       └── CartItemAddedToCart.java
+│   ├── application/                      # Application layer
+│   │   ├── ShoppingCartApplicationService.java
+│   │   ├── port/
+│   │   │   └── out/                      # Output ports
+│   │   │       └── ShoppingCartRepository.java
+│   │   └── usecase/                      # Use cases
+│   │       ├── createcart/
+│   │       ├── additemtocart/
+│   │       ├── checkoutcart/
+│   │       └── getcartbyid/
+│   └── adapter/                          # Adapters
+│       ├── incoming/                     # Incoming adapters
+│       │   └── api/
+│       │       ├── ShoppingCartResource.java
+│       │       ├── AddToCartRequest.java
+│       │       ├── ShoppingCartDto.java
+│       │       └── ShoppingCartDtoConverter.java
+│       └── outgoing/                     # Outgoing adapters
+│           └── persistence/
+│               └── InMemoryShoppingCartRepository.java
+│
+└── infrastructure/                       # Infrastructure (cross-cutting)
     ├── api/                              # Public SPI
     │   └── DomainEventPublisher.java
-    └── config/
-        ├── SecurityConfiguration.java
-        └── DomainConfiguration.java
+    ├── config/                           # Spring configuration
+    │   ├── SecurityConfiguration.java
+    │   ├── TransactionConfiguration.java
+    │   └── SpringDomainEventPublisher.java
+    └── event/                            # Event listeners
+        └── CartEventListener.java
 ```
 
 ## Getting Started
@@ -280,30 +328,37 @@ For comprehensive architecture documentation, see:
 
 ### Quick Reference
 
-**Domain Layer** - Framework-independent business logic
+**Domain Layer** (per bounded context) - Framework-independent business logic
 - No Spring/JPA annotations in domain models
 - All business rules in domain objects
-- Repository interfaces defined here, implemented in adapters
+- Organized into: domain.model, domain.service, domain.event
 - Dependencies point inward toward domain
 
-**Application Layer** - Use case orchestration
+**Application Layer** (per bounded context) - Use case orchestration
 - Thin coordination layer (no business logic)
 - Manages transactions and domain event publishing
-- One service method per use case
+- Defines ports: Input ports (use cases) and output ports (repositories)
+- One use case class per operation
 
-**Adapter Layer** - External interfaces
-- Primary Adapters (incoming):
-  - `api.*` - REST APIs (@RestController) returning JSON
-  - `web.*` - Web MVC (@Controller) returning HTML
-  - `mcp.*` - MCP Server for AI assistants
-- Secondary Adapters (outgoing): Repository implementations
+**Adapter Layer** (per bounded context) - External interfaces
+- Incoming Adapters (Primary):
+  - `adapter.incoming.api` - REST APIs (@RestController) returning JSON
+  - `adapter.incoming.web` - Web MVC (@Controller) returning HTML
+  - `adapter.incoming.mcp` - MCP Server for AI assistants
+- Outgoing Adapters (Secondary):
+  - `adapter.outgoing.persistence` - Repository implementations
 - DTO conversion happens here
 - Adapters don't communicate directly
 
+**Shared Kernel** - Cross-context shared concepts
+- `sharedkernel.domain.marker` - DDD marker interfaces
+- `sharedkernel.domain.common` - Shared value objects (Money, ProductId, Price)
+- `sharedkernel.application.marker` - Use case pattern interfaces
+
 **Infrastructure Layer** - Cross-cutting concerns
-- `infrastructure.api.*` - Public SPI for application layer
-- `infrastructure.config.*` - Spring configuration
-- `infrastructure.event.*` - Event listeners
+- `infrastructure.api` - Public SPI for application layer
+- `infrastructure.config` - Spring configuration
+- `infrastructure.event` - Event listeners
 
 ## Testing
 

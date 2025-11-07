@@ -1,7 +1,7 @@
 package de.sample.aiarchitecture.infrastructure.event;
 
-import de.sample.aiarchitecture.domain.model.product.ProductCreated;
-import de.sample.aiarchitecture.domain.model.product.ProductPriceChanged;
+import de.sample.aiarchitecture.product.domain.event.ProductCreated;
+import de.sample.aiarchitecture.product.domain.event.ProductPriceChanged;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;

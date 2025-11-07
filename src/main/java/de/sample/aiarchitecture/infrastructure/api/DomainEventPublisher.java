@@ -1,7 +1,7 @@
 package de.sample.aiarchitecture.infrastructure.api;
 
-import de.sample.aiarchitecture.domain.model.ddd.AggregateRoot;
-import de.sample.aiarchitecture.domain.model.ddd.DomainEvent;
+import de.sample.aiarchitecture.sharedkernel.domain.marker.AggregateRoot;
+import de.sample.aiarchitecture.sharedkernel.domain.marker.DomainEvent;
 
 /**
  * Service Provider Interface (SPI) for publishing domain events.

@@ -22,8 +22,8 @@ package de.sample.aiarchitecture.application;
  *
  * <p><b>Example:</b>
  * <pre>{@code
- * public interface CreateProductUseCase extends UseCase<CreateProductInput, CreateProductOutput> {
- *     CreateProductOutput execute(CreateProductInput input);
+ * public interface CreateProductUseCase extends UseCase<CreateProductCommand, CreateProductResponse> {
+ *     CreateProductResponse execute(CreateProductCommand input);
  * }
  * }</pre>
  *

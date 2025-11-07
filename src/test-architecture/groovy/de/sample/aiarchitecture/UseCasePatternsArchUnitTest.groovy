@@ -30,68 +30,94 @@ class UseCasePatternsArchUnitTest extends BaseArchUnitTest {
   // USE CASE INTERFACE PATTERN (Base Contract)
   // ============================================================================
 
-  def "Base UseCase interface must be in application package"() {
+  def "Base InputPort interface must be in sharedkernel application package"() {
     expect:
     classes()
       .that().areInterfaces()
-      .and().haveSimpleName("UseCase")
-      .should().resideInAPackage(APPLICATION_PACKAGE)
-      .because("Base UseCase interface defines the generic contract for all use cases (Clean Architecture)")
-      .check(allClasses)
-  }
-
-  // ============================================================================
-  // USE CASE INPUT MODEL PATTERN
-  // ============================================================================
-
-  def "Use Case Input Models must end with 'Input' and reside in application package"() {
-    expect:
-    classes()
-      .that().haveSimpleNameEndingWith("Input")
-      .and().resideInAnyPackage(BASE_PACKAGE + "..")
-      .should().resideInAPackage(APPLICATION_PACKAGE)
-      .because("Use case input models should be in application layer (Clean Architecture)")
+      .and().haveSimpleName("InputPort")
+      .should().resideInAPackage(SHAREDKERNEL_APPLICATION_PACKAGE)
+      .because("Base InputPort interface defines the generic contract for all use cases (Hexagonal Architecture)")
       .allowEmptyShould(true)
       .check(allClasses)
   }
 
-  def "Use Case Input Models should be immutable (final or records)"() {
+  // ============================================================================
+  // USE CASE COMMAND/QUERY MODEL PATTERN
+  // ============================================================================
+
+  def "Use Case Commands must end with 'Command' and reside in application package"() {
     expect:
     classes()
-      .that().haveSimpleNameEndingWith("Input")
-      .and().resideInAPackage(APPLICATION_PACKAGE)
+      .that().haveSimpleNameEndingWith("Command")
+      .and().resideInAnyPackage(BASE_PACKAGE + "..")
+      .should().resideInAnyPackage(PRODUCT_APPLICATION_PACKAGE, CART_APPLICATION_PACKAGE)
+      .because("Use case commands should be in application layer (CQRS pattern)")
+      .allowEmptyShould(true)
+      .check(allClasses)
+  }
+
+  def "Use Case Queries must end with 'Query' and reside in application package"() {
+    expect:
+    classes()
+      .that().haveSimpleNameEndingWith("Query")
+      .and().resideInAnyPackage(BASE_PACKAGE + "..")
+      .should().resideInAnyPackage(PRODUCT_APPLICATION_PACKAGE, CART_APPLICATION_PACKAGE)
+      .because("Use case queries should be in application layer (CQRS pattern)")
+      .allowEmptyShould(true)
+      .check(allClasses)
+  }
+
+  def "Use Case Commands should be immutable (final or records)"() {
+    expect:
+    classes()
+      .that().haveSimpleNameEndingWith("Command")
+      .and().resideInAnyPackage(PRODUCT_APPLICATION_PACKAGE, CART_APPLICATION_PACKAGE)
       .and().areNotInterfaces()
       .and().areNotRecords()
       .should().haveModifier(JavaModifier.FINAL)
-      .because("Use case input models should be immutable (value objects)")
+      .because("Use case commands should be immutable (value objects)")
       .allowEmptyShould(true)
       .check(allClasses)
   }
 
-  // ============================================================================
-  // USE CASE OUTPUT MODEL PATTERN
-  // ============================================================================
-
-  def "Use Case Output Models must end with 'Output' and reside in application package"() {
+  def "Use Case Queries should be immutable (final or records)"() {
     expect:
     classes()
-      .that().haveSimpleNameEndingWith("Output")
-      .and().resideInAnyPackage(BASE_PACKAGE + "..")
-      .should().resideInAPackage(APPLICATION_PACKAGE)
-      .because("Use case output models should be in application layer (Clean Architecture)")
-      .allowEmptyShould(true)
-      .check(allClasses)
-  }
-
-  def "Use Case Output Models should be immutable (final or records)"() {
-    expect:
-    classes()
-      .that().haveSimpleNameEndingWith("Output")
-      .and().resideInAPackage(APPLICATION_PACKAGE)
+      .that().haveSimpleNameEndingWith("Query")
+      .and().resideInAnyPackage(PRODUCT_APPLICATION_PACKAGE, CART_APPLICATION_PACKAGE)
       .and().areNotInterfaces()
       .and().areNotRecords()
       .should().haveModifier(JavaModifier.FINAL)
-      .because("Use case output models should be immutable (value objects)")
+      .because("Use case queries should be immutable (value objects)")
+      .allowEmptyShould(true)
+      .check(allClasses)
+  }
+
+  // ============================================================================
+  // USE CASE RESPONSE MODEL PATTERN
+  // ============================================================================
+
+  def "Use Case Response Models must end with 'Response' and reside in application package"() {
+    expect:
+    classes()
+      .that().haveSimpleNameEndingWith("Response")
+      .and().resideInAnyPackage(BASE_PACKAGE + "..")
+      .and().doNotHaveSimpleName("DomainEventPublisher") // Exclude infrastructure classes
+      .should().resideInAnyPackage(PRODUCT_APPLICATION_PACKAGE, CART_APPLICATION_PACKAGE)
+      .because("Use case response models should be in application layer (Clean Architecture)")
+      .allowEmptyShould(true)
+      .check(allClasses)
+  }
+
+  def "Use Case Response Models should be immutable (final or records)"() {
+    expect:
+    classes()
+      .that().haveSimpleNameEndingWith("Response")
+      .and().resideInAnyPackage(PRODUCT_APPLICATION_PACKAGE, CART_APPLICATION_PACKAGE)
+      .and().areNotInterfaces()
+      .and().areNotRecords()
+      .should().haveModifier(JavaModifier.FINAL)
+      .because("Use case response models should be immutable (value objects)")
       .allowEmptyShould(true)
       .check(allClasses)
   }
@@ -103,7 +129,7 @@ class UseCasePatternsArchUnitTest extends BaseArchUnitTest {
   def "DTOs must not be used in the Domain Layer"() {
     expect:
     noClasses()
-      .that().resideInAPackage(DOMAIN_PACKAGE)
+      .that().resideInAnyPackage(PRODUCT_DOMAIN_PACKAGE, CART_DOMAIN_PACKAGE, SHAREDKERNEL_DOMAIN_PACKAGE)
       .should().dependOnClassesThat().haveSimpleNameEndingWith("Dto")
       .because("Domain layer should not depend on DTOs (presentation concerns) - Dependency Inversion Principle")
       .check(allClasses)
@@ -112,9 +138,9 @@ class UseCasePatternsArchUnitTest extends BaseArchUnitTest {
   def "DTOs must not be used in the Application Layer"() {
     expect:
     noClasses()
-      .that().resideInAPackage(APPLICATION_PACKAGE)
+      .that().resideInAnyPackage(PRODUCT_APPLICATION_PACKAGE, CART_APPLICATION_PACKAGE)
       .should().dependOnClassesThat().haveSimpleNameEndingWith("Dto")
-      .because("Application layer should use Input/Output models, not presentation DTOs (Clean Architecture)")
+      .because("Application layer should use Command/Query/Response models, not presentation DTOs (Clean Architecture)")
       .allowEmptyShould(true)
       .check(allClasses)
   }

@@ -1,7 +1,7 @@
 package de.sample.aiarchitecture.infrastructure.event;
 
-import de.sample.aiarchitecture.domain.model.cart.CartCheckedOut;
-import de.sample.aiarchitecture.domain.model.cart.CartItemAddedToCart;
+import de.sample.aiarchitecture.cart.domain.event.CartCheckedOut;
+import de.sample.aiarchitecture.cart.domain.event.CartItemAddedToCart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;

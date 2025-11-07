@@ -37,26 +37,41 @@ abstract class BaseArchUnitTest extends Specification {
   // Base package for all classes
   protected static final String BASE_PACKAGE = "de.sample.aiarchitecture"
 
-  // Domain packages
-  protected static final String DOMAIN_PACKAGE = "${BASE_PACKAGE}.domain.."
-  protected static final String DOMAIN_MODEL_PACKAGE = "${BASE_PACKAGE}.domain.model.."
+  // Shared Kernel packages
+  protected static final String SHAREDKERNEL_PACKAGE = "${BASE_PACKAGE}.sharedkernel.."
+  protected static final String SHAREDKERNEL_DOMAIN_PACKAGE = "${BASE_PACKAGE}.sharedkernel.domain.."
+  protected static final String SHAREDKERNEL_APPLICATION_PACKAGE = "${BASE_PACKAGE}.sharedkernel.application.."
 
-  // Application package
-  protected static final String APPLICATION_PACKAGE = "${BASE_PACKAGE}.application.."
+  // Bounded Context packages (Strategic DDD)
+  protected static final String PRODUCT_CONTEXT_PACKAGE = "${BASE_PACKAGE}.product.."
+  protected static final String PRODUCT_DOMAIN_PACKAGE = "${BASE_PACKAGE}.product.domain.."
+  protected static final String PRODUCT_DOMAIN_MODEL_PACKAGE = "${BASE_PACKAGE}.product.domain.model.."
+  protected static final String PRODUCT_APPLICATION_PACKAGE = "${BASE_PACKAGE}.product.application.."
+  protected static final String PRODUCT_ADAPTER_PACKAGE = "${BASE_PACKAGE}.product.adapter.."
 
-  // Port adapter packages
-  protected static final String PORTADAPTER_PACKAGE = "${BASE_PACKAGE}.portadapter.."
-  protected static final String INCOMING_ADAPTER_PACKAGE = "${BASE_PACKAGE}.portadapter.incoming.."
-  protected static final String OUTGOING_ADAPTER_PACKAGE = "${BASE_PACKAGE}.portadapter.outgoing.."
+  protected static final String CART_CONTEXT_PACKAGE = "${BASE_PACKAGE}.cart.."
+  protected static final String CART_DOMAIN_PACKAGE = "${BASE_PACKAGE}.cart.domain.."
+  protected static final String CART_DOMAIN_MODEL_PACKAGE = "${BASE_PACKAGE}.cart.domain.model.."
+  protected static final String CART_APPLICATION_PACKAGE = "${BASE_PACKAGE}.cart.application.."
+  protected static final String CART_ADAPTER_PACKAGE = "${BASE_PACKAGE}.cart.adapter.."
 
-  // Infrastructure package
+  // Generic patterns (matching all bounded contexts)
+  protected static final String DOMAIN_PACKAGE = "${BASE_PACKAGE}.*.domain.."
+  protected static final String DOMAIN_MODEL_PACKAGE = "${BASE_PACKAGE}.*.domain.model.."
+  protected static final String APPLICATION_PACKAGE = "${BASE_PACKAGE}.*.application.."
+  protected static final String ADAPTER_PACKAGE = "${BASE_PACKAGE}.*.adapter.."
+  protected static final String INCOMING_ADAPTER_PACKAGE = "${BASE_PACKAGE}.*.adapter.incoming.."
+  protected static final String OUTGOING_ADAPTER_PACKAGE = "${BASE_PACKAGE}.*.adapter.outgoing.."
+
+  // Infrastructure package (shared across bounded contexts)
   protected static final String INFRASTRUCTURE_PACKAGE = "${BASE_PACKAGE}.infrastructure.."
   protected static final String INFRASTRUCTURE_API_PACKAGE = "${BASE_PACKAGE}.infrastructure.api.."
 
-  // Bounded Context packages (Strategic DDD)
-  protected static final String SHARED_KERNEL_PACKAGE = "${DOMAIN_MODEL_PACKAGE}shared.."
-  protected static final String PRODUCT_CONTEXT_PACKAGE = "${DOMAIN_MODEL_PACKAGE}product.."
-  protected static final String CART_CONTEXT_PACKAGE = "${DOMAIN_MODEL_PACKAGE}cart.."
+  // Legacy aliases for backward compatibility (deprecated)
+  @Deprecated
+  protected static final String PORTADAPTER_PACKAGE = "${BASE_PACKAGE}.*.adapter.."
+  @Deprecated
+  protected static final String SHARED_KERNEL_PACKAGE = "${SHAREDKERNEL_PACKAGE}"
 
   /**
    * Custom import option to exclude architecture test classes from being analyzed.

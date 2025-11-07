@@ -29,8 +29,8 @@ class OnionArchitectureArchUnitTest extends BaseArchUnitTest {
   def "Domain must not access Application Services (Onion Architecture - Domain is innermost layer)"() {
     expect:
     noClasses()
-    .that().resideInAPackage(DOMAIN_PACKAGE)
-    .should().dependOnClassesThat().resideInAPackage(APPLICATION_PACKAGE)
+    .that().resideInAnyPackage(PRODUCT_DOMAIN_PACKAGE, CART_DOMAIN_PACKAGE, SHAREDKERNEL_DOMAIN_PACKAGE)
+    .should().dependOnClassesThat().resideInAnyPackage(PRODUCT_APPLICATION_PACKAGE, CART_APPLICATION_PACKAGE, SHAREDKERNEL_APPLICATION_PACKAGE)
     .because("Domain is the innermost layer in onion architecture and should not depend on application services")
     .check(allClasses)
   }
@@ -39,16 +39,20 @@ class OnionArchitectureArchUnitTest extends BaseArchUnitTest {
     expect:
     final JavaClasses importedClasses = new ClassFileImporter()
     .withImportOption(ImportOption.Predefined.DO_NOT_INCLUDE_TESTS)
-    .importPackages(DOMAIN_PACKAGE)
+    .importPackages(BASE_PACKAGE)
 
-    final String domainPackagePattern = "${BASE_PACKAGE}.domain.." as String
+    final String[] domainPackagePatterns = [
+      "${BASE_PACKAGE}.product.domain..",
+      "${BASE_PACKAGE}.cart.domain..",
+      "${BASE_PACKAGE}.sharedkernel.domain.."
+    ] as String[]
 
     final ArchRule domainClassesMustNotDependOnAnyFrameworkOr3rdParty =
     classes()
-    .that().resideInAPackage("${BASE_PACKAGE}.domain.(**)")
+    .that().resideInAnyPackage(domainPackagePatterns)
     .should().onlyDependOnClassesThat().resideInAnyPackage(Stream.concat(
     THIRD_PARTY_PACKAGES_ALLOWED_IN_DOMAIN.stream(),
-    Stream.of(domainPackagePattern)).toArray(String[]::new))
+    Arrays.stream(domainPackagePatterns)).toArray(String[]::new))
     .because("Domain should be framework-independent (Dependency Inversion Principle)")
 
     domainClassesMustNotDependOnAnyFrameworkOr3rdParty.check(importedClasses)
@@ -57,7 +61,7 @@ class OnionArchitectureArchUnitTest extends BaseArchUnitTest {
   def "Domain Models must not have Spring/JPA annotations"() {
     expect:
     noClasses()
-    .that().resideInAPackage(DOMAIN_MODEL_PACKAGE)
+    .that().resideInAnyPackage(PRODUCT_DOMAIN_MODEL_PACKAGE, CART_DOMAIN_MODEL_PACKAGE, SHAREDKERNEL_DOMAIN_PACKAGE)
     .should().beAnnotatedWith(Component.class)
     .orShould().beAnnotatedWith(Service.class)
     .orShould().beAnnotatedWith("jakarta.persistence.Entity")

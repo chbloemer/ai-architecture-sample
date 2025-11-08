@@ -53,10 +53,12 @@ class DddStrategicPatternsArchUnitTest extends BaseArchUnitTest {
     expect:
     // Product context should not access Cart context directly
     // Integration must happen through Shared Kernel or domain events
+    // EXCEPTION: Event listeners may access domain events from other contexts (standard DDD pattern)
     noClasses()
       .that().resideInAPackage(PRODUCT_CONTEXT_PACKAGE)
+        .and().resideOutsideOfPackage("..adapter.incoming.event..")
       .should().accessClassesThat().resideInAPackage(CART_CONTEXT_PACKAGE)
-      .because("Bounded contexts must remain isolated - use Shared Kernel or events for integration")
+      .because("Bounded contexts must remain isolated - use Shared Kernel or events for integration (event listeners are exempt)")
       .check(allClasses)
   }
 

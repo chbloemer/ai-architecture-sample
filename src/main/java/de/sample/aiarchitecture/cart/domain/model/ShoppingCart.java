@@ -235,8 +235,8 @@ public final class ShoppingCart extends BaseAggregateRoot<ShoppingCart, CartId> 
 
     this.status = CartStatus.CHECKED_OUT;
 
-    // Raise domain event
-    registerEvent(CartCheckedOut.now(this.id, this.customerId, totalAmount, count));
+    // Raise domain event with cart items for cross-context integration
+    registerEvent(CartCheckedOut.now(this.id, this.customerId, totalAmount, count, this.items));
   }
 
   /**

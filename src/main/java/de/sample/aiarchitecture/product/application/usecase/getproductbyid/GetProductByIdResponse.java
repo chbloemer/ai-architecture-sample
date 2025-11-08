@@ -18,6 +18,7 @@ import org.jspecify.annotations.Nullable;
  * @param priceCurrency the price currency (null if not found)
  * @param category the product category (null if not found)
  * @param stockQuantity the stock quantity (0 if not found)
+ * @param isAvailable whether the product is available for purchase (false if not found)
  */
 public record GetProductByIdResponse(
     boolean found,
@@ -28,14 +29,15 @@ public record GetProductByIdResponse(
     @Nullable BigDecimal priceAmount,
     @Nullable String priceCurrency,
     @Nullable String category,
-    int stockQuantity
+    int stockQuantity,
+    boolean isAvailable
 ) {
 
   /**
    * Creates an output for a product that was not found.
    */
   public static GetProductByIdResponse notFound() {
-    return new GetProductByIdResponse(false, null, null, null, null, null, null, null, 0);
+    return new GetProductByIdResponse(false, null, null, null, null, null, null, null, 0, false);
   }
 
   /**
@@ -49,8 +51,9 @@ public record GetProductByIdResponse(
       BigDecimal priceAmount,
       String priceCurrency,
       String category,
-      int stockQuantity) {
+      int stockQuantity,
+      boolean isAvailable) {
     return new GetProductByIdResponse(
-        true, productId, sku, name, description, priceAmount, priceCurrency, category, stockQuantity);
+        true, productId, sku, name, description, priceAmount, priceCurrency, category, stockQuantity, isAvailable);
   }
 }

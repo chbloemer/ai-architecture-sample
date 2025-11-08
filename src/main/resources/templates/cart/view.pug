@@ -6,6 +6,9 @@ block content
   if message
     .success-message= message
 
+  if error
+    .error-message= error
+
   .cart-summary
     p Cart ID: #{cartId}
     p Total Items: #{itemCount}
@@ -40,7 +43,8 @@ block content
 
     .cart-actions
       if cart.status() === 'ACTIVE'
-        a.btn.btn-primary(href=`/api/carts/${cartId}/checkout` method='post') Checkout
+        form(method="post" action=`/cart/${cartId}/checkout` style="display: inline;")
+          button.btn.btn-primary(type="submit") Checkout Cart
         p.info Use the REST API to add or remove items
       else
         .status-badge
@@ -76,6 +80,15 @@ block content
       padding: 15px;
       border-radius: 6px;
       border: 1px solid #c3e6cb;
+      margin-bottom: 20px;
+      font-weight: 500;
+    }
+    .error-message {
+      background: #f8d7da;
+      color: #721c24;
+      padding: 15px;
+      border-radius: 6px;
+      border: 1px solid #f5c6cb;
       margin-bottom: 20px;
       font-weight: 500;
     }

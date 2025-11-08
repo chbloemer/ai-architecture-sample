@@ -47,7 +47,8 @@ public class GetProductByIdUseCase implements GetProductByIdInputPort {
         product.price().value().amount(),
         product.price().value().currency().getCurrencyCode(),
         product.category().name(),
-        product.stock().quantity()
+        product.stock().quantity(),
+        product.isAvailable()
     );
   }
 }

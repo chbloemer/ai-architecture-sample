@@ -1,7 +1,10 @@
 package de.sample.aiarchitecture.cart.domain.model;
 
 import de.sample.aiarchitecture.cart.domain.event.CartCheckedOut;
+import de.sample.aiarchitecture.cart.domain.event.CartCleared;
 import de.sample.aiarchitecture.cart.domain.event.CartItemAddedToCart;
+import de.sample.aiarchitecture.cart.domain.event.CartItemQuantityChanged;
+import de.sample.aiarchitecture.cart.domain.event.ProductRemovedFromCart;
 
 import de.sample.aiarchitecture.sharedkernel.domain.marker.BaseAggregateRoot;
 import de.sample.aiarchitecture.sharedkernel.domain.common.Money;
@@ -30,6 +33,9 @@ import org.jspecify.annotations.NonNull;
  * <p><b>Domain Events:</b>
  * <ul>
  *   <li>{@link CartItemAddedToCart} - when an item is added to the cart
+ *   <li>{@link ProductRemovedFromCart} - when a product is removed from the cart
+ *   <li>{@link CartItemQuantityChanged} - when an item's quantity is updated
+ *   <li>{@link CartCleared} - when all items are removed from the cart
  *   <li>{@link CartCheckedOut} - when the cart is checked out
  * </ul>
  */
@@ -116,6 +122,8 @@ public final class ShoppingCart extends BaseAggregateRoot<ShoppingCart, CartId> 
   /**
    * Removes an item by product ID.
    *
+   * <p>Raises a {@link ProductRemovedFromCart} domain event.
+   *
    * @param productId the product ID
    * @throws IllegalStateException if cart is checked out
    */
@@ -126,10 +134,15 @@ public final class ShoppingCart extends BaseAggregateRoot<ShoppingCart, CartId> 
     if (!removed) {
       throw new IllegalArgumentException("Product not found in cart: " + productId.value());
     }
+
+    // Raise domain event
+    registerEvent(ProductRemovedFromCart.now(this.id, productId));
   }
 
   /**
    * Updates the quantity of a cart item.
+   *
+   * <p>Raises a {@link CartItemQuantityChanged} domain event.
    *
    * @param itemId the item ID
    * @param newQuantity the new quantity
@@ -145,7 +158,11 @@ public final class ShoppingCart extends BaseAggregateRoot<ShoppingCart, CartId> 
             .orElseThrow(
                 () -> new IllegalArgumentException("Cart item not found: " + itemId.value()));
 
+    final Quantity oldQuantity = item.quantity();
     item.updateQuantity(newQuantity);
+
+    // Raise domain event
+    registerEvent(CartItemQuantityChanged.now(this.id, itemId, item.productId(), oldQuantity, newQuantity));
   }
 
   /**
@@ -185,11 +202,17 @@ public final class ShoppingCart extends BaseAggregateRoot<ShoppingCart, CartId> 
   /**
    * Clears all items from the cart.
    *
+   * <p>Raises a {@link CartCleared} domain event.
+   *
    * @throws IllegalStateException if cart is checked out
    */
   public void clear() {
     ensureCartIsActive();
+    final int itemsCount = items.size();
     items.clear();
+
+    // Raise domain event
+    registerEvent(CartCleared.now(this.id, itemsCount));
   }
 
   /**

@@ -105,10 +105,40 @@ public final class Product implements AggregateRoot<Product, ProductId> {
 }
 ```
 
+**Example: ShoppingCart Aggregate**
+
+```java
+public final class ShoppingCart extends BaseAggregateRoot<ShoppingCart, CartId> {
+    private final CartId id;
+    private final CustomerId customerId;
+    private final List<CartItem> items;  // CartItem is an entity within this aggregate
+    private CartStatus status;
+
+    public void addItem(ProductId productId, Quantity quantity, Price price) {
+        ensureCartIsActive();
+
+        // Check if product already in cart
+        Optional<CartItem> existingItem = findItemByProductId(productId);
+        if (existingItem.isPresent()) {
+            // Increase quantity of existing item
+            existingItem.get().updateQuantity(Quantity.of(
+                existingItem.get().quantity().value() + quantity.value()));
+        } else {
+            // Add new item
+            items.add(new CartItem(CartItemId.generate(), productId, quantity, price));
+        }
+
+        // Raise domain event
+        registerEvent(CartItemAddedToCart.now(this.id, productId, quantity));
+    }
+}
+```
+
 **Rules:**
 1. External objects can only reference the aggregate root (never entities within)
 2. Aggregate boundaries ensure invariants are maintained
-3. Aggregates reference other aggregates by identity only
+3. Aggregates reference other aggregates by identity only (e.g., ShoppingCart references Product via ProductId)
+4. Aggregates raise domain events for important state changes
 
 **Implementation:** See `de.sample.aiarchitecture.sharedkernel.domain.marker.AggregateRoot`
 
@@ -320,6 +350,37 @@ public final record ProductPriceChanged(
             Instant.now(),
             1
         );
+    }
+}
+```
+
+**Example: Shopping Cart Events**
+
+```java
+// Event raised when a product is added to cart
+public record CartItemAddedToCart(
+    @NonNull UUID eventId,
+    @NonNull CartId cartId,
+    @NonNull ProductId productId,
+    @NonNull Quantity quantity,
+    @NonNull Instant occurredOn,
+    int version
+) implements DomainEvent {
+    public static CartItemAddedToCart now(CartId cartId, ProductId productId, Quantity quantity) {
+        return new CartItemAddedToCart(UUID.randomUUID(), cartId, productId, quantity, Instant.now(), 1);
+    }
+}
+
+// Event raised when a product is removed from cart
+public record ProductRemovedFromCart(
+    @NonNull UUID eventId,
+    @NonNull CartId cartId,
+    @NonNull ProductId productId,
+    @NonNull Instant occurredOn,
+    int version
+) implements DomainEvent {
+    public static ProductRemovedFromCart now(CartId cartId, ProductId productId) {
+        return new ProductRemovedFromCart(UUID.randomUUID(), cartId, productId, Instant.now(), 1);
     }
 }
 ```

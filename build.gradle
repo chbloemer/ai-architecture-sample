@@ -28,7 +28,7 @@ lombok {
 }
 
 springBoot {
-  mainClass = 'de.sample.aiarchitecture.AiArchitectureApplication'
+  mainClass = 'de.sample.aiarchitecture.infrastructure.AiArchitectureApplication'
 }
 
 configurations {

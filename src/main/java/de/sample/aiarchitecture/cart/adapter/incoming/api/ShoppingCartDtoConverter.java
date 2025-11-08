@@ -3,7 +3,9 @@ package de.sample.aiarchitecture.cart.adapter.incoming.api;
 import de.sample.aiarchitecture.cart.application.usecase.additemtocart.AddItemToCartResponse;
 import de.sample.aiarchitecture.cart.application.usecase.checkoutcart.CheckoutCartResponse;
 import de.sample.aiarchitecture.cart.application.usecase.createcart.CreateCartResponse;
+import de.sample.aiarchitecture.cart.application.usecase.getallcarts.GetAllCartsResponse;
 import de.sample.aiarchitecture.cart.application.usecase.getcartbyid.GetCartByIdResponse;
+import de.sample.aiarchitecture.cart.application.usecase.removeitemfromcart.RemoveItemFromCartResponse;
 import de.sample.aiarchitecture.cart.domain.model.CartItem;
 import de.sample.aiarchitecture.cart.domain.model.ShoppingCart;
 import de.sample.aiarchitecture.sharedkernel.domain.common.Money;
@@ -99,6 +101,25 @@ public final class ShoppingCartDtoConverter {
   }
 
   /**
+   * Converts RemoveItemFromCartResponse to DTO.
+   */
+  public ShoppingCartDto toDto(final RemoveItemFromCartResponse output) {
+    final List<CartItemDto> items = output.items().stream()
+        .map(this::toItemDto)
+        .toList();
+
+    return new ShoppingCartDto(
+        output.cartId(),
+        output.customerId(),
+        items,
+        "ACTIVE", // Always active when removing items
+        output.totalAmount(),
+        output.totalCurrency(),
+        items.size()
+    );
+  }
+
+  /**
    * Converts CheckoutCartResponse to DTO.
    */
   public ShoppingCartDto toDto(final CheckoutCartResponse output) {
@@ -115,6 +136,24 @@ public final class ShoppingCartDtoConverter {
         output.totalCurrency(),
         items.size()
     );
+  }
+
+  /**
+   * Converts GetAllCartsResponse to list DTO.
+   */
+  public ShoppingCartListDto toListDto(final GetAllCartsResponse output) {
+    final List<ShoppingCartListDto.CartSummaryDto> summaries = output.carts().stream()
+        .map(cart -> new ShoppingCartListDto.CartSummaryDto(
+            cart.cartId(),
+            cart.customerId(),
+            cart.status(),
+            cart.itemCount(),
+            cart.totalAmount(),
+            cart.totalCurrency()
+        ))
+        .toList();
+
+    return new ShoppingCartListDto(summaries);
   }
 
   private CartItemDto toItemDto(final CartItem item) {
@@ -137,6 +176,16 @@ public final class ShoppingCartDtoConverter {
   }
 
   private CartItemDto toItemDto(final AddItemToCartResponse.CartItemSummary item) {
+    return new CartItemDto(
+        item.itemId(),
+        item.productId(),
+        item.quantity(),
+        item.unitPriceAmount(),
+        item.unitPriceCurrency()
+    );
+  }
+
+  private CartItemDto toItemDto(final RemoveItemFromCartResponse.CartItemSummary item) {
     return new CartItemDto(
         item.itemId(),
         item.productId(),

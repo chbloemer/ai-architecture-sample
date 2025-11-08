@@ -9,9 +9,15 @@ import de.sample.aiarchitecture.cart.application.usecase.checkoutcart.CheckoutCa
 import de.sample.aiarchitecture.cart.application.usecase.createcart.CreateCartCommand;
 import de.sample.aiarchitecture.cart.application.usecase.createcart.CreateCartResponse;
 import de.sample.aiarchitecture.cart.application.usecase.createcart.CreateCartUseCase;
+import de.sample.aiarchitecture.cart.application.usecase.getallcarts.GetAllCartsQuery;
+import de.sample.aiarchitecture.cart.application.usecase.getallcarts.GetAllCartsResponse;
+import de.sample.aiarchitecture.cart.application.usecase.getallcarts.GetAllCartsUseCase;
 import de.sample.aiarchitecture.cart.application.usecase.getcartbyid.GetCartByIdQuery;
 import de.sample.aiarchitecture.cart.application.usecase.getcartbyid.GetCartByIdResponse;
 import de.sample.aiarchitecture.cart.application.usecase.getcartbyid.GetCartByIdUseCase;
+import de.sample.aiarchitecture.cart.application.usecase.removeitemfromcart.RemoveItemFromCartCommand;
+import de.sample.aiarchitecture.cart.application.usecase.removeitemfromcart.RemoveItemFromCartResponse;
+import de.sample.aiarchitecture.cart.application.usecase.removeitemfromcart.RemoveItemFromCartUseCase;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -31,20 +37,26 @@ import org.springframework.web.bind.annotation.*;
 public class ShoppingCartResource {
 
   private final CreateCartUseCase createCartUseCase;
+  private final GetAllCartsUseCase getAllCartsUseCase;
   private final GetCartByIdUseCase getCartByIdUseCase;
   private final AddItemToCartUseCase addItemToCartUseCase;
+  private final RemoveItemFromCartUseCase removeItemFromCartUseCase;
   private final CheckoutCartUseCase checkoutCartUseCase;
   private final ShoppingCartDtoConverter converter;
 
   public ShoppingCartResource(
       final CreateCartUseCase createCartUseCase,
+      final GetAllCartsUseCase getAllCartsUseCase,
       final GetCartByIdUseCase getCartByIdUseCase,
       final AddItemToCartUseCase addItemToCartUseCase,
+      final RemoveItemFromCartUseCase removeItemFromCartUseCase,
       final CheckoutCartUseCase checkoutCartUseCase,
       final ShoppingCartDtoConverter converter) {
     this.createCartUseCase = createCartUseCase;
+    this.getAllCartsUseCase = getAllCartsUseCase;
     this.getCartByIdUseCase = getCartByIdUseCase;
     this.addItemToCartUseCase = addItemToCartUseCase;
+    this.removeItemFromCartUseCase = removeItemFromCartUseCase;
     this.checkoutCartUseCase = checkoutCartUseCase;
     this.converter = converter;
   }
@@ -54,6 +66,13 @@ public class ShoppingCartResource {
     final CreateCartResponse output = createCartUseCase.execute(new CreateCartCommand(customerId));
 
     return ResponseEntity.status(HttpStatus.CREATED).body(converter.toDto(output));
+  }
+
+  @GetMapping
+  public ResponseEntity<ShoppingCartListDto> getAllCarts() {
+    final GetAllCartsResponse output = getAllCartsUseCase.execute(new GetAllCartsQuery());
+
+    return ResponseEntity.ok(converter.toListDto(output));
   }
 
   @GetMapping("/{cartId}")
@@ -93,17 +112,15 @@ public class ShoppingCartResource {
     return ResponseEntity.ok(converter.toDto(output));
   }
 
-  // Note: The following endpoint doesn't have a corresponding use case yet:
-  // - RemoveItemFromCartUseCase
-  // Temporarily commented out until use case is created:
-  /*
-  @DeleteMapping("/{cartId}/items/{itemId}")
+  @DeleteMapping("/{cartId}/items/{productId}")
   public ResponseEntity<ShoppingCartDto> removeItemFromCart(
-      @PathVariable final String cartId, @PathVariable final String itemId) {
-    // TODO: Implement RemoveItemFromCartUseCase
-    return ResponseEntity.notFound().build();
+      @PathVariable final String cartId, @PathVariable final String productId) {
+
+    final RemoveItemFromCartCommand input = new RemoveItemFromCartCommand(cartId, productId);
+    final RemoveItemFromCartResponse output = removeItemFromCartUseCase.execute(input);
+
+    return ResponseEntity.ok(converter.toDto(output));
   }
-  */
 
   @PostMapping("/{cartId}/checkout")
   public ResponseEntity<ShoppingCartDto> checkout(@PathVariable final String cartId) {

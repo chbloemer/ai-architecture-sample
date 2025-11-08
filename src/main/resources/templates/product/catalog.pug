@@ -9,34 +9,34 @@ block content
     .product-grid
       each product in products
         .product-card
-          h3= product.name().value()
-          p.product-description= product.description().value()
+          h3= product.name()
+          p.product-description (No description in list view)
 
           .product-info
             .info-row
               span.label SKU:
-              span.value= product.sku().value()
+              span.value= product.sku()
 
             .info-row
               span.label Category:
-              span.value= product.category().value()
+              span.value= product.category()
 
             .info-row
               span.label Price:
-              span.value= product.price().amount().amount() + " " + product.price().amount().currency().getSymbol()
+              span.value= product.priceAmount() + " " + product.priceCurrency()
 
             .info-row
               span.label Stock:
-              span.value= product.stock().quantity()
+              span.value= product.stockQuantity()
 
             .info-row
               span.label Status:
-              if product.isAvailable()
+              if product.stockQuantity() > 0
                 span.badge.badge-success Available
               else
                 span.badge.badge-danger Out of Stock
 
-          a.btn(href=`/products/${product.id().value()}`) View Details
+          a.btn(href=`/products/${product.productId()}`) View Details
   else
     .empty-state
       p No products available.

@@ -1,0 +1,213 @@
+extends ../layout
+
+block content
+  h2 Shopping Cart
+
+  if message
+    .success-message= message
+
+  .cart-summary
+    p Cart ID: #{cartId}
+    p Total Items: #{itemCount}
+    p Total Quantity: #{totalQuantity}
+
+  if cart.items() && cart.items().size() > 0
+    .cart-items
+      each item in cart.items()
+        .cart-item
+          .item-details
+            h3 Product ID: #{item.productId()}
+            p.item-id Item ID: #{item.itemId()}
+
+            .item-info
+              .info-row
+                span.label Quantity:
+                span.value= item.quantity()
+
+              .info-row
+                span.label Price (at addition):
+                span.value= item.unitPriceAmount() + " " + item.unitPriceCurrency()
+
+              .info-row
+                span.label Subtotal:
+                - var subtotal = item.unitPriceAmount() * item.quantity()
+                span.value= subtotal.toFixed(2) + " " + item.unitPriceCurrency()
+
+    .cart-total
+      .total-row
+        span.label Total Amount:
+        span.value= cart.totalAmount() + " " + cart.totalCurrency()
+
+    .cart-actions
+      if cart.status() === 'ACTIVE'
+        a.btn.btn-primary(href=`/api/carts/${cartId}/checkout` method='post') Checkout
+        p.info Use the REST API to add or remove items
+      else
+        .status-badge
+          if cart.status() === 'CHECKED_OUT'
+            span.badge.badge-success Checked Out
+          else if cart.status() === 'ABANDONED'
+            span.badge.badge-warning Abandoned
+
+  else
+    .empty-cart
+      p Your cart is empty
+      p.
+        #[a(href="/products") Browse products] to add items to your cart, or
+        use the #[a(href="/api/carts") REST API] to manage your cart.
+
+  .api-info
+    h3 API Endpoints
+    ul
+      li
+        strong POST /api/carts/#{cartId}/items
+        | - Add item to cart
+      li
+        strong DELETE /api/carts/#{cartId}/items/:productId
+        | - Remove item from cart
+      li
+        strong GET /api/carts/#{cartId}
+        | - Get cart details (JSON)
+
+  style.
+    .success-message {
+      background: #d4edda;
+      color: #155724;
+      padding: 15px;
+      border-radius: 6px;
+      border: 1px solid #c3e6cb;
+      margin-bottom: 20px;
+      font-weight: 500;
+    }
+    .cart-summary {
+      background: #f0f4f8;
+      padding: 20px;
+      border-radius: 8px;
+      margin-bottom: 30px;
+    }
+    .cart-summary p {
+      margin: 8px 0;
+      font-size: 1.1em;
+      color: #2c3e50;
+    }
+    .cart-items {
+      margin-bottom: 30px;
+    }
+    .cart-item {
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 15px;
+      background: #fafafa;
+      transition: box-shadow 0.2s;
+    }
+    .cart-item:hover {
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .item-details h3 {
+      margin-top: 0;
+      color: #2c3e50;
+      font-size: 1.2em;
+    }
+    .item-id {
+      color: #95a5a6;
+      font-size: 0.9em;
+      margin-bottom: 15px;
+    }
+    .item-info {
+      background: white;
+      padding: 15px;
+      border-radius: 6px;
+    }
+    .info-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px solid #ecf0f1;
+    }
+    .info-row:last-child {
+      border-bottom: none;
+    }
+    .info-row .label {
+      font-weight: 600;
+      color: #34495e;
+    }
+    .info-row .value {
+      color: #7f8c8d;
+      font-weight: 500;
+    }
+    .cart-total {
+      background: #e8f4f8;
+      padding: 20px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+    .total-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 1.3em;
+      font-weight: bold;
+      color: #2c3e50;
+    }
+    .cart-actions {
+      text-align: center;
+      padding: 20px;
+    }
+    .cart-actions .info {
+      margin-top: 15px;
+      color: #7f8c8d;
+      font-size: 0.95em;
+    }
+    .btn {
+      display: inline-block;
+      padding: 12px 30px;
+      border-radius: 5px;
+      text-decoration: none;
+      font-weight: 500;
+      text-align: center;
+      transition: background 0.2s;
+      margin: 5px;
+    }
+    .btn-primary {
+      background: #3498db;
+      color: white;
+    }
+    .btn-primary:hover {
+      background: #2980b9;
+    }
+    .empty-cart {
+      text-align: center;
+      padding: 60px 20px;
+      color: #7f8c8d;
+    }
+    .empty-cart p {
+      font-size: 1.1em;
+      margin: 10px 0;
+    }
+    .status-badge {
+      text-align: center;
+      padding: 20px;
+    }
+    .api-info {
+      margin-top: 40px;
+      padding: 20px;
+      background: #f9f9f9;
+      border-radius: 8px;
+      border-left: 4px solid #3498db;
+    }
+    .api-info h3 {
+      margin-top: 0;
+      color: #2c3e50;
+    }
+    .api-info ul {
+      list-style: none;
+      padding-left: 0;
+    }
+    .api-info li {
+      padding: 8px 0;
+      color: #555;
+    }
+    .api-info strong {
+      color: #3498db;
+      font-family: monospace;
+    }

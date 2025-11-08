@@ -1,7 +1,6 @@
 package de.sample.aiarchitecture.cart.application.usecase.getcartbyid;
 
-import de.sample.aiarchitecture.sharedkernel.application.marker.InputPort;
-
+import de.sample.aiarchitecture.cart.application.port.in.GetCartByIdInputPort;
 import de.sample.aiarchitecture.cart.domain.model.CartId;
 import de.sample.aiarchitecture.cart.domain.model.ShoppingCart;
 import de.sample.aiarchitecture.cart.application.port.out.ShoppingCartRepository;
@@ -16,10 +15,13 @@ import org.springframework.transaction.annotation.Transactional;
  * Use case for retrieving a shopping cart by its ID.
  *
  * <p>This is a query use case that retrieves cart details without modifying state.
+ *
+ * <p><b>Hexagonal Architecture:</b> This class implements the {@link GetCartByIdInputPort}
+ * interface, which is a primary/driving port in the application layer.
  */
 @Service
 @Transactional(readOnly = true)
-public class GetCartByIdUseCase implements InputPort<GetCartByIdQuery, GetCartByIdResponse> {
+public class GetCartByIdUseCase implements GetCartByIdInputPort {
 
   private final ShoppingCartRepository shoppingCartRepository;
 

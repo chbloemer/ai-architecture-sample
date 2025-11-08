@@ -4,6 +4,7 @@ import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses
 
 import com.tngtech.archunit.core.domain.JavaClass
+import de.sample.aiarchitecture.sharedkernel.application.marker.InputPort
 import org.springframework.stereotype.Service
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.RestController
@@ -22,37 +23,38 @@ import org.springframework.web.bind.annotation.RestController
  */
 class NamingConventionsArchUnitTest extends BaseArchUnitTest {
 
-  def "Application layer use cases must end with 'UseCase'"() {
+  def "Application layer InputPort implementations must end with 'UseCase'"() {
     expect:
     classes()
       .that().resideInAPackage(APPLICATION_PACKAGE)
       .and().areNotInterfaces()
       .and().areNotRecords()
-      .and().implement(de.sample.aiarchitecture.application.UseCase.class)
+      .and().implement(InputPort.class)
       .should().haveSimpleNameEndingWith("UseCase")
-      .because("Use case classes should follow consistent naming conventions (Clean Architecture pattern)")
+      .because("InputPort implementations (use cases) should follow consistent naming conventions (Hexagonal Architecture)")
       .allowEmptyShould(true)
       .check(allClasses)
   }
 
-  def "Legacy Application Services must end with 'ApplicationService'"() {
+  def "Use case classes must be annotated with @Service"() {
     expect:
     classes()
       .that().resideInAPackage(APPLICATION_PACKAGE)
-      .and().haveSimpleNameEndingWith("ApplicationService")
-      .should().haveSimpleNameEndingWith("ApplicationService")
-      .because("Legacy application services should follow consistent naming conventions")
-      .allowEmptyShould(true)
-      .check(allClasses)
-  }
-
-  def "Application Services must be annotated with @Service"() {
-    expect:
-    classes()
-      .that().resideInAPackage(APPLICATION_PACKAGE)
-      .and().haveSimpleNameEndingWith("ApplicationService")
+      .and().haveSimpleNameEndingWith("UseCase")
       .should().beAnnotatedWith(Service.class)
-      .because("Application services must be Spring-managed beans")
+      .because("Use case classes must be Spring-managed beans")
+      .allowEmptyShould(true)
+      .check(allClasses)
+  }
+
+  def "InputPort interfaces must end with 'InputPort'"() {
+    expect:
+    classes()
+      .that().resideInAPackage("..application.port.in..")
+      .and().areInterfaces()
+      .should().haveSimpleNameEndingWith("InputPort")
+      .because("Input port interfaces should follow consistent naming conventions (Hexagonal Architecture)")
+      .allowEmptyShould(true)
       .check(allClasses)
   }
 

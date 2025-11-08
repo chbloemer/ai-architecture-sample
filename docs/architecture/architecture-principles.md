@@ -470,6 +470,168 @@ public class SpringDomainEventPublisher implements DomainEventPublisher {
 - Can swap implementations (e.g., message broker, in-memory for tests)
 - Follows Hexagonal Architecture (port defined in infrastructure.api, adapter in infrastructure.config)
 
+#### Integration Event
+
+Integration Events are domain events that cross bounded context boundaries and represent public contracts between contexts. They are a special category of domain events with stricter requirements for versioning, backward compatibility, and consumption patterns.
+
+**Key Differences from Internal Domain Events:**
+
+| Aspect | Internal Events | Integration Events |
+|--------|----------------|-------------------|
+| **Scope** | Within one bounded context | Cross bounded context boundaries |
+| **Versioning** | Can change freely | Strict backward compatibility required |
+| **Documentation** | Informal JavaDoc | Formal schema documentation (YAML/AsyncAPI) |
+| **Consumption** | Direct usage | Via Anti-Corruption Layer |
+| **Evolution** | Refactor as needed | Breaking changes require new versions |
+
+**Example: CartCheckedOut Integration Event**
+
+```java
+public record CartCheckedOut(
+    @NonNull UUID eventId,
+    @NonNull CartId cartId,
+    @NonNull CustomerId customerId,
+    @NonNull Money totalAmount,
+    int itemCount,
+    @NonNull List<ItemInfo> items,  // DTO, not domain objects
+    @NonNull Instant occurredOn,
+    int version
+) implements IntegrationEvent {
+
+    // Lightweight DTO using Shared Kernel types only
+    public record ItemInfo(
+        @NonNull ProductId productId,  // From Shared Kernel
+        int quantity                    // Primitive
+    ) {}
+
+    public static CartCheckedOut now(
+        CartId cartId,
+        CustomerId customerId,
+        Money totalAmount,
+        int itemCount,
+        List<CartItem> cartItems) {
+
+        // Convert domain objects to DTOs for cross-context communication
+        List<ItemInfo> itemInfos = cartItems.stream()
+            .map(item -> new ItemInfo(item.productId(), item.quantity().value()))
+            .toList();
+
+        return new CartCheckedOut(
+            UUID.randomUUID(),
+            cartId,
+            customerId,
+            totalAmount,
+            itemCount,
+            itemInfos,
+            Instant.now(),
+            1  // Version 1
+        );
+    }
+}
+```
+
+**Rules:**
+1. Use DTOs with Shared Kernel types or primitives only (never full domain objects from other contexts)
+2. Implement `IntegrationEvent` marker interface (not just `DomainEvent`)
+3. Version field must be actively managed for schema evolution
+4. Document schema in event catalog (see `docs/events/cart-checked-out.yaml`)
+5. Consumers must use Anti-Corruption Layer to translate events
+6. Maintain backward compatibility across versions
+
+**Anti-Corruption Layer Pattern:**
+
+When consuming integration events from other bounded contexts, use an Anti-Corruption Layer (ACL) to translate the event into your context's ubiquitous language.
+
+```java
+// ACL translates Cart events into Product commands
+@Component
+public class CartEventTranslator {
+
+    public List<ReduceProductStockCommand> translate(CartCheckedOut event) {
+        // Handle version-specific translation
+        return switch (event.version()) {
+            case 1 -> translateV1(event);
+            case 2 -> translateV2(event);
+            default -> throw new UnsupportedEventVersionException(
+                "Unsupported CartCheckedOut version: " + event.version()
+            );
+        };
+    }
+
+    private List<ReduceProductStockCommand> translateV1(CartCheckedOut event) {
+        return event.items().stream()
+            .map(item -> new ReduceProductStockCommand(
+                item.productId().value().toString(),
+                item.quantity()
+            ))
+            .toList();
+    }
+
+    private List<ReduceProductStockCommand> translateV2(CartCheckedOut event) {
+        // Handle v2 schema changes (future)
+        return translateV1(event);
+    }
+}
+```
+
+**Event Consumer with ACL:**
+
+```java
+@Component
+public class ProductStockEventListener {
+    private final ReduceProductStockUseCase reduceProductStockUseCase;
+    private final CartEventTranslator cartEventTranslator;  // ACL
+
+    @EventListener
+    public void onCartCheckedOut(CartCheckedOut event) {
+        try {
+            // Use ACL to translate Cart event → Product commands
+            List<ReduceProductStockCommand> commands =
+                cartEventTranslator.translate(event);
+
+            // Execute commands in Product's ubiquitous language
+            commands.forEach(reduceProductStockUseCase::execute);
+
+        } catch (UnsupportedEventVersionException e) {
+            logger.error("Unsupported event version: {}", event.version());
+            // Alert DevOps, version mismatch between contexts
+        }
+    }
+}
+```
+
+**Benefits:**
+- **Context Isolation:** Product context doesn't directly depend on Cart's event structure
+- **Evolution:** Cart can change event schema, only ACL needs updating
+- **Versioning:** ACL handles multiple event versions transparently
+- **Translation:** Converts Cart's language to Product's language
+- **Testability:** ACL can be tested independently
+
+**Event Versioning Strategy:**
+
+1. **Version 1 (current):** Basic event structure
+2. **Version 2 (future):** Add optional fields (e.g., warehouse allocation, batch numbers)
+3. **ACL handles both:** Consumers remain unaffected by version changes
+4. **Backward compatibility:** New fields must be optional
+
+**Implementation:**
+- Interface: `de.sample.aiarchitecture.sharedkernel.domain.marker.IntegrationEvent`
+- Example Event: `de.sample.aiarchitecture.cart.domain.event.CartCheckedOut`
+- ACL Example: `de.sample.aiarchitecture.product.adapter.incoming.event.acl.CartEventTranslator`
+- Consumer Example: `de.sample.aiarchitecture.product.adapter.incoming.event.ProductStockEventListener`
+- Schema Documentation: `docs/events/cart-checked-out.yaml`
+
+**When to Use Integration Events:**
+- ✅ Communication between different bounded contexts (e.g., Cart → Product)
+- ✅ Enabling eventual consistency across contexts
+- ✅ Decoupling autonomous services/modules
+- ✅ Events that external consumers depend on
+
+**When NOT to Use (use DomainEvent instead):**
+- ❌ Communication within the same bounded context
+- ❌ Triggering side effects in the same aggregate
+- ❌ Internal notifications that don't cross context boundaries
+
 #### Factory
 
 A factory encapsulates complex object creation logic.

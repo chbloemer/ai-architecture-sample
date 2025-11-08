@@ -5,18 +5,33 @@ import de.sample.aiarchitecture.cart.domain.model.CartItem;
 import de.sample.aiarchitecture.cart.domain.model.CustomerId;
 import de.sample.aiarchitecture.sharedkernel.domain.common.Money;
 import de.sample.aiarchitecture.sharedkernel.domain.common.ProductId;
-import de.sample.aiarchitecture.sharedkernel.domain.marker.DomainEvent;
+import de.sample.aiarchitecture.sharedkernel.domain.marker.IntegrationEvent;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 import org.jspecify.annotations.NonNull;
 
 /**
- * Domain Event indicating that a shopping cart was checked out.
+ * Integration Event indicating that a shopping cart was checked out.
  *
- * <p><b>Cross-Context Integration:</b> This event uses lightweight DTOs (ItemInfo)
+ * <p><b>Integration Event:</b> This event crosses bounded context boundaries and represents
+ * a public contract between the Cart context and consuming contexts (e.g., Product, Order).
+ * Published by Cart context when checkout completes successfully.
+ *
+ * <p><b>Consumers:</b>
+ * <ul>
+ *   <li>Product Context - Reduces product stock via {@code ProductStockEventListener}
+ *   <li>Order Context - Creates order (future implementation)
+ *   <li>Analytics Context - Tracks checkout metrics (future implementation)
+ * </ul>
+ *
+ * <p><b>Cross-Context Integration Pattern:</b> This event uses lightweight DTOs (ItemInfo)
  * instead of full domain objects to avoid bounded context violations. The DTOs contain
- * only the data needed for other contexts to react (e.g., Product context reducing stock).
+ * only the data needed for other contexts to react. Consumers should use an Anti-Corruption
+ * Layer to translate this event into their own ubiquitous language.
+ *
+ * <p><b>Versioning:</b> This event is versioned (currently v1) and must maintain backward
+ * compatibility. Schema changes require version increments and proper handling in consumer ACLs.
  *
  * <p><b>DDD Pattern:</b> Events should be self-contained and not expose domain objects
  * from one bounded context to another. This ensures proper context isolation.
@@ -30,7 +45,7 @@ public record CartCheckedOut(
     @NonNull List<ItemInfo> items,
     @NonNull Instant occurredOn,
     int version)
-    implements DomainEvent {
+    implements IntegrationEvent {
 
   /**
    * Creates a CartCheckedOut event from cart domain objects.

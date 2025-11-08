@@ -111,8 +111,10 @@ src/main/java/de/sample/aiarchitecture/
 │       │   │   └── ProductDto.java
 │       │   ├── mcp/
 │       │   │   └── ProductCatalogMcpTools.java
-│       │   └── web/
-│       │       └── ProductPageController.java
+│       │   ├── web/
+│       │   │   └── ProductPageController.java
+│       │   └── event/
+│       │       └── ProductEventListener.java
 │       └── outgoing/                     # Outgoing adapters (secondary)
 │           └── persistence/
 │               ├── InMemoryProductRepository.java
@@ -145,11 +147,13 @@ src/main/java/de/sample/aiarchitecture/
 │   │       └── getcartbyid/
 │   └── adapter/                          # Adapters
 │       ├── incoming/                     # Incoming adapters
-│       │   └── api/
-│       │       ├── ShoppingCartResource.java
-│       │       ├── AddToCartRequest.java
-│       │       ├── ShoppingCartDto.java
-│       │       └── ShoppingCartDtoConverter.java
+│       │   ├── api/
+│       │   │   ├── ShoppingCartResource.java
+│       │   │   ├── AddToCartRequest.java
+│       │   │   ├── ShoppingCartDto.java
+│       │   │   └── ShoppingCartDtoConverter.java
+│       │   └── event/
+│       │       └── CartEventListener.java
 │       └── outgoing/                     # Outgoing adapters
 │           └── persistence/
 │               └── InMemoryShoppingCartRepository.java
@@ -163,12 +167,10 @@ src/main/java/de/sample/aiarchitecture/
 └── infrastructure/                       # Infrastructure (cross-cutting)
     ├── api/                              # Public SPI
     │   └── DomainEventPublisher.java
-    ├── config/                           # Spring configuration
-    │   ├── SecurityConfiguration.java
-    │   ├── TransactionConfiguration.java
-    │   └── SpringDomainEventPublisher.java
-    └── event/                            # Event listeners
-        └── CartEventListener.java
+    └── config/                           # Spring configuration
+        ├── SecurityConfiguration.java
+        ├── TransactionConfiguration.java
+        └── SpringDomainEventPublisher.java
 ```
 
 ## Getting Started

@@ -54,8 +54,10 @@ de.sample.aiarchitecture
 │       │   │   └── CreateProductRequest
 │       │   ├── mcp/
 │       │   │   └── ProductCatalogMcpTools
-│       │   └── web/
-│       │       └── ProductPageController
+│       │   ├── web/
+│       │   │   └── ProductPageController
+│       │   └── event/
+│       │       └── ProductEventListener
 │       └── outgoing               # Outgoing Adapters (Secondary)
 │           └── persistence/
 │               ├── InMemoryProductRepository
@@ -86,11 +88,13 @@ de.sample.aiarchitecture
 │   │       └── getcartbyid/
 │   └── adapter                    # Adapters
 │       ├── incoming               # Incoming Adapters
-│       │   └── api/
-│       │       ├── ShoppingCartResource
-│       │       ├── ShoppingCartDto
-│       │       ├── AddToCartRequest
-│       │       └── ShoppingCartDtoConverter
+│       │   ├── api/
+│       │   │   ├── ShoppingCartResource
+│       │   │   ├── ShoppingCartDto
+│       │   │   ├── AddToCartRequest
+│       │   │   └── ShoppingCartDtoConverter
+│       │   └── event/
+│       │       └── CartEventListener
 │       └── outgoing               # Outgoing Adapters
 │           └── persistence/
 │               └── InMemoryShoppingCartRepository
@@ -104,12 +108,10 @@ de.sample.aiarchitecture
 └── infrastructure                  # Infrastructure (cross-cutting)
     ├── api                        # Public SPI (interfaces only)
     │   └── DomainEventPublisher
-    ├── config                     # Spring Configuration
-    │   ├── SecurityConfiguration
-    │   ├── TransactionConfiguration
-    │   └── SpringDomainEventPublisher
-    └── event                      # Event Listeners
-        └── CartEventListener
+    └── config                     # Spring Configuration
+        ├── SecurityConfiguration
+        ├── TransactionConfiguration
+        └── SpringDomainEventPublisher
 ```
 
 ## Bounded Context Organization
@@ -130,22 +132,23 @@ Each bounded context (product, cart) follows the same internal structure:
     ├── incoming/       # Incoming adapters (primary/driving)
     │   ├── api/        # REST API
     │   ├── web/        # Web MVC
-    │   └── mcp/        # MCP server
+    │   ├── mcp/        # MCP server
+    │   └── event/      # Domain event listeners
     └── outgoing/       # Outgoing adapters (secondary/driven)
         └── persistence/ # Repository implementations
 ```
 
-## Primary Adapters: API vs Web vs MCP
+## Primary Adapters: API vs Web vs MCP vs Event
 
-| Aspect | API (`adapter.incoming.api`) | Web (`adapter.incoming.web`) | MCP (`adapter.incoming.mcp`) |
-|--------|-------------|--------------|--------------|
-| **Annotation** | `@RestController` | `@Controller` | `@Component` |
-| **Naming** | `*Resource` | `*Controller` | `*McpTools` |
-| **Returns** | JSON/XML (DTOs) | HTML (templates) | DTOs (JSON-RPC) |
-| **URL** | `/api/*` | `/*` | `/mcp` |
-| **Content-Type** | `application/json` | `text/html` | `application/json` |
-| **Consumers** | Apps, systems | Browsers (humans) | AI assistants |
-| **Data Model** | DTOs | Domain or ViewModels | DTOs |
+| Aspect | API (`adapter.incoming.api`) | Web (`adapter.incoming.web`) | MCP (`adapter.incoming.mcp`) | Event (`adapter.incoming.event`) |
+|--------|-------------|--------------|--------------|--------------|
+| **Annotation** | `@RestController` | `@Controller` | `@Component` | `@Component` |
+| **Naming** | `*Resource` | `*Controller` | `*McpTools` | `*EventListener` |
+| **Returns** | JSON/XML (DTOs) | HTML (templates) | DTOs (JSON-RPC) | void |
+| **URL** | `/api/*` | `/*` | `/mcp` | N/A |
+| **Content-Type** | `application/json` | `text/html` | `application/json` | N/A |
+| **Consumers** | Apps, systems | Browsers (humans) | AI assistants | Domain events |
+| **Data Model** | DTOs | Domain or ViewModels | DTOs | Domain events |
 
 ## ArchUnit Enforcement
 

@@ -1,4 +1,4 @@
-package de.sample.aiarchitecture.infrastructure.event;
+package de.sample.aiarchitecture.cart.adapter.incoming.event;
 
 import de.sample.aiarchitecture.cart.domain.event.CartCheckedOut;
 import de.sample.aiarchitecture.cart.domain.event.CartItemAddedToCart;

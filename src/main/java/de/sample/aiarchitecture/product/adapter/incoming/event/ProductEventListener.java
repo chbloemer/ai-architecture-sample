@@ -1,4 +1,4 @@
-package de.sample.aiarchitecture.infrastructure.event;
+package de.sample.aiarchitecture.product.adapter.incoming.event;
 
 import de.sample.aiarchitecture.product.domain.event.ProductCreated;
 import de.sample.aiarchitecture.product.domain.event.ProductPriceChanged;

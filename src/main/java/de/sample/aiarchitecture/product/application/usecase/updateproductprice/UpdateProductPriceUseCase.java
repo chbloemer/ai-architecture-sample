@@ -1,6 +1,6 @@
 package de.sample.aiarchitecture.product.application.usecase.updateproductprice;
 
-import de.sample.aiarchitecture.sharedkernel.application.marker.InputPort;
+import de.sample.aiarchitecture.product.application.port.in.UpdateProductPriceInputPort;
 import de.sample.aiarchitecture.product.domain.model.Product;
 import de.sample.aiarchitecture.product.application.port.out.ProductRepository;
 import de.sample.aiarchitecture.sharedkernel.domain.common.Money;
@@ -22,10 +22,13 @@ import org.springframework.transaction.annotation.Transactional;
  *   <li>Persisting the updated product</li>
  *   <li>Publishing domain events</li>
  * </ol>
+ *
+ * <p><b>Hexagonal Architecture:</b> This class implements the {@link UpdateProductPriceInputPort}
+ * interface, which is a primary/driving port in the application layer.
  */
 @Service
 @Transactional
-public class UpdateProductPriceUseCase implements InputPort<UpdateProductPriceCommand, UpdateProductPriceResponse> {
+public class UpdateProductPriceUseCase implements UpdateProductPriceInputPort {
 
   private final ProductRepository productRepository;
   private final DomainEventPublisher eventPublisher;

@@ -9,7 +9,7 @@ import de.sample.aiarchitecture.product.domain.model.ProductFactory;
 import de.sample.aiarchitecture.product.domain.model.ProductName;
 import de.sample.aiarchitecture.product.domain.model.ProductStock;
 import de.sample.aiarchitecture.product.domain.model.SKU;
-import de.sample.aiarchitecture.sharedkernel.application.marker.InputPort;
+import de.sample.aiarchitecture.product.application.port.in.CreateProductInputPort;
 import de.sample.aiarchitecture.sharedkernel.domain.common.Money;
 import de.sample.aiarchitecture.sharedkernel.domain.common.Price;
 import java.util.Currency;
@@ -27,10 +27,13 @@ import org.springframework.transaction.annotation.Transactional;
  *   <li>Persisting the product via repository</li>
  *   <li>Publishing domain events</li>
  * </ol>
+ *
+ * <p><b>Hexagonal Architecture:</b> This class implements the {@link CreateProductInputPort}
+ * interface, which is a primary/driving port in the application layer.
  */
 @Service
 @Transactional
-public class CreateProductUseCase implements InputPort<CreateProductCommand, CreateProductResponse> {
+public class CreateProductUseCase implements CreateProductInputPort {
 
   private final ProductRepository productRepository;
   private final ProductFactory productFactory;

@@ -1,7 +1,6 @@
 package de.sample.aiarchitecture.cart.application.usecase.createcart;
 
-import de.sample.aiarchitecture.sharedkernel.application.marker.InputPort;
-
+import de.sample.aiarchitecture.cart.application.port.in.CreateCartInputPort;
 import de.sample.aiarchitecture.cart.domain.model.CartId;
 import de.sample.aiarchitecture.cart.domain.model.CustomerId;
 import de.sample.aiarchitecture.cart.domain.model.ShoppingCart;
@@ -14,10 +13,13 @@ import org.springframework.transaction.annotation.Transactional;
  * Use case for creating a new shopping cart.
  *
  * <p>This use case creates a new empty shopping cart for a customer.
+ *
+ * <p><b>Hexagonal Architecture:</b> This class implements the {@link CreateCartInputPort}
+ * interface, which is a primary/driving port in the application layer.
  */
 @Service
 @Transactional
-public class CreateCartUseCase implements InputPort<CreateCartCommand, CreateCartResponse> {
+public class CreateCartUseCase implements CreateCartInputPort {
 
   private final ShoppingCartRepository shoppingCartRepository;
 

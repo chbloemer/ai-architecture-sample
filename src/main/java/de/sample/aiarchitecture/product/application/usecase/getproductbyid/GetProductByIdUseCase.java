@@ -1,6 +1,6 @@
 package de.sample.aiarchitecture.product.application.usecase.getproductbyid;
 
-import de.sample.aiarchitecture.sharedkernel.application.marker.InputPort;
+import de.sample.aiarchitecture.product.application.port.in.GetProductByIdInputPort;
 import de.sample.aiarchitecture.product.domain.model.Product;
 import de.sample.aiarchitecture.product.application.port.out.ProductRepository;
 import de.sample.aiarchitecture.sharedkernel.domain.common.ProductId;
@@ -13,10 +13,13 @@ import org.springframework.transaction.annotation.Transactional;
  * Use case for retrieving a product by its ID.
  *
  * <p>This is a query use case that retrieves product details without modifying state.
+ *
+ * <p><b>Hexagonal Architecture:</b> This class implements the {@link GetProductByIdInputPort}
+ * interface, which is a primary/driving port in the application layer.
  */
 @Service
 @Transactional(readOnly = true)
-public class GetProductByIdUseCase implements InputPort<GetProductByIdQuery, GetProductByIdResponse> {
+public class GetProductByIdUseCase implements GetProductByIdInputPort {
 
   private final ProductRepository productRepository;
 

@@ -1,7 +1,6 @@
 package de.sample.aiarchitecture.cart.application.usecase.additemtocart;
 
-import de.sample.aiarchitecture.sharedkernel.application.marker.InputPort;
-
+import de.sample.aiarchitecture.cart.application.port.in.AddItemToCartInputPort;
 import de.sample.aiarchitecture.cart.domain.model.CartId;
 import de.sample.aiarchitecture.cart.domain.model.Quantity;
 import de.sample.aiarchitecture.cart.domain.model.ShoppingCart;
@@ -27,10 +26,13 @@ import org.springframework.transaction.annotation.Transactional;
  *   <li>Persisting the updated cart</li>
  *   <li>Publishing domain events</li>
  * </ol>
+ *
+ * <p><b>Hexagonal Architecture:</b> This class implements the {@link AddItemToCartInputPort}
+ * interface, which is a primary/driving port in the application layer.
  */
 @Service
 @Transactional
-public class AddItemToCartUseCase implements InputPort<AddItemToCartCommand, AddItemToCartResponse> {
+public class AddItemToCartUseCase implements AddItemToCartInputPort {
 
   private final ShoppingCartRepository shoppingCartRepository;
   private final ProductRepository productRepository;

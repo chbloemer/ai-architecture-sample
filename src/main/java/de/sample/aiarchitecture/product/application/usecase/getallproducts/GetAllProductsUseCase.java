@@ -1,6 +1,6 @@
 package de.sample.aiarchitecture.product.application.usecase.getallproducts;
 
-import de.sample.aiarchitecture.sharedkernel.application.marker.InputPort;
+import de.sample.aiarchitecture.product.application.port.in.GetAllProductsInputPort;
 import de.sample.aiarchitecture.product.domain.model.Product;
 import de.sample.aiarchitecture.product.application.port.out.ProductRepository;
 import java.util.List;
@@ -12,10 +12,13 @@ import org.springframework.transaction.annotation.Transactional;
  * Use case for retrieving all products.
  *
  * <p>This is a query use case that retrieves all products without modifying state.
+ *
+ * <p><b>Hexagonal Architecture:</b> This class implements the {@link GetAllProductsInputPort}
+ * interface, which is a primary/driving port in the application layer.
  */
 @Service
 @Transactional(readOnly = true)
-public class GetAllProductsUseCase implements InputPort<GetAllProductsQuery, GetAllProductsResponse> {
+public class GetAllProductsUseCase implements GetAllProductsInputPort {
 
   private final ProductRepository productRepository;
 

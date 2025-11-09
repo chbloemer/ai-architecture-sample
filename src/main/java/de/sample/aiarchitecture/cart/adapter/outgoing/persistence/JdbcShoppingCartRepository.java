@@ -1,26 +1,25 @@
 package de.sample.aiarchitecture.cart.adapter.outgoing.persistence;
 
+import de.sample.aiarchitecture.cart.adapter.outgoing.persistence.jdbc.CartSpecToJdbc;
 import de.sample.aiarchitecture.cart.application.port.out.ShoppingCartRepository;
 import de.sample.aiarchitecture.cart.domain.model.*;
 import de.sample.aiarchitecture.sharedkernel.domain.common.Money;
 import de.sample.aiarchitecture.sharedkernel.domain.common.Price;
 import de.sample.aiarchitecture.sharedkernel.domain.common.ProductId;
+import de.sample.aiarchitecture.sharedkernel.domain.spec.CompositeSpecification;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import javax.sql.DataSource;
 import org.jspecify.annotations.NonNull;
-import org.springframework.context.annotation.Primary;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
-import org.springframework.jdbc.support.GeneratedKeyHolder;
-import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,9 +35,11 @@ import org.springframework.transaction.annotation.Transactional;
 public class JdbcShoppingCartRepository implements ShoppingCartRepository {
 
   private final JdbcTemplate jdbcTemplate;
+  private final CartSpecToJdbc specTranslator;
 
-  public JdbcShoppingCartRepository(final DataSource dataSource) {
+  public JdbcShoppingCartRepository(final DataSource dataSource, final CartSpecToJdbc specTranslator) {
     this.jdbcTemplate = new JdbcTemplate(dataSource);
+    this.specTranslator = specTranslator;
   }
 
   @Override
@@ -121,6 +122,41 @@ public class JdbcShoppingCartRepository implements ShoppingCartRepository {
   public void deleteById(@NonNull final CartId id) {
     jdbcTemplate.update("DELETE FROM cart_items WHERE cart_id = ?", id.value());
     jdbcTemplate.update("DELETE FROM carts WHERE id = ?", id.value());
+  }
+
+  @Override
+  @Transactional(readOnly = true)
+  public Page<ShoppingCart> findBy(@NonNull final CompositeSpecification<ShoppingCart> specification, @NonNull final Pageable pageable) {
+    final CartSpecToJdbc translator = requireTranslator();
+    final var pred = specification.accept(translator);
+
+    // Count total
+    final String countSql = "SELECT COUNT(*) FROM carts c WHERE " + pred.sql();
+    final long total = jdbcTemplate.queryForObject(countSql, pred.params().toArray(), Long.class);
+
+    // Page content
+    final String selectSql = "SELECT id, customer_id, status FROM carts c WHERE " + pred.sql() +
+        " ORDER BY updated_at DESC LIMIT ? OFFSET ?";
+    final Object[] params = appendLimitOffset(pred.params().toArray(), pageable.getPageSize(), (int) pageable.getOffset());
+    final List<ShoppingCart> content = jdbcTemplate.query(selectSql, cartRowMapper(), params);
+    content.forEach(c -> { loadItems(c); clearDomainEvents(c);} );
+
+    return new PageImpl<>(content, pageable, total);
+  }
+
+  private Object[] appendLimitOffset(final Object[] base, final int limit, final int offset) {
+    final Object[] arr = new Object[base.length + 2];
+    System.arraycopy(base, 0, arr, 0, base.length);
+    arr[base.length] = limit;
+    arr[base.length + 1] = offset;
+    return arr;
+  }
+
+  private CartSpecToJdbc requireTranslator() {
+    if (this.specTranslator == null) {
+      throw new IllegalStateException("CartSpecToJdbc translator not configured");
+    }
+    return this.specTranslator;
   }
 
   private RowMapper<ShoppingCart> cartRowMapper() {

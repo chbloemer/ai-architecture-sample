@@ -5,6 +5,7 @@ import de.sample.aiarchitecture.cart.domain.model.*;
 import de.sample.aiarchitecture.sharedkernel.domain.common.Money;
 import de.sample.aiarchitecture.sharedkernel.domain.common.Price;
 import de.sample.aiarchitecture.sharedkernel.domain.common.ProductId;
+import de.sample.aiarchitecture.sharedkernel.domain.spec.CompositeSpecification;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.time.Instant;
@@ -13,6 +14,9 @@ import java.util.List;
 import java.util.Optional;
 import org.jspecify.annotations.NonNull;
 import org.springframework.context.annotation.Primary;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,9 +25,11 @@ import org.springframework.transaction.annotation.Transactional;
 public class JpaShoppingCartRepository implements ShoppingCartRepository {
 
   private final CartJpaRepository cartRepo;
+  private final CartSpecToJpa specTranslator;
 
-  public JpaShoppingCartRepository(final CartJpaRepository cartRepo) {
+  public JpaShoppingCartRepository(final CartJpaRepository cartRepo, final CartSpecToJpa specTranslator) {
     this.cartRepo = cartRepo;
+    this.specTranslator = specTranslator;
   }
 
   @Override
@@ -53,6 +59,14 @@ public class JpaShoppingCartRepository implements ShoppingCartRepository {
   }
 
   @Override
+  @Transactional(readOnly = true)
+  public Page<ShoppingCart> findBy(@NonNull final CompositeSpecification<ShoppingCart> specification, @NonNull final Pageable pageable) {
+    final CartSpecToJpa translator = requireTranslator();
+    final Specification<CartEntity> jpaSpec = specification.accept(translator);
+    return cartRepo.findAll(jpaSpec, pageable).map(this::toDomain);
+  }
+
+  @Override
   @Transactional
   public ShoppingCart save(@NonNull final ShoppingCart cart) {
     final CartEntity entity = toEntity(cart);
@@ -65,6 +79,13 @@ public class JpaShoppingCartRepository implements ShoppingCartRepository {
   @Transactional
   public void deleteById(@NonNull final CartId id) {
     cartRepo.deleteById(id.value());
+  }
+
+  private CartSpecToJpa requireTranslator() {
+    if (this.specTranslator == null) {
+      throw new IllegalStateException("CartSpecToJpa translator not configured");
+    }
+    return this.specTranslator;
   }
 
   private ShoppingCart toDomain(final CartEntity entity) {

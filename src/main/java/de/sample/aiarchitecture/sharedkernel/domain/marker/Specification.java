@@ -1,5 +1,7 @@
 package de.sample.aiarchitecture.sharedkernel.domain.marker;
 
+import org.jspecify.annotations.NonNull;
+
 /**
  * Marker interface for Specifications.
  *
@@ -51,4 +53,6 @@ package de.sample.aiarchitecture.sharedkernel.domain.marker;
  *
  * @see <a href="https://www.domainlanguage.com/ddd/">Domain-Driven Design Reference</a>
  */
-public interface Specification {}
+public interface Specification<T> {
+    boolean isSatisfiedBy(@NonNull T candidate);
+}

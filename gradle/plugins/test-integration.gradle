@@ -1,0 +1,53 @@
+// Integration tests source set and task
+
+sourceSets {
+  testIntegration {
+    java.srcDir file("src/test-integration/java")
+    resources.srcDir file("src/test-integration/resources")
+    // Do not reference non-resolvable configurations directly.
+    // Gradle will create and wire compile/runtime classpaths for this source set.
+    // We only need to add main outputs so ITs can see production classes.
+    compileClasspath += sourceSets.main.output
+    runtimeClasspath += sourceSets.main.output
+  }
+}
+
+configurations {
+  // Reuse unit-test dependencies
+  testIntegrationImplementation.extendsFrom(testImplementation)
+  testIntegrationRuntimeOnly.extendsFrom(testRuntimeOnly)
+}
+
+// Apply common test dependencies and include main outputs
+addCommonTestDependencies('testIntegrationImplementation')
+
+dependencies {
+  testIntegrationImplementation sourceSets.main.output
+}
+
+// Register dedicated integration test task
+tasks.register('test-integration', Test) {
+  description = 'Runs integration tests (JUnit Platform) from src/test-integration.'
+  group = 'verification'
+  testClassesDirs = sourceSets.testIntegration.output.classesDirs
+  classpath = sourceSets.testIntegration.runtimeClasspath
+}
+
+// Apply common test task configuration and output directory
+configureTestTask(tasks.getByName('test-integration'), "test-integration")
+
+// Extra logging parity with unit tests when -Plog-debug is set
+tasks.named('test-integration').configure {
+  jvmArgs "-Xshare:off"
+  if (project.hasProperty('log-debug')) {
+    beforeTest { descriptor ->
+      logger.lifecycle("# ${descriptor.className}: ${descriptor.name}")
+    }
+    testLogging {
+      events 'started', 'passed', 'skipped', 'failed'
+    }
+  }
+}
+
+// Make `check` run integration tests too
+tasks.named('check') { dependsOn 'test-integration' }

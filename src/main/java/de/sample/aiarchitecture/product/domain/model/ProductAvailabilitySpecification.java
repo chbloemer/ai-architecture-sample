@@ -8,7 +8,7 @@ import org.jspecify.annotations.NonNull;
  *
  * <p>A product is available if it has stock quantity greater than zero.
  */
-public final class ProductAvailabilitySpecification implements Specification {
+public final class ProductAvailabilitySpecification implements Specification<Product> {
 
   /**
    * Checks if the product satisfies the availability criteria.

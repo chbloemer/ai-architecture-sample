@@ -11,6 +11,7 @@ plugins {
 apply from: "gradle/plugins/test-common.gradle"
 apply from: "gradle/plugins/test-unit.gradle"
 apply from: "gradle/plugins/test-architecture.gradle"
+apply from: "gradle/plugins/test-integration.gradle"
 
 // Project Configuration
 group = 'de.sample'
@@ -100,3 +101,23 @@ bootRun {
   }
   systemProperties System.properties
 }
+
+// IntelliJ IDEA module configuration (Gradle 9+ compatible)
+// We avoid deprecated properties like `testSourceDirs` and instead tweak the IML via withXml.
+// IntelliJ will still primarily rely on Gradle sourceSets, but this ensures folders appear as Test (green).
+idea {
+  module {
+      testSources.from(sourceSets.test.java.srcDirs)
+      testSources.from(sourceSets.test.groovy.srcDirs)
+      testResources.from(sourceSets.test.resources.srcDirs)
+
+      testSources.from(sourceSets.testIntegration.java.srcDirs)
+      testSources.from(sourceSets.testIntegration.groovy.srcDirs)
+      testResources.from(sourceSets.testIntegration.resources.srcDirs)
+
+      testSources.from(sourceSets.testArchitecture.java.srcDirs)
+      testSources.from(sourceSets.testArchitecture.groovy.srcDirs)
+      testResources.from(sourceSets.testArchitecture.resources.srcDirs)
+  }
+}
+

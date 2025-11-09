@@ -39,6 +39,7 @@ public class ShoppingCartResource {
   private final CreateCartUseCase createCartUseCase;
   private final GetAllCartsUseCase getAllCartsUseCase;
   private final GetCartByIdUseCase getCartByIdUseCase;
+  private final de.sample.aiarchitecture.cart.application.usecase.getorcreateactivecart.GetOrCreateActiveCartUseCase getOrCreateActiveCartUseCase;
   private final AddItemToCartUseCase addItemToCartUseCase;
   private final RemoveItemFromCartUseCase removeItemFromCartUseCase;
   private final CheckoutCartUseCase checkoutCartUseCase;
@@ -48,6 +49,7 @@ public class ShoppingCartResource {
       final CreateCartUseCase createCartUseCase,
       final GetAllCartsUseCase getAllCartsUseCase,
       final GetCartByIdUseCase getCartByIdUseCase,
+      final de.sample.aiarchitecture.cart.application.usecase.getorcreateactivecart.GetOrCreateActiveCartUseCase getOrCreateActiveCartUseCase,
       final AddItemToCartUseCase addItemToCartUseCase,
       final RemoveItemFromCartUseCase removeItemFromCartUseCase,
       final CheckoutCartUseCase checkoutCartUseCase,
@@ -55,6 +57,7 @@ public class ShoppingCartResource {
     this.createCartUseCase = createCartUseCase;
     this.getAllCartsUseCase = getAllCartsUseCase;
     this.getCartByIdUseCase = getCartByIdUseCase;
+    this.getOrCreateActiveCartUseCase = getOrCreateActiveCartUseCase;
     this.addItemToCartUseCase = addItemToCartUseCase;
     this.removeItemFromCartUseCase = removeItemFromCartUseCase;
     this.checkoutCartUseCase = checkoutCartUseCase;
@@ -86,16 +89,19 @@ public class ShoppingCartResource {
     return ResponseEntity.ok(converter.toDto(output));
   }
 
-  // Note: The following endpoint doesn't have a corresponding use case yet:
-  // - GetOrCreateActiveCartUseCase
-  // Temporarily commented out until use case is created:
-  /*
   @GetMapping("/customer/{customerId}/active")
-  public ResponseEntity<ShoppingCartDto> getActiveCart(@PathVariable final String customerId) {
-    // TODO: Implement GetOrCreateActiveCartUseCase
-    return ResponseEntity.notFound().build();
+  public ResponseEntity<ShoppingCartDto> getOrCreateActiveCart(@PathVariable final String customerId) {
+    if (customerId == null || customerId.isBlank()) {
+      return ResponseEntity.badRequest().build();
+    }
+
+    final var response = getOrCreateActiveCartUseCase
+        .execute(new de.sample.aiarchitecture.cart.application.usecase.getorcreateactivecart.GetOrCreateActiveCartCommand(customerId));
+
+    // Fetch full cart projection suited for the existing DTO conversion
+    final GetCartByIdResponse byId = getCartByIdUseCase.execute(new GetCartByIdQuery(response.cartId()));
+    return ResponseEntity.ok(converter.toDto(byId));
   }
-  */
 
   @PostMapping("/{cartId}/items")
   public ResponseEntity<ShoppingCartDto> addItemToCart(
@@ -107,9 +113,22 @@ public class ShoppingCartResource {
         request.quantity()
     );
 
-    final AddItemToCartResponse output = addItemToCartUseCase.execute(input);
-
-    return ResponseEntity.ok(converter.toDto(output));
+    try {
+      final AddItemToCartResponse output = addItemToCartUseCase.execute(input);
+      return ResponseEntity.ok(converter.toDto(output));
+    } catch (IllegalArgumentException ex) {
+      final String msg = ex.getMessage() != null ? ex.getMessage() : "Invalid request";
+      if (msg.startsWith("Cart not found")) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+      }
+      if (msg.startsWith("Product not found")) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+      }
+      if (msg.startsWith("Insufficient stock")) {
+        return ResponseEntity.badRequest().build();
+      }
+      return ResponseEntity.badRequest().build();
+    }
   }
 
   @DeleteMapping("/{cartId}/items/{productId}")

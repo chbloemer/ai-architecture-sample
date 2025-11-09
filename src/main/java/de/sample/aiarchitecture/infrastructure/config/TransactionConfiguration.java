@@ -70,6 +70,7 @@ import org.springframework.transaction.support.DefaultTransactionStatus;
  * {@code spring-boot-starter-data-jpa} would auto-configure a proper transaction manager.
  */
 @Configuration
+@org.springframework.context.annotation.Profile("inmemory")
 @EnableTransactionManagement
 public class TransactionConfiguration {
 
@@ -85,6 +86,7 @@ public class TransactionConfiguration {
    * @return a platform transaction manager for in-memory operations
    */
   @Bean
+  @org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean(PlatformTransactionManager.class)
   public PlatformTransactionManager transactionManager() {
     return new InMemoryTransactionManager();
   }

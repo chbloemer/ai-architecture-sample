@@ -19,6 +19,7 @@ import org.springframework.stereotype.Repository;
  * using ConcurrentHashMap. In a production system, this would be replaced with
  * a database implementation.
  */
+@org.springframework.context.annotation.Profile("inmemory")
 @Repository
 public class InMemoryShoppingCartRepository implements ShoppingCartRepository {
 

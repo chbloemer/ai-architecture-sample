@@ -17,6 +17,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * (product, cart, portal) and shared kernel components.
  */
 @SpringBootApplication(scanBasePackages = "de.sample.aiarchitecture")
+@org.springframework.data.jpa.repository.config.EnableJpaRepositories(basePackages = "de.sample.aiarchitecture")
+@org.springframework.boot.autoconfigure.domain.EntityScan(basePackages = "de.sample.aiarchitecture")
 public class AiArchitectureApplication {
 
   public static void main(final String[] args) {

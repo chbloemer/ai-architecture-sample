@@ -55,6 +55,9 @@ dependencies {
   implementation 'org.springframework.boot:spring-boot-starter-validation'
   implementation 'org.springframework.boot:spring-boot-starter-security'
   implementation 'org.springframework:spring-tx'
+  // Persistence: Spring Data JPA + H2 in-memory database
+  implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+  runtimeOnly 'com.h2database:h2'
   compileOnly 'org.springframework.boot:spring-boot-configuration-processor'
 
   // Lombok

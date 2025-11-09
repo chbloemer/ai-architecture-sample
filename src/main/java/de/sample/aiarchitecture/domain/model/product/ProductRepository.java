@@ -1,6 +1,6 @@
 package de.sample.aiarchitecture.domain.model.product;
 
-import de.sample.aiarchitecture.domain.model.ddd.Repository;
+import de.sample.aiarchitecture.domain.model.shared.ddd.Repository;
 import de.sample.aiarchitecture.domain.model.shared.ProductId;
 import java.util.List;
 import java.util.Optional;

@@ -1,4 +1,4 @@
-package de.sample.aiarchitecture.domain.model.ddd;
+package de.sample.aiarchitecture.domain.model.shared.ddd;
 
 import java.util.Optional;
 import org.jspecify.annotations.NonNull;

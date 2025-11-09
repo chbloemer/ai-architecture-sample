@@ -1,6 +1,6 @@
 package de.sample.aiarchitecture.domain.model.cart;
 
-import de.sample.aiarchitecture.domain.model.ddd.BaseAggregateRoot;
+import de.sample.aiarchitecture.domain.model.shared.ddd.BaseAggregateRoot;
 import de.sample.aiarchitecture.domain.model.shared.Money;
 import de.sample.aiarchitecture.domain.model.shared.Price;
 import de.sample.aiarchitecture.domain.model.shared.ProductId;

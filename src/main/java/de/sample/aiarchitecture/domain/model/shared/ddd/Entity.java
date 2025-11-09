@@ -1,4 +1,4 @@
-package de.sample.aiarchitecture.domain.model.ddd;
+package de.sample.aiarchitecture.domain.model.shared.ddd;
 
 public interface Entity<T extends Entity<T, ID>, ID extends Id> {
   ID id();

@@ -1,7 +1,7 @@
 package de.sample.aiarchitecture.domain.model.cart;
 
-import de.sample.aiarchitecture.domain.model.ddd.Id;
-import de.sample.aiarchitecture.domain.model.ddd.Value;
+import de.sample.aiarchitecture.domain.model.shared.ddd.Id;
+import de.sample.aiarchitecture.domain.model.shared.ddd.Value;
 import org.jspecify.annotations.NonNull;
 
 /**

@@ -1,7 +1,8 @@
 package de.sample.aiarchitecture
 
-import de.sample.aiarchitecture.domain.model.ddd.DomainEvent
-import de.sample.aiarchitecture.domain.model.ddd.DomainService
+import de.sample.aiarchitecture.domain.model.shared.ddd.DomainEvent
+import de.sample.aiarchitecture.domain.model.shared.ddd.DomainService
+import de.sample.aiarchitecture.domain.model.shared.ddd.Factory
 
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses
@@ -173,7 +174,7 @@ class DddAdvancedPatternsArchUnitTest extends BaseArchUnitTest {
   def "Factories should implement Factory Marker Interface"() {
     expect:
     classes()
-      .that().implement(de.sample.aiarchitecture.domain.model.ddd.Factory.class)
+      .that().implement(Factory.class)
       .should().haveSimpleNameEndingWith("Factory")
       .because("Classes implementing Factory marker should have 'Factory' in their name")
       .allowEmptyShould(true)
@@ -183,7 +184,7 @@ class DddAdvancedPatternsArchUnitTest extends BaseArchUnitTest {
   def "Factories must reside in domain.model package"() {
     expect:
     classes()
-      .that().implement(de.sample.aiarchitecture.domain.model.ddd.Factory.class)
+      .that().implement(Factory.class)
       .should().resideInAPackage(DOMAIN_MODEL_PACKAGE)
       .because("Factories are part of the domain model (complex aggregate creation logic)")
       .allowEmptyShould(true)
@@ -193,7 +194,7 @@ class DddAdvancedPatternsArchUnitTest extends BaseArchUnitTest {
   def "Factories must not have Spring annotations"() {
     expect:
     noClasses()
-      .that().implement(de.sample.aiarchitecture.domain.model.ddd.Factory.class)
+      .that().implement(Factory.class)
       .and().resideInAPackage(DOMAIN_MODEL_PACKAGE)
       .should().beAnnotatedWith(Component.class)
       .orShould().beAnnotatedWith(Service.class)
@@ -205,7 +206,7 @@ class DddAdvancedPatternsArchUnitTest extends BaseArchUnitTest {
   def "Factories should be stateless (only final fields for dependencies)"() {
     expect:
     classes()
-      .that().implement(de.sample.aiarchitecture.domain.model.ddd.Factory.class)
+      .that().implement(Factory.class)
       .and().resideInAPackage(DOMAIN_MODEL_PACKAGE)
       .should().haveOnlyFinalFields()
       .because("Factories should be stateless (only final fields for dependencies)")

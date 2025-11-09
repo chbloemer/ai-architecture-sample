@@ -1,6 +1,6 @@
 package de.sample.aiarchitecture.domain.model.cart;
 
-import de.sample.aiarchitecture.domain.model.ddd.DomainService;
+import de.sample.aiarchitecture.domain.model.shared.ddd.DomainService;
 import de.sample.aiarchitecture.domain.model.shared.Money;
 import java.math.BigDecimal;
 import java.math.RoundingMode;

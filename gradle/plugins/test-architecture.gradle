@@ -25,3 +25,12 @@ tasks.register('test-architecture', Test) {
 
 // Apply common test configuration
 configureTestTask(tasks.getByName('test-architecture'), "test-architecture")
+
+// Configure IntelliJ IDEA to recognize this as test sources
+idea {
+  module {
+    testSources.from(sourceSets.testArchitecture.groovy.srcDirs)
+    testSources.from(sourceSets.testArchitecture.java.srcDirs)
+    testResources.from(sourceSets.testArchitecture.resources.srcDirs)
+  }
+}

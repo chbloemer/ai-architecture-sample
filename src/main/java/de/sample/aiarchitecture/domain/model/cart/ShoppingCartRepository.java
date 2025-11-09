@@ -1,6 +1,6 @@
 package de.sample.aiarchitecture.domain.model.cart;
 
-import de.sample.aiarchitecture.domain.model.ddd.Repository;
+import de.sample.aiarchitecture.domain.model.shared.ddd.Repository;
 import java.util.List;
 import java.util.Optional;
 import org.jspecify.annotations.NonNull;

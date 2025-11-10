@@ -38,10 +38,21 @@ configurations {
   }
 }
 
+// Ensure SNAPSHOTs (changing modules) are not cached during development
+configurations.all {
+  resolutionStrategy {
+    cacheChangingModulesFor 0, 'seconds'
+  }
+}
+
 // Repositories
 repositories {
+  // Prefer locally installed SNAPSHOTs first
+  mavenLocal()
   mavenCentral()
   maven { url 'https://repo.spring.io/milestone' }
+  // Sonatype snapshots for pug4j 3.0.0-SNAPSHOT
+  maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
 }
 
 ext {
@@ -86,6 +97,10 @@ dependencyManagement {
   imports {
     mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
     mavenBom "org.springframework.ai:spring-ai-bom:${springAiVersion}"
+  }
+  // Override transitive version used by spring-pug4j
+  dependencies {
+    dependency 'de.neuland-bfi:pug4j:3.0.0-SNAPSHOT'
   }
 }
 

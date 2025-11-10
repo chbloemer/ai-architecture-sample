@@ -1,6 +1,7 @@
 package de.sample.aiarchitecture.infrastructure.config;
 
 import de.neuland.pug4j.PugConfiguration;
+import de.neuland.pug4j.expression.GraalJsExpressionHandler;
 import de.neuland.pug4j.spring.template.SpringTemplateLoader;
 import de.neuland.pug4j.spring.view.PugViewResolver;
 import org.springframework.context.annotation.Bean;
@@ -44,6 +45,7 @@ public class Pug4jConfiguration {
   @Bean
   public PugConfiguration pugConfiguration(final SpringTemplateLoader templateLoader) {
     final PugConfiguration configuration = new PugConfiguration();
+//    configuration.setExpressionHandler(new GraalJsExpressionHandler());
     configuration.setTemplateLoader(templateLoader);
     configuration.setCaching(false); // Disable for development (enable in production)
     configuration.setPrettyPrint(true); // Pretty-print HTML output

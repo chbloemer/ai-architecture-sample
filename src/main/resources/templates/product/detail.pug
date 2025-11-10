@@ -3,7 +3,7 @@ extends ../layout
 block content
   .product-detail
     .product-header
-      h2= product.name()
+      h2= product.name
       if isAvailable
         span.badge.badge-success In Stock
       else
@@ -12,11 +12,11 @@ block content
     .product-content
       .product-main
         h3 Description
-        p= product.description() || "No description available."
+        p= product.description || "No description available."
 
         h3 Pricing
         .price-box
-          .price-main= product.priceAmount() + " " + product.priceCurrency()
+          .price-main= product.priceAmount + " " + product.priceCurrency
           .price-label Retail Price
 
       .product-sidebar
@@ -25,19 +25,19 @@ block content
         .info-section
           .info-item
             .info-label SKU
-            .info-value= product.sku()
+            .info-value= product.sku
 
           .info-item
             .info-label Product ID
-            .info-value= product.productId()
+            .info-value= product.productId
 
           .info-item
             .info-label Category
-            .info-value= product.category()
+            .info-value= product.category
 
           .info-item
             .info-label Stock Available
-            .info-value= product.stockQuantity()
+            .info-value= product.stockQuantity
 
           .info-item
             .info-label Availability

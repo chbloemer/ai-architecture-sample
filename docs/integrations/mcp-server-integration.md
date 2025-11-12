@@ -94,7 +94,7 @@ The MCP server is implemented as a **primary adapter** in the Hexagonal Architec
         └──────────────────────────┘
 ```
 
-**Package:** `de.sample.aiarchitecture.portadapter.incoming.mcp`
+**Package:** `de.sample.aiarchitecture.product.adapter.incoming.mcp`
 
 **Why Primary Adapter?**
 - Incoming port for AI clients
@@ -107,7 +107,7 @@ The MCP server is implemented as a **primary adapter** in the Hexagonal Architec
 
 ### 1. MCP Tools Class
 
-**File:** `src/main/java/de/sample/aiarchitecture/portadapter/incoming/mcp/ProductCatalogMcpTools.java`
+**File:** `src/main/java/de/sample/aiarchitecture/product/adapter/incoming/mcp/ProductCatalogMcpTools.java`
 
 ```java
 @Component
@@ -377,8 +377,8 @@ Related ADRs:
 - Spring AI Tools: https://docs.spring.io/spring-ai/reference/1.1/api/tools.html
 
 ### Project Files
-- **MCP Tools:** `src/main/java/de/sample/aiarchitecture/portadapter/incoming/mcp/ProductCatalogMcpTools.java`
-- **Application Service:** `src/main/java/de/sample/aiarchitecture/application/ProductApplicationService.java`
+- **MCP Tools:** `src/main/java/de/sample/aiarchitecture/product/adapter/incoming/mcp/ProductCatalogMcpTools.java`
+- **Application Service:** `src/main/java/de/sample/aiarchitecture/product/application/ProductApplicationService.java`
 - **Config:** `src/main/resources/application.yml`
 - **Client Config:** `.mcp.json`
 

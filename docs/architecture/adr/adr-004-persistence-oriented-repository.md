@@ -416,7 +416,7 @@ public interface Repository<T, ID> {
 
 ### Related ADRs
 
-- [ADR-008: Repository Interfaces in Domain Layer](adr-008-repository-interfaces-in-domain.md)
+- [ADR-008: Repository Interfaces as Output Ports](adr-008-repository-interfaces-as-output-ports.md)
 - [ADR-005: Domain Events Publishing Strategy](adr-005-domain-events-publishing.md)
 
 ---

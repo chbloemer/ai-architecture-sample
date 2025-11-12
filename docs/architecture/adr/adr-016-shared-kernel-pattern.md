@@ -23,12 +23,12 @@ Without a clear strategy for sharing domain concepts, we face several issues:
 **Example of the Problem**:
 ```java
 // ❌ BEFORE: Money in product package
-package de.sample.aiarchitecture.domain.model.product;
+package de.sample.aiarchitecture.product.domain.model;
 public record Money(...) { }
 
 // Cart had to import from product package (wrong!)
-package de.sample.aiarchitecture.domain.model.cart;
-import de.sample.aiarchitecture.domain.model.product.Money;  // ❌ Cross-context coupling!
+package de.sample.aiarchitecture.cart.domain.model;
+import de.sample.aiarchitecture.product.domain.model.Money;  // ❌ Cross-context coupling!
 
 public class ShoppingCart {
     public Money calculateTotal() { ... }
@@ -53,69 +53,88 @@ public class ShoppingCart {
 
 ## Decision
 
-**Implement the Shared Kernel pattern with a dedicated `domain.model.shared` package for universal value objects used across multiple bounded contexts.**
+**Implement the Shared Kernel pattern with a dedicated `sharedkernel` package for universal value objects and DDD marker interfaces used across multiple bounded contexts.**
 
 ### Package Structure
 
 ```
-domain/model/
-├── shared/                   ← SHARED KERNEL (NEW!)
-│   ├── Money.java           (universal monetary concept)
-│   ├── ProductId.java       (cross-context identifier)
-│   └── Price.java           (wraps Money with domain validation)
+de.sample.aiarchitecture/
+├── sharedkernel/                    ← SHARED KERNEL
+│   ├── domain/
+│   │   ├── marker/                  (DDD marker interfaces)
+│   │   │   ├── AggregateRoot.java
+│   │   │   ├── Entity.java
+│   │   │   ├── Value.java
+│   │   │   ├── Repository.java
+│   │   │   └── DomainEvent.java
+│   │   ├── common/                  (Cross-context value objects)
+│   │   │   ├── Money.java          (universal monetary concept)
+│   │   │   ├── ProductId.java      (cross-context identifier)
+│   │   │   └── Price.java          (wraps Money with validation)
+│   │   └── spec/
+│   │       └── Specification.java
+│   └── application/
+│       └── marker/                  (Use case patterns)
+│           ├── InputPort.java
+│           └── OutputPort.java
 │
-├── product/                  ← Product Context (isolated)
-│   ├── Product
-│   ├── SKU
-│   ├── ProductName
-│   └── ... (product-specific)
+├── product/                         ← Product Context (isolated)
+│   ├── domain/model/
+│   │   ├── Product
+│   │   ├── SKU
+│   │   └── ProductName
+│   ├── application/
+│   └── adapter/
 │
-└── cart/                     ← Cart Context (isolated)
-    ├── ShoppingCart
-    ├── CartItem
-    ├── Quantity
-    └── ... (cart-specific)
+└── cart/                            ← Cart Context (isolated)
+    ├── domain/model/
+    │   ├── ShoppingCart
+    │   ├── CartItem
+    │   └── Quantity
+    ├── application/
+    └── adapter/
 ```
 
 ### Integration Rules
 
 ```java
 // ✅ ALLOWED: Both contexts access Shared Kernel
-package de.sample.aiarchitecture.domain.model.cart;
-import de.sample.aiarchitecture.domain.model.shared.Money;     // ✅
-import de.sample.aiarchitecture.domain.model.shared.ProductId; // ✅
+package de.sample.aiarchitecture.cart.domain.model;
+import de.sample.aiarchitecture.sharedkernel.domain.common.Money;     // ✅
+import de.sample.aiarchitecture.sharedkernel.domain.common.ProductId; // ✅
+import de.sample.aiarchitecture.sharedkernel.domain.marker.Entity;    // ✅
 
 // ❌ FORBIDDEN: Direct access between contexts
-import de.sample.aiarchitecture.domain.model.product.Product;  // ❌
+import de.sample.aiarchitecture.product.domain.model.Product;  // ❌
 ```
 
 ### ArchUnit Enforcement
 
 ```groovy
-// Three new architecture tests enforce isolation:
+// Architecture tests enforce isolation:
 
-def "Shared Kernel darf keine Abhängigkeiten auf bounded contexts haben"() {
+def "Shared Kernel must not depend on bounded contexts"() {
   expect:
   noClasses()
-    .that().resideInAPackage(SHARED_KERNEL_PACKAGE)
-    .should().accessClassesThat().resideInAPackage(PRODUCT_CONTEXT_PACKAGE)
-    .orShould().accessClassesThat().resideInAPackage(CART_CONTEXT_PACKAGE)
+    .that().resideInAPackage("..sharedkernel..")
+    .should().dependOnClassesThat().resideInAPackage("..product..")
+    .orShould().dependOnClassesThat().resideInAPackage("..cart..")
     .check(allClasses)
 }
 
-def "Product Context darf Cart Context nicht direkt zugreifen"() {
+def "Product Context must not access Cart Context directly"() {
   expect:
   noClasses()
-    .that().resideInAPackage(PRODUCT_CONTEXT_PACKAGE)
-    .should().accessClassesThat().resideInAPackage(CART_CONTEXT_PACKAGE)
+    .that().resideInAPackage("..product..")
+    .should().dependOnClassesThat().resideInAPackage("..cart..")
     .check(allClasses)
 }
 
-def "Cart Context darf Product Context nicht direkt zugreifen"() {
+def "Cart Context must not access Product Context directly"() {
   expect:
   noClasses()
-    .that().resideInAPackage(CART_CONTEXT_PACKAGE)
-    .should().accessClassesThat().resideInAPackage(PRODUCT_CONTEXT_PACKAGE)
+    .that().resideInAPackage("..cart..")
+    .should().dependOnClassesThat().resideInAPackage("..product..")
     .check(allClasses)
 }
 ```
@@ -231,11 +250,16 @@ Shared Kernel becomes a versioned library.
 
 ## Implementation
 
-### Shared Kernel Contents (3 Classes)
+### Shared Kernel Contents
+
+**Domain Marker Interfaces** (`sharedkernel.domain.marker`):
+- `AggregateRoot`, `Entity`, `Value`, `Repository`, `DomainEvent`, `DomainService`, `Factory`, `Specification`
+
+**Cross-Context Value Objects** (`sharedkernel.domain.common`):
 
 **1. Money** - Universal monetary value
 ```java
-package de.sample.aiarchitecture.domain.model.shared;
+package de.sample.aiarchitecture.sharedkernel.domain.common;
 
 public record Money(@NonNull BigDecimal amount, @NonNull Currency currency) implements Value {
     // Universal monetary concept
@@ -245,7 +269,7 @@ public record Money(@NonNull BigDecimal amount, @NonNull Currency currency) impl
 
 **2. ProductId** - Cross-context identifier
 ```java
-package de.sample.aiarchitecture.domain.model.shared;
+package de.sample.aiarchitecture.sharedkernel.domain.common;
 
 public record ProductId(@NonNull String value) implements Id, Value {
     // Product identifier
@@ -255,7 +279,7 @@ public record ProductId(@NonNull String value) implements Id, Value {
 
 **3. Price** - Domain-specific monetary wrapper
 ```java
-package de.sample.aiarchitecture.domain.model.shared;
+package de.sample.aiarchitecture.sharedkernel.domain.common;
 
 public record Price(@NonNull Money value) implements Value {
     // Wraps Money with "price must be > 0" validation
@@ -263,25 +287,30 @@ public record Price(@NonNull Money value) implements Value {
 }
 ```
 
+**Application Marker Interfaces** (`sharedkernel.application.marker`):
+- `InputPort`, `OutputPort`
+
 ### Migration Performed
 
 **Changes Made**:
-1. Created `domain.model.shared` package
-2. Moved `Money`, `ProductId`, `Price` from `product` to `shared`
-3. Updated 12 files with correct imports
-4. Added 3 new ArchUnit tests
-5. Updated architecture documentation
+1. Created `sharedkernel` package with `domain.marker`, `domain.common`, `application.marker` sub-packages
+2. Moved DDD marker interfaces to `sharedkernel.domain.marker`
+3. Moved `Money`, `ProductId`, `Price` to `sharedkernel.domain.common`
+4. Moved use case patterns to `sharedkernel.application.marker`
+5. Updated all files with correct imports
+6. Added ArchUnit tests for isolation
+7. Updated architecture documentation
 
 **Before/After Comparison**:
 
 ```diff
 // BEFORE: Cart imported from Product (coupling!)
-- import de.sample.aiarchitecture.domain.model.product.Money;
-- import de.sample.aiarchitecture.domain.model.product.ProductId;
+- import de.sample.aiarchitecture.product.domain.model.Money;
+- import de.sample.aiarchitecture.product.domain.model.ProductId;
 
 // AFTER: Cart imports from Shared Kernel (explicit)
-+ import de.sample.aiarchitecture.domain.model.shared.Money;
-+ import de.sample.aiarchitecture.domain.model.shared.ProductId;
++ import de.sample.aiarchitecture.sharedkernel.domain.common.Money;
++ import de.sample.aiarchitecture.sharedkernel.domain.common.ProductId;
 ```
 
 ### Verification
@@ -289,9 +318,9 @@ public record Price(@NonNull Money value) implements Value {
 ```bash
 $ ./gradlew test-architecture
 
-✅ Shared Kernel darf keine Abhängigkeiten auf bounded contexts haben: PASSED
-✅ Product Context darf Cart Context nicht direkt zugreifen: PASSED
-✅ Cart Context darf Product Context nicht direkt zugreifen: PASSED
+✅ Shared Kernel must not depend on bounded contexts: PASSED
+✅ Product Context must not access Cart Context directly: PASSED
+✅ Cart Context must not access Product Context directly: PASSED
 
 BUILD SUCCESSFUL
 ```

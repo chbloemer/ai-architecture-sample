@@ -315,7 +315,7 @@ This test **automatically fails the build** if anyone adds framework dependencie
 ### Related ADRs
 
 - [ADR-007: Hexagonal Architecture](adr-007-hexagonal-architecture.md)
-- [ADR-008: Repository Interfaces in Domain Layer](adr-008-repository-interfaces-in-domain.md)
+- [ADR-008: Repository Interfaces as Output Ports](adr-008-repository-interfaces-as-output-ports.md)
 
 ### External References
 

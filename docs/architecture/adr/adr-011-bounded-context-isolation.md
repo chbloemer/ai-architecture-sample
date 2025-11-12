@@ -21,31 +21,57 @@ Without clear boundaries:
 
 ## Decision
 
-**Each Bounded Context resides in its own package under `domain.model` with strict isolation rules:**
+**Each Bounded Context resides in its own top-level package with strict isolation rules:**
 
 1. **No direct object references across contexts**
-2. **Reference other contexts only by ID**
+2. **Reference other contexts only by ID (via Shared Kernel)**
 3. **Integration via Domain Events**
-4. **Package-per-context structure**
+4. **Complete package structure per context** (domain, application, adapter)
 
 ### Package Structure
 
 ```
-domain/model/
-├── product/              ← Product Catalog Context
-│   ├── Product           (aggregate)
-│   ├── ProductId         (value object)
-│   ├── SKU, Price, Money
-│   ├── ProductRepository
-│   ├── ProductFactory
-│   └── ProductCreated, ProductPriceChanged  (events)
+de.sample.aiarchitecture/
+├── sharedkernel/              ← Shared Kernel (cross-context)
+│   └── domain/common/
+│       ├── ProductId          (shared ID)
+│       ├── Money              (shared value)
+│       └── Price              (shared value)
 │
-└── cart/                 ← Shopping Cart Context
-    ├── ShoppingCart      (aggregate)
-    ├── CartItem          (entity)
-    ├── CartId            (value object)
-    ├── ProductId         (references Product Context by ID)
-    └── CartItemAddedToCart  (event)
+├── product/                   ← Product Catalog Context
+│   ├── domain/model/
+│   │   ├── Product            (aggregate)
+│   │   ├── SKU                (value object)
+│   │   ├── ProductName
+│   │   ├── ProductStock
+│   │   └── Category
+│   ├── domain/event/
+│   │   ├── ProductCreated
+│   │   └── ProductPriceChanged
+│   ├── application/
+│   │   └── port/out/
+│   │       └── ProductRepository
+│   └── adapter/
+│       ├── incoming/
+│       └── outgoing/
+│
+└── cart/                      ← Shopping Cart Context
+    ├── domain/model/
+    │   ├── ShoppingCart       (aggregate)
+    │   ├── CartItem           (entity)
+    │   ├── CartId             (value object)
+    │   ├── Quantity
+    │   └── CartStatus
+    │   # Uses ProductId from sharedkernel (reference only)
+    ├── domain/event/
+    │   ├── CartItemAddedToCart
+    │   └── CartCheckedOut
+    ├── application/
+    │   └── port/out/
+    │       └── ShoppingCartRepository
+    └── adapter/
+        ├── incoming/
+        └── outgoing/
 ```
 
 ### Context Map
@@ -78,13 +104,17 @@ Each context has clear responsibility:
 - Ubiquitous Language: Cart, CartItem, Customer, Quantity
 - Core Aggregate: ShoppingCart
 
-### 2. **Reference by ID Only**
+### 2. **Reference by ID Only (via Shared Kernel)**
 
 ```java
-// cart/CartItem.java
+// cart/domain/model/CartItem.java
+import de.sample.aiarchitecture.sharedkernel.domain.common.ProductId;  // ← From Shared Kernel
+import de.sample.aiarchitecture.sharedkernel.domain.common.Price;     // ← From Shared Kernel
+import de.sample.aiarchitecture.sharedkernel.domain.common.Money;     // ← From Shared Kernel
+
 public final class CartItem implements Entity<CartItem, CartItemId> {
 
-  private final ProductId productId;  // ✅ ID reference only
+  private final ProductId productId;  // ✅ ID from Shared Kernel (reference only)
   // NOT: private final Product product; ❌
 
   public Money totalPrice(final Price productPrice) {
@@ -93,6 +123,11 @@ public final class CartItem implements Entity<CartItem, CartItemId> {
   }
 }
 ```
+
+**Key:**
+- `ProductId`, `Price`, `Money` are in **Shared Kernel** (cross-context)
+- Cart references Product ONLY via `ProductId`
+- No direct `Product` aggregate reference
 
 ### 3. **Integration via Events**
 
@@ -133,31 +168,54 @@ public void on(ProductPriceChanged event) {
 
 ### Current Bounded Contexts
 
+**Shared Kernel** (`sharedkernel/`):
+- DDD marker interfaces (AggregateRoot, Entity, Value, Repository, etc.)
+- Cross-context value objects (ProductId, Money, Price)
+- Use case pattern interfaces (InputPort, OutputPort)
+
 **Product Catalog Context** (`product/`):
-- 15 classes
+- 15+ classes (domain, application, adapters)
 - Aggregate: Product
 - Repository: ProductRepository
 - Events: ProductCreated, ProductPriceChanged
+- Depends on: Shared Kernel
 
 **Shopping Cart Context** (`cart/`):
-- 11 classes
+- 11+ classes (domain, application, adapters)
 - Aggregate: ShoppingCart
 - Entity: CartItem
 - Events: CartItemAddedToCart, CartCheckedOut
+- Depends on: Shared Kernel
+
+**Portal Context** (`portal/`):
+- Minimal context for home page
+- Adapter-only (no domain model)
 
 ### ArchUnit Enforcement
 
 ```groovy
-def "Bounded Contexts must not directly access each other"() {
+def "Bounded Contexts must not directly access each other (except via Shared Kernel)"() {
   expect:
+  // Cart must not access Product context directly
   noClasses()
     .that().resideInAPackage("..cart..")
     .should().dependOnClassesThat().resideInAPackage("..product..")
+  and:
+  // Product must not access Cart context directly
+  noClasses()
+    .that().resideInAPackage("..product..")
+    .should().dependOnClassesThat().resideInAPackage("..cart..")
     .check(allClasses)
 }
 
+def "Contexts can depend on Shared Kernel"() {
+  // Both contexts may access sharedkernel
+  // This is allowed and enforced by other tests
+}
+
 def "Contexts should only reference via IDs"() {
-  // Enforced by aggregate reference rules
+  // Enforced by aggregate reference rules (ADR-003)
+  // ProductId in Shared Kernel allows cart to reference product by ID
 }
 ```
 
@@ -172,6 +230,7 @@ def "Contexts should only reference via IDs"() {
 
 - [ADR-003: Aggregate Reference by Identity Only](adr-003-aggregate-reference-by-id.md)
 - [ADR-005: Domain Events Publishing Strategy](adr-005-domain-events-publishing.md)
+- [ADR-016: Shared Kernel Pattern](adr-016-shared-kernel-pattern.md)
 
 ---
 

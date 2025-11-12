@@ -62,33 +62,55 @@ Alistair Cockburn's **Hexagonal Architecture** (Ports and Adapters) solves this:
 
 ```
 src/main/java/de/sample/aiarchitecture/
-├── domain/
-│   └── model/              # Domain Model (Hexagon Core)
-│       ├── ddd/            # DDD building blocks
-│       ├── product/        # Product bounded context
-│       └── cart/           # Cart bounded context
+├── sharedkernel/              # Shared Kernel (cross-context)
+│   ├── domain/
+│   │   ├── marker/            # DDD building blocks
+│   │   └── common/            # Shared value objects (Money, ProductId, Price)
+│   └── application/
+│       └── marker/            # Use case patterns
 │
-├── application/            # Application Services (Use Cases)
-│   ├── ProductApplicationService
-│   └── ShoppingCartApplicationService
+├── product/                   # Product Bounded Context
+│   ├── domain/                # Domain Model (Hexagon Core)
+│   │   ├── model/             # Aggregates, entities, value objects
+│   │   ├── service/           # Domain services
+│   │   └── event/             # Domain events
+│   ├── application/           # Application Services (Use Cases)
+│   │   ├── ProductApplicationService
+│   │   ├── port/
+│   │   │   └── out/           # Output Ports
+│   │   │       └── ProductRepository
+│   │   └── usecase/           # Use cases (input ports)
+│   └── adapter/
+│       ├── incoming/          # Primary Adapters (Driving/Inbound)
+│       │   ├── api/           # REST API (ProductResource)
+│       │   ├── web/           # Web MVC (ProductPageController)
+│       │   ├── mcp/           # MCP Server (ProductCatalogMcpTools)
+│       │   └── event/         # Event Listeners
+│       └── outgoing/          # Secondary Adapters (Driven/Outbound)
+│           └── persistence/   # InMemoryProductRepository
 │
-├── infrastructure/
-│   ├── api/               # Public SPI (Output Ports)
-│   │   └── DomainEventPublisher
-│   └── config/            # Spring configuration
-│       └── SpringConfiguration
+├── cart/                      # Cart Bounded Context
+│   ├── domain/                # Domain Model (Hexagon Core)
+│   ├── application/           # Application Services
+│   │   ├── ShoppingCartApplicationService
+│   │   └── port/out/          # Output Ports
+│   └── adapter/
+│       ├── incoming/          # Primary Adapters
+│       │   ├── api/           # REST API
+│       │   └── event/         # Event Listeners
+│       └── outgoing/          # Secondary Adapters
+│           └── persistence/   # InMemoryShoppingCartRepository
 │
-└── portadapter/
-    ├── primary/           # Primary Adapters (Driving/Inbound)
-    │   ├── api/          # REST API
-    │   │   ├── product/  # ProductResource
-    │   │   └── cart/     # ShoppingCartResource
-    │   └── web/          # Web MVC
-    │       └── product/  # ProductPageController
-    │
-    └── secondary/         # Secondary Adapters (Driven/Outbound)
-        ├── product/       # InMemoryProductRepository
-        └── cart/          # InMemoryCartRepository
+├── portal/                    # Portal Bounded Context
+│   └── adapter/
+│       └── incoming/
+│           └── web/           # HomePageController
+│
+└── infrastructure/            # Infrastructure (cross-cutting)
+    ├── api/                   # Public SPI
+    │   └── DomainEventPublisher
+    └── config/                # Spring configuration
+        └── SpringConfiguration
 ```
 
 ### Flow Example
@@ -144,7 +166,7 @@ HTTP Request
 The hexagon contains only business logic:
 
 ```java
-// domain/model/product/Product.java
+// product/domain/model/Product.java
 // Pure business logic - no infrastructure
 public final class Product extends BaseAggregateRoot<Product, ProductId> {
 
@@ -173,7 +195,7 @@ No Spring, no JPA, no JSON - just business logic.
 Domain defines what it needs (interfaces = ports):
 
 ```java
-// domain/model/product/ProductRepository.java (Output Port)
+// product/application/port/out/ProductRepository.java (Output Port)
 public interface ProductRepository extends Repository<Product, ProductId> {
 
   Optional<Product> findBySku(@NonNull SKU sku);
@@ -283,21 +305,21 @@ void shouldChangePriceAndRaiseEvent() {
 ### Domain (Hexagon Core)
 
 ```java
-// domain/model/product/Product.java
+// product/domain/model/Product.java
 public final class Product extends BaseAggregateRoot<Product, ProductId> {
   // Pure business logic
-}
-
-// domain/model/product/ProductRepository.java (Output Port)
-public interface ProductRepository extends Repository<Product, ProductId> {
-  Optional<Product> findBySku(@NonNull SKU sku);
 }
 ```
 
 ### Application (Use Cases - Input Ports)
 
 ```java
-// application/ProductApplicationService.java
+// product/application/port/out/ProductRepository.java (Output Port)
+public interface ProductRepository extends Repository<Product, ProductId> {
+  Optional<Product> findBySku(@NonNull SKU sku);
+}
+
+// product/application/ProductApplicationService.java
 public class ProductApplicationService {
 
   private final ProductRepository productRepository;
@@ -316,7 +338,7 @@ public class ProductApplicationService {
 ### Primary Adapters (Driving)
 
 ```java
-// portadapter/incoming/api/product/ProductResource.java
+// product/adapter/incoming/api/ProductResource.java
 @RestController
 @RequestMapping("/api/products")
 public class ProductResource {
@@ -334,7 +356,7 @@ public class ProductResource {
 ### Secondary Adapters (Driven)
 
 ```java
-// portadapter/outgoing/product/InMemoryProductRepository.java
+// product/adapter/outgoing/persistence/InMemoryProductRepository.java
 @Repository
 public class InMemoryProductRepository implements ProductRepository {
 
@@ -357,31 +379,31 @@ public class InMemoryProductRepository implements ProductRepository {
 ```groovy
 // HexagonalArchitectureArchUnitTest.groovy
 
-def "Classes from the domain should not access port adapters"() {
+def "Classes from the domain should not access adapters"() {
   expect:
   noClasses()
     .that().resideInAPackage("..domain..")
-    .should().dependOnClassesThat().resideInAPackage("..portadapter..")
+    .should().dependOnClassesThat().resideInAPackage("..adapter..")
     .check(allClasses)
 }
 
-def "Application Services should not access port adapters"() {
+def "Application Services should not access adapters"() {
   expect:
   noClasses()
     .that().resideInAPackage("..application..")
-    .should().dependOnClassesThat().resideInAPackage("..portadapter..")
+    .should().dependOnClassesThat().resideInAPackage("..adapter..")
     .check(allClasses)
 }
 
-def "Port adapters (incoming and outgoing) must not communicate directly with each other"() {
+def "Adapters (incoming and outgoing) must not communicate directly with each other"() {
   expect:
   noClasses()
-    .that().resideInAPackage("..portadapter.incoming..")
-    .should().dependOnClassesThat().resideInAPackage("..portadapter.outgoing..")
+    .that().resideInAPackage("..adapter.incoming..")
+    .should().dependOnClassesThat().resideInAPackage("..adapter.outgoing..")
   and:
   noClasses()
-    .that().resideInAPackage("..portadapter.outgoing..")
-    .should().dependOnClassesThat().resideInAPackage("..portadapter.incoming..")
+    .that().resideInAPackage("..adapter.outgoing..")
+    .should().dependOnClassesThat().resideInAPackage("..adapter.incoming..")
     .check(allClasses)
 }
 ```
@@ -442,7 +464,7 @@ Presentation → Business Logic → Data Access
 ### Related ADRs
 
 - [ADR-002: Framework-Independent Domain Layer](adr-002-framework-independent-domain.md)
-- [ADR-008: Repository Interfaces in Domain Layer](adr-008-repository-interfaces-in-domain.md)
+- [ADR-008: Repository Interfaces as Output Ports](adr-008-repository-interfaces-as-output-ports.md)
 
 ### External References
 
@@ -469,10 +491,12 @@ Presentation → Business Logic → Data Access
 Check dependency flow:
 ```bash
 # Domain should have no outward dependencies
-grep -r "import.*portadapter" domain/  # Should return nothing
+grep -r "import.*adapter" product/domain/  # Should return nothing
+grep -r "import.*adapter" cart/domain/  # Should return nothing
 
-# Application should only use infrastructure.api
-grep -r "import.*portadapter" application/  # Should return nothing
+# Application should only use infrastructure.api (not adapter implementations)
+grep -r "import.*adapter" product/application/  # Should return nothing
+grep -r "import.*adapter" cart/application/  # Should return nothing
 ```
 
 ---

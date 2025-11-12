@@ -24,27 +24,31 @@ Comprehensive architectural documentation for the AI Architecture Sample Project
 ## Quick Reference
 
 **Package Structure:**
+
+Each bounded context (product, cart, portal) follows the same structure:
 ```
-de.sample.aiarchitecture
-├── domain.model        # Domain layer (framework-independent core)
-│   ├── shared/         # Shared kernel (cross-context)
-│   │   └── ddd/        # DDD marker interfaces
-│   ├── product/        # Product bounded context
-│   └── cart/           # Shopping cart bounded context
-├── application         # Application services (use cases)
-│   ├── product/        # Product use cases
-│   └── cart/           # Cart use cases
-├── infrastructure      # Infrastructure configuration
-│   ├── api/            # Public SPI (interfaces only)
-│   ├── config/         # Spring configuration
-│   └── event/          # Event infrastructure
-└── portadapter        # Adapters
-    ├── incoming/       # Primary adapters (REST, Web, MCP)
-    │   ├── api/        # REST API (JSON)
-    │   ├── web/        # Web MVC (HTML)
-    │   └── mcp/        # MCP Server (AI)
-    └── outgoing/       # Secondary adapters (Persistence)
+{context}/
+├── domain/             # Domain layer (innermost)
+│   ├── model/          # Aggregates, entities, value objects
+│   ├── service/        # Domain services
+│   └── event/          # Domain events
+├── application/        # Application layer
+│   ├── port/           # Ports (interfaces)
+│   │   └── out/        # Output ports (repositories, external services)
+│   └── usecase/        # Use cases (input ports)
+└── adapter/            # Adapter layer (outermost)
+    ├── incoming/       # Incoming adapters (primary/driving)
+    │   ├── api/        # REST API
+    │   ├── web/        # Web MVC
+    │   ├── mcp/        # MCP server
+    │   └── event/      # Domain event listeners
+    └── outgoing/       # Outgoing adapters (secondary/driven)
+        └── persistence/ # Repository implementations
 ```
+
+**Shared Kernel:** Cross-context value objects and DDD marker interfaces in `sharedkernel/`
+
+**Full structure:** See [package-structure.md](package-structure.md) for complete details
 
 **Key Principles:**
 1. Dependencies flow inward toward domain core

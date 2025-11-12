@@ -8,21 +8,21 @@
 
 ## Context
 
-Initially, both REST controllers (@RestController) and MVC controllers (@Controller) were placed in the same `portadapter.incoming.web` package structure:
+Initially, both REST controllers (@RestController) and MVC controllers (@Controller) were placed in the same `adapter.incoming.web` package structure within each bounded context:
 
 ```
-portadapter/incoming/web/
-├── product/
-│   ├── ProductResource (REST API)
-│   ├── ProductPageController (MVC)
-│   ├── ProductDto
-│   ├── ProductDtoConverter
-│   └── ...
-└── cart/
-    ├── ShoppingCartResource (REST API)
-    ├── ShoppingCartDto
-    ├── ShoppingCartDtoConverter
-    └── ...
+product/adapter/incoming/web/
+├── ProductResource (REST API)
+├── ProductPageController (MVC)
+├── ProductDto
+├── ProductDtoConverter
+└── ...
+
+cart/adapter/incoming/web/
+├── ShoppingCartResource (REST API)
+├── ShoppingCartDto
+├── ShoppingCartDtoConverter
+└── ...
 ```
 
 ### Problems with Original Structure
@@ -53,33 +53,38 @@ portadapter/incoming/web/
 
 ## Decision
 
-**We will separate REST API controllers and Web MVC controllers into distinct packages:**
+**We will separate REST API controllers and Web MVC controllers into distinct packages within each bounded context:**
 
 ```
-portadapter/incoming/
+product/adapter/incoming/
 ├── api/              ← REST APIs (@RestController)
-│   ├── product/
-│   │   ├── ProductResource
-│   │   ├── ProductDto
-│   │   ├── ProductDtoConverter
-│   │   └── CreateProductRequest
-│   └── cart/
-│       ├── ShoppingCartResource
-│       ├── ShoppingCartDto
-│       ├── ShoppingCartDtoConverter
-│       ├── CartItemDto
-│       └── AddToCartRequest
+│   ├── ProductResource
+│   ├── ProductDto
+│   ├── ProductDtoConverter
+│   └── CreateProductRequest
+├── web/              ← Web Pages (@Controller)
+│   └── ProductPageController
+└── mcp/              ← MCP Server (@Component)
+    └── ProductCatalogMcpTools
+
+cart/adapter/incoming/
+├── api/              ← REST APIs (@RestController)
+│   ├── ShoppingCartResource
+│   ├── ShoppingCartDto
+│   ├── ShoppingCartDtoConverter
+│   ├── CartItemDto
+│   └── AddToCartRequest
+└── event/            ← Event Listeners (@Component)
+    └── CartEventListener
+
+portal/adapter/incoming/
 └── web/              ← Web Pages (@Controller)
-    ├── product/
-    │   ├── ProductPageController
-    │   └── (ViewModels if needed)
-    └── cart/
-        └── (MVC controllers if needed)
+    └── HomePageController
 ```
 
 ### Package Responsibilities
 
-#### `portadapter.incoming.api`
+#### `{context}.adapter.incoming.api`
 - **Purpose**: RESTful JSON/XML APIs for programmatic access
 - **Annotation**: `@RestController`
 - **Naming**: Ends with `Resource` (e.g., `ProductResource`)
@@ -92,7 +97,7 @@ portadapter/incoming/
   - DTO converters
   - Request/Response models
 
-#### `portadapter.incoming.web`
+#### `{context}.adapter.incoming.web`
 - **Purpose**: Server-side rendered HTML pages for browsers
 - **Annotation**: `@Controller`
 - **Naming**: Ends with `Controller` (e.g., `ProductPageController`)
@@ -212,7 +217,7 @@ The package structure reinforces this distinction:
 // NamingConventionsArchUnitTest.groovy
 def "REST Controllers must end with 'Resource' (REST best practice)"() {
   classes()
-    .that().resideInAPackage("..primary.api..")  // ← Package check
+    .that().resideInAPackage("..adapter.incoming.api..")  // ← Package check
     .and().areAnnotatedWith(RestController.class)
     .should().haveSimpleNameEndingWith("Resource")
     .check(allClasses)
@@ -220,7 +225,7 @@ def "REST Controllers must end with 'Resource' (REST best practice)"() {
 
 def "Controller classes must end with 'Controller'"() {
   classes()
-    .that().resideInAPackage("..primary.web..")  // ← Package check
+    .that().resideInAPackage("..adapter.incoming.web..")  // ← Package check
     .and().areAnnotatedWith(Controller.class)
     .should().haveSimpleNameEndingWith("Controller")
     .check(allClasses)
@@ -257,33 +262,36 @@ def "Controller classes must end with 'Controller'"() {
 
 ### Changes Made
 
-1. **Created new package structure**:
+1. **Created new package structure within each bounded context**:
    ```bash
-   mkdir portadapter/incoming/api/{product,cart}
+   mkdir product/adapter/incoming/{api,web,mcp}
+   mkdir cart/adapter/incoming/{api,event}
+   mkdir portal/adapter/incoming/web
    ```
 
-2. **Moved REST controllers**:
-   - `web/product/ProductResource.java` → `api/product/ProductResource.java`
-   - `web/cart/ShoppingCartResource.java` → `api/cart/ShoppingCartResource.java`
+2. **Moved REST controllers to `api` package**:
+   - `product/adapter/incoming/web/ProductResource.java` → `product/adapter/incoming/api/ProductResource.java`
+   - `cart/adapter/incoming/web/ShoppingCartResource.java` → `cart/adapter/incoming/api/ShoppingCartResource.java`
 
-3. **Moved DTOs and converters**:
-   - All `*Dto.java` files moved to `api/` packages
-   - All `*DtoConverter.java` files moved to `api/` packages
-   - All request/response models moved to `api/` packages
+3. **Moved DTOs and converters to `api` package**:
+   - All `*Dto.java` files moved to `{context}/adapter/incoming/api/`
+   - All `*DtoConverter.java` files moved to `{context}/adapter/incoming/api/`
+   - All request/response models moved to `{context}/adapter/incoming/api/`
 
-4. **Kept MVC controllers in web**:
-   - `web/product/ProductPageController.java` (unchanged location)
+4. **Kept MVC controllers in `web` package**:
+   - `product/adapter/incoming/web/ProductPageController.java` (unchanged location)
+   - `portal/adapter/incoming/web/HomePageController.java`
 
 5. **Updated package declarations**:
    ```java
    // Before
-   package de.sample.aiarchitecture.portadapter.incoming.web.product;
+   package de.sample.aiarchitecture.product.adapter.incoming.web;
 
    // After (REST)
-   package de.sample.aiarchitecture.portadapter.incoming.api.product;
+   package de.sample.aiarchitecture.product.adapter.incoming.api;
 
    // After (MVC)
-   package de.sample.aiarchitecture.portadapter.incoming.web.product;
+   package de.sample.aiarchitecture.product.adapter.incoming.web;
    ```
 
 6. **Verified architecture tests**: All ArchUnit tests pass ✅

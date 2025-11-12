@@ -42,17 +42,24 @@ This project serves as a reference implementation showing how to properly struct
 
 ### When to Update Documentation
 
-Update architecture documentation in the following scenarios:
+Update architecture documentation **AND README.md** in the following scenarios:
 
-1. **Adding new DDD patterns** (Aggregates, Entities, Value Objects, Services, Events, etc.)
-2. **Modifying existing patterns** (changing interfaces, adding methods, refactoring)
-3. **Adding new architectural layers or components**
-4. **Changing package structure**
-5. **Adding new bounded contexts**
+1. **Changing package structure** ⚠️ - Update README.md, docs/architecture/README.md, and docs/architecture/package-structure.md
+2. **Adding new bounded contexts** ⚠️ - Update README.md with new context description
+3. **Adding new DDD patterns** (Aggregates, Entities, Value Objects, Services, Events, etc.)
+4. **Modifying existing patterns** (changing interfaces, adding methods, refactoring)
+5. **Adding new architectural layers or components**
 6. **Modifying repository interfaces or implementations**
 7. **Adding or changing domain events**
 8. **Updating application services**
-9. **Any significant architectural decision**
+9. **Adding new adapters or ports**
+10. **Any significant architectural decision**
+
+**⚠️ CRITICAL: Package/structure changes affect multiple files:**
+- `README.md` - Project overview and structure (lines 53-174)
+- `docs/architecture/README.md` - Architecture quick reference (lines 24-51)
+- `docs/architecture/package-structure.md` - Detailed package organization
+- `docs/architecture/architecture-principles.md` - Pattern examples with file paths
 
 ### Documentation Structure
 
@@ -85,6 +92,9 @@ docs/
 
 After making code changes, verify:
 
+- [ ] `README.md` reflects current project structure and features
+- [ ] `docs/architecture/README.md` quick reference is current
+- [ ] `docs/architecture/package-structure.md` matches actual packages
 - [ ] `architecture-principles.md` reflects current patterns
 - [ ] Code examples in documentation match actual implementation
 - [ ] New patterns are documented with examples
@@ -138,9 +148,12 @@ public class ExampleClass implements Pattern {
    - Maintain architectural boundaries
    - Write clean, well-documented code
 
-3. **Update architecture documentation** ⚠️
+3. **Update documentation** ⚠️
    - This is NOT optional
-   - Update `docs/architecture/architecture-principles.md`
+   - Update `README.md` if structure or features changed
+   - Update `docs/architecture/README.md` if package structure changed
+   - Update `docs/architecture/package-structure.md` if package structure changed
+   - Update `docs/architecture/architecture-principles.md` for pattern changes
    - Add examples from your actual changes
    - Update any affected diagrams or references
 

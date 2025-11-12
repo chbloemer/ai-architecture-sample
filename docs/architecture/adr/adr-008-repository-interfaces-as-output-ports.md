@@ -1,4 +1,4 @@
-# ADR-008: Repository Interfaces in Domain Layer
+# ADR-008: Repository Interfaces as Output Ports in Application Layer
 
 **Date**: October 24, 2025
 **Status**: ✅ Accepted
@@ -34,18 +34,35 @@ In traditional layered architectures, repositories are often defined in the data
 
 ## Decision
 
-**Repository interfaces MUST be defined in the domain layer, implementations in secondary adapters.**
+**Repository interfaces MUST be defined as output ports in the application layer (`application/port/out`), with implementations in secondary adapters (`adapter/outgoing`).**
+
+**Key Principles**:
+
+1. **Repositories are Output Ports** - Interfaces defined by the application layer describing what it needs from the outside world (persistence)
+2. **Not Part of Domain Model** - Domain contains only business logic (aggregates, entities, value objects, domain services)
+3. **Application Owns Ports** - The application layer defines both input ports (use cases) and output ports (repository interfaces)
+4. **Infrastructure Implements Ports** - Adapters in the infrastructure layer implement what the application needs
+
+**Layering**:
+```
+Domain Layer:        Pure business logic (Product, SKU, Price, etc.)
+                              ↑ uses
+Application Layer:   Use cases + Ports (ProductApplicationService, ProductRepository interface)
+                              ↑ implements
+Adapter Layer:       Implementations (InMemoryProductRepository)
+```
 
 ### Package Structure
 
 ```
-domain/model/product/
-├── Product.java                    # Aggregate
-├── ProductRepository.java          # ← Interface in domain
-└── ...
-
-portadapter/outgoing/product/
-└── InMemoryProductRepository.java  # ← Implementation in adapter
+product/
+├── domain/model/
+│   ├── Product.java                # Aggregate
+│   └── ...
+├── application/port/out/
+│   └── ProductRepository.java      # ← Interface (Output Port)
+└── adapter/outgoing/persistence/
+    └── InMemoryProductRepository.java  # ← Implementation
 ```
 
 ### Dependency Flow
@@ -53,19 +70,27 @@ portadapter/outgoing/product/
 ```
 ┌─────────────────────────────────┐
 │   Domain Layer                   │
-│   Product (aggregate)            │
-│   ProductRepository (interface)  │  ← Defines what it needs
+│   Product (aggregate)            │  ← Pure business logic
+│   No infrastructure dependencies │
+└─────────────┬───────────────────┘
+              │
+              │ used by
+              ▼
+┌─────────────────────────────────┐
+│   Application Layer              │
+│   ProductApplicationService      │
+│   ProductRepository (interface)  │  ← Output Port (defines what app needs)
 └─────────────┬───────────────────┘
               │
               │ implements
               ▼
 ┌─────────────────────────────────┐
 │   Secondary Adapter              │
-│   InMemoryProductRepository      │  ← Provides what domain needs
+│   InMemoryProductRepository      │  ← Provides what application needs
 └─────────────────────────────────┘
 ```
 
-**Dependency points FROM infrastructure TO domain** (inverted!)
+**Dependency points FROM infrastructure TO application** (inverted!)
 
 ---
 
@@ -73,11 +98,11 @@ portadapter/outgoing/product/
 
 ### 1. **Dependency Inversion Principle**
 
-Domain defines the contract, infrastructure implements it:
+Application defines the contract (output port), infrastructure implements it:
 
 ```java
-// Domain defines WHAT it needs
-// domain/model/product/ProductRepository.java
+// Application defines WHAT it needs (output port)
+// product/application/port/out/ProductRepository.java
 public interface ProductRepository extends Repository<Product, ProductId> {
 
   Optional<Product> findBySku(@NonNull SKU sku);
@@ -90,19 +115,19 @@ public interface ProductRepository extends Repository<Product, ProductId> {
 
 ```java
 // Infrastructure provides HOW it works
-// portadapter/outgoing/product/InMemoryProductRepository.java
+// product/adapter/outgoing/persistence/InMemoryProductRepository.java
 @Repository
 public class InMemoryProductRepository implements ProductRepository {
   // Implementation details
 }
 ```
 
-Domain doesn't care HOW repository works (in-memory, JPA, MongoDB).
-Infrastructure adapts to domain's needs.
+Application doesn't care HOW repository works (in-memory, JPA, MongoDB).
+Infrastructure adapts to application's needs.
 
-### 2. **Domain Owns Its Contracts**
+### 2. **Output Ports Use Domain Language**
 
-Repository interface uses domain language:
+Repository interface (output port) uses domain language:
 
 ```java
 // ✅ Domain language in interface
@@ -120,7 +145,7 @@ Interface speaks domain language, not infrastructure language.
 
 ### 3. **Testability**
 
-Can test domain with mock implementations:
+Can test application services with mock implementations:
 
 ```java
 @Test
@@ -130,7 +155,7 @@ void shouldFindProductBySku() {
   when(mockRepo.findBySku(sku)).thenReturn(Optional.of(product));
 
   // When
-  ProductApplicationService service = new ProductApplicationService(mockRepo, ...);
+  ProductApplicationService service = new ProductApplicationService(mockRepo, factory, publisher);
   Product found = service.findProductBySku(sku);
 
   // Then
@@ -138,14 +163,14 @@ void shouldFindProductBySku() {
 }
 ```
 
-No database, no Spring context - just domain logic.
+No database, no Spring context - just application and domain logic.
 
 ### 4. **Framework Independence**
 
-Domain doesn't depend on persistence framework:
+Application layer doesn't depend on persistence framework:
 
 ```java
-// domain/model/product/ProductRepository.java
+// product/application/port/out/ProductRepository.java
 // NO JPA annotations
 // NO Spring Data annotations
 // Pure interface
@@ -155,17 +180,20 @@ public interface ProductRepository extends Repository<Product, ProductId> {
 }
 ```
 
-Can swap from in-memory → JPA → MongoDB without changing domain.
+Can swap from in-memory → JPA → MongoDB without changing application or domain.
 
 ### 5. **Hexagonal Architecture Alignment**
 
-Repository interface is an **Output Port** (defined by hexagon):
+Repository interface is an **Output Port** (secondary port, defined by application layer):
 
 ```
 ┌──────────────────────────┐
-│   Hexagon (Domain)        │
-│   ProductRepository       │  ← Port (interface)
-│   (interface)             │
+│   Hexagon Core            │
+│   Domain + Application    │
+│   ┌────────────────────┐ │
+│   │ Application Layer  │ │
+│   │ ProductRepository  │ │  ← Output Port (interface)
+│   └────────────────────┘ │
 └──────────┬────────────────┘
            │
            │ implements
@@ -176,7 +204,10 @@ Repository interface is an **Output Port** (defined by hexagon):
 └──────────────────────────┘
 ```
 
-Ports belong to hexagon, adapters belong to infrastructure.
+**Key:**
+- **Output Ports** (repository interfaces) are in **application layer** (`application/port/out`)
+- **Domain layer** contains only pure business logic (aggregates, entities, value objects)
+- **Adapters** (implementations) are outside the hexagon in infrastructure
 
 ---
 
@@ -184,13 +215,14 @@ Ports belong to hexagon, adapters belong to infrastructure.
 
 ### Positive
 
-✅ **Dependency Inversion**: Infrastructure depends on domain
-✅ **Domain Ownership**: Domain defines its own contracts
-✅ **Framework Independence**: No infrastructure coupling
-✅ **Testability**: Easy to mock repositories
-✅ **Swappable Implementations**: Change persistence without changing domain
-✅ **Ubiquitous Language**: Repository methods use domain terms
+✅ **Dependency Inversion**: Infrastructure depends on application (not the reverse)
+✅ **Clear Output Ports**: Application explicitly defines what it needs from infrastructure
+✅ **Framework Independence**: No infrastructure coupling in application or domain
+✅ **Testability**: Easy to mock repositories in application service tests
+✅ **Swappable Implementations**: Change persistence without changing application or domain
+✅ **Ubiquitous Language**: Repository methods (output ports) use domain terms
 ✅ **Clean Architecture**: Follows hexagonal/onion/clean architecture
+✅ **Separation of Concerns**: Domain is pure business logic; ports are in application
 
 ### Neutral
 
@@ -205,10 +237,10 @@ Ports belong to hexagon, adapters belong to infrastructure.
 
 ## Implementation
 
-### Repository Interface (Domain Layer)
+### Repository Interface (Application Layer - Output Port)
 
 ```java
-// domain/model/ddd/Repository.java (Base interface)
+// sharedkernel/domain/marker/Repository.java (Base interface)
 public interface Repository<T extends AggregateRoot<T, ID>, ID extends Id> {
 
   void save(@NonNull T aggregate);
@@ -222,7 +254,7 @@ public interface Repository<T extends AggregateRoot<T, ID>, ID extends Id> {
 ```
 
 ```java
-// domain/model/product/ProductRepository.java
+// product/application/port/out/ProductRepository.java
 public interface ProductRepository extends Repository<Product, ProductId> {
 
   Optional<Product> findBySku(@NonNull SKU sku);
@@ -236,7 +268,7 @@ public interface ProductRepository extends Repository<Product, ProductId> {
 ### Repository Implementation (Secondary Adapter)
 
 ```java
-// portadapter/outgoing/product/InMemoryProductRepository.java
+// product/adapter/outgoing/persistence/InMemoryProductRepository.java
 @Repository
 public class InMemoryProductRepository implements ProductRepository {
 
@@ -287,10 +319,10 @@ public class InMemoryProductRepository implements ProductRepository {
 ### Application Service Usage
 
 ```java
-// application/ProductApplicationService.java
+// product/application/ProductApplicationService.java
 public class ProductApplicationService {
 
-  // Depends on interface from domain layer
+  // Depends on output port (repository interface) from same layer
   private final ProductRepository productRepository;
 
   public Optional<Product> findProductBySku(SKU sku) {
@@ -328,21 +360,27 @@ public class SpringConfiguration {
 ```groovy
 // DddTacticalPatternsArchUnitTest.groovy
 
-def "Repository Interfaces must reside in domain package"() {
+def "Repository Interfaces must reside in application port.out package"() {
   expect:
   classes()
     .that().haveSimpleNameEndingWith("Repository")
     .and().areInterfaces()
-    .should().resideInAPackage("..domain.model..")
+    .should().resideInAnyPackage(
+      "..product.application.port.out..",
+      "..cart.application.port.out.."
+    )
     .check(allClasses)
 }
 
-def "Repository Implementations must reside in portadapter.outgoing package"() {
+def "Repository Implementations must reside in adapter.outgoing package"() {
   expect:
   classes()
     .that().implement(Repository.class)
     .and().areNotInterfaces()
-    .should().resideInAPackage("..portadapter.outgoing..")
+    .should().resideInAnyPackage(
+      "..product.adapter.outgoing..",
+      "..cart.adapter.outgoing.."
+    )
     .check(allClasses)
 }
 
@@ -368,16 +406,31 @@ public interface ProductRepository extends JpaRepository<Product, UUID> {
   // Spring Data JPA interface
 }
 
-// Domain depends on infrastructure ❌
+// Application depends on infrastructure ❌
 ```
 
 **Rejected**:
-- Domain depends on infrastructure (wrong direction)
-- Couples domain to JPA
-- Cannot test domain without JPA
+- Application depends on infrastructure (wrong direction)
+- Couples application to JPA
+- Cannot test application without JPA
 - Violates Dependency Inversion Principle
 
-### Alternative 2: Repository Implementation in Domain
+### Alternative 2: Repository Interface in Domain Layer
+
+```java
+// product/domain/model/ProductRepository.java
+public interface ProductRepository extends Repository<Product, ProductId> {
+  // Repository interface in domain
+}
+```
+
+**Rejected**:
+- Repositories are not part of the domain model (they're infrastructure concerns)
+- Domain should only contain business logic (aggregates, entities, value objects, domain services)
+- Repository is an output port - belongs in application layer
+- Mixing persistence concerns with business logic
+
+### Alternative 3: Repository Implementation in Domain
 
 ```java
 // domain/model/product/InMemoryProductRepository.java
@@ -392,7 +445,7 @@ public class InMemoryProductRepository implements ProductRepository {
 - Not swappable
 - Violates Single Responsibility Principle
 
-### Alternative 3: Separate Repository Package
+### Alternative 4: Separate Repository Package
 
 ```java
 // repository/product/ProductRepository.java (separate package)
@@ -409,14 +462,17 @@ public class InMemoryProductRepository implements ProductRepository {
 
 ### Domain-Driven Design Books
 
-1. **Eric Evans - Domain-Driven Design (2003)**:
-   > "Repositories belong to the domain layer. Infrastructure provides implementations."
+1. **Alistair Cockburn - Hexagonal Architecture (2005)**:
+   > "The application defines ports - interfaces for what it needs. Infrastructure implements these ports as adapters."
 
-2. **Vaughn Vernon - Implementing Domain-Driven Design (2013)**:
-   > "Place Repository interfaces in the domain layer, implementations in infrastructure."
+2. **Robert C. Martin - Clean Architecture (2017)**:
+   > "Use case interactors depend on interfaces (ports) that are implemented by frameworks and drivers in the outer layer."
 
-3. **Robert C. Martin - Clean Architecture (2017)**:
-   > "The Dependency Inversion Principle: Depend on abstractions, not concretions."
+**Note on DDD Literature**: Traditional DDD books (Evans, Vernon) place repository interfaces in the domain layer. However, in Hexagonal/Clean Architecture, we recognize that:
+- **Domain** = Pure business logic (aggregates, entities, value objects, domain services)
+- **Application** = Use cases and ports (including repository interfaces as output ports)
+- **Repositories are infrastructure concerns** - they deal with persistence, not business rules
+- This separation is clearer and better aligns with dependency inversion and Hexagonal Architecture principles
 
 ### SOLID Principles
 
@@ -457,11 +513,13 @@ public class InMemoryProductRepository implements ProductRepository {
 
 ```bash
 # Check that domain doesn't depend on adapters
-grep -r "import.*portadapter" domain/model/
+grep -r "import.*adapter" product/domain/
+grep -r "import.*adapter" cart/domain/
 # Should return nothing
 
 # Check that implementations are in secondary adapters
-find portadapter/outgoing -name "*Repository.java" -type f
+find product/adapter/outgoing -name "*Repository.java" -type f
+find cart/adapter/outgoing -name "*Repository.java" -type f
 # Should find implementations
 ```
 

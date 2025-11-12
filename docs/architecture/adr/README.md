@@ -15,7 +15,7 @@ Architecture Decision Records capture important architectural decisions with con
 | [ADR-005](adr-005-domain-events-publishing.md) | Domain Events Publishing Strategy | ✅ Accepted |
 | [ADR-006](adr-006-domain-events-immutable-records.md) | Domain Events as Immutable Records | ✅ Accepted |
 | [ADR-007](adr-007-hexagonal-architecture.md) | Hexagonal Architecture with Explicit Port/Adapter Separation | ✅ Accepted |
-| [ADR-008](adr-008-repository-interfaces-in-domain.md) | Repository Interfaces in Domain Layer | ✅ Accepted |
+| [ADR-008](adr-008-repository-interfaces-as-output-ports.md) | Repository Interfaces as Output Ports in Application Layer | ✅ Accepted |
 | [ADR-009](adr-009-value-objects-as-records.md) | Value Objects as Java Records | ✅ Accepted |
 | [ADR-010](adr-010-domain-services-multi-aggregate.md) | Domain Services Only for Multi-Aggregate Operations | ✅ Accepted |
 | [ADR-011](adr-011-bounded-context-isolation.md) | Bounded Context Isolation via Package Structure | ✅ Accepted |

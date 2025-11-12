@@ -1,14 +1,14 @@
 package de.sample.aiarchitecture.product.adapter.incoming.api;
 
-import de.sample.aiarchitecture.product.application.usecase.createproduct.CreateProductCommand;
-import de.sample.aiarchitecture.product.application.usecase.createproduct.CreateProductResponse;
-import de.sample.aiarchitecture.product.application.usecase.createproduct.CreateProductUseCase;
-import de.sample.aiarchitecture.product.application.usecase.getallproducts.GetAllProductsQuery;
-import de.sample.aiarchitecture.product.application.usecase.getallproducts.GetAllProductsResponse;
-import de.sample.aiarchitecture.product.application.usecase.getallproducts.GetAllProductsUseCase;
-import de.sample.aiarchitecture.product.application.usecase.getproductbyid.GetProductByIdQuery;
-import de.sample.aiarchitecture.product.application.usecase.getproductbyid.GetProductByIdResponse;
-import de.sample.aiarchitecture.product.application.usecase.getproductbyid.GetProductByIdUseCase;
+import de.sample.aiarchitecture.product.application.createproduct.CreateProductCommand;
+import de.sample.aiarchitecture.product.application.createproduct.CreateProductResponse;
+import de.sample.aiarchitecture.product.application.createproduct.CreateProductUseCase;
+import de.sample.aiarchitecture.product.application.getallproducts.GetAllProductsQuery;
+import de.sample.aiarchitecture.product.application.getallproducts.GetAllProductsResponse;
+import de.sample.aiarchitecture.product.application.getallproducts.GetAllProductsUseCase;
+import de.sample.aiarchitecture.product.application.getproductbyid.GetProductByIdQuery;
+import de.sample.aiarchitecture.product.application.getproductbyid.GetProductByIdResponse;
+import de.sample.aiarchitecture.product.application.getproductbyid.GetProductByIdUseCase;
 import jakarta.validation.Valid;
 import java.util.List;
 import org.springframework.http.HttpStatus;

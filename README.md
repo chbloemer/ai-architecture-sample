@@ -91,22 +91,33 @@ src/main/java/de/sample/aiarchitecture/
 │   │       ├── ProductCreated.java
 │   │       └── ProductPriceChanged.java
 │   ├── application/                      # Application layer
-│   │   ├── port/
-│   │   │   ├── in/                       # Input ports (primary ports - use cases)
-│   │   │   │   ├── CreateProductInputPort.java
-│   │   │   │   ├── GetAllProductsInputPort.java
-│   │   │   │   ├── GetProductByIdInputPort.java
-│   │   │   │   └── UpdateProductPriceInputPort.java
-│   │   │   └── out/                      # Output ports (secondary ports)
-│   │   │       └── ProductRepository.java
-│   │   └── usecase/                      # Use case implementations
-│   │       ├── createproduct/
-│   │       │   ├── CreateProductUseCase.java      # Implements CreateProductInputPort
-│   │       │   ├── CreateProductCommand.java
-│   │       │   └── CreateProductResponse.java
-│   │       ├── getallproducts/
-│   │       ├── getproductbyid/
-│   │       └── updateproductprice/
+│   │   ├── createproduct/                # Use case: Create Product
+│   │   │   ├── CreateProductInputPort.java       # Input port interface
+│   │   │   ├── CreateProductUseCase.java         # Use case implementation
+│   │   │   ├── CreateProductCommand.java
+│   │   │   └── CreateProductResponse.java
+│   │   ├── getallproducts/               # Use case: Get All Products
+│   │   │   ├── GetAllProductsInputPort.java
+│   │   │   ├── GetAllProductsUseCase.java
+│   │   │   ├── GetAllProductsQuery.java
+│   │   │   └── GetAllProductsResponse.java
+│   │   ├── getproductbyid/               # Use case: Get Product By ID
+│   │   │   ├── GetProductByIdInputPort.java
+│   │   │   ├── GetProductByIdUseCase.java
+│   │   │   ├── GetProductByIdQuery.java
+│   │   │   └── GetProductByIdResponse.java
+│   │   ├── updateproductprice/           # Use case: Update Product Price
+│   │   │   ├── UpdateProductPriceInputPort.java
+│   │   │   ├── UpdateProductPriceUseCase.java
+│   │   │   ├── UpdateProductPriceCommand.java
+│   │   │   └── UpdateProductPriceResponse.java
+│   │   ├── reduceproductstock/           # Use case: Reduce Product Stock
+│   │   │   ├── ReduceProductStockInputPort.java
+│   │   │   ├── ReduceProductStockUseCase.java
+│   │   │   ├── ReduceProductStockCommand.java
+│   │   │   └── ReduceProductStockResponse.java
+│   │   └── shared/                       # Shared output ports
+│   │       └── ProductRepository.java    # Repository interface
 │   └── adapter/                          # Adapters
 │       ├── incoming/                     # Incoming adapters (primary)
 │       │   ├── api/
@@ -140,22 +151,43 @@ src/main/java/de/sample/aiarchitecture/
 │   │       ├── CartCheckedOut.java
 │   │       └── CartItemAddedToCart.java
 │   ├── application/                      # Application layer
-│   │   ├── port/
-│   │   │   ├── in/                       # Input ports (primary ports - use cases)
-│   │   │   │   ├── CreateCartInputPort.java
-│   │   │   │   ├── AddItemToCartInputPort.java
-│   │   │   │   ├── CheckoutCartInputPort.java
-│   │   │   │   └── GetCartByIdInputPort.java
-│   │   │   └── out/                      # Output ports
-│   │   │       └── ShoppingCartRepository.java
-│   │   └── usecase/                      # Use case implementations
-│   │       ├── createcart/
-│   │       │   ├── CreateCartUseCase.java         # Implements CreateCartInputPort
-│   │       │   ├── CreateCartCommand.java
-│   │       │   └── CreateCartResponse.java
-│   │       ├── additemtocart/
-│   │       ├── checkoutcart/
-│   │       └── getcartbyid/
+│   │   ├── createcart/                   # Use case: Create Cart
+│   │   │   ├── CreateCartInputPort.java
+│   │   │   ├── CreateCartUseCase.java
+│   │   │   ├── CreateCartCommand.java
+│   │   │   └── CreateCartResponse.java
+│   │   ├── additemtocart/                # Use case: Add Item to Cart
+│   │   │   ├── AddItemToCartInputPort.java
+│   │   │   ├── AddItemToCartUseCase.java
+│   │   │   ├── AddItemToCartCommand.java
+│   │   │   └── AddItemToCartResponse.java
+│   │   ├── checkoutcart/                 # Use case: Checkout Cart
+│   │   │   ├── CheckoutCartInputPort.java
+│   │   │   ├── CheckoutCartUseCase.java
+│   │   │   ├── CheckoutCartCommand.java
+│   │   │   └── CheckoutCartResponse.java
+│   │   ├── getallcarts/                  # Use case: Get All Carts
+│   │   │   ├── GetAllCartsInputPort.java
+│   │   │   ├── GetAllCartsUseCase.java
+│   │   │   ├── GetAllCartsQuery.java
+│   │   │   └── GetAllCartsResponse.java
+│   │   ├── getcartbyid/                  # Use case: Get Cart By ID
+│   │   │   ├── GetCartByIdInputPort.java
+│   │   │   ├── GetCartByIdUseCase.java
+│   │   │   ├── GetCartByIdQuery.java
+│   │   │   └── GetCartByIdResponse.java
+│   │   ├── getorcreateactivecart/        # Use case: Get or Create Active Cart
+│   │   │   ├── GetOrCreateActiveCartInputPort.java
+│   │   │   ├── GetOrCreateActiveCartUseCase.java
+│   │   │   ├── GetOrCreateActiveCartCommand.java
+│   │   │   └── GetOrCreateActiveCartResponse.java
+│   │   ├── removeitemfromcart/           # Use case: Remove Item from Cart
+│   │   │   ├── RemoveItemFromCartInputPort.java
+│   │   │   ├── RemoveItemFromCartUseCase.java
+│   │   │   ├── RemoveItemFromCartCommand.java
+│   │   │   └── RemoveItemFromCartResponse.java
+│   │   └── shared/                       # Shared output ports
+│   │       └── ShoppingCartRepository.java
 │   └── adapter/                          # Adapters
 │       ├── incoming/                     # Incoming adapters
 │       │   ├── api/

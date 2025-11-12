@@ -1,11 +1,11 @@
 package de.sample.aiarchitecture.cart.adapter.incoming.api;
 
-import de.sample.aiarchitecture.cart.application.usecase.additemtocart.AddItemToCartResponse;
-import de.sample.aiarchitecture.cart.application.usecase.checkoutcart.CheckoutCartResponse;
-import de.sample.aiarchitecture.cart.application.usecase.createcart.CreateCartResponse;
-import de.sample.aiarchitecture.cart.application.usecase.getallcarts.GetAllCartsResponse;
-import de.sample.aiarchitecture.cart.application.usecase.getcartbyid.GetCartByIdResponse;
-import de.sample.aiarchitecture.cart.application.usecase.removeitemfromcart.RemoveItemFromCartResponse;
+import de.sample.aiarchitecture.cart.application.additemtocart.AddItemToCartResponse;
+import de.sample.aiarchitecture.cart.application.checkoutcart.CheckoutCartResponse;
+import de.sample.aiarchitecture.cart.application.createcart.CreateCartResponse;
+import de.sample.aiarchitecture.cart.application.getallcarts.GetAllCartsResponse;
+import de.sample.aiarchitecture.cart.application.getcartbyid.GetCartByIdResponse;
+import de.sample.aiarchitecture.cart.application.removeitemfromcart.RemoveItemFromCartResponse;
 import de.sample.aiarchitecture.cart.domain.model.CartItem;
 import de.sample.aiarchitecture.cart.domain.model.ShoppingCart;
 import de.sample.aiarchitecture.sharedkernel.domain.common.Money;

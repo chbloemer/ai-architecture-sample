@@ -987,48 +987,49 @@ Use cases are organized into subpackages matching the bounded contexts from the 
 **Package Structure:**
 ```
 application/
-├── port/
-│   ├── in/                           # Input Ports (Primary Ports)
-│   │   ├── CreateProductInputPort
-│   │   ├── UpdateProductPriceInputPort
-│   │   ├── AddItemToCartInputPort
-│   │   └── ...
-│   └── out/                          # Output Ports (Secondary Ports)
-│       ├── ProductRepository
-│       └── ShoppingCartRepository
-└── usecase/
-    ├── createproduct/                # Organized by use case
-    │   ├── CreateProductUseCase      # Implements CreateProductInputPort
-    │   ├── CreateProductCommand      # Input model
-    │   └── CreateProductResponse     # Output model
-    └── additemtocart/
-        ├── AddItemToCartUseCase      # Implements AddItemToCartInputPort
-        ├── AddItemToCartCommand      # Input model
-        └── AddItemToCartResponse     # Output model
+├── createproduct/                    # Use case: Create Product
+│   ├── CreateProductInputPort        # Input port interface
+│   ├── CreateProductUseCase          # Use case implementation
+│   ├── CreateProductCommand          # Input model
+│   └── CreateProductResponse         # Output model
+├── updateproductprice/               # Use case: Update Product Price
+│   ├── UpdateProductPriceInputPort
+│   ├── UpdateProductPriceUseCase
+│   ├── UpdateProductPriceCommand
+│   └── UpdateProductPriceResponse
+├── additemtocart/                    # Use case: Add Item to Cart
+│   ├── AddItemToCartInputPort
+│   ├── AddItemToCartUseCase
+│   ├── AddItemToCartCommand
+│   └── AddItemToCartResponse
+└── shared/                           # Shared output ports
+    ├── ProductRepository             # Product repository interface
+    └── ShoppingCartRepository        # Cart repository interface
 ```
 
 **Benefits:**
 
-1. **Alignment with Domain Model** - Application layer structure mirrors domain layer bounded contexts
-2. **Clear Ownership** - Each bounded context owns its use cases, making team boundaries explicit
-3. **Reduced Coupling** - Use cases in different contexts are physically separated
-4. **Easier Navigation** - Developers can quickly find use cases by context
-5. **Scalability** - Teams can work on different bounded contexts independently
-6. **Microservices Ready** - Each bounded context can be extracted to a microservice
+1. **Use Cases as First-Class Citizens** - Use cases are at the top level, mirroring how bounded contexts are organized
+2. **High Cohesion** - Everything related to one use case (port, implementation, models) is co-located
+3. **Clear Shared Concerns** - The `shared/` folder makes cross-cutting dependencies explicit
+4. **Simpler Navigation** - Flatter structure with fewer nested folders
+5. **Mirrors Bounded Context Pattern** - Same organizational principle at both context and use case levels
+6. **Feature-Oriented** - Easy to find and work on complete features
 
 **Rules:**
 
-1. Input Ports are defined in `application.port.in` package
-2. Output Ports (repositories, gateways) are defined in `application.port.out` package
-3. Use case implementations reside in `application.usecase.<usecasename>` subpackages
+1. Each use case has its own package in the `application` layer
+2. Input port interface, use case implementation, and models reside together in the use case package
+3. Shared output ports (repositories, gateways) are defined in `application.shared` package
 4. Use cases may only orchestrate domain objects from their own bounded context
 5. Cross-context coordination happens via domain events, not direct use case calls
-6. Input/Output models (Commands, Queries, Responses) reside alongside their use cases in the same subpackage
-7. Adapters depend on input ports, not on use case implementations directly
+6. Adapters depend on input ports, not on use case implementations directly
+7. The `shared` folder concept mirrors the `sharedkernel` pattern at the bounded context level
 
 **Location:**
-- Product Use Cases: `de.sample.aiarchitecture.application.product`
-- Cart Use Cases: `de.sample.aiarchitecture.application.cart`
+- Product Use Cases: `de.sample.aiarchitecture.product.application.{usecasename}`
+- Cart Use Cases: `de.sample.aiarchitecture.cart.application.{usecasename}`
+- Shared Output Ports: `de.sample.aiarchitecture.{context}.application.shared`
 
 ### Relationship to Hexagonal Architecture
 

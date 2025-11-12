@@ -1,6 +1,6 @@
 package de.sample.aiarchitecture.product.adapter.outgoing.persistence;
 
-import de.sample.aiarchitecture.product.application.port.out.ProductRepository;
+import de.sample.aiarchitecture.product.application.shared.ProductRepository;
 import de.sample.aiarchitecture.product.domain.model.Product;
 import de.sample.aiarchitecture.product.domain.model.SKU;
 import de.sample.aiarchitecture.product.domain.model.Category;

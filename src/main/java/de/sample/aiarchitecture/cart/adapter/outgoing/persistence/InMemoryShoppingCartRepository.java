@@ -1,6 +1,6 @@
 package de.sample.aiarchitecture.cart.adapter.outgoing.persistence;
 
-import de.sample.aiarchitecture.cart.application.port.out.ShoppingCartRepository;
+import de.sample.aiarchitecture.cart.application.shared.ShoppingCartRepository;
 import de.sample.aiarchitecture.cart.domain.model.CartId;
 import de.sample.aiarchitecture.cart.domain.model.CustomerId;
 import de.sample.aiarchitecture.cart.domain.model.ShoppingCart;

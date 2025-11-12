@@ -2,8 +2,8 @@ package de.sample.aiarchitecture.product.adapter.incoming.event;
 
 import de.sample.aiarchitecture.cart.domain.event.CartCheckedOut;
 import de.sample.aiarchitecture.product.adapter.incoming.event.acl.CartEventTranslator;
-import de.sample.aiarchitecture.product.application.usecase.reduceproductstock.ReduceProductStockCommand;
-import de.sample.aiarchitecture.product.application.usecase.reduceproductstock.ReduceProductStockUseCase;
+import de.sample.aiarchitecture.product.application.reduceproductstock.ReduceProductStockCommand;
+import de.sample.aiarchitecture.product.application.reduceproductstock.ReduceProductStockUseCase;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

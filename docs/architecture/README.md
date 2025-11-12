@@ -33,9 +33,13 @@ Each bounded context (product, cart, portal) follows the same structure:
 │   ├── service/        # Domain services
 │   └── event/          # Domain events
 ├── application/        # Application layer
-│   ├── port/           # Ports (interfaces)
-│   │   └── out/        # Output ports (repositories, external services)
-│   └── usecase/        # Use cases (input ports)
+│   ├── {usecasename}/  # Use case package (e.g., createproduct)
+│   │   ├── *InputPort.java   # Input port interface
+│   │   ├── *UseCase.java     # Use case implementation
+│   │   ├── *Command.java     # Input model
+│   │   └── *Response.java    # Output model
+│   └── shared/         # Shared output ports
+│       └── *Repository.java  # Repository interfaces
 └── adapter/            # Adapter layer (outermost)
     ├── incoming/       # Incoming adapters (primary/driving)
     │   ├── api/        # REST API

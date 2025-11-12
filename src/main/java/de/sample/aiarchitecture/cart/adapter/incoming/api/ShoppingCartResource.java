@@ -1,23 +1,23 @@
 package de.sample.aiarchitecture.cart.adapter.incoming.api;
 
-import de.sample.aiarchitecture.cart.application.usecase.additemtocart.AddItemToCartCommand;
-import de.sample.aiarchitecture.cart.application.usecase.additemtocart.AddItemToCartResponse;
-import de.sample.aiarchitecture.cart.application.usecase.additemtocart.AddItemToCartUseCase;
-import de.sample.aiarchitecture.cart.application.usecase.checkoutcart.CheckoutCartCommand;
-import de.sample.aiarchitecture.cart.application.usecase.checkoutcart.CheckoutCartResponse;
-import de.sample.aiarchitecture.cart.application.usecase.checkoutcart.CheckoutCartUseCase;
-import de.sample.aiarchitecture.cart.application.usecase.createcart.CreateCartCommand;
-import de.sample.aiarchitecture.cart.application.usecase.createcart.CreateCartResponse;
-import de.sample.aiarchitecture.cart.application.usecase.createcart.CreateCartUseCase;
-import de.sample.aiarchitecture.cart.application.usecase.getallcarts.GetAllCartsQuery;
-import de.sample.aiarchitecture.cart.application.usecase.getallcarts.GetAllCartsResponse;
-import de.sample.aiarchitecture.cart.application.usecase.getallcarts.GetAllCartsUseCase;
-import de.sample.aiarchitecture.cart.application.usecase.getcartbyid.GetCartByIdQuery;
-import de.sample.aiarchitecture.cart.application.usecase.getcartbyid.GetCartByIdResponse;
-import de.sample.aiarchitecture.cart.application.usecase.getcartbyid.GetCartByIdUseCase;
-import de.sample.aiarchitecture.cart.application.usecase.removeitemfromcart.RemoveItemFromCartCommand;
-import de.sample.aiarchitecture.cart.application.usecase.removeitemfromcart.RemoveItemFromCartResponse;
-import de.sample.aiarchitecture.cart.application.usecase.removeitemfromcart.RemoveItemFromCartUseCase;
+import de.sample.aiarchitecture.cart.application.additemtocart.AddItemToCartCommand;
+import de.sample.aiarchitecture.cart.application.additemtocart.AddItemToCartResponse;
+import de.sample.aiarchitecture.cart.application.additemtocart.AddItemToCartUseCase;
+import de.sample.aiarchitecture.cart.application.checkoutcart.CheckoutCartCommand;
+import de.sample.aiarchitecture.cart.application.checkoutcart.CheckoutCartResponse;
+import de.sample.aiarchitecture.cart.application.checkoutcart.CheckoutCartUseCase;
+import de.sample.aiarchitecture.cart.application.createcart.CreateCartCommand;
+import de.sample.aiarchitecture.cart.application.createcart.CreateCartResponse;
+import de.sample.aiarchitecture.cart.application.createcart.CreateCartUseCase;
+import de.sample.aiarchitecture.cart.application.getallcarts.GetAllCartsQuery;
+import de.sample.aiarchitecture.cart.application.getallcarts.GetAllCartsResponse;
+import de.sample.aiarchitecture.cart.application.getallcarts.GetAllCartsUseCase;
+import de.sample.aiarchitecture.cart.application.getcartbyid.GetCartByIdQuery;
+import de.sample.aiarchitecture.cart.application.getcartbyid.GetCartByIdResponse;
+import de.sample.aiarchitecture.cart.application.getcartbyid.GetCartByIdUseCase;
+import de.sample.aiarchitecture.cart.application.removeitemfromcart.RemoveItemFromCartCommand;
+import de.sample.aiarchitecture.cart.application.removeitemfromcart.RemoveItemFromCartResponse;
+import de.sample.aiarchitecture.cart.application.removeitemfromcart.RemoveItemFromCartUseCase;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -39,7 +39,7 @@ public class ShoppingCartResource {
   private final CreateCartUseCase createCartUseCase;
   private final GetAllCartsUseCase getAllCartsUseCase;
   private final GetCartByIdUseCase getCartByIdUseCase;
-  private final de.sample.aiarchitecture.cart.application.usecase.getorcreateactivecart.GetOrCreateActiveCartUseCase getOrCreateActiveCartUseCase;
+  private final de.sample.aiarchitecture.cart.application.getorcreateactivecart.GetOrCreateActiveCartUseCase getOrCreateActiveCartUseCase;
   private final AddItemToCartUseCase addItemToCartUseCase;
   private final RemoveItemFromCartUseCase removeItemFromCartUseCase;
   private final CheckoutCartUseCase checkoutCartUseCase;
@@ -49,7 +49,7 @@ public class ShoppingCartResource {
       final CreateCartUseCase createCartUseCase,
       final GetAllCartsUseCase getAllCartsUseCase,
       final GetCartByIdUseCase getCartByIdUseCase,
-      final de.sample.aiarchitecture.cart.application.usecase.getorcreateactivecart.GetOrCreateActiveCartUseCase getOrCreateActiveCartUseCase,
+      final de.sample.aiarchitecture.cart.application.getorcreateactivecart.GetOrCreateActiveCartUseCase getOrCreateActiveCartUseCase,
       final AddItemToCartUseCase addItemToCartUseCase,
       final RemoveItemFromCartUseCase removeItemFromCartUseCase,
       final CheckoutCartUseCase checkoutCartUseCase,
@@ -96,7 +96,7 @@ public class ShoppingCartResource {
     }
 
     final var response = getOrCreateActiveCartUseCase
-        .execute(new de.sample.aiarchitecture.cart.application.usecase.getorcreateactivecart.GetOrCreateActiveCartCommand(customerId));
+        .execute(new de.sample.aiarchitecture.cart.application.getorcreateactivecart.GetOrCreateActiveCartCommand(customerId));
 
     // Fetch full cart projection suited for the existing DTO conversion
     final GetCartByIdResponse byId = getCartByIdUseCase.execute(new GetCartByIdQuery(response.cartId()));

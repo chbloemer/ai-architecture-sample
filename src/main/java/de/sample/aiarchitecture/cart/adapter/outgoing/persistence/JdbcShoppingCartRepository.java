@@ -1,7 +1,7 @@
 package de.sample.aiarchitecture.cart.adapter.outgoing.persistence;
 
 import de.sample.aiarchitecture.cart.adapter.outgoing.persistence.jdbc.CartSpecToJdbc;
-import de.sample.aiarchitecture.cart.application.port.out.ShoppingCartRepository;
+import de.sample.aiarchitecture.cart.application.shared.ShoppingCartRepository;
 import de.sample.aiarchitecture.cart.domain.model.*;
 import de.sample.aiarchitecture.sharedkernel.domain.common.Money;
 import de.sample.aiarchitecture.sharedkernel.domain.common.Price;

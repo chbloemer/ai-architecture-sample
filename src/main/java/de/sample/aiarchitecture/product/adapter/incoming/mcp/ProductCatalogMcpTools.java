@@ -2,12 +2,12 @@ package de.sample.aiarchitecture.product.adapter.incoming.mcp;
 
 import de.sample.aiarchitecture.product.adapter.incoming.api.ProductDto;
 import de.sample.aiarchitecture.product.adapter.incoming.api.ProductDtoConverter;
-import de.sample.aiarchitecture.product.application.usecase.getallproducts.GetAllProductsQuery;
-import de.sample.aiarchitecture.product.application.usecase.getallproducts.GetAllProductsResponse;
-import de.sample.aiarchitecture.product.application.usecase.getallproducts.GetAllProductsUseCase;
-import de.sample.aiarchitecture.product.application.usecase.getproductbyid.GetProductByIdQuery;
-import de.sample.aiarchitecture.product.application.usecase.getproductbyid.GetProductByIdResponse;
-import de.sample.aiarchitecture.product.application.usecase.getproductbyid.GetProductByIdUseCase;
+import de.sample.aiarchitecture.product.application.getallproducts.GetAllProductsQuery;
+import de.sample.aiarchitecture.product.application.getallproducts.GetAllProductsResponse;
+import de.sample.aiarchitecture.product.application.getallproducts.GetAllProductsUseCase;
+import de.sample.aiarchitecture.product.application.getproductbyid.GetProductByIdQuery;
+import de.sample.aiarchitecture.product.application.getproductbyid.GetProductByIdResponse;
+import de.sample.aiarchitecture.product.application.getproductbyid.GetProductByIdUseCase;
 import java.util.List;
 import org.jspecify.annotations.NonNull;
 import org.springaicommunity.mcp.annotation.McpTool;

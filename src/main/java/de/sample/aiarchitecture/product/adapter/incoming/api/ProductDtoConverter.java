@@ -1,8 +1,8 @@
 package de.sample.aiarchitecture.product.adapter.incoming.api;
 
-import de.sample.aiarchitecture.product.application.usecase.createproduct.CreateProductResponse;
-import de.sample.aiarchitecture.product.application.usecase.getallproducts.GetAllProductsResponse;
-import de.sample.aiarchitecture.product.application.usecase.getproductbyid.GetProductByIdResponse;
+import de.sample.aiarchitecture.product.application.createproduct.CreateProductResponse;
+import de.sample.aiarchitecture.product.application.getallproducts.GetAllProductsResponse;
+import de.sample.aiarchitecture.product.application.getproductbyid.GetProductByIdResponse;
 import de.sample.aiarchitecture.product.domain.model.Product;
 import org.springframework.stereotype.Component;
 

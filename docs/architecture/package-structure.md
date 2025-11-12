@@ -34,24 +34,33 @@ de.sample.aiarchitecture
 │   │       ├── ProductCreated
 │   │       └── ProductPriceChanged
 │   ├── application                # Application Layer
-│   │   ├── port
-│   │   │   ├── in                 # Input Ports (primary ports - use cases)
-│   │   │   │   ├── CreateProductInputPort
-│   │   │   │   ├── GetAllProductsInputPort
-│   │   │   │   ├── GetProductByIdInputPort
-│   │   │   │   ├── ReduceProductStockInputPort
-│   │   │   │   └── UpdateProductPriceInputPort
-│   │   │   └── out                # Output Ports (secondary ports)
-│   │   │       └── ProductRepository (interface)
-│   │   └── usecase                # Use Case Implementations
-│   │       ├── createproduct/
-│   │       │   ├── CreateProductUseCase (implements CreateProductInputPort)
-│   │       │   ├── CreateProductCommand
-│   │       │   └── CreateProductResponse
-│   │       ├── getallproducts/
-│   │       ├── getproductbyid/
-│   │       ├── reduceproductstock/
-│   │       └── updateproductprice/
+│   │   ├── createproduct/         # Use case: Create Product
+│   │   │   ├── CreateProductInputPort (interface)
+│   │   │   ├── CreateProductUseCase (implementation)
+│   │   │   ├── CreateProductCommand
+│   │   │   └── CreateProductResponse
+│   │   ├── getallproducts/        # Use case: Get All Products
+│   │   │   ├── GetAllProductsInputPort
+│   │   │   ├── GetAllProductsUseCase
+│   │   │   ├── GetAllProductsQuery
+│   │   │   └── GetAllProductsResponse
+│   │   ├── getproductbyid/        # Use case: Get Product By ID
+│   │   │   ├── GetProductByIdInputPort
+│   │   │   ├── GetProductByIdUseCase
+│   │   │   ├── GetProductByIdQuery
+│   │   │   └── GetProductByIdResponse
+│   │   ├── reduceproductstock/    # Use case: Reduce Product Stock
+│   │   │   ├── ReduceProductStockInputPort
+│   │   │   ├── ReduceProductStockUseCase
+│   │   │   ├── ReduceProductStockCommand
+│   │   │   └── ReduceProductStockResponse
+│   │   ├── updateproductprice/    # Use case: Update Product Price
+│   │   │   ├── UpdateProductPriceInputPort
+│   │   │   ├── UpdateProductPriceUseCase
+│   │   │   ├── UpdateProductPriceCommand
+│   │   │   └── UpdateProductPriceResponse
+│   │   └── shared/                # Shared output ports
+│   │       └── ProductRepository (interface)
 │   └── adapter                    # Adapters
 │       ├── incoming               # Incoming Adapters (Primary)
 │       │   ├── api/
@@ -83,28 +92,43 @@ de.sample.aiarchitecture
 │   │       ├── CartCheckedOut
 │   │       └── CartItemAddedToCart
 │   ├── application                # Application Layer
-│   │   ├── port
-│   │   │   ├── in                 # Input Ports (primary ports - use cases)
-│   │   │   │   ├── AddItemToCartInputPort
-│   │   │   │   ├── CheckoutCartInputPort
-│   │   │   │   ├── CreateCartInputPort
-│   │   │   │   ├── GetAllCartsInputPort
-│   │   │   │   ├── GetCartByIdInputPort
-│   │   │   │   ├── GetOrCreateActiveCartInputPort
-│   │   │   │   └── RemoveItemFromCartInputPort
-│   │   │   └── out                # Output Ports
-│   │   │       └── ShoppingCartRepository (interface)
-│   │   └── usecase                # Use Case Implementations
-│   │       ├── createcart/
-│   │       │   ├── CreateCartUseCase (implements CreateCartInputPort)
-│   │       │   ├── CreateCartCommand
-│   │       │   └── CreateCartResponse
-│   │       ├── additemtocart/
-│   │       ├── checkoutcart/
-│   │       ├── getallcarts/
-│   │       ├── getcartbyid/
-│   │       ├── getorcreateactivecart/
-│   │       └── removeitemfromcart/
+│   │   ├── createcart/            # Use case: Create Cart
+│   │   │   ├── CreateCartInputPort (interface)
+│   │   │   ├── CreateCartUseCase (implementation)
+│   │   │   ├── CreateCartCommand
+│   │   │   └── CreateCartResponse
+│   │   ├── additemtocart/         # Use case: Add Item to Cart
+│   │   │   ├── AddItemToCartInputPort
+│   │   │   ├── AddItemToCartUseCase
+│   │   │   ├── AddItemToCartCommand
+│   │   │   └── AddItemToCartResponse
+│   │   ├── checkoutcart/          # Use case: Checkout Cart
+│   │   │   ├── CheckoutCartInputPort
+│   │   │   ├── CheckoutCartUseCase
+│   │   │   ├── CheckoutCartCommand
+│   │   │   └── CheckoutCartResponse
+│   │   ├── getallcarts/           # Use case: Get All Carts
+│   │   │   ├── GetAllCartsInputPort
+│   │   │   ├── GetAllCartsUseCase
+│   │   │   ├── GetAllCartsQuery
+│   │   │   └── GetAllCartsResponse
+│   │   ├── getcartbyid/           # Use case: Get Cart By ID
+│   │   │   ├── GetCartByIdInputPort
+│   │   │   ├── GetCartByIdUseCase
+│   │   │   ├── GetCartByIdQuery
+│   │   │   └── GetCartByIdResponse
+│   │   ├── getorcreateactivecart/ # Use case: Get or Create Active Cart
+│   │   │   ├── GetOrCreateActiveCartInputPort
+│   │   │   ├── GetOrCreateActiveCartUseCase
+│   │   │   ├── GetOrCreateActiveCartCommand
+│   │   │   └── GetOrCreateActiveCartResponse
+│   │   ├── removeitemfromcart/    # Use case: Remove Item from Cart
+│   │   │   ├── RemoveItemFromCartInputPort
+│   │   │   ├── RemoveItemFromCartUseCase
+│   │   │   ├── RemoveItemFromCartCommand
+│   │   │   └── RemoveItemFromCartResponse
+│   │   └── shared/                # Shared output ports
+│   │       └── ShoppingCartRepository (interface)
 │   └── adapter                    # Adapters
 │       ├── incoming               # Incoming Adapters
 │       │   ├── api/

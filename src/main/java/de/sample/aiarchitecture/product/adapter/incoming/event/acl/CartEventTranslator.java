@@ -1,7 +1,7 @@
 package de.sample.aiarchitecture.product.adapter.incoming.event.acl;
 
 import de.sample.aiarchitecture.cart.domain.event.CartCheckedOut;
-import de.sample.aiarchitecture.product.application.usecase.reduceproductstock.ReduceProductStockCommand;
+import de.sample.aiarchitecture.product.application.reduceproductstock.ReduceProductStockCommand;
 import java.util.List;
 import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Component;

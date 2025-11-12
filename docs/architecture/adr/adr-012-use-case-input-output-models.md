@@ -9,10 +9,10 @@
 
 ## Context
 
-Currently, application services use primitive parameters:
+Previously, use cases used primitive parameters:
 
 ```java
-// application/ProductApplicationService.java
+// Old approach (no longer used)
 public Product createProduct(
     SKU sku,
     ProductName name,
@@ -39,70 +39,77 @@ public Product createProduct(
 **Example of Problems**:
 ```java
 // Which parameters are required? Which are optional?
-productService.createProduct(sku, name, null, price, category, stock);  // null allowed?
+createProductInputPort.execute(sku, name, null, price, category, stock);  // null allowed?
 
 // Easy to swap parameters (same type)
-productService.createProduct(name, sku, ...);  // Compiles but wrong!
+createProductInputPort.execute(name, sku, ...);  // Compiles but wrong!
 
 // Adding new parameter breaks all callers
-productService.createProduct(sku, name, description, price, category, stock, supplier);  // Breaking change
+createProductInputPort.execute(sku, name, description, price, category, stock, supplier);  // Breaking change
 ```
 
 ---
 
 ## Decision
 
-**Application services SHOULD use explicit Command/Query objects for input, and Result/DTO objects for output.**
+**Use cases (Input Ports) MUST use explicit Command/Query objects for input, and Response objects for output.**
 
 ### Proposed Pattern
 
 **Command Model (Input)**:
 ```java
-// application/command/CreateProductCommand.java
+// application/usecase/createproduct/CreateProductCommand.java
 public record CreateProductCommand(
-    @NonNull SKU sku,
-    @NonNull ProductName name,
-    @NonNull ProductDescription description,
-    @NonNull Price price,
-    @NonNull Category category,
-    @NonNull ProductStock stock
+    @NonNull String sku,
+    @NonNull String name,
+    @NonNull String description,
+    @NonNull BigDecimal priceAmount,
+    @NonNull String priceCurrency,
+    @NonNull String category,
+    int stockQuantity
 ) {
   // Compact constructor for validation
   public CreateProductCommand {
-    if (sku == null) throw new IllegalArgumentException("SKU required");
-    if (name == null) throw new IllegalArgumentException("Name required");
-    if (price == null) throw new IllegalArgumentException("Price required");
+    if (sku == null || sku.isBlank()) throw new IllegalArgumentException("SKU required");
+    if (name == null || name.isBlank()) throw new IllegalArgumentException("Name required");
+    if (priceAmount == null) throw new IllegalArgumentException("Price required");
     // All validation in one place
-  }
-
-  // Convenience factory for common case
-  public static CreateProductCommand withDefaults(SKU sku, ProductName name, Price price) {
-    return new CreateProductCommand(
-        sku, name,
-        new ProductDescription(""),
-        price,
-        Category.UNCATEGORIZED,
-        ProductStock.outOfStock()
-    );
   }
 }
 ```
 
-**Application Service (Refactored)**:
+**Response Model (Output)**:
 ```java
-// application/ProductApplicationService.java
-public class ProductApplicationService {
+// application/usecase/createproduct/CreateProductResponse.java
+public record CreateProductResponse(
+    String productId,
+    String sku,
+    String name,
+    BigDecimal priceAmount,
+    String priceCurrency
+) {}
+```
 
-  // Clear contract: one command object
-  public Product createProduct(CreateProductCommand command) {
-    // All validation already done in command
+**Use Case (Refactored)**:
+```java
+// application/usecase/createproduct/CreateProductUseCase.java
+@Service
+public class CreateProductUseCase implements CreateProductInputPort {
+
+  private final ProductRepository productRepository;
+  private final ProductFactory productFactory;
+  private final DomainEventPublisher eventPublisher;
+
+  // Clear contract: one command object, returns response object
+  public CreateProductResponse execute(CreateProductCommand command) {
+    // Convert command to domain objects
     Product product = productFactory.createProduct(
-        command.sku(),
-        command.name(),
-        command.description(),
-        command.price(),
-        command.category(),
-        command.stock()
+        SKU.of(command.sku()),
+        ProductName.of(command.name()),
+        ProductDescription.of(command.description()),
+        Price.of(Money.of(command.priceAmount(), Currency.getInstance(command.priceCurrency()))),
+        Category.of(command.category()),
+        ProductStock.of(command.stockQuantity())
     );
 
     productRepository.save(product);
@@ -268,43 +275,53 @@ Create base patterns and examples:
 
 ### Phase 2: Refactor Application Services
 
-Refactor one service at a time:
+Implement one use case at a time:
 
-1. **ProductApplicationService**:
-   - `createProduct(CreateProductCommand)`
-   - `updateProduct(UpdateProductCommand)`
-   - `findProducts(FindProductsQuery)`
+1. **Product Use Cases**:
+   - `CreateProductUseCase.execute(CreateProductCommand)`
+   - `UpdateProductPriceUseCase.execute(UpdateProductPriceCommand)`
+   - `GetAllProductsUseCase.execute(GetAllProductsQuery)`
 
-2. **ShoppingCartApplicationService**:
-   - `addItem(AddItemToCartCommand)`
-   - `checkout(CheckoutCartCommand)`
+2. **Shopping Cart Use Cases**:
+   - `AddItemToCartUseCase.execute(AddItemToCartCommand)`
+   - `CheckoutCartUseCase.execute(CheckoutCartCommand)`
 
 ### Phase 3: Update Primary Adapters
 
-Update REST controllers to use commands:
+Update REST controllers to use input ports:
 
 ```java
 @PostMapping
 public ResponseEntity<ProductDto> createProduct(@RequestBody CreateProductRequest request) {
   // Map request to command
   CreateProductCommand command = new CreateProductCommand(
-      SKU.of(request.sku()),
-      ProductName.of(request.name()),
-      ProductDescription.of(request.description()),
-      Price.of(Money.euro(request.price())),
-      Category.of(request.category()),
-      ProductStock.of(request.stock())
+      request.sku(),
+      request.name(),
+      request.description(),
+      request.priceAmount(),
+      request.priceCurrency(),
+      request.category(),
+      request.stockQuantity()
   );
 
-  Product product = productService.createProduct(command);
-  return ResponseEntity.ok(converter.toDto(product));
+  // Call input port
+  CreateProductResponse response = createProductInputPort.execute(command);
+
+  // Map response to DTO
+  return ResponseEntity.ok(new ProductDto(
+      response.productId(),
+      response.sku(),
+      response.name(),
+      response.priceAmount(),
+      response.priceCurrency()
+  ));
 }
 ```
 
 ### Phase 4: Add ArchUnit Tests
 
 ```groovy
-def "Application Service methods should accept Command or Query objects"() {
+def "Use Case execute methods should accept Command or Query objects"() {
   expect:
   methods()
     .that().areDeclaredInClassesThat().haveSimpleNameEndingWith("ApplicationService")

@@ -314,17 +314,18 @@ public class InMemoryProductRepository implements ProductRepository {
 }
 ```
 
-### Application Service Usage
+### Use Case Usage
 
 ```java
-// application/ProductApplicationService.java
-public class ProductApplicationService {
+// application/usecase/createproduct/CreateProductUseCase.java
+@Service
+public class CreateProductUseCase implements CreateProductInputPort {
 
   private final ProductRepository productRepository;
   private final ProductFactory productFactory;
   private final DomainEventPublisher eventPublisher;
 
-  public Product createProduct(...) {
+  public CreateProductResponse execute(CreateProductCommand command) {
     // Create aggregate
     final Product product = productFactory.createProduct(...);
 
@@ -334,13 +335,18 @@ public class ProductApplicationService {
     // Publish events after successful save
     eventPublisher.publishAndClearEvents(product);
 
-    return product;
+    return new CreateProductResponse(...);
   }
+}
 
-  public void changeProductPrice(ProductId productId, Price newPrice) {
+// application/usecase/updateproductprice/UpdateProductPriceUseCase.java
+@Service
+public class UpdateProductPriceUseCase implements UpdateProductPriceInputPort {
+
+  public UpdateProductPriceResponse execute(UpdateProductPriceCommand command) {
     // Load aggregate
-    final Product product = productRepository.findById(productId)
-        .orElseThrow(() -> new ProductNotFoundException(productId));
+    final Product product = productRepository.findById(ProductId.of(command.productId()))
+        .orElseThrow(() -> new ProductNotFoundException(command.productId()));
 
     // Execute domain logic
     product.changePrice(newPrice);

@@ -54,25 +54,30 @@ public class Pug4jConfiguration {
 @RequestMapping("/products")
 public class ProductPageController {
 
-  private final ProductApplicationService productApplicationService;
+  private final GetAllProductsUseCase getAllProductsUseCase;
+  private final GetProductByIdUseCase getProductByIdUseCase;
 
   @GetMapping
   public String showProductCatalog(final Model model) {
-    final List<Product> products = productApplicationService.getAllProducts();
-    model.addAttribute("products", products);
+    GetAllProductsQuery query = new GetAllProductsQuery();
+    GetAllProductsResponse response = getAllProductsUseCase.execute(query);
+
+    model.addAttribute("products", response.products());
     model.addAttribute("title", "Product Catalog");
     return "product/catalog"; // Resolves to templates/product/catalog.pug
   }
 
   @GetMapping("/{id}")
   public String showProductDetail(@PathVariable final String id, final Model model) {
-    return productApplicationService
-        .findProductById(ProductId.of(id))
-        .map(product -> {
-          model.addAttribute("product", product);
-          return "product/detail";
-        })
-        .orElse("error/404");
+    GetProductByIdQuery query = new GetProductByIdQuery(id);
+
+    try {
+      GetProductByIdResponse response = getProductByIdUseCase.execute(query);
+      model.addAttribute("product", response.product());
+      return "product/detail";
+    } catch (IllegalArgumentException e) {
+      return "error/404";
+    }
   }
 }
 ```

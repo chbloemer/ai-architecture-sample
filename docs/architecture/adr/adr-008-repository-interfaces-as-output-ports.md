@@ -47,7 +47,7 @@ In traditional layered architectures, repositories are often defined in the data
 ```
 Domain Layer:        Pure business logic (Product, SKU, Price, etc.)
                               ↑ uses
-Application Layer:   Use cases + Ports (ProductApplicationService, ProductRepository interface)
+Application Layer:   Use cases + Ports (UpdateProductPriceUseCase, ProductRepository interface)
                               ↑ implements
 Adapter Layer:       Implementations (InMemoryProductRepository)
 ```
@@ -78,7 +78,7 @@ product/
               ▼
 ┌─────────────────────────────────┐
 │   Application Layer              │
-│   ProductApplicationService      │
+│   UpdateProductPriceUseCase      │
 │   ProductRepository (interface)  │  ← Output Port (defines what app needs)
 └─────────────┬───────────────────┘
               │
@@ -149,17 +149,17 @@ Can test application services with mock implementations:
 
 ```java
 @Test
-void shouldFindProductBySku() {
+void shouldUpdateProductPrice() {
   // Given - mock repository (no real database needed)
   ProductRepository mockRepo = mock(ProductRepository.class);
-  when(mockRepo.findBySku(sku)).thenReturn(Optional.of(product));
+  when(mockRepo.findById(productId)).thenReturn(Optional.of(product));
 
   // When
-  ProductApplicationService service = new ProductApplicationService(mockRepo, factory, publisher);
-  Product found = service.findProductBySku(sku);
+  UpdateProductPriceUseCase useCase = new UpdateProductPriceUseCase(mockRepo, publisher);
+  UpdateProductPriceResponse response = useCase.execute(command);
 
   // Then
-  assertThat(found).isEqualTo(product);
+  assertThat(response.newPriceAmount()).isEqualTo(newPrice.value().amount());
 }
 ```
 
@@ -316,21 +316,28 @@ public class InMemoryProductRepository implements ProductRepository {
 }
 ```
 
-### Application Service Usage
+### Use Case Usage
 
 ```java
-// product/application/ProductApplicationService.java
-public class ProductApplicationService {
+// product/application/usecase/updateproductprice/UpdateProductPriceUseCase.java
+@Service
+public class UpdateProductPriceUseCase implements UpdateProductPriceInputPort {
 
   // Depends on output port (repository interface) from same layer
   private final ProductRepository productRepository;
+  private final DomainEventPublisher eventPublisher;
 
-  public Optional<Product> findProductBySku(SKU sku) {
-    return productRepository.findBySku(sku);
-  }
+  public UpdateProductPriceResponse execute(UpdateProductPriceCommand input) {
+    Product product = productRepository.findById(ProductId.of(input.productId()))
+        .orElseThrow(() -> new IllegalArgumentException("Product not found"));
 
-  public List<Product> findProductsByCategory(Category category) {
-    return productRepository.findByCategory(category);
+    product.changePrice(new Price(new Money(input.newPriceAmount(),
+        Currency.getInstance(input.newPriceCurrency()))));
+
+    productRepository.save(product);
+    eventPublisher.publishAndClearEvents(product);
+
+    return new UpdateProductPriceResponse(...);
   }
 }
 ```
@@ -343,14 +350,21 @@ public class ProductApplicationService {
 public class SpringConfiguration {
 
   // Spring wires implementation to interface
-  // Application service receives interface, not implementation
+  // Use cases receive interfaces, not implementations
 
   @Bean
-  public ProductApplicationService productApplicationService(
-      ProductRepository productRepository,  // ← Interface
+  public UpdateProductPriceUseCase updateProductPriceUseCase(
+      ProductRepository productRepository,  // ← Interface (Output Port)
+      DomainEventPublisher eventPublisher) {
+    return new UpdateProductPriceUseCase(productRepository, eventPublisher);
+  }
+
+  @Bean
+  public CreateProductUseCase createProductUseCase(
+      ProductRepository productRepository,  // ← Interface (Output Port)
       ProductFactory productFactory,
       DomainEventPublisher eventPublisher) {
-    return new ProductApplicationService(productRepository, productFactory, eventPublisher);
+    return new CreateProductUseCase(productRepository, productFactory, eventPublisher);
   }
 }
 ```
@@ -530,13 +544,14 @@ find cart/adapter/outgoing -name "*Repository.java" -type f
 void canTestWithMockRepository() {
   // Given - no real repository needed
   ProductRepository mockRepo = mock(ProductRepository.class);
-  when(mockRepo.findBySku(any())).thenReturn(Optional.of(testProduct));
+  when(mockRepo.findById(any())).thenReturn(Optional.of(testProduct));
 
   // When
-  ProductApplicationService service = new ProductApplicationService(mockRepo, factory, publisher);
+  UpdateProductPriceUseCase useCase = new UpdateProductPriceUseCase(mockRepo, publisher);
+  UpdateProductPriceResponse response = useCase.execute(command);
 
   // Then - domain logic tested without infrastructure
-  assertThat(service.findProductBySku(sku)).isPresent();
+  assertThat(response).isNotNull();
 }
 ```
 

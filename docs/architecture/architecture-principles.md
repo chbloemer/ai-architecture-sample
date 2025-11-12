@@ -902,7 +902,7 @@ public record CreateProductOutput(
 5. **Documentation**: Use cases document what the system does
 6. **API Stability**: Output models provide versioning boundary
 
-### Use Cases vs Application Services
+### Use Cases with Input/Output Ports Pattern
 
 **Traditional Application Service:**
 ```java
@@ -916,52 +916,69 @@ public class ProductApplicationService {
 }
 ```
 
-**Use Case Approach:**
+**Use Case with Input Ports Approach:**
 ```java
-// Generic UseCase interface
-interface UseCase<I, O> { O execute(I input); }
-
-// Separate class per use case, each implementing UseCase<I,O>
-@Service
-public class CreateProductUseCase implements UseCase<CreateProductInput, CreateProductOutput> {
-    public CreateProductOutput execute(CreateProductInput input) { ... }
+// Input Port interface (marker interface)
+interface InputPort<INPUT, OUTPUT> {
+    OUTPUT execute(INPUT input);
 }
 
+// Specific Input Port for the use case
+interface UpdateProductPriceInputPort extends InputPort<UpdateProductPriceCommand, UpdateProductPriceResponse> {
+    UpdateProductPriceResponse execute(UpdateProductPriceCommand input);
+}
+
+// Use Case implementation
 @Service
-public class UpdateProductPriceUseCase implements UseCase<UpdateProductPriceInput, UpdateProductPriceOutput> {
-    public UpdateProductPriceOutput execute(UpdateProductPriceInput input) { ... }
+public class UpdateProductPriceUseCase implements UpdateProductPriceInputPort {
+    private final ProductRepository productRepository;  // Output Port
+    private final DomainEventPublisher eventPublisher;  // Output Port
+
+    public UpdateProductPriceResponse execute(UpdateProductPriceCommand input) { ... }
 }
 ```
 
-**Advantages of Use Case Approach:**
+**Advantages of Input Port / Use Case Approach:**
 - Single Responsibility Principle (one use case per class)
-- Interface Segregation (clients inject only the specific use cases they need)
+- Interface Segregation (clients inject only the specific input ports they need)
 - Easier to test (smaller, focused classes)
-- Clearer naming (use case name reflects business operation)
+- Clearer naming (port and use case names reflect business operation)
 - Better suited for microservices (can deploy use cases independently)
-- Generic contract enforces consistency across all use cases
+- Explicit Hexagonal Architecture ports (Input Ports = primary ports, Output Ports = secondary ports)
+- Consistent contract enforces input/output models across all use cases
 
 ### Implementation
 
-**Base Interface:** `de.sample.aiarchitecture.application.UseCase<I, O>`
+**Base Interface:** `de.sample.aiarchitecture.sharedkernel.application.marker.InputPort<INPUT, OUTPUT>`
 
 **Product Use Cases:**
-- `CreateProductUseCase implements UseCase<CreateProductInput, CreateProductOutput>`
-- `UpdateProductPriceUseCase implements UseCase<UpdateProductPriceInput, UpdateProductPriceOutput>`
-- `GetProductByIdUseCase implements UseCase<GetProductByIdInput, GetProductByIdOutput>`
-- `GetAllProductsUseCase implements UseCase<GetAllProductsInput, GetAllProductsOutput>`
+- Input Port: `CreateProductInputPort extends InputPort<CreateProductCommand, CreateProductResponse>`
+- Implementation: `CreateProductUseCase implements CreateProductInputPort`
+- Input Port: `UpdateProductPriceInputPort extends InputPort<UpdateProductPriceCommand, UpdateProductPriceResponse>`
+- Implementation: `UpdateProductPriceUseCase implements UpdateProductPriceInputPort`
+- Input Port: `GetProductByIdInputPort extends InputPort<GetProductByIdQuery, GetProductByIdResponse>`
+- Implementation: `GetProductByIdUseCase implements GetProductByIdInputPort`
+- Input Port: `GetAllProductsInputPort extends InputPort<GetAllProductsQuery, GetAllProductsResponse>`
+- Implementation: `GetAllProductsUseCase implements GetAllProductsInputPort`
 
 **Shopping Cart Use Cases:**
-- `CreateCartUseCase implements UseCase<CreateCartInput, CreateCartOutput>`
-- `AddItemToCartUseCase implements UseCase<AddItemToCartInput, AddItemToCartOutput>`
-- `CheckoutCartUseCase implements UseCase<CheckoutCartInput, CheckoutCartOutput>`
-- `GetCartByIdUseCase implements UseCase<GetCartByIdInput, GetCartByIdOutput>`
+- Input Port: `CreateCartInputPort extends InputPort<CreateCartCommand, CreateCartResponse>`
+- Implementation: `CreateCartUseCase implements CreateCartInputPort`
+- Input Port: `AddItemToCartInputPort extends InputPort<AddItemToCartCommand, AddItemToCartResponse>`
+- Implementation: `AddItemToCartUseCase implements AddItemToCartInputPort`
+- Input Port: `CheckoutCartInputPort extends InputPort<CheckoutCartCommand, CheckoutCartResponse>`
+- Implementation: `CheckoutCartUseCase implements CheckoutCartInputPort`
+- Input Port: `GetCartByIdInputPort extends InputPort<GetCartByIdQuery, GetCartByIdResponse>`
+- Implementation: `GetCartByIdUseCase implements GetCartByIdInputPort`
 
 **Naming Convention:**
-- Use case classes end with "UseCase"
-- Input models end with "Input"
-- Output models end with "Output"
-- All use cases are public classes implementing `UseCase<I,O>`
+- Input port interfaces end with "InputPort"
+- Use case implementation classes end with "UseCase"
+- Command input models end with "Command" (for write operations)
+- Query input models end with "Query" (for read operations)
+- Output models end with "Response"
+- All input ports extend `InputPort<INPUT, OUTPUT>`
+- All use cases implement their corresponding input port interface
 
 ### Organization by Bounded Context
 
@@ -970,15 +987,24 @@ Use cases are organized into subpackages matching the bounded contexts from the 
 **Package Structure:**
 ```
 application/
-├── UseCase                  # Base interface
-├── product/                 # Product context use cases
-│   ├── CreateProductUseCase
-│   ├── CreateProductInput
-│   └── CreateProductOutput
-└── cart/                    # Cart context use cases
-    ├── AddItemToCartUseCase
-    ├── AddItemToCartInput
-    └── AddItemToCartOutput
+├── port/
+│   ├── in/                           # Input Ports (Primary Ports)
+│   │   ├── CreateProductInputPort
+│   │   ├── UpdateProductPriceInputPort
+│   │   ├── AddItemToCartInputPort
+│   │   └── ...
+│   └── out/                          # Output Ports (Secondary Ports)
+│       ├── ProductRepository
+│       └── ShoppingCartRepository
+└── usecase/
+    ├── createproduct/                # Organized by use case
+    │   ├── CreateProductUseCase      # Implements CreateProductInputPort
+    │   ├── CreateProductCommand      # Input model
+    │   └── CreateProductResponse     # Output model
+    └── additemtocart/
+        ├── AddItemToCartUseCase      # Implements AddItemToCartInputPort
+        ├── AddItemToCartCommand      # Input model
+        └── AddItemToCartResponse     # Output model
 ```
 
 **Benefits:**
@@ -992,10 +1018,13 @@ application/
 
 **Rules:**
 
-1. Use cases reside in subpackages matching their bounded context (`application.product`, `application.cart`)
-2. Use cases may only orchestrate domain objects from their own bounded context
-3. Cross-context coordination happens via domain events, not direct use case calls
-4. Input/Output models reside alongside their use cases in the same subpackage
+1. Input Ports are defined in `application.port.in` package
+2. Output Ports (repositories, gateways) are defined in `application.port.out` package
+3. Use case implementations reside in `application.usecase.<usecasename>` subpackages
+4. Use cases may only orchestrate domain objects from their own bounded context
+5. Cross-context coordination happens via domain events, not direct use case calls
+6. Input/Output models (Commands, Queries, Responses) reside alongside their use cases in the same subpackage
+7. Adapters depend on input ports, not on use case implementations directly
 
 **Location:**
 - Product Use Cases: `de.sample.aiarchitecture.application.product`
@@ -1050,39 +1079,62 @@ Adapters are implementations that connect external systems to the ports.
    ```java
    @RestController
    @RequestMapping("/api/products")
-   public class ProductController {
-       private final ProductApplicationService productService;
+   public class ProductResource {
+       private final UpdateProductPriceInputPort updateProductPriceInputPort;
 
-       @PostMapping
-       public ResponseEntity<ProductDto> createProduct(@RequestBody CreateProductRequest request) {
-           Product product = productService.createProduct(...);
-           return ResponseEntity.ok(ProductConverter.toDto(product));
+       @PutMapping("/{id}/price")
+       public ResponseEntity<ProductDto> updatePrice(
+           @PathVariable String id,
+           @RequestBody UpdatePriceRequest request) {
+
+           UpdateProductPriceCommand command = new UpdateProductPriceCommand(
+               id, request.newAmount(), request.currency());
+           UpdateProductPriceResponse response = updateProductPriceInputPort.execute(command);
+
+           return ResponseEntity.ok(ProductConverter.toDto(response));
        }
    }
    ```
 
-2. **Primary Port (Application Service)** executes use case
+2. **Primary Port (Input Port Interface)** defines use case contract
+   ```java
+   public interface UpdateProductPriceInputPort
+       extends InputPort<UpdateProductPriceCommand, UpdateProductPriceResponse> {
+       UpdateProductPriceResponse execute(UpdateProductPriceCommand input);
+   }
+   ```
+
+3. **Use Case Implementation** executes business logic
    ```java
    @Service
-   public class ProductApplicationService {
-       private final ProductRepository productRepository;
-       private final ProductFactory productFactory;
+   public class UpdateProductPriceUseCase implements UpdateProductPriceInputPort {
+       private final ProductRepository productRepository;  // Output Port
+       private final DomainEventPublisher eventPublisher;  // Output Port
 
-       public Product createProduct(SKU sku, ProductName name, ...) {
-           Product product = productFactory.createProduct(sku, name, ...);
-           return productRepository.save(product);
+       public UpdateProductPriceResponse execute(UpdateProductPriceCommand input) {
+           Product product = productRepository.findById(ProductId.of(input.productId()))
+               .orElseThrow(() -> new IllegalArgumentException("Product not found"));
+
+           product.changePrice(new Price(new Money(input.newPriceAmount(),
+               Currency.getInstance(input.newPriceCurrency()))));
+
+           productRepository.save(product);
+           eventPublisher.publishAndClearEvents(product);
+
+           return new UpdateProductPriceResponse(...);
        }
    }
    ```
 
-3. **Secondary Port (Repository Interface)** defines contract
+4. **Secondary Port (Output Port Interface)** defines infrastructure contract
    ```java
-   public interface ProductRepository extends Repository<Product, ProductId> {
+   public interface ProductRepository extends OutputPort, Repository<Product, ProductId> {
        Product save(@NonNull Product product);
+       Optional<Product> findById(@NonNull ProductId id);
    }
    ```
 
-4. **Secondary Adapter (Repository Implementation)** persists data
+5. **Secondary Adapter (Repository Implementation)** persists data
    ```java
    @Repository
    public class InMemoryProductRepository implements ProductRepository {
@@ -1092,6 +1144,11 @@ Adapters are implementations that connect external systems to the ports.
        public Product save(Product product) {
            products.put(product.id(), product);
            return product;
+       }
+
+       @Override
+       public Optional<Product> findById(ProductId id) {
+           return Optional.ofNullable(products.get(id));
        }
    }
    ```
@@ -1288,9 +1345,6 @@ de.sample.aiarchitecture
 │   │   ├── GetCartByIdUseCase
 │   │   ├── GetCartByIdInput
 │   │   └── GetCartByIdOutput
-│   │
-│   ├── ProductApplicationService        # (Legacy - being replaced by use cases)
-│   └── ShoppingCartApplicationService   # (Legacy - being replaced by use cases)
 │
 ├── domain                               # Domain Layer (Core Business Logic)
 │   └── model

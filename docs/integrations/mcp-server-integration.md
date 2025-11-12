@@ -84,7 +84,16 @@ The MCP server is implemented as a **primary adapter** in the Hexagonal Architec
         └─────────────┼──────────────┘
                       ▼
         ┌──────────────────────────┐
-        │ ProductApplicationService│
+        │   Input Ports            │
+        │ (GetAllProductsInputPort,│
+        │  GetProductByIdInputPort)│
+        └──────────────────────────┘
+                      │
+                      ▼
+        ┌──────────────────────────┐
+        │   Use Cases              │
+        │ (GetAllProductsUseCase,  │
+        │  GetProductByIdUseCase)  │
         └──────────────────────────┘
                       │
                       ▼
@@ -113,13 +122,16 @@ The MCP server is implemented as a **primary adapter** in the Hexagonal Architec
 @Component
 public class ProductCatalogMcpTools {
 
-  private final ProductApplicationService productApplicationService;
+  private final GetAllProductsUseCase getAllProductsUseCase;
+  private final GetProductByIdUseCase getProductByIdUseCase;
   private final ProductDtoConverter productDtoConverter;
 
   public ProductCatalogMcpTools(
-      final ProductApplicationService productApplicationService,
+      final GetAllProductsUseCase getAllProductsUseCase,
+      final GetProductByIdUseCase getProductByIdUseCase,
       final ProductDtoConverter productDtoConverter) {
-    this.productApplicationService = productApplicationService;
+    this.getAllProductsUseCase = getAllProductsUseCase;
+    this.getProductByIdUseCase = getProductByIdUseCase;
     this.productDtoConverter = productDtoConverter;
   }
 
@@ -128,8 +140,9 @@ public class ProductCatalogMcpTools {
     description = "Get all products in the catalog. Returns complete product information..."
   )
   public List<ProductDto> getAllProducts() {
-    final List<Product> products = productApplicationService.getAllProducts();
-    return products.stream().map(productDtoConverter::toDto).toList();
+    GetAllProductsQuery query = new GetAllProductsQuery();
+    GetAllProductsResponse response = getAllProductsUseCase.execute(query);
+    return response.products().stream().map(productDtoConverter::toDto).toList();
   }
 
   @McpTool(
@@ -378,7 +391,9 @@ Related ADRs:
 
 ### Project Files
 - **MCP Tools:** `src/main/java/de/sample/aiarchitecture/product/adapter/incoming/mcp/ProductCatalogMcpTools.java`
-- **Application Service:** `src/main/java/de/sample/aiarchitecture/product/application/ProductApplicationService.java`
+- **Use Cases:** `src/main/java/de/sample/aiarchitecture/product/application/usecase/`
+  - `GetAllProductsUseCase.java`
+  - `GetProductByIdUseCase.java`
 - **Config:** `src/main/resources/application.yml`
 - **Client Config:** `.mcp.json`
 

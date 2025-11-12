@@ -34,17 +34,23 @@ de.sample.aiarchitecture
 │   │       ├── ProductCreated
 │   │       └── ProductPriceChanged
 │   ├── application                # Application Layer
-│   │   ├── ProductApplicationService
 │   │   ├── port
+│   │   │   ├── in                 # Input Ports (primary ports - use cases)
+│   │   │   │   ├── CreateProductInputPort
+│   │   │   │   ├── GetAllProductsInputPort
+│   │   │   │   ├── GetProductByIdInputPort
+│   │   │   │   ├── ReduceProductStockInputPort
+│   │   │   │   └── UpdateProductPriceInputPort
 │   │   │   └── out                # Output Ports (secondary ports)
 │   │   │       └── ProductRepository (interface)
-│   │   └── usecase                # Use Cases (input ports)
+│   │   └── usecase                # Use Case Implementations
 │   │       ├── createproduct/
-│   │       │   ├── CreateProductUseCase
+│   │       │   ├── CreateProductUseCase (implements CreateProductInputPort)
 │   │       │   ├── CreateProductCommand
 │   │       │   └── CreateProductResponse
 │   │       ├── getallproducts/
 │   │       ├── getproductbyid/
+│   │       ├── reduceproductstock/
 │   │       └── updateproductprice/
 │   └── adapter                    # Adapters
 │       ├── incoming               # Incoming Adapters (Primary)
@@ -77,15 +83,28 @@ de.sample.aiarchitecture
 │   │       ├── CartCheckedOut
 │   │       └── CartItemAddedToCart
 │   ├── application                # Application Layer
-│   │   ├── ShoppingCartApplicationService
 │   │   ├── port
+│   │   │   ├── in                 # Input Ports (primary ports - use cases)
+│   │   │   │   ├── AddItemToCartInputPort
+│   │   │   │   ├── CheckoutCartInputPort
+│   │   │   │   ├── CreateCartInputPort
+│   │   │   │   ├── GetAllCartsInputPort
+│   │   │   │   ├── GetCartByIdInputPort
+│   │   │   │   ├── GetOrCreateActiveCartInputPort
+│   │   │   │   └── RemoveItemFromCartInputPort
 │   │   │   └── out                # Output Ports
 │   │   │       └── ShoppingCartRepository (interface)
-│   │   └── usecase                # Use Cases
+│   │   └── usecase                # Use Case Implementations
 │   │       ├── createcart/
+│   │       │   ├── CreateCartUseCase (implements CreateCartInputPort)
+│   │       │   ├── CreateCartCommand
+│   │       │   └── CreateCartResponse
 │   │       ├── additemtocart/
 │   │       ├── checkoutcart/
-│   │       └── getcartbyid/
+│   │       ├── getallcarts/
+│   │       ├── getcartbyid/
+│   │       ├── getorcreateactivecart/
+│   │       └── removeitemfromcart/
 │   └── adapter                    # Adapters
 │       ├── incoming               # Incoming Adapters
 │       │   ├── api/

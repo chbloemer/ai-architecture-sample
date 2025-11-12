@@ -91,13 +91,17 @@ src/main/java/de/sample/aiarchitecture/
 │   │       ├── ProductCreated.java
 │   │       └── ProductPriceChanged.java
 │   ├── application/                      # Application layer
-│   │   ├── ProductApplicationService.java
 │   │   ├── port/
+│   │   │   ├── in/                       # Input ports (primary ports - use cases)
+│   │   │   │   ├── CreateProductInputPort.java
+│   │   │   │   ├── GetAllProductsInputPort.java
+│   │   │   │   ├── GetProductByIdInputPort.java
+│   │   │   │   └── UpdateProductPriceInputPort.java
 │   │   │   └── out/                      # Output ports (secondary ports)
 │   │   │       └── ProductRepository.java
-│   │   └── usecase/                      # Use cases (input ports)
+│   │   └── usecase/                      # Use case implementations
 │   │       ├── createproduct/
-│   │       │   ├── CreateProductUseCase.java
+│   │       │   ├── CreateProductUseCase.java      # Implements CreateProductInputPort
 │   │       │   ├── CreateProductCommand.java
 │   │       │   └── CreateProductResponse.java
 │   │       ├── getallproducts/
@@ -136,12 +140,19 @@ src/main/java/de/sample/aiarchitecture/
 │   │       ├── CartCheckedOut.java
 │   │       └── CartItemAddedToCart.java
 │   ├── application/                      # Application layer
-│   │   ├── ShoppingCartApplicationService.java
 │   │   ├── port/
+│   │   │   ├── in/                       # Input ports (primary ports - use cases)
+│   │   │   │   ├── CreateCartInputPort.java
+│   │   │   │   ├── AddItemToCartInputPort.java
+│   │   │   │   ├── CheckoutCartInputPort.java
+│   │   │   │   └── GetCartByIdInputPort.java
 │   │   │   └── out/                      # Output ports
 │   │   │       └── ShoppingCartRepository.java
-│   │   └── usecase/                      # Use cases
+│   │   └── usecase/                      # Use case implementations
 │   │       ├── createcart/
+│   │       │   ├── CreateCartUseCase.java         # Implements CreateCartInputPort
+│   │       │   ├── CreateCartCommand.java
+│   │       │   └── CreateCartResponse.java
 │   │       ├── additemtocart/
 │   │       ├── checkoutcart/
 │   │       └── getcartbyid/

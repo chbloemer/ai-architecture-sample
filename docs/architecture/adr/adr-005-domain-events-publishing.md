@@ -76,18 +76,26 @@ public void changePrice(@NonNull final Price newPrice) {
 }
 ```
 
-**Phase 2: Application Service - Publish After Save**
+**Phase 2: Use Case - Publish After Save**
 ```java
-// application/ProductApplicationService.java
-public void changeProductPrice(ProductId productId, Price newPrice) {
-  Product product = productRepository.findById(productId)
-      .orElseThrow();
+// application/usecase/updateproductprice/UpdateProductPriceUseCase.java
+@Service
+public class UpdateProductPriceUseCase implements UpdateProductPriceInputPort {
+  private final ProductRepository productRepository;
+  private final DomainEventPublisher eventPublisher;
 
-  product.changePrice(newPrice);  // Registers event
+  public UpdateProductPriceResponse execute(UpdateProductPriceCommand input) {
+    Product product = productRepository.findById(ProductId.of(input.productId()))
+        .orElseThrow();
 
-  productRepository.save(product);  // Persist first
+    product.changePrice(newPrice);  // Registers event
 
-  eventPublisher.publishAndClearEvents(product);  // Publish after successful save
+    productRepository.save(product);  // Persist first
+
+    eventPublisher.publishAndClearEvents(product);  // Publish after successful save
+
+    return new UpdateProductPriceResponse(...);
+  }
 }
 ```
 
@@ -313,18 +321,18 @@ public void updateStock(@NonNull final ProductStock newStock) {
 }
 ```
 
-### Usage in Application Service
+### Usage in Use Cases
 
 ```java
-// application/ProductApplicationService.java
+// application/usecase/createproduct/CreateProductUseCase.java
 @Service
-public class ProductApplicationService {
+public class CreateProductUseCase implements CreateProductInputPort {
 
   private final ProductRepository productRepository;
   private final ProductFactory productFactory;
   private final DomainEventPublisher eventPublisher;
 
-  public Product createProduct(...) {
+  public CreateProductResponse execute(CreateProductCommand input) {
     // Domain creates and registers creation event
     final Product product = productFactory.createProduct(...);
 
@@ -334,13 +342,21 @@ public class ProductApplicationService {
     // Publish events AFTER successful persistence
     eventPublisher.publishAndClearEvents(product);
 
-    return product;
+    return new CreateProductResponse(...);
   }
+}
 
-  public void changeProductPrice(ProductId productId, Price newPrice) {
+// application/usecase/updateproductprice/UpdateProductPriceUseCase.java
+@Service
+public class UpdateProductPriceUseCase implements UpdateProductPriceInputPort {
+
+  private final ProductRepository productRepository;
+  private final DomainEventPublisher eventPublisher;
+
+  public UpdateProductPriceResponse execute(UpdateProductPriceCommand input) {
     // Load
-    final Product product = productRepository.findById(productId)
-        .orElseThrow(() -> new ProductNotFoundException(productId));
+    final Product product = productRepository.findById(ProductId.of(input.productId()))
+        .orElseThrow(() -> new ProductNotFoundException(input.productId()));
 
     // Execute domain logic (registers event)
     product.changePrice(newPrice);

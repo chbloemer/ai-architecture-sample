@@ -193,18 +193,22 @@ public class ProductFactory implements Factory {
 }
 ```
 
-### Usage in Application Service
+### Usage in Use Case
 
 ```java
-// application/ProductApplicationService.java
-public Product createProduct(...) {
-  // Use factory for creation
-  final Product product = productFactory.createProduct(...);
+// application/usecase/createproduct/CreateProductUseCase.java
+@Service
+public class CreateProductUseCase implements CreateProductInputPort {
 
-  productRepository.save(product);
-  eventPublisher.publishAndClearEvents(product);
+  public CreateProductResponse execute(CreateProductCommand command) {
+    // Use factory for creation
+    final Product product = productFactory.createProduct(...);
 
-  return product;
+    productRepository.save(product);
+    eventPublisher.publishAndClearEvents(product);
+
+    return new CreateProductResponse(...);
+  }
 }
 ```
 

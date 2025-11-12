@@ -75,11 +75,19 @@ src/main/java/de/sample/aiarchitecture/
 │   │   ├── service/           # Domain services
 │   │   └── event/             # Domain events
 │   ├── application/           # Application Services (Use Cases)
-│   │   ├── ProductApplicationService
 │   │   ├── port/
-│   │   │   └── out/           # Output Ports
+│   │   │   ├── in/            # Input Ports (Primary Ports)
+│   │   │   │   ├── CreateProductInputPort
+│   │   │   │   ├── UpdateProductPriceInputPort
+│   │   │   │   └── ...
+│   │   │   └── out/           # Output Ports (Secondary Ports)
 │   │   │       └── ProductRepository
-│   │   └── usecase/           # Use cases (input ports)
+│   │   └── usecase/           # Use case implementations
+│   │       ├── createproduct/
+│   │       │   ├── CreateProductUseCase
+│   │       │   ├── CreateProductCommand
+│   │       │   └── CreateProductResponse
+│   │       └── updateproductprice/
 │   └── adapter/
 │       ├── incoming/          # Primary Adapters (Driving/Inbound)
 │       │   ├── api/           # REST API (ProductResource)
@@ -92,8 +100,17 @@ src/main/java/de/sample/aiarchitecture/
 ├── cart/                      # Cart Bounded Context
 │   ├── domain/                # Domain Model (Hexagon Core)
 │   ├── application/           # Application Services
-│   │   ├── ShoppingCartApplicationService
-│   │   └── port/out/          # Output Ports
+│   │   ├── port/
+│   │   │   ├── in/            # Input Ports
+│   │   │   │   ├── CreateCartInputPort
+│   │   │   │   ├── AddItemToCartInputPort
+│   │   │   │   └── ...
+│   │   │   └── out/           # Output Ports
+│   │   │       └── ShoppingCartRepository
+│   │   └── usecase/           # Use case implementations
+│   │       ├── createcart/
+│   │       ├── additemtocart/
+│   │       └── ...
 │   └── adapter/
 │       ├── incoming/          # Primary Adapters
 │       │   ├── api/           # REST API
@@ -127,9 +144,16 @@ HTTP Request
               │
               ▼
 ┌─────────────────────────────────┐
-│ Application Service (Input Port)│
-│ ProductApplicationService       │  ← Use Case
-│ (No framework annotations)      │
+│ Input Port (Use Case Interface) │
+│ UpdateProductPriceInputPort     │  ← Primary Port
+│ (Framework-independent)         │
+└─────────────┬───────────────────┘
+              │
+              ▼
+┌─────────────────────────────────┐
+│ Use Case Implementation         │
+│ UpdateProductPriceUseCase       │  ← Executes business logic
+│ (Thin orchestration)            │
 └─────────────┬───────────────────┘
               │
               ▼
@@ -235,12 +259,13 @@ Domain code unchanged!
 // REST API (primary adapter)
 @RestController
 public class ProductResource {
-  private final ProductApplicationService productService;
+  private final CreateProductInputPort createProductInputPort;
 
   @PostMapping
   public ResponseEntity<ProductDto> createProduct(@RequestBody CreateProductRequest request) {
-    Product product = productService.createProduct(...);  // Calls into hexagon
-    return ResponseEntity.ok(converter.toDto(product));
+    CreateProductCommand command = new CreateProductCommand(...);
+    CreateProductResponse response = createProductInputPort.execute(command);  // Calls into hexagon
+    return ResponseEntity.ok(converter.toDto(response));
   }
 }
 ```
@@ -314,23 +339,30 @@ public final class Product extends BaseAggregateRoot<Product, ProductId> {
 ### Application (Use Cases - Input Ports)
 
 ```java
+// product/application/port/in/CreateProductInputPort.java (Input Port)
+public interface CreateProductInputPort
+    extends InputPort<CreateProductCommand, CreateProductResponse> {
+  CreateProductResponse execute(CreateProductCommand input);
+}
+
 // product/application/port/out/ProductRepository.java (Output Port)
-public interface ProductRepository extends Repository<Product, ProductId> {
+public interface ProductRepository extends OutputPort, Repository<Product, ProductId> {
   Optional<Product> findBySku(@NonNull SKU sku);
 }
 
-// product/application/ProductApplicationService.java
-public class ProductApplicationService {
+// product/application/usecase/createproduct/CreateProductUseCase.java
+@Service
+public class CreateProductUseCase implements CreateProductInputPort {
 
   private final ProductRepository productRepository;
   private final ProductFactory productFactory;
   private final DomainEventPublisher eventPublisher;
 
-  public Product createProduct(...) {
+  public CreateProductResponse execute(CreateProductCommand input) {
     Product product = productFactory.createProduct(...);
     productRepository.save(product);
     eventPublisher.publishAndClearEvents(product);
-    return product;
+    return new CreateProductResponse(...);
   }
 }
 ```
@@ -343,12 +375,13 @@ public class ProductApplicationService {
 @RequestMapping("/api/products")
 public class ProductResource {
 
-  private final ProductApplicationService productService;
+  private final CreateProductInputPort createProductInputPort;
 
   @PostMapping
   public ResponseEntity<ProductDto> createProduct(@RequestBody CreateProductRequest request) {
-    Product product = productService.createProduct(...);
-    return ResponseEntity.ok(converter.toDto(product));
+    CreateProductCommand command = new CreateProductCommand(...);
+    CreateProductResponse response = createProductInputPort.execute(command);
+    return ResponseEntity.ok(converter.toDto(response));
   }
 }
 ```

@@ -256,32 +256,34 @@ public final class ShoppingCart extends BaseAggregateRoot<ShoppingCart, CartId> 
 }
 ```
 
-**Application Service Coordinates**:
+**Use Case Coordinates**:
 ```java
-// application/ShoppingCartApplicationService.java
-public void addItemToCart(
-    CartId cartId,
-    ProductId productId,
-    Quantity quantity) {
+// application/usecase/additemtocart/AddItemToCartUseCase.java
+@Service
+public class AddItemToCartUseCase implements AddItemToCartInputPort {
 
-  // Load cart aggregate
-  ShoppingCart cart = cartRepository.findById(cartId)
-      .orElseThrow(() -> new CartNotFoundException(cartId));
+  public AddItemToCartResponse execute(AddItemToCartCommand command) {
+    CartId cartId = CartId.of(command.cartId());
+    ProductId productId = ProductId.of(command.productId());
 
-  // Verify product exists (separate query)
-  Product product = productRepository.findById(productId)
-      .orElseThrow(() -> new ProductNotFoundException(productId));
+    // Load cart aggregate
+    ShoppingCart cart = cartRepository.findById(cartId)
+        .orElseThrow(() -> new CartNotFoundException(cartId));
 
-  // Verify product is available
-  if (!product.isAvailable()) {
-    throw new ProductNotAvailableException(productId);
-  }
+    // Verify product exists (separate query)
+    Product product = productRepository.findById(productId)
+        .orElseThrow(() -> new ProductNotFoundException(productId));
 
-  // Add item (stores ID only)
-  cart.addItem(productId, quantity);
+    // Verify product is available
+    if (!product.isAvailable()) {
+      throw new ProductNotAvailableException(productId);
+    }
 
-  // Save cart
-  cartRepository.save(cart);
+    // Add item (stores ID only)
+    cart.addItem(productId, new Quantity(command.quantity()), product.price());
+
+    // Save cart
+    cartRepository.save(cart);
 
   // Publish events
   eventPublisher.publishAndClearEvents(cart);

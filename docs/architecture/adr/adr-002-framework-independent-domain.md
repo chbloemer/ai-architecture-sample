@@ -223,7 +223,7 @@ domain/model/
 │   └── ProductRepository # ✅ Interface (no JPA)
 └── cart/                 # Cart bounded context
     ├── ShoppingCart      # ✅ No framework annotations
-    └── CartRepository    # ✅ Interface (no JPA)
+    └── ShoppingCartRepository # ✅ Interface (no JPA)
 ```
 
 **Verification**:

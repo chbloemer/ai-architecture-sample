@@ -54,37 +54,68 @@ Layers (from innermost to outermost):
 src/main/java/de/sample/aiarchitecture/
 ├── domain/
 │   └── model/
-│       ├── ddd/                          # DDD marker interfaces
-│       │   ├── AggregateRoot.java
-│       │   ├── Entity.java
-│       │   ├── Value.java
-│       │   ├── Repository.java
-│       │   ├── DomainService.java
-│       │   ├── Factory.java
-│       │   ├── Specification.java
-│       │   └── DomainEvent.java
 │       ├── shared/                       # Shared Kernel
+│       │   ├── ddd/                      # DDD marker interfaces
+│       │   │   ├── AggregateRoot.java
+│       │   │   ├── BaseAggregateRoot.java
+│       │   │   ├── Entity.java
+│       │   │   ├── Value.java
+│       │   │   ├── Id.java
+│       │   │   ├── Repository.java
+│       │   │   ├── DomainService.java
+│       │   │   ├── Factory.java
+│       │   │   ├── Specification.java
+│       │   │   └── DomainEvent.java
 │       │   ├── ProductId.java            # Cross-context ID
 │       │   ├── Money.java                # Cross-context value
 │       │   └── Price.java                # Cross-context value
 │       ├── product/                      # Product Catalog bounded context
 │       │   ├── Product.java              # Aggregate Root
-│       │   ├── SKU.java, ProductName.java # Value Objects
+│       │   ├── SKU.java, ProductName.java, ProductDescription.java # Value Objects
+│       │   ├── Category.java, ProductStock.java # Value Objects
 │       │   ├── ProductRepository.java    # Repository interface
 │       │   ├── ProductFactory.java       # Factory
 │       │   ├── PricingService.java       # Domain Service
-│       │   ├── ProductAvailabilitySpecification.java
-│       │   └── ProductCreated.java       # Domain Event
+│       │   ├── ProductAvailabilitySpecification.java # Specification
+│       │   ├── ProductCreated.java       # Domain Event
+│       │   └── ProductPriceChanged.java  # Domain Event
 │       └── cart/                         # Shopping Cart bounded context
 │           ├── ShoppingCart.java         # Aggregate Root
 │           ├── CartItem.java             # Entity
-│           ├── CartId.java, Quantity.java # Value Objects
+│           ├── CartId.java, CartItemId.java, CustomerId.java # IDs
+│           ├── Quantity.java, CartStatus.java # Value Objects
 │           ├── ShoppingCartRepository.java # Repository interface
 │           ├── CartTotalCalculator.java  # Domain Service
-│           └── CartCheckedOut.java       # Domain Event
+│           ├── CartCheckedOut.java       # Domain Event
+│           └── CartItemAddedToCart.java  # Domain Event
 ├── application/
-│   ├── ProductApplicationService.java
-│   └── ShoppingCartApplicationService.java
+│   ├── UseCase.java                      # Use Case marker interface
+│   ├── product/                          # Product use cases
+│   │   ├── CreateProductUseCase.java
+│   │   ├── CreateProductInput.java
+│   │   ├── CreateProductOutput.java
+│   │   ├── GetAllProductsUseCase.java
+│   │   ├── GetAllProductsInput.java
+│   │   ├── GetAllProductsOutput.java
+│   │   ├── GetProductByIdUseCase.java
+│   │   ├── GetProductByIdInput.java
+│   │   ├── GetProductByIdOutput.java
+│   │   ├── UpdateProductPriceUseCase.java
+│   │   ├── UpdateProductPriceInput.java
+│   │   └── UpdateProductPriceOutput.java
+│   └── cart/                             # Cart use cases
+│       ├── CreateCartUseCase.java
+│       ├── CreateCartInput.java
+│       ├── CreateCartOutput.java
+│       ├── GetCartByIdUseCase.java
+│       ├── GetCartByIdInput.java
+│       ├── GetCartByIdOutput.java
+│       ├── AddItemToCartUseCase.java
+│       ├── AddItemToCartInput.java
+│       ├── AddItemToCartOutput.java
+│       ├── CheckoutCartUseCase.java
+│       ├── CheckoutCartInput.java
+│       └── CheckoutCartOutput.java
 ├── portadapter/
 │   ├── incoming/                         # Incoming Adapters (Primary/Driving)
 │   │   ├── api/                          # REST API (JSON/XML)
@@ -99,9 +130,8 @@ src/main/java/de/sample/aiarchitecture/
 │   │   ├── mcp/                          # MCP Server (AI interface)
 │   │   │   └── ProductCatalogMcpTools.java
 │   │   └── web/                          # Web MVC (HTML)
-│   │       ├── product/
-│   │       │   └── ProductPageController.java
-│   │       └── cart/
+│   │       └── product/
+│   │           └── ProductPageController.java
 │   └── outgoing/                         # Outgoing Adapters (Secondary/Driven)
 │       ├── product/
 │       │   ├── InMemoryProductRepository.java

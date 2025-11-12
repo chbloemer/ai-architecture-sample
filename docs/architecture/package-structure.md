@@ -7,48 +7,76 @@ Package organization of the ai-architecture project.
 ```
 de.sample.aiarchitecture
 ├── application                     # Application Services (Use Cases)
-│   ├── CartApplicationService
-│   └── ProductApplicationService
+│   ├── UseCase                    # Use Case marker interface
+│   ├── product/                   # Product use cases
+│   │   ├── CreateProductUseCase, Input, Output
+│   │   ├── GetAllProductsUseCase, Input, Output
+│   │   ├── GetProductByIdUseCase, Input, Output
+│   │   └── UpdateProductPriceUseCase, Input, Output
+│   └── cart/                      # Cart use cases
+│       ├── CreateCartUseCase, Input, Output
+│       ├── GetCartByIdUseCase, Input, Output
+│       ├── AddItemToCartUseCase, Input, Output
+│       └── CheckoutCartUseCase, Input, Output
 │
 ├── domain.model                    # Domain Layer (Core)
-│   ├── ddd                        # DDD Marker Interfaces
-│   ├── shared                     # Shared Kernel
-│   │   ├── Money, ProductId, Price
-│   ├── product                    # Product Bounded Context
-│   │   ├── Product (Aggregate Root)
-│   │   ├── SKU, ProductName (Value Objects)
-│   │   ├── ProductRepository (Interface)
-│   │   └── ProductFactory
-│   └── cart                       # Cart Bounded Context
-│       ├── ShoppingCart (Aggregate Root)
-│       ├── CartItem (Entity)
-│       ├── CartId, Quantity (Value Objects)
-│       └── CartRepository (Interface)
+│   ├── shared/                    # Shared Kernel
+│   │   ├── ddd/                   # DDD Marker Interfaces
+│   │   │   ├── AggregateRoot, BaseAggregateRoot
+│   │   │   ├── Entity, Value, Id
+│   │   │   ├── Repository, DomainService
+│   │   │   ├── Factory, Specification
+│   │   │   └── DomainEvent
+│   │   ├── ProductId              # Cross-context ID
+│   │   ├── Money                  # Cross-context value
+│   │   └── Price                  # Cross-context value
+│   ├── product/                   # Product Bounded Context
+│   │   ├── Product                # Aggregate Root
+│   │   ├── SKU, ProductName, ProductDescription, Category, ProductStock # Value Objects
+│   │   ├── ProductRepository      # Repository Interface
+│   │   ├── ProductFactory         # Factory
+│   │   ├── PricingService         # Domain Service
+│   │   ├── ProductAvailabilitySpecification # Specification
+│   │   ├── ProductCreated         # Domain Event
+│   │   └── ProductPriceChanged    # Domain Event
+│   └── cart/                      # Cart Bounded Context
+│       ├── ShoppingCart           # Aggregate Root
+│       ├── CartItem               # Entity
+│       ├── CartId, CartItemId, CustomerId # IDs
+│       ├── Quantity, CartStatus   # Value Objects
+│       ├── ShoppingCartRepository # Repository Interface
+│       ├── CartTotalCalculator    # Domain Service
+│       ├── CartCheckedOut         # Domain Event
+│       └── CartItemAddedToCart    # Domain Event
 │
 ├── infrastructure                  # Infrastructure
-│   ├── api                        # Public SPI (interfaces only)
+│   ├── api/                       # Public SPI (interfaces only)
 │   │   └── DomainEventPublisher
-│   └── config                     # Spring Configuration
-│       ├── SecurityConfiguration
-│       └── SpringDomainEventPublisher
+│   ├── config/                    # Spring Configuration
+│   │   ├── SecurityConfiguration
+│   │   └── DomainConfiguration
 │
 └── portadapter                    # Adapters
-    ├── incoming                   # Primary Adapters (Driving)
-    │   ├── api                   # REST API (JSON)
+    ├── incoming/                  # Primary Adapters (Driving)
+    │   ├── api/                   # REST API (JSON)
     │   │   ├── product/
     │   │   │   ├── ProductResource
     │   │   │   ├── ProductDto
     │   │   │   └── ProductDtoConverter
     │   │   └── cart/
-    │   ├── mcp                   # MCP Server (AI)
+    │   │       ├── ShoppingCartResource
+    │   │       ├── ShoppingCartDto
+    │   │       └── ShoppingCartDtoConverter
+    │   ├── mcp/                   # MCP Server (AI)
     │   │   └── ProductCatalogMcpTools
-    │   └── web                   # Web MVC (HTML)
+    │   └── web/                   # Web MVC (HTML)
     │       └── product/
     │           └── ProductPageController
     │
-    └── outgoing                   # Secondary Adapters (Driven)
+    └── outgoing/                  # Secondary Adapters (Driven)
         ├── product/
-        │   └── InMemoryProductRepository
+        │   ├── InMemoryProductRepository
+        │   └── SampleDataInitializer
         └── cart/
             └── InMemoryShoppingCartRepository
 ```

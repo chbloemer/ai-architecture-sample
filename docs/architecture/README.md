@@ -27,13 +27,23 @@ Comprehensive architectural documentation for the AI Architecture Sample Project
 ```
 de.sample.aiarchitecture
 ├── domain.model        # Domain layer (framework-independent core)
+│   ├── shared/         # Shared kernel (cross-context)
+│   │   └── ddd/        # DDD marker interfaces
+│   ├── product/        # Product bounded context
+│   └── cart/           # Shopping cart bounded context
 ├── application         # Application services (use cases)
+│   ├── product/        # Product use cases
+│   └── cart/           # Cart use cases
 ├── infrastructure      # Infrastructure configuration
-│   ├── api            # Public SPI (interfaces only)
-│   └── config         # Spring configuration
+│   ├── api/            # Public SPI (interfaces only)
+│   ├── config/         # Spring configuration
+│   └── event/          # Event infrastructure
 └── portadapter        # Adapters
-    ├── incoming       # Primary adapters (REST, Web, MCP)
-    └── outgoing       # Secondary adapters (Persistence)
+    ├── incoming/       # Primary adapters (REST, Web, MCP)
+    │   ├── api/        # REST API (JSON)
+    │   ├── web/        # Web MVC (HTML)
+    │   └── mcp/        # MCP Server (AI)
+    └── outgoing/       # Secondary adapters (Persistence)
 ```
 
 **Key Principles:**

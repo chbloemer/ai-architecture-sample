@@ -110,7 +110,7 @@ public final class Product implements AggregateRoot<Product, ProductId> {
 2. Aggregate boundaries ensure invariants are maintained
 3. Aggregates reference other aggregates by identity only
 
-**Implementation:** See `de.sample.aiarchitecture.domain.model.ddd.AggregateRoot`
+**Implementation:** See `de.sample.aiarchitecture.domain.model.shared.ddd.AggregateRoot`
 
 #### Entity
 
@@ -137,7 +137,7 @@ public final class CartItem implements Entity<CartItem, CartItemId> {
 2. Identity remains constant through state changes
 3. Equality based on identity, not attributes
 
-**Implementation:** See `de.sample.aiarchitecture.domain.model.ddd.Entity`
+**Implementation:** See `de.sample.aiarchitecture.domain.model.shared.ddd.Entity`
 
 #### Value Object
 
@@ -172,7 +172,7 @@ public record Money(@NonNull BigDecimal amount, @NonNull Currency currency) impl
 5. Universal value objects belong in Shared Kernel
 
 **Implementation:**
-- Interface: `de.sample.aiarchitecture.domain.model.ddd.Value`
+- Interface: `de.sample.aiarchitecture.domain.model.shared.ddd.Value`
 - Shared Value Objects: `de.sample.aiarchitecture.domain.model.shared.Money`, `ProductId`, `Price`
 - Context-specific Value Objects: In their respective bounded contexts
 
@@ -260,7 +260,7 @@ public class InMemoryProductRepository implements ProductRepository {
 - Fluent API: save() returning aggregate enables method chaining
 
 **Implementation:**
-- Base Interface: `de.sample.aiarchitecture.domain.model.ddd.Repository`
+- Base Interface: `de.sample.aiarchitecture.domain.model.shared.ddd.Repository`
 - Domain Interfaces: `ProductRepository`, `ShoppingCartRepository`
 - Implementations: `InMemoryProductRepository`, `InMemoryShoppingCartRepository` (in `portadapter.outgoing`)
 
@@ -291,7 +291,7 @@ public class CartTotalCalculator implements DomainService {
 3. Operates on domain objects
 4. Named after activities, not entities
 
-**Implementation:** See `de.sample.aiarchitecture.domain.model.ddd.DomainService`
+**Implementation:** See `de.sample.aiarchitecture.domain.model.shared.ddd.DomainService`
 
 #### Domain Event
 
@@ -369,7 +369,7 @@ public class ProductEventListener {
 - Time-travel debugging
 
 **Implementation:**
-- Interface: `de.sample.aiarchitecture.domain.model.ddd.DomainEvent`
+- Interface: `de.sample.aiarchitecture.domain.model.shared.ddd.DomainEvent`
 - Publisher Interface (SPI): `de.sample.aiarchitecture.infrastructure.api.DomainEventPublisher`
 - Publisher Implementation: `de.sample.aiarchitecture.infrastructure.config.SpringDomainEventPublisher`
 - Examples: `ProductCreated`, `ProductPriceChanged`, `CartItemAddedToCart`, `CartCheckedOut`
@@ -443,7 +443,7 @@ public class ProductFactory implements Factory {
 3. Framework-independent
 4. Stateless
 
-**Implementation:** See `de.sample.aiarchitecture.domain.model.ddd.Factory`
+**Implementation:** See `de.sample.aiarchitecture.domain.model.shared.ddd.Factory`
 
 #### Specification
 
@@ -466,7 +466,7 @@ public class ProductAvailableSpecification implements Specification<Product> {
 3. Framework-independent
 4. Reusable across use cases
 
-**Implementation:** See `de.sample.aiarchitecture.domain.model.ddd.Specification`
+**Implementation:** See `de.sample.aiarchitecture.domain.model.shared.ddd.Specification`
 
 ---
 
@@ -1037,7 +1037,6 @@ Secondary Adapters (Persistence)
 de.sample.aiarchitecture
 ├── application                          # Application Layer (Use Cases)
 │   ├── UseCase                          # Base use case interface
-│   │
 │   ├── product/                         # Product Bounded Context Use Cases
 │   │   ├── CreateProductUseCase
 │   │   ├── CreateProductInput
@@ -1052,36 +1051,34 @@ de.sample.aiarchitecture
 │   │   ├── GetAllProductsInput
 │   │   └── GetAllProductsOutput
 │   │
-│   ├── cart/                            # Shopping Cart Bounded Context Use Cases
-│   │   ├── CreateCartUseCase
-│   │   ├── CreateCartInput
-│   │   ├── CreateCartOutput
-│   │   ├── AddItemToCartUseCase
-│   │   ├── AddItemToCartInput
-│   │   ├── AddItemToCartOutput
-│   │   ├── CheckoutCartUseCase
-│   │   ├── CheckoutCartInput
-│   │   ├── CheckoutCartOutput
-│   │   ├── GetCartByIdUseCase
-│   │   ├── GetCartByIdInput
-│   │   └── GetCartByIdOutput
-│   │
-│   ├── ProductApplicationService        # (Legacy - being replaced by use cases)
-│   └── ShoppingCartApplicationService   # (Legacy - being replaced by use cases)
+│   └── cart/                            # Shopping Cart Bounded Context Use Cases
+│       ├── CreateCartUseCase
+│       ├── CreateCartInput
+│       ├── CreateCartOutput
+│       ├── AddItemToCartUseCase
+│       ├── AddItemToCartInput
+│       ├── AddItemToCartOutput
+│       ├── CheckoutCartUseCase
+│       ├── CheckoutCartInput
+│       ├── CheckoutCartOutput
+│       ├── GetCartByIdUseCase
+│       ├── GetCartByIdInput
+│       └── GetCartByIdOutput
 │
 ├── domain                               # Domain Layer (Core Business Logic)
 │   └── model
-│       ├── ddd                          # DDD Marker Interfaces
-│       │   ├── AggregateRoot
-│       │   ├── Entity
-│       │   ├── Value
-│       │   ├── Repository
-│       │   ├── DomainService
-│       │   ├── DomainEvent
-│       │   ├── Factory
-│       │   └── Specification
-│       │
 │       ├── shared                       # Shared Kernel (Strategic DDD Pattern)
+│       │   ├── ddd/                     # DDD Marker Interfaces
+│       │   │   ├── AggregateRoot        # Aggregate root marker
+│       │   │   ├── BaseAggregateRoot    # Base implementation
+│       │   │   ├── Entity               # Entity marker
+│       │   │   ├── Value                # Value object marker
+│       │   │   ├── Id                   # ID marker
+│       │   │   ├── Repository           # Repository interface marker
+│       │   │   ├── DomainService        # Domain service marker
+│       │   │   ├── DomainEvent          # Domain event marker
+│       │   │   ├── Factory              # Factory marker
+│       │   │   └── Specification        # Specification marker
 │       │   ├── Money                    # Value Object (universal)
 │       │   ├── ProductId                # Value Object (cross-context identifier)
 │       │   └── Price                    # Value Object (wraps Money)
@@ -1090,23 +1087,35 @@ de.sample.aiarchitecture
 │       │   ├── Product                  # Aggregate Root
 │       │   ├── SKU                      # Value Object
 │       │   ├── ProductName              # Value Object
+│       │   ├── ProductDescription       # Value Object
+│       │   ├── ProductStock             # Value Object
+│       │   ├── Category                 # Value Object
 │       │   ├── ProductRepository        # Repository Interface
-│       │   └── ProductFactory           # Factory
+│       │   ├── ProductFactory           # Factory
+│       │   ├── PricingService           # Domain Service
+│       │   ├── ProductAvailabilitySpecification # Specification
+│       │   ├── ProductCreated           # Domain Event
+│       │   └── ProductPriceChanged      # Domain Event
 │       │
 │       └── cart                         # Shopping Cart Bounded Context
 │           ├── ShoppingCart             # Aggregate Root
 │           ├── CartItem                 # Entity
-│           ├── CartId                   # Value Object
+│           ├── CartId                   # Value Object (ID)
+│           ├── CartItemId               # Value Object (ID)
+│           ├── CustomerId               # Value Object (ID)
 │           ├── Quantity                 # Value Object
-│           ├── CartRepository           # Repository Interface
-│           └── CartTotalCalculator      # Domain Service
+│           ├── CartStatus               # Value Object
+│           ├── ShoppingCartRepository   # Repository Interface
+│           ├── CartTotalCalculator      # Domain Service
+│           ├── CartCheckedOut           # Domain Event
+│           └── CartItemAddedToCart      # Domain Event
 │
 ├── infrastructure                       # Infrastructure Configuration
-│   ├── api                              # Public SPI (Service Provider Interface)
+│   ├── api/                             # Public SPI (Service Provider Interface)
 │   │   └── DomainEventPublisher        # Event publisher interface (SPI)
-│   └── config                           # Spring Configuration
+│   └── config/                          # Spring Configuration
 │       ├── SecurityConfiguration
-│       └── SpringDomainEventPublisher  # Event publisher implementation
+│       └── DomainConfiguration
 │
 └── portadapter                          # Adapters (Hexagonal Architecture)
     ├── incoming                         # Incoming Adapters (Primary/Driving)

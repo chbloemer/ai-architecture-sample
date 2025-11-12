@@ -22,7 +22,7 @@ package de.sample.aiarchitecture.sharedkernel.application.marker;
  *
  * <p><b>Example:</b>
  * <pre>{@code
- * public interface CreateProductCommandPort extends InputPort<CreateProductCommand, CreateProductResponse> {
+ * public interface CreateProductCommandPort extends UseCase<CreateProductCommand, CreateProductResponse> {
  *     CreateProductResponse execute(CreateProductCommand input);
  * }
  *
@@ -35,7 +35,7 @@ package de.sample.aiarchitecture.sharedkernel.application.marker;
  * }</pre>
  *
  * <p><b>Naming Convention:</b>
- * Input ports should be named using the pattern: `{Action}{Entity}InputPort`
+ * Input ports should be named using the pattern: `{Action}{Entity}UseCase`
  * (e.g., CreateProductCommandPort, UpdateProductPriceCommandPort)
  *
  * <p><b>References:</b>
@@ -48,7 +48,7 @@ package de.sample.aiarchitecture.sharedkernel.application.marker;
  * @param <INPUT> the input model type (Command or Query)
  * @param <OUTPUT> the output model type (Response)
  */
-public interface InputPort<INPUT, OUTPUT> {
+public interface UseCase<INPUT, OUTPUT> {
 
   /**
    * Executes this use case with the given input.

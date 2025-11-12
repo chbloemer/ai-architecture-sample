@@ -1,8 +1,6 @@
 package de.sample.aiarchitecture.cart.application.removeitemfromcart;
 
-import de.sample.aiarchitecture.cart.application.removeitemfromcart.RemoveItemFromCartCommand;
-import de.sample.aiarchitecture.cart.application.removeitemfromcart.RemoveItemFromCartResponse;
-import de.sample.aiarchitecture.sharedkernel.application.marker.InputPort;
+import de.sample.aiarchitecture.sharedkernel.application.marker.UseCase;
 
 /**
  * Input Port for removing an item from a shopping cart.
@@ -12,4 +10,4 @@ import de.sample.aiarchitecture.sharedkernel.application.marker.InputPort;
  * between the application core and adapters.
  */
 public interface RemoveItemFromCartInputPort
-    extends InputPort<RemoveItemFromCartCommand, RemoveItemFromCartResponse> {}
+    extends UseCase<RemoveItemFromCartCommand, RemoveItemFromCartResponse> {}

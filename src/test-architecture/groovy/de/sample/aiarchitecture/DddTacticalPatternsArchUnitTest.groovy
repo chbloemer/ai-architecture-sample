@@ -2,8 +2,7 @@ package de.sample.aiarchitecture
 
 import de.sample.aiarchitecture.sharedkernel.domain.marker.AggregateRoot
 import de.sample.aiarchitecture.sharedkernel.domain.marker.Entity
-import de.sample.aiarchitecture.sharedkernel.domain.marker.Factory
-import de.sample.aiarchitecture.sharedkernel.domain.marker.Repository
+import de.sample.aiarchitecture.sharedkernel.application.marker.Repository
 import de.sample.aiarchitecture.sharedkernel.domain.marker.Value
 
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes

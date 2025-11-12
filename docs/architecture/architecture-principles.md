@@ -290,7 +290,7 @@ public class InMemoryProductRepository implements ProductRepository {
 - Fluent API: save() returning aggregate enables method chaining
 
 **Implementation:**
-- Base Interface: `de.sample.aiarchitecture.sharedkernel.domain.marker.Repository`
+- Base Interface: `de.sample.aiarchitecture.sharedkernel.application.marker.Repository`
 - Domain Interfaces: `ProductRepository`, `ShoppingCartRepository`
 - Implementations: `InMemoryProductRepository`, `InMemoryShoppingCartRepository` (in `portadapter.outgoing`)
 
@@ -949,7 +949,7 @@ public class UpdateProductPriceUseCase implements UpdateProductPriceInputPort {
 
 ### Implementation
 
-**Base Interface:** `de.sample.aiarchitecture.sharedkernel.application.marker.InputPort<INPUT, OUTPUT>`
+**Base Interface:** `de.sample.aiarchitecture.sharedkernel.application.marker.UseCase<INPUT, OUTPUT>`
 
 **Product Use Cases:**
 - Input Port: `CreateProductInputPort extends InputPort<CreateProductCommand, CreateProductResponse>`

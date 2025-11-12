@@ -1,8 +1,6 @@
 package de.sample.aiarchitecture.product.application.getproductbyid;
 
-import de.sample.aiarchitecture.product.application.getproductbyid.GetProductByIdQuery;
-import de.sample.aiarchitecture.product.application.getproductbyid.GetProductByIdResponse;
-import de.sample.aiarchitecture.sharedkernel.application.marker.InputPort;
+import de.sample.aiarchitecture.sharedkernel.application.marker.UseCase;
 import org.jspecify.annotations.NonNull;
 
 /**
@@ -15,7 +13,7 @@ import org.jspecify.annotations.NonNull;
  *
  * @see de.sample.aiarchitecture.product.application.usecase.getproductbyid.GetProductByIdUseCase
  */
-public interface GetProductByIdInputPort extends InputPort<GetProductByIdQuery, GetProductByIdResponse> {
+public interface GetProductByIdInputPort extends UseCase<GetProductByIdQuery, GetProductByIdResponse> {
 
   /**
    * Retrieves a product by its unique identifier.

@@ -1,8 +1,6 @@
 package de.sample.aiarchitecture.cart.application.checkoutcart;
 
-import de.sample.aiarchitecture.cart.application.checkoutcart.CheckoutCartCommand;
-import de.sample.aiarchitecture.cart.application.checkoutcart.CheckoutCartResponse;
-import de.sample.aiarchitecture.sharedkernel.application.marker.InputPort;
+import de.sample.aiarchitecture.sharedkernel.application.marker.UseCase;
 import org.jspecify.annotations.NonNull;
 
 /**
@@ -15,7 +13,7 @@ import org.jspecify.annotations.NonNull;
  *
  * @see de.sample.aiarchitecture.cart.application.usecase.checkoutcart.CheckoutCartUseCase
  */
-public interface CheckoutCartInputPort extends InputPort<CheckoutCartCommand, CheckoutCartResponse> {
+public interface CheckoutCartInputPort extends UseCase<CheckoutCartCommand, CheckoutCartResponse> {
 
   /**
    * Checks out a shopping cart, finalizing the purchase.

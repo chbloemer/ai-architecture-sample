@@ -1,10 +1,8 @@
 package de.sample.aiarchitecture
 
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes
-import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses
 
-import com.tngtech.archunit.core.domain.JavaClass
-import de.sample.aiarchitecture.sharedkernel.application.marker.InputPort
+import de.sample.aiarchitecture.sharedkernel.application.marker.UseCase
 import org.springframework.stereotype.Service
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.RestController
@@ -29,7 +27,7 @@ class NamingConventionsArchUnitTest extends BaseArchUnitTest {
       .that().resideInAPackage(APPLICATION_PACKAGE)
       .and().areNotInterfaces()
       .and().areNotRecords()
-      .and().implement(InputPort.class)
+      .and().implement(UseCase.class)
       .should().haveSimpleNameEndingWith("UseCase")
       .because("InputPort implementations (use cases) should follow consistent naming conventions (Hexagonal Architecture)")
       .allowEmptyShould(true)

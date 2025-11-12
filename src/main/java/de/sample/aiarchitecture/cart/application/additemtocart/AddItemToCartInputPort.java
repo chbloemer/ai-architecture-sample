@@ -1,8 +1,6 @@
 package de.sample.aiarchitecture.cart.application.additemtocart;
 
-import de.sample.aiarchitecture.cart.application.additemtocart.AddItemToCartCommand;
-import de.sample.aiarchitecture.cart.application.additemtocart.AddItemToCartResponse;
-import de.sample.aiarchitecture.sharedkernel.application.marker.InputPort;
+import de.sample.aiarchitecture.sharedkernel.application.marker.UseCase;
 import org.jspecify.annotations.NonNull;
 
 /**
@@ -15,7 +13,7 @@ import org.jspecify.annotations.NonNull;
  *
  * @see de.sample.aiarchitecture.cart.application.usecase.additemtocart.AddItemToCartUseCase
  */
-public interface AddItemToCartInputPort extends InputPort<AddItemToCartCommand, AddItemToCartResponse> {
+public interface AddItemToCartInputPort extends UseCase<AddItemToCartCommand, AddItemToCartResponse> {
 
   /**
    * Adds an item to a shopping cart.

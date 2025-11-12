@@ -1,8 +1,6 @@
 package de.sample.aiarchitecture.product.application.updateproductprice;
 
-import de.sample.aiarchitecture.product.application.updateproductprice.UpdateProductPriceCommand;
-import de.sample.aiarchitecture.product.application.updateproductprice.UpdateProductPriceResponse;
-import de.sample.aiarchitecture.sharedkernel.application.marker.InputPort;
+import de.sample.aiarchitecture.sharedkernel.application.marker.UseCase;
 import org.jspecify.annotations.NonNull;
 
 /**
@@ -15,7 +13,7 @@ import org.jspecify.annotations.NonNull;
  *
  * @see de.sample.aiarchitecture.product.application.usecase.updateproductprice.UpdateProductPriceUseCase
  */
-public interface UpdateProductPriceInputPort extends InputPort<UpdateProductPriceCommand, UpdateProductPriceResponse> {
+public interface UpdateProductPriceInputPort extends UseCase<UpdateProductPriceCommand, UpdateProductPriceResponse> {
 
   /**
    * Updates the price of an existing product.

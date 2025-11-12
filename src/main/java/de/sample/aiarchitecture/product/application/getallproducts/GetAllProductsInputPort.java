@@ -1,8 +1,6 @@
 package de.sample.aiarchitecture.product.application.getallproducts;
 
-import de.sample.aiarchitecture.product.application.getallproducts.GetAllProductsQuery;
-import de.sample.aiarchitecture.product.application.getallproducts.GetAllProductsResponse;
-import de.sample.aiarchitecture.sharedkernel.application.marker.InputPort;
+import de.sample.aiarchitecture.sharedkernel.application.marker.UseCase;
 import org.jspecify.annotations.NonNull;
 
 /**
@@ -15,7 +13,7 @@ import org.jspecify.annotations.NonNull;
  *
  * @see de.sample.aiarchitecture.product.application.usecase.getallproducts.GetAllProductsUseCase
  */
-public interface GetAllProductsInputPort extends InputPort<GetAllProductsQuery, GetAllProductsResponse> {
+public interface GetAllProductsInputPort extends UseCase<GetAllProductsQuery, GetAllProductsResponse> {
 
   /**
    * Retrieves all products from the catalog.

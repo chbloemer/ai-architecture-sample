@@ -1,8 +1,6 @@
 package de.sample.aiarchitecture.product.application.createproduct;
 
-import de.sample.aiarchitecture.product.application.createproduct.CreateProductCommand;
-import de.sample.aiarchitecture.product.application.createproduct.CreateProductResponse;
-import de.sample.aiarchitecture.sharedkernel.application.marker.InputPort;
+import de.sample.aiarchitecture.sharedkernel.application.marker.UseCase;
 import org.jspecify.annotations.NonNull;
 
 /**
@@ -17,7 +15,7 @@ import org.jspecify.annotations.NonNull;
  *
  * @see de.sample.aiarchitecture.product.application.usecase.createproduct.CreateProductUseCase
  */
-public interface CreateProductInputPort extends InputPort<CreateProductCommand, CreateProductResponse> {
+public interface CreateProductInputPort extends UseCase<CreateProductCommand, CreateProductResponse> {
 
   /**
    * Creates a new product.

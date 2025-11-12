@@ -4,7 +4,7 @@ import de.sample.aiarchitecture.product.domain.model.Category;
 import de.sample.aiarchitecture.product.domain.model.Product;
 import de.sample.aiarchitecture.product.domain.model.SKU;
 import de.sample.aiarchitecture.sharedkernel.domain.common.ProductId;
-import de.sample.aiarchitecture.sharedkernel.domain.marker.Repository;
+import de.sample.aiarchitecture.sharedkernel.application.marker.Repository;
 import java.util.List;
 import java.util.Optional;
 import org.jspecify.annotations.NonNull;

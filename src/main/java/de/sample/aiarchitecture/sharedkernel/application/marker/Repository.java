@@ -1,6 +1,9 @@
-package de.sample.aiarchitecture.sharedkernel.domain.marker;
+package de.sample.aiarchitecture.sharedkernel.application.marker;
 
 import java.util.Optional;
+
+import de.sample.aiarchitecture.sharedkernel.domain.marker.AggregateRoot;
+import de.sample.aiarchitecture.sharedkernel.domain.marker.Id;
 import org.jspecify.annotations.NonNull;
 
 /**

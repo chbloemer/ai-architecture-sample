@@ -1,8 +1,6 @@
 package de.sample.aiarchitecture.cart.application.getorcreateactivecart;
 
-import de.sample.aiarchitecture.cart.application.getorcreateactivecart.GetOrCreateActiveCartCommand;
-import de.sample.aiarchitecture.cart.application.getorcreateactivecart.GetOrCreateActiveCartResponse;
-import de.sample.aiarchitecture.sharedkernel.application.marker.InputPort;
+import de.sample.aiarchitecture.sharedkernel.application.marker.UseCase;
 
 /**
  * Input Port for getting or creating an active cart for a customer.
@@ -11,4 +9,4 @@ import de.sample.aiarchitecture.sharedkernel.application.marker.InputPort;
  * which retrieves an existing active cart for a customer or creates a new one if none exists.
  */
 public interface GetOrCreateActiveCartInputPort
-    extends InputPort<GetOrCreateActiveCartCommand, GetOrCreateActiveCartResponse> {}
+    extends UseCase<GetOrCreateActiveCartCommand, GetOrCreateActiveCartResponse> {}

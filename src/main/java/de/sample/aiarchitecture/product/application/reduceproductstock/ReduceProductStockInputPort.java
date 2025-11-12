@@ -1,8 +1,6 @@
 package de.sample.aiarchitecture.product.application.reduceproductstock;
 
-import de.sample.aiarchitecture.product.application.reduceproductstock.ReduceProductStockCommand;
-import de.sample.aiarchitecture.product.application.reduceproductstock.ReduceProductStockResponse;
-import de.sample.aiarchitecture.sharedkernel.application.marker.InputPort;
+import de.sample.aiarchitecture.sharedkernel.application.marker.UseCase;
 
 /**
  * Input Port for reducing product stock.
@@ -10,4 +8,4 @@ import de.sample.aiarchitecture.sharedkernel.application.marker.InputPort;
  * <p>This port defines the contract for the "Reduce Product Stock" use case,
  * typically triggered by cross-context events (e.g., when a cart is checked out).
  */
-public interface ReduceProductStockInputPort extends InputPort<ReduceProductStockCommand, ReduceProductStockResponse> {}
+public interface ReduceProductStockInputPort extends UseCase<ReduceProductStockCommand, ReduceProductStockResponse> {}

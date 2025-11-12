@@ -1,8 +1,6 @@
 package de.sample.aiarchitecture.cart.application.getcartbyid;
 
-import de.sample.aiarchitecture.cart.application.getcartbyid.GetCartByIdQuery;
-import de.sample.aiarchitecture.cart.application.getcartbyid.GetCartByIdResponse;
-import de.sample.aiarchitecture.sharedkernel.application.marker.InputPort;
+import de.sample.aiarchitecture.sharedkernel.application.marker.UseCase;
 import org.jspecify.annotations.NonNull;
 
 /**
@@ -15,7 +13,7 @@ import org.jspecify.annotations.NonNull;
  *
  * @see de.sample.aiarchitecture.cart.application.usecase.getcartbyid.GetCartByIdUseCase
  */
-public interface GetCartByIdInputPort extends InputPort<GetCartByIdQuery, GetCartByIdResponse> {
+public interface GetCartByIdInputPort extends UseCase<GetCartByIdQuery, GetCartByIdResponse> {
 
   /**
    * Retrieves a shopping cart by its unique identifier.

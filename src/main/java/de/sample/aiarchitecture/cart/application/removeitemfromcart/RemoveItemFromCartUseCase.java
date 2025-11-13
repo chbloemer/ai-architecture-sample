@@ -4,7 +4,7 @@ import de.sample.aiarchitecture.cart.application.removeitemfromcart.RemoveItemFr
 import de.sample.aiarchitecture.cart.application.shared.ShoppingCartRepository;
 import de.sample.aiarchitecture.cart.domain.model.CartId;
 import de.sample.aiarchitecture.cart.domain.model.ShoppingCart;
-import de.sample.aiarchitecture.infrastructure.api.DomainEventPublisher;
+import de.sample.aiarchitecture.sharedkernel.application.port.DomainEventPublisher;
 import de.sample.aiarchitecture.sharedkernel.domain.common.Money;
 import de.sample.aiarchitecture.sharedkernel.domain.common.ProductId;
 import java.util.List;

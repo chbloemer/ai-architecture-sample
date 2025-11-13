@@ -287,7 +287,7 @@ public record Price(@NonNull Money value) implements Value {
 }
 ```
 
-**Application Marker Interfaces** (`sharedkernel.application.marker`):
+**Application Marker Interfaces** (`sharedkernel.application.port`):
 - `InputPort`, `OutputPort`
 
 ### Migration Performed
@@ -296,7 +296,7 @@ public record Price(@NonNull Money value) implements Value {
 1. Created `sharedkernel` package with `domain.marker`, `domain.common`, `application.marker` sub-packages
 2. Moved DDD marker interfaces to `sharedkernel.domain.marker`
 3. Moved `Money`, `ProductId`, `Price` to `sharedkernel.domain.common`
-4. Moved use case patterns to `sharedkernel.application.marker`
+4. Moved use case patterns to `sharedkernel.application.port`
 5. Updated all files with correct imports
 6. Added ArchUnit tests for isolation
 7. Updated architecture documentation

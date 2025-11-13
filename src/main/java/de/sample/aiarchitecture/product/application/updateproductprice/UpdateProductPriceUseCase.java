@@ -6,7 +6,7 @@ import de.sample.aiarchitecture.product.application.shared.ProductRepository;
 import de.sample.aiarchitecture.sharedkernel.domain.common.Money;
 import de.sample.aiarchitecture.sharedkernel.domain.common.Price;
 import de.sample.aiarchitecture.sharedkernel.domain.common.ProductId;
-import de.sample.aiarchitecture.infrastructure.api.DomainEventPublisher;
+import de.sample.aiarchitecture.sharedkernel.application.port.DomainEventPublisher;
 import java.util.Currency;
 import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Service;

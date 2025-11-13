@@ -1,6 +1,6 @@
 package de.sample.aiarchitecture.cart.application.getallcarts;
 
-import de.sample.aiarchitecture.sharedkernel.application.marker.UseCase;
+import de.sample.aiarchitecture.sharedkernel.application.port.UseCase;
 
 /**
  * Input Port for retrieving all shopping carts.

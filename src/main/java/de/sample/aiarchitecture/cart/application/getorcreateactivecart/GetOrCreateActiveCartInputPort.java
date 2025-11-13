@@ -1,6 +1,6 @@
 package de.sample.aiarchitecture.cart.application.getorcreateactivecart;
 
-import de.sample.aiarchitecture.sharedkernel.application.marker.UseCase;
+import de.sample.aiarchitecture.sharedkernel.application.port.UseCase;
 
 /**
  * Input Port for getting or creating an active cart for a customer.

@@ -1,6 +1,6 @@
 package de.sample.aiarchitecture.cart.application.removeitemfromcart;
 
-import de.sample.aiarchitecture.sharedkernel.application.marker.UseCase;
+import de.sample.aiarchitecture.sharedkernel.application.port.UseCase;
 
 /**
  * Input Port for removing an item from a shopping cart.

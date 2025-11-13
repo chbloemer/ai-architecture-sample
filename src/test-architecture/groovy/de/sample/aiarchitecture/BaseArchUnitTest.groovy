@@ -16,12 +16,11 @@ import java.util.regex.Pattern
  */
 abstract class BaseArchUnitTest extends Specification {
 
-  // Predicate for infrastructure implementation classes (everything except infrastructure.api)
+  // Predicate for infrastructure implementation classes (concrete implementations in infrastructure.*)
   protected static final DescribedPredicate<JavaClass> INFRASTRUCTURE_IMPLEMENTATION =
   DescribedPredicate.describe(
-  "reside in infrastructure implementation (not API)", { JavaClass javaClass ->
-    javaClass.getPackageName().startsWith("de.sample.aiarchitecture.infrastructure.") &&
-      !javaClass.getPackageName().startsWith("de.sample.aiarchitecture.infrastructure.api")
+  "reside in infrastructure implementation", { JavaClass javaClass ->
+    javaClass.getPackageName().startsWith("de.sample.aiarchitecture.infrastructure.")
   }
   )
 
@@ -41,6 +40,7 @@ abstract class BaseArchUnitTest extends Specification {
   protected static final String SHAREDKERNEL_PACKAGE = "${BASE_PACKAGE}.sharedkernel.."
   protected static final String SHAREDKERNEL_DOMAIN_PACKAGE = "${BASE_PACKAGE}.sharedkernel.domain.."
   protected static final String SHAREDKERNEL_APPLICATION_PACKAGE = "${BASE_PACKAGE}.sharedkernel.application.."
+  protected static final String SHAREDKERNEL_APPLICATION_PORT_PACKAGE = "${BASE_PACKAGE}.sharedkernel.application.port.."
 
   // Bounded Context packages (Strategic DDD)
   protected static final String PRODUCT_CONTEXT_PACKAGE = "${BASE_PACKAGE}.product.."
@@ -65,7 +65,6 @@ abstract class BaseArchUnitTest extends Specification {
 
   // Infrastructure package (shared across bounded contexts)
   protected static final String INFRASTRUCTURE_PACKAGE = "${BASE_PACKAGE}.infrastructure.."
-  protected static final String INFRASTRUCTURE_API_PACKAGE = "${BASE_PACKAGE}.infrastructure.api.."
 
   // Legacy aliases for backward compatibility (deprecated)
   @Deprecated

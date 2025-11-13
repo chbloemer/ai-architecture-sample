@@ -5,7 +5,7 @@ import de.sample.aiarchitecture.cart.domain.model.CartId;
 import de.sample.aiarchitecture.cart.domain.model.ShoppingCart;
 import de.sample.aiarchitecture.cart.application.shared.ShoppingCartRepository;
 import de.sample.aiarchitecture.sharedkernel.domain.common.Money;
-import de.sample.aiarchitecture.infrastructure.api.DomainEventPublisher;
+import de.sample.aiarchitecture.sharedkernel.application.port.DomainEventPublisher;
 import java.time.Instant;
 import java.util.List;
 import org.jspecify.annotations.NonNull;

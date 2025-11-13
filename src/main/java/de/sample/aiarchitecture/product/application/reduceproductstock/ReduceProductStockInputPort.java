@@ -1,6 +1,6 @@
 package de.sample.aiarchitecture.product.application.reduceproductstock;
 
-import de.sample.aiarchitecture.sharedkernel.application.marker.UseCase;
+import de.sample.aiarchitecture.sharedkernel.application.port.UseCase;
 
 /**
  * Input Port for reducing product stock.

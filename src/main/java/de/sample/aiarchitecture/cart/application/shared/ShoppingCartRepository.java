@@ -3,7 +3,7 @@ package de.sample.aiarchitecture.cart.application.shared;
 import de.sample.aiarchitecture.cart.domain.model.CartId;
 import de.sample.aiarchitecture.cart.domain.model.CustomerId;
 import de.sample.aiarchitecture.cart.domain.model.ShoppingCart;
-import de.sample.aiarchitecture.sharedkernel.application.marker.Repository;
+import de.sample.aiarchitecture.sharedkernel.application.port.Repository;
 import de.sample.aiarchitecture.sharedkernel.domain.spec.CompositeSpecification;
 import java.util.List;
 import java.util.Optional;

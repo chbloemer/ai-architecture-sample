@@ -1,6 +1,6 @@
 package de.sample.aiarchitecture.product.application.getallproducts;
 
-import de.sample.aiarchitecture.sharedkernel.application.marker.UseCase;
+import de.sample.aiarchitecture.sharedkernel.application.port.UseCase;
 import org.jspecify.annotations.NonNull;
 
 /**

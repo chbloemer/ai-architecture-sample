@@ -1,4 +1,4 @@
-package de.sample.aiarchitecture.sharedkernel.application.marker;
+package de.sample.aiarchitecture.sharedkernel.application.port;
 
 import java.util.Optional;
 

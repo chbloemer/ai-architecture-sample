@@ -290,7 +290,7 @@ public class InMemoryProductRepository implements ProductRepository {
 - Fluent API: save() returning aggregate enables method chaining
 
 **Implementation:**
-- Base Interface: `de.sample.aiarchitecture.sharedkernel.application.marker.Repository`
+- Base Interface: `de.sample.aiarchitecture.sharedkernel.application.port.Repository`
 - Domain Interfaces: `ProductRepository`, `ShoppingCartRepository`
 - Implementations: `InMemoryProductRepository`, `InMemoryShoppingCartRepository` (in `portadapter.outgoing`)
 
@@ -431,7 +431,7 @@ public class ProductEventListener {
 
 **Implementation:**
 - Interface: `de.sample.aiarchitecture.sharedkernel.domain.marker.DomainEvent`
-- Publisher Interface (SPI): `de.sample.aiarchitecture.infrastructure.api.DomainEventPublisher`
+- Publisher Interface (SPI): `de.sample.aiarchitecture.sharedkernel.application.port.DomainEventPublisher`
 - Publisher Implementation: `de.sample.aiarchitecture.infrastructure.config.SpringDomainEventPublisher`
 - Examples: `ProductCreated`, `ProductPriceChanged`, `CartItemAddedToCart`, `CartCheckedOut`
 
@@ -440,7 +440,7 @@ public class ProductEventListener {
 The event publishing infrastructure follows the Dependency Inversion Principle to keep the application layer framework-independent:
 
 ```java
-// Interface (SPI) in infrastructure.api - application layer depends on this
+// Interface (outbound port) in sharedkernel.application.port - application layer depends on this
 public interface DomainEventPublisher {
     void publish(DomainEvent event);
     void publishAndClearEvents(AggregateRoot<?, ?> aggregate);
@@ -468,7 +468,7 @@ public class SpringDomainEventPublisher implements DomainEventPublisher {
 - Application layer remains framework-independent (depends on interface, not Spring)
 - Easy to mock for testing
 - Can swap implementations (e.g., message broker, in-memory for tests)
-- Follows Hexagonal Architecture (port defined in infrastructure.api, adapter in infrastructure.config)
+- Follows Hexagonal Architecture (port defined in sharedkernel.application.port, adapter in infrastructure.config)
 
 #### Integration Event
 
@@ -690,6 +690,108 @@ public class ProductAvailableSpecification implements Specification<Product> {
 4. Reusable across use cases
 
 **Implementation:** See `de.sample.aiarchitecture.sharedkernel.domain.marker.Specification`
+
+#### Custom Annotations (Shared Kernel Common Layer)
+
+Custom framework-agnostic annotations belong in the Shared Kernel when they represent cross-cutting technical concerns used across multiple bounded contexts.
+
+**Example: @AsyncInitialize Annotation**
+
+The `@AsyncInitialize` annotation marks components for asynchronous initialization after bean construction, enabling non-blocking startup of services that require heavy initialization tasks.
+
+**Annotation Definition (Shared Kernel):**
+
+```java
+// sharedkernel/common/annotation/AsyncInitialize.java
+package de.sample.aiarchitecture.sharedkernel.common.annotation;
+
+@Target(ElementType.TYPE)
+@Retention(RetentionPolicy.RUNTIME)
+@Documented
+public @interface AsyncInitialize {
+  int priority() default 100;
+  String description() default "";
+}
+```
+
+**Processor Implementation (Infrastructure):**
+
+```java
+// infrastructure/config/AsyncInitializationProcessor.java
+@Component
+public class AsyncInitializationProcessor implements BeanPostProcessor, Ordered {
+
+  @Override
+  public Object postProcessAfterInitialization(Object bean, String beanName) {
+    AsyncInitialize annotation =
+        AnnotationUtils.findAnnotation(bean.getClass(), AsyncInitialize.class);
+
+    if (annotation != null) {
+      Method initMethod = bean.getClass().getMethod("asyncInitialize");
+      initMethod.invoke(bean);
+    }
+    return bean;
+  }
+
+  @Override
+  public int getOrder() {
+    return Ordered.LOWEST_PRECEDENCE;
+  }
+}
+```
+
+**Usage Example (Adapter):**
+
+```java
+// product/adapter/outgoing/persistence/InMemoryProductRepository.java
+@Repository
+@AsyncInitialize(priority = 50, description = "Warm up product cache")
+public class InMemoryProductRepository implements ProductRepository {
+
+  @Async
+  public void asyncInitialize() {
+    logger.info("Starting async initialization of ProductRepository cache...");
+    // Preload frequently accessed products
+    // Build search indexes
+    // Warm up caches
+    logger.info("ProductRepository cache warmup completed.");
+  }
+}
+
+// cart/adapter/outgoing/persistence/InMemoryShoppingCartRepository.java
+@Repository
+@AsyncInitialize(priority = 100, description = "Initialize shopping cart metrics")
+public class InMemoryShoppingCartRepository implements ShoppingCartRepository {
+
+  @Async
+  public void asyncInitialize() {
+    logger.info("Starting async initialization of ShoppingCartRepository...");
+    // Initialize metrics collectors
+    // Preload abandoned cart data
+    logger.info("ShoppingCartRepository initialization completed.");
+  }
+}
+```
+
+**Rules:**
+1. Annotation definition in `sharedkernel.common.annotation` (framework-agnostic)
+2. Processor implementation in `infrastructure.config` (framework-specific)
+3. Pure Java annotation with no Spring dependencies
+4. Method name convention: `asyncInitialize()` annotated with `@Async`
+5. Priority determines initialization order (lower values first)
+
+**Benefits:**
+- Framework-independent annotation (pure Java metadata)
+- Application layer can use it without depending on infrastructure
+- Easy to test and mock
+- Separation of concerns: annotation vs. processing logic
+- Follows Dependency Inversion Principle
+
+**Implementation:**
+- Annotation: `de.sample.aiarchitecture.sharedkernel.common.annotation.AsyncInitialize`
+- Processor: `de.sample.aiarchitecture.infrastructure.config.AsyncInitializationProcessor`
+- Configuration: `de.sample.aiarchitecture.infrastructure.config.AsyncConfiguration`
+- Examples: `InMemoryProductRepository`, `InMemoryShoppingCartRepository`
 
 ---
 
@@ -949,7 +1051,7 @@ public class UpdateProductPriceUseCase implements UpdateProductPriceInputPort {
 
 ### Implementation
 
-**Base Interface:** `de.sample.aiarchitecture.sharedkernel.application.marker.UseCase<INPUT, OUTPUT>`
+**Base Interface:** `de.sample.aiarchitecture.sharedkernel.application.port.UseCase<INPUT, OUTPUT>`
 
 **Product Use Cases:**
 - Input Port: `CreateProductInputPort extends InputPort<CreateProductCommand, CreateProductResponse>`
@@ -1209,7 +1311,7 @@ Onion Architecture ensures that dependencies flow inward toward the domain core,
 
 **Rules:**
 - Depends ONLY on domain model
-- May use infrastructure.api (SPI)
+- May use sharedkernel.application.port (outbound ports)
 - NO dependencies on adapters
 - NO infrastructure implementation details
 
@@ -1230,31 +1332,37 @@ Onion Architecture ensures that dependencies flow inward toward the domain core,
 - Contains framework-specific code
 - Implements ports defined in inner layers
 
-#### Infrastructure.api (Service Provider Interface)
+#### Shared Kernel Application Ports
 
-**Location:** `de.sample.aiarchitecture.infrastructure.api`
+**Location:** `de.sample.aiarchitecture.sharedkernel.application.port`
 
-The `infrastructure.api` package serves as a **Service Provider Interface (SPI)** - a special layer that allows the application layer to depend on infrastructure abstractions without violating the Dependency Inversion Principle.
+The `sharedkernel.application.port` package contains **outbound ports** (interfaces) used across all bounded contexts, making it part of the Shared Kernel (Strategic DDD pattern).
 
 **Purpose:**
-- Provides interfaces for infrastructure services needed by the application layer
+- Provides port interfaces shared across multiple bounded contexts
 - Enables the application layer to remain framework-independent
-- Acts as a "port" in Hexagonal Architecture terminology
+- Acts as "ports" in Hexagonal Architecture terminology
+- Part of the Shared Kernel (shared abstractions used by all contexts)
 
 **Pattern:**
 ```
-Application Layer → infrastructure.api (interface) ← infrastructure.config (implementation)
+Application Layer → sharedkernel.application.port (interface) ← infrastructure/adapters (implementation)
 ```
+
+**Interfaces in this package:**
+- `Repository<T, ID>` - Base repository interface for all aggregate repositories
+- `UseCase<INPUT, OUTPUT>` - Base interface for input ports (use cases)
+- `DomainEventPublisher` - Interface for publishing domain events
 
 **Example:**
 ```java
-// infrastructure.api.DomainEventPublisher (interface)
+// sharedkernel.application.port.DomainEventPublisher (outbound port)
 public interface DomainEventPublisher {
     void publish(DomainEvent event);
     void publishAndClearEvents(AggregateRoot<?, ?> aggregate);
 }
 
-// infrastructure.config.SpringDomainEventPublisher (implementation)
+// infrastructure.config.SpringDomainEventPublisher (adapter implementation)
 @Component
 public class SpringDomainEventPublisher implements DomainEventPublisher {
     private final ApplicationEventPublisher eventPublisher;
@@ -1263,27 +1371,30 @@ public class SpringDomainEventPublisher implements DomainEventPublisher {
 ```
 
 **Rules:**
-1. **infrastructure.api must contain ONLY interfaces** (enforced by ArchUnit)
+1. **sharedkernel.application.port must contain ONLY interfaces** (enforced by ArchUnit)
 2. No concrete classes, no annotations, no framework dependencies
-3. Implementations reside in `infrastructure.config` or other infrastructure packages
-4. Application layer may depend on `infrastructure.api`, never on implementations
+3. Implementations reside in `infrastructure.config` or adapter packages
+4. Application layer may depend on `sharedkernel.application.port`, never on implementations
+5. Only ports used by **multiple bounded contexts** belong here (not context-specific ports)
 
 **Benefits:**
 - Application layer remains testable (easy to mock interfaces)
 - Can swap infrastructure implementations without changing application code
 - Follows Dependency Inversion Principle (depend on abstractions, not concretions)
 - Supports framework-independent business logic
+- Shared Kernel pattern reduces duplication across bounded contexts
 
-**What Belongs in infrastructure.api:**
-- ✅ Event publisher interfaces
-- ✅ Service interfaces needed by application layer
-- ✅ Abstractions for infrastructure concerns
+**What Belongs in sharedkernel.application.port:**
+- ✅ Base Repository interface (used by all aggregate repositories)
+- ✅ Base UseCase interface (input port marker)
+- ✅ DomainEventPublisher (used by all application services)
+- ✅ Other abstractions needed across multiple bounded contexts
 
 **What Does NOT Belong:**
 - ❌ Concrete classes
 - ❌ Spring annotations (@Component, @Service)
 - ❌ Framework-specific code
-- ❌ Domain interfaces (those belong in `domain.model`)
+- ❌ Context-specific interfaces (those belong in the context's application layer)
 
 ---
 
@@ -1533,7 +1644,7 @@ All architectural rules are automatically tested and enforced using ArchUnit.
 1. Application Services must end with "ApplicationService" (legacy pattern)
 2. Application Services must be annotated with `@Service`
 3. Application Services must NOT depend on portadapters
-4. Application Services may only use `infrastructure.api` (not implementation)
+4. Application Services may only use `sharedkernel.application.port` (not infrastructure implementations)
 
 #### Clean Architecture (Use Case) Rules
 
@@ -1568,7 +1679,7 @@ All architectural rules are automatically tested and enforced using ArchUnit.
 2. Primary adapters may not be accessed by any layer
 3. Secondary adapters may not be accessed by any layer
 4. Application services may only be accessed by primary adapters
-5. **infrastructure.api must contain only interfaces** (Service Provider Interface pattern)
+5. **sharedkernel.application.port must contain only interfaces** (Shared Kernel outbound ports pattern)
 
 #### Naming Conventions
 

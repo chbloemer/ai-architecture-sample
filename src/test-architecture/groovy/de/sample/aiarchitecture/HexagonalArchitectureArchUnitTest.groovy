@@ -31,25 +31,25 @@ class HexagonalArchitectureArchUnitTest extends BaseArchUnitTest {
     noClasses()
       .that().resideInAPackage(APPLICATION_PACKAGE)
       .should().accessClassesThat().resideInAPackage(PORTADAPTER_PACKAGE)
-      .because("Application services should only depend on domain and infrastructure.api, not adapters")
+      .because("Application services should only depend on domain and outbound ports (sharedkernel.application.port), not adapters")
       .check(allClasses)
   }
 
-  def "Incoming Adapters must only use infrastructure.api (not infrastructure implementations)"() {
+  def "Incoming Adapters must only use outbound ports (not infrastructure implementations)"() {
     expect:
     noClasses()
       .that().resideInAPackage(INCOMING_ADAPTER_PACKAGE)
       .should().dependOnClassesThat(INFRASTRUCTURE_IMPLEMENTATION)
-      .because("Incoming adapters should only use infrastructure.api (public SPI), not infrastructure implementation details")
+      .because("Incoming adapters should only use outbound ports from sharedkernel.application.port, not infrastructure implementation details")
       .check(allClasses)
   }
 
-  def "Outgoing Adapters must only use infrastructure.api (not infrastructure implementations)"() {
+  def "Outgoing Adapters must only use outbound ports (not infrastructure implementations)"() {
     expect:
     noClasses()
       .that().resideInAPackage(OUTGOING_ADAPTER_PACKAGE)
       .should().dependOnClassesThat(INFRASTRUCTURE_IMPLEMENTATION)
-      .because("Outgoing adapters should only use infrastructure.api (public SPI), not infrastructure implementation details")
+      .because("Outgoing adapters should only use outbound ports from sharedkernel.application.port, not infrastructure implementation details")
       .check(allClasses)
   }
 

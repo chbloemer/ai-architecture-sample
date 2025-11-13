@@ -2,7 +2,7 @@ package de.sample.aiarchitecture
 
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes
 
-import de.sample.aiarchitecture.sharedkernel.application.marker.UseCase
+import de.sample.aiarchitecture.sharedkernel.application.port.UseCase
 import org.springframework.stereotype.Service
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.RestController
@@ -39,6 +39,7 @@ class NamingConventionsArchUnitTest extends BaseArchUnitTest {
     classes()
       .that().resideInAPackage(APPLICATION_PACKAGE)
       .and().haveSimpleNameEndingWith("UseCase")
+      .and().areNotInterfaces()  // Exclude the UseCase interface itself
       .should().beAnnotatedWith(Service.class)
       .because("Use case classes must be Spring-managed beans")
       .allowEmptyShould(true)
@@ -59,11 +60,13 @@ class NamingConventionsArchUnitTest extends BaseArchUnitTest {
   def "Repository Interfaces must end with 'Repository'"() {
     expect:
     classes()
-      .that().resideInAPackage(DOMAIN_PACKAGE)
+      .that().resideInAPackage(APPLICATION_PACKAGE)  // Repositories are now in application.shared
       .and().areInterfaces()
       .and().haveSimpleNameContaining("Repository")
+      .and().doNotHaveSimpleName("Repository")  // Exclude the base Repository interface
       .should().haveSimpleNameEndingWith("Repository")
       .because("Repository interfaces should follow consistent naming conventions (DDD pattern)")
+      .allowEmptyShould(true)
       .check(allClasses)
   }
 

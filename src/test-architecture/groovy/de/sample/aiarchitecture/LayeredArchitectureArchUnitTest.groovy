@@ -48,23 +48,24 @@ class LayeredArchitectureArchUnitTest extends BaseArchUnitTest {
       .check(allClasses)
   }
 
-  def "Application Services must only use infrastructure.api (not infrastructure implementations)"() {
+  def "Application Services must only use outbound ports (not infrastructure implementations)"() {
     expect:
     noClasses()
       .that().resideInAnyPackage(PRODUCT_APPLICATION_PACKAGE, CART_APPLICATION_PACKAGE)
       .should().dependOnClassesThat(INFRASTRUCTURE_IMPLEMENTATION)
-      .because("Application services should only use infrastructure.api (public SPI), not infrastructure implementation details")
+      .because("Application services should only use outbound ports from sharedkernel.application.port, not infrastructure implementation details")
       .check(allClasses)
   }
 
-  def "infrastructure.api should only contain interfaces (Service Provider Interface)"() {
+  def "sharedkernel.application.port should only contain interfaces (Outbound Ports)"() {
     expect:
     classes()
-      .that().resideInAPackage(INFRASTRUCTURE_API_PACKAGE)
+      .that().resideInAPackage(SHAREDKERNEL_APPLICATION_PORT_PACKAGE)
       .should().beInterfaces()
-      .because("infrastructure.api is the Service Provider Interface (SPI) and should only contain abstractions/contracts, " +
-      "not concrete implementations. This ensures the application layer remains framework-independent and " +
-      "follows the Dependency Inversion Principle. Implementations belong in infrastructure.config or other infrastructure packages.")
+      .because("sharedkernel.application.port contains outbound ports (Repository, UseCase, DomainEventPublisher) " +
+      "shared across all bounded contexts. These must be interfaces to ensure the application layer remains framework-independent " +
+      "and follows the Dependency Inversion Principle. Implementations belong in infrastructure or adapter packages.")
+      .allowEmptyShould(true)
       .check(allClasses)
   }
 }

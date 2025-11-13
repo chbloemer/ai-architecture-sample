@@ -1,6 +1,6 @@
 package de.sample.aiarchitecture.product.application.createproduct;
 
-import de.sample.aiarchitecture.infrastructure.api.DomainEventPublisher;
+import de.sample.aiarchitecture.sharedkernel.application.port.DomainEventPublisher;
 import de.sample.aiarchitecture.product.application.shared.ProductRepository;
 import de.sample.aiarchitecture.product.domain.model.Category;
 import de.sample.aiarchitecture.product.domain.model.Product;

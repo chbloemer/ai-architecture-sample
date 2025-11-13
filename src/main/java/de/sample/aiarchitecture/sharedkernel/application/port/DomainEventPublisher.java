@@ -1,16 +1,18 @@
-package de.sample.aiarchitecture.infrastructure.api;
+package de.sample.aiarchitecture.sharedkernel.application.port;
 
 import de.sample.aiarchitecture.sharedkernel.domain.marker.AggregateRoot;
 import de.sample.aiarchitecture.sharedkernel.domain.marker.DomainEvent;
 
 /**
- * Service Provider Interface (SPI) for publishing domain events.
+ * Outbound port for publishing domain events.
  *
  * <p>This interface defines the contract for publishing domain events from the application layer to
  * the infrastructure layer, enabling loose coupling between aggregates and event handlers.
  *
- * <p>The application layer depends on this interface (in infrastructure.api), while concrete
- * implementations reside in the infrastructure layer, following the Dependency Inversion Principle.
+ * <p>This is an outbound port (secondary/driven port in Hexagonal Architecture) used across all
+ * bounded contexts, making it part of the Shared Kernel. The application layer depends on this
+ * interface, while concrete implementations reside in the infrastructure layer, following the
+ * Dependency Inversion Principle.
  *
  * <p><b>Usage Pattern:</b>
  *

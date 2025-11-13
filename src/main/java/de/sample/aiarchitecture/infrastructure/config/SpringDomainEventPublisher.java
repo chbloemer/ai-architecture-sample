@@ -2,7 +2,7 @@ package de.sample.aiarchitecture.infrastructure.config;
 
 import de.sample.aiarchitecture.sharedkernel.domain.marker.AggregateRoot;
 import de.sample.aiarchitecture.sharedkernel.domain.marker.DomainEvent;
-import de.sample.aiarchitecture.infrastructure.api.DomainEventPublisher;
+import de.sample.aiarchitecture.sharedkernel.application.port.DomainEventPublisher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;

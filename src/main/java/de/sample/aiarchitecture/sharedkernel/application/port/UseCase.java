@@ -1,4 +1,4 @@
-package de.sample.aiarchitecture.sharedkernel.application.marker;
+package de.sample.aiarchitecture.sharedkernel.application.port;
 
 /**
  * Marker interface for Input Ports (Hexagonal Architecture) / Use Cases (Clean Architecture).

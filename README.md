@@ -1,6 +1,6 @@
 # AI Architecture Sample Project
 
-A comprehensive demonstration of **Domain-Driven Design (DDD)**, **Hexagonal Architecture**, and **Onion Architecture** patterns using an e-commerce domain, with **MCP (Model Context Protocol)** server integration for AI assistant interaction.
+A comprehensive demonstration of **Domain-Driven Design (DDD)**, **Clean Architecture**, **Hexagonal Architecture**, and **Onion Architecture** patterns using an e-commerce domain, with **MCP (Model Context Protocol)** server integration for AI assistant interaction.
 
 ## Overview
 
@@ -30,19 +30,29 @@ This project showcases best practices for structuring a Spring Boot application 
 - **Aggregates**: Product, ShoppingCart
 - **Entities**: CartItem
 - **Value Objects**: ProductId, SKU, Price, Money, Quantity, Category, etc.
-- **Repositories**: Interfaces in application.port.out, implementations in adapters
+- **Repositories**: Interfaces in application layer, implementations in adapters
 - **Domain Services**: PricingService, CartTotalCalculator
 - **Domain Events**: ProductCreated, ProductPriceChanged, CartCheckedOut, CartItemAddedToCart
 - **Factories**: ProductFactory
 - **Specifications**: ProductAvailabilitySpecification
 
+### Clean Architecture
+
+- **Use Cases** (Input Ports): Explicit use case interfaces with single responsibility
+- **Input/Output Models**: Commands, Queries, and Response objects decouple layers
+- **Framework Independence**: Domain and application layers are framework-agnostic
+- **Dependency Rule**: Dependencies point inward (Infrastructure → Adapters → Application → Domain)
+- **Use Case Organization**: One use case per operation (CreateProductUseCase, AddItemToCartUseCase, etc.)
+
 ### Hexagonal Architecture (Ports and Adapters)
+
 - **Input Ports**: Use case interfaces (defined in application layer)
-- **Output Ports**: Repository and service interfaces (defined in application.port.out)
+- **Output Ports**: Repository and service interfaces (defined in sharedkernel.application.port)
 - **Incoming Adapters** (Primary): REST Controllers, MCP Server, Web MVC
 - **Outgoing Adapters** (Secondary): In-memory repository implementations
 
 ### Onion Architecture
+
 Layers (from innermost to outermost):
 1. **Domain Model** (per bounded context) - Pure business logic, framework-independent
 2. **Application Services** (per bounded context) - Use case orchestration
@@ -69,10 +79,14 @@ src/main/java/de/sample/aiarchitecture/
 │   │       ├── ProductId.java            # Cross-context ID
 │   │       ├── Money.java                # Cross-context value
 │   │       └── Price.java                # Cross-context value
+│   ├── common/
+│   │   └── annotation/                   # Framework-agnostic annotations
+│   │       └── AsyncInitialize.java
 │   └── application/
-│       └── marker/                       # Use case patterns
-│           ├── InputPort.java            # Input port interface
-│           └── OutputPort.java           # Output port interface
+│       └── port/                         # Outbound ports (cross-context)
+│           ├── UseCase.java              # Base use case interface
+│           ├── Repository.java           # Base repository interface
+│           └── DomainEventPublisher.java # Event publisher interface
 │
 ├── product/                              # Product Catalog bounded context
 │   ├── domain/
@@ -208,12 +222,12 @@ src/main/java/de/sample/aiarchitecture/
 │               └── HomePageController.java
 │
 └── infrastructure/                       # Infrastructure (cross-cutting)
-    ├── api/                              # Public SPI
-    │   └── DomainEventPublisher.java
     └── config/                           # Spring configuration
         ├── SecurityConfiguration.java
         ├── TransactionConfiguration.java
-        └── SpringDomainEventPublisher.java
+        ├── SpringDomainEventPublisher.java
+        ├── AsyncConfiguration.java
+        └── AsyncInitializationProcessor.java
 ```
 
 ## Getting Started
@@ -405,12 +419,11 @@ For comprehensive architecture documentation, see:
 **Shared Kernel** - Cross-context shared concepts
 - `sharedkernel.domain.marker` - DDD marker interfaces
 - `sharedkernel.domain.common` - Shared value objects (Money, ProductId, Price)
-- `sharedkernel.application.marker` - Use case pattern interfaces
+- `sharedkernel.common.annotation` - Framework-agnostic custom annotations
+- `sharedkernel.application.port` - Outbound ports (UseCase, Repository, DomainEventPublisher)
 
 **Infrastructure Layer** - Cross-cutting concerns
-- `infrastructure.api` - Public SPI for application layer
-- `infrastructure.config` - Spring configuration
-- `infrastructure.event` - Event listeners
+- `infrastructure.config` - Spring configuration and framework integrations
 
 ## Testing
 

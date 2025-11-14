@@ -100,7 +100,7 @@ dependencyManagement {
   }
   // Override transitive version used by spring-pug4j
   dependencies {
-    dependency 'de.neuland-bfi:pug4j:3.0.0-SNAPSHOT'
+    dependency 'de.neuland-bfi:pug4j:3.0.0-alpha-2'
   }
 }
 

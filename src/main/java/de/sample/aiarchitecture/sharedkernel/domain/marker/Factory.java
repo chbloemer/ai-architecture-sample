@@ -1,5 +1,7 @@
 package de.sample.aiarchitecture.sharedkernel.domain.marker;
 
+import org.jmolecules.stereotype.Stereotype;
+
 /**
  * Marker interface for Factories.
  *
@@ -44,4 +46,5 @@ package de.sample.aiarchitecture.sharedkernel.domain.marker;
  *
  * @see <a href="https://www.domainlanguage.com/ddd/">Domain-Driven Design Reference</a>
  */
+@Stereotype(groups = "dca")
 public interface Factory {}

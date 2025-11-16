@@ -4,6 +4,7 @@ import java.util.Optional;
 
 import de.sample.aiarchitecture.sharedkernel.domain.marker.AggregateRoot;
 import de.sample.aiarchitecture.sharedkernel.domain.marker.Id;
+import org.jmolecules.stereotype.Stereotype;
 import org.jspecify.annotations.NonNull;
 
 /**
@@ -75,6 +76,7 @@ import org.jspecify.annotations.NonNull;
  * @param <ID> the aggregate root ID type
  * @see <a href="https://www.domainlanguage.com/ddd/">Domain-Driven Design Reference</a>
  */
+@Stereotype(groups = "dca")
 public interface Repository<T extends AggregateRoot<T, ID>, ID extends Id> {
 
   /**

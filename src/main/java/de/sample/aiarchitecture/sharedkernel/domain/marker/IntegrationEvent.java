@@ -1,5 +1,7 @@
 package de.sample.aiarchitecture.sharedkernel.domain.marker;
 
+import org.jmolecules.stereotype.Stereotype;
+
 /**
  * Marker interface for Integration Events - events published across bounded contexts.
  *
@@ -110,6 +112,7 @@ package de.sample.aiarchitecture.sharedkernel.domain.marker;
  * @see DomainEvent
  * @see <a href="https://www.domainlanguage.com/ddd/">Domain-Driven Design Reference</a>
  */
+@Stereotype(groups = "dca")
 public interface IntegrationEvent extends DomainEvent {
   // Marker interface - inherits all DomainEvent methods
   // No additional methods needed - the semantic distinction is the key

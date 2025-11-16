@@ -1,0 +1,16 @@
+{
+  "groups": {
+    "dca": {
+      "displayName": "Domain Centric Architecture",
+      "color": "#2E86AB",
+      "type": "design",
+      "priority": 0
+    },
+    "ddd": {
+      "displayName": "Domain-Driven Design",
+      "color": "#7D3C98",
+      "type": "design",
+      "priority": 0
+    }
+  }
+}

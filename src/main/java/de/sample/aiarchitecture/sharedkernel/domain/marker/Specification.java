@@ -1,5 +1,6 @@
 package de.sample.aiarchitecture.sharedkernel.domain.marker;
 
+import org.jmolecules.stereotype.Stereotype;
 import org.jspecify.annotations.NonNull;
 
 /**
@@ -53,6 +54,7 @@ import org.jspecify.annotations.NonNull;
  *
  * @see <a href="https://www.domainlanguage.com/ddd/">Domain-Driven Design Reference</a>
  */
+@Stereotype(groups = "dca")
 public interface Specification<T> {
     boolean isSatisfiedBy(@NonNull T candidate);
 }

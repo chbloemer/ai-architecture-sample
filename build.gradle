@@ -89,6 +89,13 @@ dependencies {
   // Spring AI MCP Server
   implementation 'org.springframework.ai:spring-ai-starter-mcp-server-webmvc'
 
+  // jMolecules markers for DDD and architecture stereotypes (compileOnly to avoid runtime impact)
+  compileOnly 'org.jmolecules:jstereotype'
+  compileOnly 'org.jmolecules:jmolecules-ddd'
+  compileOnly 'org.jmolecules:jmolecules-hexagonal-architecture'
+  compileOnly 'org.jmolecules:jmolecules-layered-architecture'
+  annotationProcessor 'org.jmolecules.integrations:jmolecules-apt'
+
   // Test dependencies are configured in test-common.gradle
 }
 
@@ -97,6 +104,8 @@ dependencyManagement {
   imports {
     mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
     mavenBom "org.springframework.ai:spring-ai-bom:${springAiVersion}"
+    // jMolecules BOM (2.0.0 line)
+    mavenBom "org.jmolecules:jmolecules-bom:2025.0.0"
   }
   // Override transitive version used by spring-pug4j
   dependencies {

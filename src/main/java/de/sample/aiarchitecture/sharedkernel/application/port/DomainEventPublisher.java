@@ -2,6 +2,7 @@ package de.sample.aiarchitecture.sharedkernel.application.port;
 
 import de.sample.aiarchitecture.sharedkernel.domain.marker.AggregateRoot;
 import de.sample.aiarchitecture.sharedkernel.domain.marker.DomainEvent;
+import org.jmolecules.stereotype.Stereotype;
 
 /**
  * Outbound port for publishing domain events.
@@ -34,6 +35,7 @@ import de.sample.aiarchitecture.sharedkernel.domain.marker.DomainEvent;
  * <p><b>Implementation Note:</b> Concrete implementations should ensure events are published only
  * after successful persistence to maintain data consistency.
  */
+@Stereotype(groups = "dca")
 public interface DomainEventPublisher {
 
   /**

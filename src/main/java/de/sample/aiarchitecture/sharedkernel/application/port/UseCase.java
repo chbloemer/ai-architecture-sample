@@ -1,5 +1,7 @@
 package de.sample.aiarchitecture.sharedkernel.application.port;
 
+import org.jmolecules.stereotype.Stereotype;
+
 /**
  * Marker interface for Input Ports (Hexagonal Architecture) / Use Cases (Clean Architecture).
  *
@@ -48,6 +50,7 @@ package de.sample.aiarchitecture.sharedkernel.application.port;
  * @param <INPUT> the input model type (Command or Query)
  * @param <OUTPUT> the output model type (Response)
  */
+@Stereotype(groups = "dca")
 public interface UseCase<INPUT, OUTPUT> {
 
   /**

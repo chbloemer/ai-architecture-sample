@@ -38,9 +38,9 @@ import org.springframework.transaction.event.TransactionalEventListener;
  * events asynchronously and avoid blocking the main transaction.
  */
 @Component
-public class ProductEventListener {
+public class ProductEventConsumer {
 
-  private static final Logger log = LoggerFactory.getLogger(ProductEventListener.class);
+  private static final Logger log = LoggerFactory.getLogger(ProductEventConsumer.class);
 
   /**
    * Handles ProductCreated events after transaction commit.

@@ -34,13 +34,13 @@ import org.springframework.stereotype.Component;
  * </ul>
  */
 @Component
-public class ProductCatalogMcpTools {
+public class ProductCatalogMcpToolProvider {
 
   private final GetAllProductsUseCase getAllProductsUseCase;
   private final GetProductByIdUseCase getProductByIdUseCase;
   private final ProductDtoConverter productDtoConverter;
 
-  public ProductCatalogMcpTools(
+  public ProductCatalogMcpToolProvider(
       final GetAllProductsUseCase getAllProductsUseCase,
       final GetProductByIdUseCase getProductByIdUseCase,
       final ProductDtoConverter productDtoConverter) {

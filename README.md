@@ -139,11 +139,11 @@ src/main/java/de/sample/aiarchitecture/
 │       │   │   ├── CreateProductRequest.java
 │       │   │   └── ProductDto.java
 │       │   ├── mcp/
-│       │   │   └── ProductCatalogMcpTools.java
+│       │   │   └── ProductCatalogMcpToolProvider.java
 │       │   ├── web/
 │       │   │   └── ProductPageController.java
 │       │   └── event/
-│       │       └── ProductEventListener.java
+│       │       └── ProductEventConsumer.java
 │       └── outgoing/                     # Outgoing adapters (secondary)
 │           └── persistence/
 │               ├── InMemoryProductRepository.java
@@ -210,7 +210,7 @@ src/main/java/de/sample/aiarchitecture/
 │       │   │   ├── ShoppingCartDto.java
 │       │   │   └── ShoppingCartDtoConverter.java
 │       │   └── event/
-│       │       └── CartEventListener.java
+│       │       └── CartEventConsumer.java
 │       └── outgoing/                     # Outgoing adapters
 │           └── persistence/
 │               └── InMemoryShoppingCartRepository.java

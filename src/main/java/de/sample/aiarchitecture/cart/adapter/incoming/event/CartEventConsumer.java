@@ -32,9 +32,9 @@ import org.springframework.transaction.event.TransactionalEventListener;
  * boundary).
  */
 @Component
-public class CartEventListener {
+public class CartEventConsumer {
 
-  private static final Logger log = LoggerFactory.getLogger(CartEventListener.class);
+  private static final Logger log = LoggerFactory.getLogger(CartEventConsumer.class);
 
   /**
    * Handles CartItemAddedToCart events after transaction commit.

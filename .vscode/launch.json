@@ -1,0 +1,14 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Spring Boot-AiArchitectureApplication<ai-architecture-ai-architecture-sample>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "de.sample.aiarchitecture.AiArchitectureApplication",
+            "projectName": "ai-architecture-ai-architecture-sample",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        }
+    ]
+}

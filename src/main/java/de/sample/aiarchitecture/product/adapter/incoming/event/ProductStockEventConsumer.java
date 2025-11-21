@@ -44,14 +44,14 @@ import org.springframework.stereotype.Component;
  * @see CartEventTranslator
  */
 @Component
-public class ProductStockEventListener {
+public class ProductStockEventConsumer {
 
-  private static final Logger logger = LoggerFactory.getLogger(ProductStockEventListener.class);
+  private static final Logger logger = LoggerFactory.getLogger(ProductStockEventConsumer.class);
 
   private final ReduceProductStockUseCase reduceProductStockUseCase;
   private final CartEventTranslator cartEventTranslator;
 
-  public ProductStockEventListener(
+  public ProductStockEventConsumer(
       final ReduceProductStockUseCase reduceProductStockUseCase,
       final CartEventTranslator cartEventTranslator) {
     this.reduceProductStockUseCase = reduceProductStockUseCase;

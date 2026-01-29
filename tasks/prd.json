@@ -75,7 +75,7 @@
         "Validates session and step",
         "Updates session with buyer info"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "US-7",

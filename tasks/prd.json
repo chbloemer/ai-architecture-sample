@@ -63,7 +63,7 @@
         "StartCheckoutUseCase implementation",
         "Loads cart, creates session, saves session"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "US-6",

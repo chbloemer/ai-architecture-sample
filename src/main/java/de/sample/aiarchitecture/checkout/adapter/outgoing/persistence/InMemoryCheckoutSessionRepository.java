@@ -16,8 +16,10 @@ import org.springframework.stereotype.Repository;
  *
  * <p>This secondary adapter provides a thread-safe in-memory storage for checkout sessions using
  * ConcurrentHashMap. In a production system, this would be replaced with a database implementation.
+ *
+ * <p>Note: No profile restriction - this is the default implementation until JPA/JDBC
+ * implementations are added for the checkout bounded context.
  */
-@org.springframework.context.annotation.Profile("inmemory")
 @Repository
 public class InMemoryCheckoutSessionRepository implements CheckoutSessionRepository {
 

@@ -87,7 +87,7 @@
         "Validates session and step",
         "Updates session with delivery info"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "US-8",

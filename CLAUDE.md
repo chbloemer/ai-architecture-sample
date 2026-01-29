@@ -1,17 +1,31 @@
-# Claude AI Assistant Guidelines
+# CLAUDE.md
 
-This document provides guidelines for AI assistants (like Claude) working on this project.
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-## Table of Contents
+## Build Commands
 
-1. [Project Overview](#project-overview)
-2. [Architecture Documentation](#architecture-documentation)
-3. [Development Workflow](#development-workflow)
-4. [Code Standards](#code-standards)
-5. [Testing Requirements](#testing-requirements)
-6. [Documentation Requirements](#documentation-requirements)
+```bash
+# Build & Test
+./gradlew build                              # Build project (compile + tests)
+./gradlew build -x test                      # Build without tests
+./gradlew test                               # Run unit tests (JUnit 5)
+./gradlew test --tests "*ProductTest*"       # Run specific test class
+./gradlew test -Pfilter=Cart                 # Filter tests by name substring
+./gradlew test-architecture                  # Run ArchUnit architecture tests
+./gradlew test-architecture --tests "*HexagonalArchitectureArchUnitTest*"  # Run specific arch test
 
----
+# Run Application
+./gradlew bootRun                            # Start app (JDWP debug on port 5005)
+./gradlew -Plog-debug bootRun                # Start with debug logging
+
+# Debugging tests
+./gradlew -Plog-debug test                   # Tests with verbose output
+./gradlew -Plog-debug test-architecture      # Arch tests with verbose output
+```
+
+**Test Reports:**
+- Unit tests: `build/reports/test/`
+- Architecture tests: `build/reports/test-architecture/`
 
 ## Project Overview
 
@@ -25,14 +39,13 @@ This is a **sample e-commerce application** demonstrating best practices for:
 **Tech Stack:**
 - Java 21
 - Spring Boot 3.5.6
-- Gradle 9.1
+- Gradle 9.x
 - ArchUnit for architecture testing
 - Spock/Groovy for architecture tests
+- JSpecify for nullability annotations
 
 **Purpose:**
-This project serves as a reference implementation showing how to properly structure an enterprise application using modern architectural patterns. It is designed to be educational and demonstrate best practices.
-
----
+This project serves as a reference implementation showing how to properly structure an enterprise application using modern architectural patterns.
 
 ## Architecture Documentation
 

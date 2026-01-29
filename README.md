@@ -97,7 +97,8 @@ src/main/java/de/sample/aiarchitecture/
 │   │   │   ├── ProductDescription.java
 │   │   │   ├── ProductStock.java
 │   │   │   ├── Category.java
-│   │   │   ├── ProductFactory.java       # Factory
+│   │   │   └── ProductFactory.java       # Factory
+│   │   ├── specification/                # Specifications
 │   │   │   └── ProductAvailabilitySpecification.java
 │   │   ├── service/                      # Domain services
 │   │   │   └── PricingService.java

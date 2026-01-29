@@ -4,7 +4,7 @@ import de.sample.aiarchitecture.cart.domain.model.CartId;
 import de.sample.aiarchitecture.cart.domain.model.CustomerId;
 import de.sample.aiarchitecture.cart.domain.model.ShoppingCart;
 import de.sample.aiarchitecture.sharedkernel.application.port.Repository;
-import de.sample.aiarchitecture.sharedkernel.domain.spec.CompositeSpecification;
+import de.sample.aiarchitecture.sharedkernel.domain.specificationificationificationificationification.CompositeSpecification;
 import java.util.List;
 import java.util.Optional;
 import org.jspecify.annotations.NonNull;

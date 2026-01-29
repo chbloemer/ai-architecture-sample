@@ -1,12 +1,12 @@
 package de.sample.aiarchitecture.cart.adapter.outgoing.persistence.jpa;
 
-import de.sample.aiarchitecture.cart.domain.spec.*;
+import de.sample.aiarchitecture.cart.domain.specificationificationificationificationification.*;
 import de.sample.aiarchitecture.cart.domain.model.CartStatus;
 import de.sample.aiarchitecture.cart.domain.model.ShoppingCart;
-import de.sample.aiarchitecture.sharedkernel.domain.spec.AndSpecification;
-import de.sample.aiarchitecture.sharedkernel.domain.spec.CompositeSpecification;
-import de.sample.aiarchitecture.sharedkernel.domain.spec.NotSpecification;
-import de.sample.aiarchitecture.sharedkernel.domain.spec.OrSpecification;
+import de.sample.aiarchitecture.sharedkernel.domain.specificationificationificationificationification.AndSpecification;
+import de.sample.aiarchitecture.sharedkernel.domain.specificationificationificationificationification.CompositeSpecification;
+import de.sample.aiarchitecture.sharedkernel.domain.specificationificationificationificationification.NotSpecification;
+import de.sample.aiarchitecture.sharedkernel.domain.specificationificationificationificationification.OrSpecification;
 import java.math.BigDecimal;
 import jakarta.persistence.criteria.Expression;
 import jakarta.persistence.criteria.Join;

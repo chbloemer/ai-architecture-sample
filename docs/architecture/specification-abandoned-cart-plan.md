@@ -66,7 +66,7 @@ Indexes recommended: `(status, updated_at)`, `(customer_id)`, and if denormalize
 
 ## Execution log (cumulative)
 
-- Domain spec infrastructure added under `sharedkernel/domain/spec` with combinators. [✓]
+- Domain spec infrastructure added under `sharedkernel/domain/specification` with combinators. [✓]
 - Cart domain leaf specs added: `ActiveCart`, `LastUpdatedBefore`, `HasMinTotal`. [✓]
 - Repository port extended: `ShoppingCartRepository.findBy(DomainSpecification<ShoppingCart>, Pageable)` with in‑memory fallback paging. [✓]
 - JPA adapter pushdown implemented: `CartJpaRepository` extends `JpaSpecificationExecutor`; `JpaShoppingCartRepository.findBy(...)` translates via `CartSpecToJpa` and pages in DB. [✓]

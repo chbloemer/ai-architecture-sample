@@ -1,4 +1,4 @@
-package de.sample.aiarchitecture.sharedkernel.domain.spec;
+package de.sample.aiarchitecture.sharedkernel.domain.specificationificationificationificationification;
 
 import de.sample.aiarchitecture.sharedkernel.domain.marker.Specification;
 import org.jspecify.annotations.NonNull;

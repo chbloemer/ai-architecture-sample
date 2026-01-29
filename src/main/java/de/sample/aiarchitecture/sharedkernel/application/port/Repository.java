@@ -75,7 +75,7 @@ import org.jspecify.annotations.NonNull;
  * @param <ID> the aggregate root ID type
  * @see <a href="https://www.domainlanguage.com/ddd/">Domain-Driven Design Reference</a>
  */
-public interface Repository<T extends AggregateRoot<T, ID>, ID extends Id> {
+public interface Repository<T extends AggregateRoot<T, ID>, ID extends Id> extends OutputPort {
 
   /**
    * Finds an aggregate by its unique identifier.

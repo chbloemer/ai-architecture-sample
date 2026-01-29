@@ -48,7 +48,7 @@ package de.sample.aiarchitecture.sharedkernel.application.port;
  * @param <INPUT> the input model type (Command or Query)
  * @param <OUTPUT> the output model type (Response)
  */
-public interface UseCase<INPUT, OUTPUT> {
+public interface UseCase<INPUT, OUTPUT> extends InputPort {
 
   /**
    * Executes this use case with the given input.

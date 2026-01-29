@@ -34,7 +34,7 @@ import de.sample.aiarchitecture.sharedkernel.domain.marker.DomainEvent;
  * <p><b>Implementation Note:</b> Concrete implementations should ensure events are published only
  * after successful persistence to maintain data consistency.
  */
-public interface DomainEventPublisher {
+public interface DomainEventPublisher extends OutputPort {
 
   /**
    * Publishes a single domain event.

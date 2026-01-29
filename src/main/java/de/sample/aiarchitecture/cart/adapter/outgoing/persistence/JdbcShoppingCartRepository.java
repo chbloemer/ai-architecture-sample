@@ -6,7 +6,7 @@ import de.sample.aiarchitecture.cart.domain.model.*;
 import de.sample.aiarchitecture.sharedkernel.domain.common.Money;
 import de.sample.aiarchitecture.sharedkernel.domain.common.Price;
 import de.sample.aiarchitecture.sharedkernel.domain.common.ProductId;
-import de.sample.aiarchitecture.sharedkernel.domain.spec.CompositeSpecification;
+import de.sample.aiarchitecture.sharedkernel.domain.specificationificationificationificationification.CompositeSpecification;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.math.BigDecimal;

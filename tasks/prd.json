@@ -40,7 +40,7 @@
         "PaymentSubmitted event",
         "CheckoutConfirmed integration event"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "US-4",

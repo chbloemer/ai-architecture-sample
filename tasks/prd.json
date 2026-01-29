@@ -98,7 +98,7 @@
         "GetShippingOptionsQuery and GetShippingOptionsResponse",
         "Returns hardcoded shipping options"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "US-9",

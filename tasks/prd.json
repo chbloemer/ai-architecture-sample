@@ -51,7 +51,7 @@
         "Methods: save(), findById(), findByCartId(), findExpiredSessions()",
         "InMemoryCheckoutSessionRepository implementation"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "US-5",

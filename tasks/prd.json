@@ -14,7 +14,7 @@
         "CheckoutTotals, CheckoutLineItemId, CheckoutLineItem value objects",
         "All implement Value interface with proper validation"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "US-2",

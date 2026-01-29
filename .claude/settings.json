@@ -8,7 +8,9 @@
       "Bash(./gradlew build:*)",
       "Bash(./gradlew bootRun --no-daemon)",
       "Bash(./gradlew test-architecture:*)",
-      "mcp__product-catalog__all-products"
+      "mcp__product-catalog__all-products",
+      "Write(src/**)",
+      "Edit(src/**)"
     ],
     "deny": [],
     "ask": []

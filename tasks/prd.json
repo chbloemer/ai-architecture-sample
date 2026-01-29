@@ -27,7 +27,7 @@
         "Step validation: cannot skip steps, can go back",
         "Raises domain events for each step"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "US-3",

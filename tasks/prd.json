@@ -122,7 +122,7 @@
         "Validates provider exists",
         "Updates session with payment"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "US-11",

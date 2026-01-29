@@ -110,7 +110,7 @@
         "MockPaymentProvider adapter",
         "InMemoryPaymentProviderRegistry adapter"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "US-10",

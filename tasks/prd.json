@@ -1,0 +1,286 @@
+{
+  "name": "Checkout Bounded Context",
+  "description": "Multi-step checkout flow with guest checkout and payment provider support",
+  "stories": [
+    {
+      "id": "US-1",
+      "title": "Domain Value Objects",
+      "description": "Create checkout domain value objects (CheckoutSessionId, CheckoutStep, BuyerInfo, DeliveryAddress, ShippingOption, PaymentProviderId, PaymentSelection, CheckoutTotals, CheckoutLineItem)",
+      "acceptance_criteria": [
+        "CheckoutSessionId value object with generate() and of() methods",
+        "CheckoutStep enum with all states",
+        "BuyerInfo, DeliveryAddress, ShippingOption value objects",
+        "PaymentProviderId, PaymentSelection value objects",
+        "CheckoutTotals, CheckoutLineItemId, CheckoutLineItem value objects",
+        "All implement Value interface with proper validation"
+      ],
+      "passes": false
+    },
+    {
+      "id": "US-2",
+      "title": "CheckoutSession Aggregate",
+      "description": "Create CheckoutSession aggregate root with state management and invariants",
+      "acceptance_criteria": [
+        "Extends AggregateRoot<CheckoutSession, CheckoutSessionId>",
+        "Factory method: start(cartId, customerId, lineItems, subtotal)",
+        "Methods: submitBuyerInfo(), submitDelivery(), submitPayment(), confirm(), complete(), abandon(), expire()",
+        "Step validation: cannot skip steps, can go back",
+        "Raises domain events for each step"
+      ],
+      "passes": false
+    },
+    {
+      "id": "US-3",
+      "title": "Domain Events",
+      "description": "Create checkout domain events for state changes",
+      "acceptance_criteria": [
+        "CheckoutStarted event",
+        "BuyerInfoSubmitted event",
+        "DeliverySubmitted event",
+        "PaymentSubmitted event",
+        "CheckoutConfirmed integration event"
+      ],
+      "passes": false
+    },
+    {
+      "id": "US-4",
+      "title": "Repository and Persistence",
+      "description": "Create checkout session repository interface and in-memory implementation",
+      "acceptance_criteria": [
+        "CheckoutSessionRepository interface in application/shared",
+        "Methods: save(), findById(), findByCartId(), findExpiredSessions()",
+        "InMemoryCheckoutSessionRepository implementation"
+      ],
+      "passes": false
+    },
+    {
+      "id": "US-5",
+      "title": "Start Checkout Use Case",
+      "description": "Use case to begin checkout process from cart",
+      "acceptance_criteria": [
+        "StartCheckoutInputPort extends UseCase",
+        "StartCheckoutCommand and StartCheckoutResponse",
+        "StartCheckoutUseCase implementation",
+        "Loads cart, creates session, saves session"
+      ],
+      "passes": false
+    },
+    {
+      "id": "US-6",
+      "title": "Submit Buyer Info Use Case",
+      "description": "Use case for customer contact information",
+      "acceptance_criteria": [
+        "SubmitBuyerInfoInputPort extends UseCase",
+        "SubmitBuyerInfoCommand and SubmitBuyerInfoResponse",
+        "Validates session and step",
+        "Updates session with buyer info"
+      ],
+      "passes": false
+    },
+    {
+      "id": "US-7",
+      "title": "Submit Delivery Use Case",
+      "description": "Use case for delivery address and shipping option",
+      "acceptance_criteria": [
+        "SubmitDeliveryInputPort extends UseCase",
+        "SubmitDeliveryCommand and SubmitDeliveryResponse",
+        "Validates session and step",
+        "Updates session with delivery info"
+      ],
+      "passes": false
+    },
+    {
+      "id": "US-8",
+      "title": "Get Shipping Options Use Case",
+      "description": "Use case to retrieve available shipping methods",
+      "acceptance_criteria": [
+        "GetShippingOptionsInputPort extends UseCase",
+        "GetShippingOptionsQuery and GetShippingOptionsResponse",
+        "Returns hardcoded shipping options"
+      ],
+      "passes": false
+    },
+    {
+      "id": "US-9",
+      "title": "Payment Provider System",
+      "description": "Plugin architecture for payment providers",
+      "acceptance_criteria": [
+        "PaymentProvider output port interface",
+        "PaymentProviderRegistry output port interface",
+        "MockPaymentProvider adapter",
+        "InMemoryPaymentProviderRegistry adapter"
+      ],
+      "passes": false
+    },
+    {
+      "id": "US-10",
+      "title": "Submit Payment Use Case",
+      "description": "Use case for payment selection and authorization",
+      "acceptance_criteria": [
+        "SubmitPaymentInputPort extends UseCase",
+        "SubmitPaymentCommand and SubmitPaymentResponse",
+        "Validates provider exists",
+        "Updates session with payment"
+      ],
+      "passes": false
+    },
+    {
+      "id": "US-11",
+      "title": "Get Payment Providers Use Case",
+      "description": "Use case to retrieve available payment methods",
+      "acceptance_criteria": [
+        "GetPaymentProvidersInputPort extends UseCase",
+        "GetPaymentProvidersQuery and GetPaymentProvidersResponse",
+        "Uses PaymentProviderRegistry"
+      ],
+      "passes": false
+    },
+    {
+      "id": "US-12",
+      "title": "Get Checkout Session Use Case",
+      "description": "Use case to load session data for display",
+      "acceptance_criteria": [
+        "GetCheckoutSessionInputPort extends UseCase",
+        "GetCheckoutSessionQuery and GetCheckoutSessionResponse",
+        "Returns all session data or found=false"
+      ],
+      "passes": false
+    },
+    {
+      "id": "US-13",
+      "title": "Confirm Checkout Use Case",
+      "description": "Use case to complete the order",
+      "acceptance_criteria": [
+        "ConfirmCheckoutInputPort extends UseCase",
+        "ConfirmCheckoutCommand and ConfirmCheckoutResponse",
+        "Validates all required info",
+        "Publishes CheckoutConfirmed event"
+      ],
+      "passes": false
+    },
+    {
+      "id": "US-14",
+      "title": "Checkout Step Validator",
+      "description": "Component to enforce step navigation rules",
+      "acceptance_criteria": [
+        "CheckoutStepValidator component",
+        "validateStepAccess returns redirect URL or empty",
+        "Handles invalid session, skip ahead, go back, terminal states"
+      ],
+      "passes": false
+    },
+    {
+      "id": "US-15",
+      "title": "Start Checkout Controller",
+      "description": "Controller to initiate checkout from cart",
+      "acceptance_criteria": [
+        "StartCheckoutPageController at /checkout/start",
+        "GET with cartId parameter",
+        "Redirects to /checkout/{id}/buyer"
+      ],
+      "passes": false
+    },
+    {
+      "id": "US-16",
+      "title": "Buyer Info Controller",
+      "description": "Controller for contact information page",
+      "acceptance_criteria": [
+        "BuyerInfoPageController at /checkout/{id}/buyer",
+        "GET returns buyer.pug template",
+        "POST redirects to delivery"
+      ],
+      "passes": false
+    },
+    {
+      "id": "US-17",
+      "title": "Delivery Controller",
+      "description": "Controller for shipping address page",
+      "acceptance_criteria": [
+        "DeliveryPageController at /checkout/{id}/delivery",
+        "GET returns delivery.pug template",
+        "POST redirects to payment"
+      ],
+      "passes": false
+    },
+    {
+      "id": "US-18",
+      "title": "Payment Controller",
+      "description": "Controller for payment method page",
+      "acceptance_criteria": [
+        "PaymentPageController at /checkout/{id}/payment",
+        "GET returns payment.pug template",
+        "POST redirects to review"
+      ],
+      "passes": false
+    },
+    {
+      "id": "US-19",
+      "title": "Review Controller",
+      "description": "Controller for order review page",
+      "acceptance_criteria": [
+        "ReviewPageController at /checkout/{id}/review",
+        "GET returns review.pug with all order details",
+        "Edit links to previous steps"
+      ],
+      "passes": false
+    },
+    {
+      "id": "US-20",
+      "title": "Confirmation Controller",
+      "description": "Controller for order confirmation",
+      "acceptance_criteria": [
+        "POST /checkout/{id}/confirm calls ConfirmCheckoutUseCase",
+        "GET /checkout/{id}/confirmation shows thank you page",
+        "Only accessible after confirmation"
+      ],
+      "passes": false
+    },
+    {
+      "id": "US-21",
+      "title": "Checkout Templates",
+      "description": "Pug templates for checkout pages",
+      "acceptance_criteria": [
+        "buyer.pug, delivery.pug, payment.pug templates",
+        "review.pug with order summary",
+        "confirmation.pug thank you page",
+        "All extend layout with step progress"
+      ],
+      "passes": false
+    },
+    {
+      "id": "US-22",
+      "title": "Cart Integration",
+      "description": "Integrate checkout with cart context",
+      "acceptance_criteria": [
+        "Checkout button on cart page",
+        "CheckoutEventConsumer listens for CheckoutConfirmed",
+        "Calls CheckoutCartUseCase to update cart status"
+      ],
+      "passes": false
+    },
+    {
+      "id": "US-23",
+      "title": "Architecture Tests Pass",
+      "description": "Verify checkout follows project patterns",
+      "acceptance_criteria": [
+        "./gradlew test-architecture passes",
+        "No direct imports from Cart domain",
+        "Domain layer has no Spring annotations",
+        "All use cases follow InputPort pattern"
+      ],
+      "passes": false
+    },
+    {
+      "id": "US-24",
+      "title": "Build and Manual Test",
+      "description": "Verify complete checkout flow works end-to-end",
+      "acceptance_criteria": [
+        "./gradlew build passes",
+        "Application starts successfully",
+        "Complete flow: Buyer → Delivery → Payment → Review → Confirm",
+        "Cart status is CHECKED_OUT after completion"
+      ],
+      "passes": false
+    }
+  ]
+}

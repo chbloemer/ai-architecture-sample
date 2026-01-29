@@ -1,0 +1,34 @@
+# RALPH Progress Log
+# Project: Checkout Bounded Context
+# Started: 2026-01-29
+
+## Overview
+Implementing a multi-step checkout flow with:
+- Guest checkout (no account required)
+- 5-step flow: Buyer Info → Delivery → Payment → Review → Confirmation
+- Payment provider plugin architecture
+- Step validation with automatic redirects
+
+## Key Learnings
+
+### Project Patterns
+- Use BaseAggregateRoot for aggregates (see cart/domain/model/ShoppingCart.java)
+- Use Case pattern: InputPort → UseCase → Command/Query → Response
+- Repositories in application/shared, implementations in adapter/outgoing/persistence
+- Controllers use Pug templates in src/main/resources/templates/
+
+### Shared Kernel
+- Money value object at sharedkernel/domain/common/Money.java
+- ProductId at sharedkernel/domain/common/ProductId.java
+- Marker interfaces at sharedkernel/domain/marker/
+
+### Cart Context References
+- CartId, CustomerId in cart/domain/model/
+- ShoppingCart aggregate for reference pattern
+- CartPageController for web controller pattern
+
+---
+
+## Iteration History
+
+(Progress entries will be appended below)

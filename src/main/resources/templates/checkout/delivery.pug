@@ -1,0 +1,308 @@
+extends ../layout
+
+block content
+  h2 Delivery Information
+
+  if error
+    .error-message= error
+
+  .checkout-progress
+    span.step.completed Buyer Info
+    span.step.active Delivery
+    span.step Payment
+    span.step Confirmation
+
+  .session-summary
+    p Session ID: #{session.sessionId()}
+    p Status: #{session.status()}
+
+  form(method="post" action=`/checkout/${session.sessionId()}/delivery`)
+    h3 Shipping Address
+
+    .form-group
+      label(for="street") Street Address
+      input#street(type="text" name="street" required placeholder="123 Main Street" value=(session.delivery() && session.delivery().address() ? session.delivery().address().street() : ''))
+
+    .form-group
+      label(for="streetLine2") Address Line 2 (Optional)
+      input#streetLine2(type="text" name="streetLine2" placeholder="Apt, Suite, Unit, etc." value=(session.delivery() && session.delivery().address() ? session.delivery().address().streetLine2() : ''))
+
+    .form-row
+      .form-group.half
+        label(for="city") City
+        input#city(type="text" name="city" required placeholder="City" value=(session.delivery() && session.delivery().address() ? session.delivery().address().city() : ''))
+
+      .form-group.half
+        label(for="state") State/Province (Optional)
+        input#state(type="text" name="state" placeholder="State" value=(session.delivery() && session.delivery().address() ? session.delivery().address().state() : ''))
+
+    .form-row
+      .form-group.half
+        label(for="postalCode") Postal Code
+        input#postalCode(type="text" name="postalCode" required placeholder="12345" value=(session.delivery() && session.delivery().address() ? session.delivery().address().postalCode() : ''))
+
+      .form-group.half
+        label(for="country") Country
+        input#country(type="text" name="country" required placeholder="Country" value=(session.delivery() && session.delivery().address() ? session.delivery().address().country() : ''))
+
+    h3 Shipping Method
+
+    .shipping-options
+      each option in shippingOptions
+        - var isSelected = session.delivery() && session.delivery().shippingOption() && session.delivery().shippingOption().id() === option.id()
+        label.shipping-option(class=isSelected ? 'selected' : '')
+          input(type="radio" name="shippingOptionId" value=option.id() required checked=isSelected)
+          input(type="hidden" name="shippingOptionName" value=option.name() disabled=!isSelected)
+          input(type="hidden" name="estimatedDelivery" value=option.estimatedDelivery() disabled=!isSelected)
+          input(type="hidden" name="shippingCost" value=option.cost() disabled=!isSelected)
+          input(type="hidden" name="currencyCode" value=option.currencyCode() disabled=!isSelected)
+          .option-details
+            span.option-name #{option.name()}
+            span.option-delivery #{option.estimatedDelivery()}
+            span.option-price #{option.cost()} #{option.currencyCode()}
+
+    .form-actions
+      a.btn.btn-secondary(href=`/checkout/${session.sessionId()}/buyer`) Back
+      button.btn.btn-primary(type="submit") Continue to Payment
+
+  if session.lineItems() && session.lineItems().size() > 0
+    .order-summary
+      h3 Order Summary
+      each item in session.lineItems()
+        .summary-item
+          span.item-name #{item.productName()}
+          span.item-qty x#{item.quantity()}
+          span.item-price #{item.lineTotal()} #{item.currencyCode()}
+
+      if session.totals()
+        .summary-total
+          span.label Subtotal:
+          span.value #{session.totals().subtotal()} #{session.totals().currencyCode()}
+
+  script.
+    document.querySelectorAll('.shipping-option input[type="radio"]').forEach(function(radio) {
+      radio.addEventListener('change', function() {
+        // Disable all hidden inputs first
+        document.querySelectorAll('.shipping-option input[type="hidden"]').forEach(function(hidden) {
+          hidden.disabled = true;
+        });
+        // Enable hidden inputs for selected option
+        var selectedOption = this.closest('.shipping-option');
+        selectedOption.querySelectorAll('input[type="hidden"]').forEach(function(hidden) {
+          hidden.disabled = false;
+        });
+        // Update visual selection
+        document.querySelectorAll('.shipping-option').forEach(function(opt) {
+          opt.classList.remove('selected');
+        });
+        selectedOption.classList.add('selected');
+      });
+    });
+
+  style.
+    .checkout-progress {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 30px;
+      padding: 20px;
+      background: #f0f4f8;
+      border-radius: 8px;
+    }
+    .checkout-progress .step {
+      padding: 10px 20px;
+      background: #e0e0e0;
+      border-radius: 4px;
+      color: #666;
+      font-weight: 500;
+    }
+    .checkout-progress .step.active {
+      background: #3498db;
+      color: white;
+    }
+    .checkout-progress .step.completed {
+      background: #27ae60;
+      color: white;
+    }
+    .session-summary {
+      background: #f9f9f9;
+      padding: 15px;
+      border-radius: 6px;
+      margin-bottom: 25px;
+      font-size: 0.9em;
+      color: #666;
+    }
+    .session-summary p {
+      margin: 5px 0;
+    }
+    .error-message {
+      background: #f8d7da;
+      color: #721c24;
+      padding: 15px;
+      border-radius: 6px;
+      border: 1px solid #f5c6cb;
+      margin-bottom: 20px;
+      font-weight: 500;
+    }
+    form {
+      max-width: 600px;
+    }
+    form h3 {
+      margin-top: 30px;
+      margin-bottom: 20px;
+      color: #2c3e50;
+      border-bottom: 2px solid #3498db;
+      padding-bottom: 10px;
+    }
+    form h3:first-of-type {
+      margin-top: 0;
+    }
+    .form-group {
+      margin-bottom: 20px;
+    }
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+      color: #2c3e50;
+    }
+    .form-group input {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-size: 1em;
+      box-sizing: border-box;
+    }
+    .form-group input:focus {
+      outline: none;
+      border-color: #3498db;
+      box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+    }
+    .form-row {
+      display: flex;
+      gap: 20px;
+    }
+    .form-group.half {
+      flex: 1;
+    }
+    .shipping-options {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .shipping-option {
+      display: flex;
+      align-items: center;
+      padding: 15px;
+      border: 2px solid #ddd;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .shipping-option:hover {
+      border-color: #3498db;
+      background: #f8f9fa;
+    }
+    .shipping-option.selected {
+      border-color: #3498db;
+      background: #e8f4fc;
+    }
+    .shipping-option input[type="radio"] {
+      margin-right: 15px;
+      width: auto;
+    }
+    .option-details {
+      display: flex;
+      justify-content: space-between;
+      flex: 1;
+      gap: 20px;
+    }
+    .option-name {
+      font-weight: 600;
+      color: #2c3e50;
+    }
+    .option-delivery {
+      color: #666;
+      flex: 1;
+      text-align: center;
+    }
+    .option-price {
+      font-weight: 600;
+      color: #27ae60;
+    }
+    .form-actions {
+      margin-top: 30px;
+      display: flex;
+      gap: 15px;
+    }
+    .btn {
+      display: inline-block;
+      padding: 12px 30px;
+      border-radius: 5px;
+      text-decoration: none;
+      font-weight: 500;
+      text-align: center;
+      transition: background 0.2s;
+      border: none;
+      cursor: pointer;
+      font-size: 1em;
+    }
+    .btn-primary {
+      background: #3498db;
+      color: white;
+    }
+    .btn-primary:hover {
+      background: #2980b9;
+    }
+    .btn-secondary {
+      background: #95a5a6;
+      color: white;
+    }
+    .btn-secondary:hover {
+      background: #7f8c8d;
+    }
+    .order-summary {
+      margin-top: 40px;
+      padding: 20px;
+      background: #f9f9f9;
+      border-radius: 8px;
+      border-left: 4px solid #3498db;
+    }
+    .order-summary h3 {
+      margin-top: 0;
+      color: #2c3e50;
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+    .summary-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px 0;
+      border-bottom: 1px solid #eee;
+    }
+    .summary-item:last-child {
+      border-bottom: none;
+    }
+    .item-name {
+      flex: 2;
+      color: #333;
+    }
+    .item-qty {
+      flex: 1;
+      text-align: center;
+      color: #666;
+    }
+    .item-price {
+      flex: 1;
+      text-align: right;
+      font-weight: 500;
+    }
+    .summary-total {
+      display: flex;
+      justify-content: space-between;
+      padding-top: 15px;
+      margin-top: 10px;
+      border-top: 2px solid #ddd;
+      font-weight: bold;
+      font-size: 1.1em;
+    }

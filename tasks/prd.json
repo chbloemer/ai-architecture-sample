@@ -200,7 +200,7 @@
         "GET returns delivery.pug template",
         "POST redirects to payment"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "US-18",

@@ -133,7 +133,7 @@
         "GetPaymentProvidersQuery and GetPaymentProvidersResponse",
         "Uses PaymentProviderRegistry"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "US-12",

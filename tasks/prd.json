@@ -222,7 +222,7 @@
         "GET returns review.pug with all order details",
         "Edit links to previous steps"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "US-20",

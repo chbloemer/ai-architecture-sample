@@ -1,0 +1,310 @@
+extends ../layout
+
+block content
+  h2 Review Your Order
+
+  if error
+    .error-message= error
+
+  .checkout-progress
+    span.step.completed Buyer Info
+    span.step.completed Delivery
+    span.step.completed Payment
+    span.step.active Confirmation
+
+  .session-summary
+    p Session ID: #{session.sessionId()}
+    p Status: #{session.status()}
+
+  .review-sections
+    //- Buyer Information Section
+    .review-section
+      .section-header
+        h3 Buyer Information
+        a.edit-link(href=`/checkout/${session.sessionId()}/buyer`) Edit
+      if session.buyerInfo()
+        .section-content
+          p
+            strong Name:
+            | #{session.buyerInfo().firstName()} #{session.buyerInfo().lastName()}
+          p
+            strong Email:
+            | #{session.buyerInfo().email()}
+          p
+            strong Phone:
+            | #{session.buyerInfo().phone()}
+      else
+        .section-content.incomplete
+          p Buyer information not provided
+          a.btn.btn-small(href=`/checkout/${session.sessionId()}/buyer`) Complete
+
+    //- Delivery Information Section
+    .review-section
+      .section-header
+        h3 Delivery
+        a.edit-link(href=`/checkout/${session.sessionId()}/delivery`) Edit
+      if session.delivery()
+        .section-content
+          h4 Shipping Address
+          p #{session.delivery().address().street()}
+          if session.delivery().address().streetLine2()
+            p #{session.delivery().address().streetLine2()}
+          p #{session.delivery().address().city()}, #{session.delivery().address().postalCode()}
+          if session.delivery().address().state()
+            p #{session.delivery().address().state()}, #{session.delivery().address().country()}
+          else
+            p #{session.delivery().address().country()}
+
+          h4 Shipping Method
+          p
+            strong #{session.delivery().shippingOption().name()}
+          p Estimated Delivery: #{session.delivery().shippingOption().estimatedDelivery()}
+          p Cost: #{session.delivery().shippingOption().cost()} #{session.delivery().shippingOption().currencyCode()}
+      else
+        .section-content.incomplete
+          p Delivery information not provided
+          a.btn.btn-small(href=`/checkout/${session.sessionId()}/delivery`) Complete
+
+    //- Payment Information Section
+    .review-section
+      .section-header
+        h3 Payment Method
+        a.edit-link(href=`/checkout/${session.sessionId()}/payment`) Edit
+      if session.payment()
+        .section-content
+          p
+            strong Provider:
+            | #{session.payment().providerId()}
+          if session.payment().providerReference()
+            p
+              strong Reference:
+              | #{session.payment().providerReference()}
+      else
+        .section-content.incomplete
+          p Payment method not selected
+          a.btn.btn-small(href=`/checkout/${session.sessionId()}/payment`) Complete
+
+  //- Order Summary
+  if session.lineItems() && session.lineItems().size() > 0
+    .order-summary
+      h3 Order Summary
+      .summary-items
+        each item in session.lineItems()
+          .summary-item
+            span.item-name #{item.productName()}
+            span.item-qty x#{item.quantity()}
+            span.item-price #{item.lineTotal()} #{item.currencyCode()}
+
+      if session.totals()
+        .summary-totals
+          .summary-line
+            span.label Subtotal:
+            span.value #{session.totals().subtotal()} #{session.totals().currencyCode()}
+          if session.totals().shipping()
+            .summary-line
+              span.label Shipping:
+              span.value #{session.totals().shipping()} #{session.totals().currencyCode()}
+          if session.totals().tax()
+            .summary-line
+              span.label Tax:
+              span.value #{session.totals().tax()} #{session.totals().currencyCode()}
+          .summary-grand-total
+            span.label Total:
+            span.value #{session.totals().total()} #{session.totals().currencyCode()}
+
+  .form-actions
+    a.btn.btn-secondary(href=`/checkout/${session.sessionId()}/payment`) Back
+    form(method="post" action=`/checkout/${session.sessionId()}/confirm` style="display: inline")
+      button.btn.btn-primary(type="submit") Place Order
+
+  style.
+    .checkout-progress {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 30px;
+      padding: 20px;
+      background: #f0f4f8;
+      border-radius: 8px;
+    }
+    .checkout-progress .step {
+      padding: 10px 20px;
+      background: #e0e0e0;
+      border-radius: 4px;
+      color: #666;
+      font-weight: 500;
+    }
+    .checkout-progress .step.active {
+      background: #3498db;
+      color: white;
+    }
+    .checkout-progress .step.completed {
+      background: #27ae60;
+      color: white;
+    }
+    .session-summary {
+      background: #f9f9f9;
+      padding: 15px;
+      border-radius: 6px;
+      margin-bottom: 25px;
+      font-size: 0.9em;
+      color: #666;
+    }
+    .session-summary p {
+      margin: 5px 0;
+    }
+    .error-message {
+      background: #f8d7da;
+      color: #721c24;
+      padding: 15px;
+      border-radius: 6px;
+      border: 1px solid #f5c6cb;
+      margin-bottom: 20px;
+      font-weight: 500;
+    }
+    .review-sections {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      max-width: 800px;
+    }
+    .review-section {
+      background: white;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 20px;
+      background: #f8f9fa;
+      border-bottom: 1px solid #ddd;
+    }
+    .section-header h3 {
+      margin: 0;
+      color: #2c3e50;
+      font-size: 1.1em;
+    }
+    .edit-link {
+      color: #3498db;
+      text-decoration: none;
+      font-size: 0.9em;
+      font-weight: 500;
+    }
+    .edit-link:hover {
+      text-decoration: underline;
+    }
+    .section-content {
+      padding: 20px;
+    }
+    .section-content p {
+      margin: 8px 0;
+      color: #333;
+    }
+    .section-content h4 {
+      margin: 15px 0 10px 0;
+      color: #2c3e50;
+      font-size: 0.95em;
+    }
+    .section-content h4:first-child {
+      margin-top: 0;
+    }
+    .section-content.incomplete {
+      background: #fff3cd;
+      color: #856404;
+    }
+    .order-summary {
+      margin-top: 30px;
+      padding: 20px;
+      background: #f9f9f9;
+      border-radius: 8px;
+      border-left: 4px solid #3498db;
+      max-width: 800px;
+    }
+    .order-summary h3 {
+      margin: 0 0 15px 0;
+      color: #2c3e50;
+    }
+    .summary-items {
+      margin-bottom: 20px;
+    }
+    .summary-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px 0;
+      border-bottom: 1px solid #eee;
+    }
+    .summary-item:last-child {
+      border-bottom: none;
+    }
+    .item-name {
+      flex: 2;
+      color: #333;
+    }
+    .item-qty {
+      flex: 1;
+      text-align: center;
+      color: #666;
+    }
+    .item-price {
+      flex: 1;
+      text-align: right;
+      font-weight: 500;
+    }
+    .summary-totals {
+      border-top: 1px solid #ddd;
+      padding-top: 15px;
+    }
+    .summary-line {
+      display: flex;
+      justify-content: space-between;
+      padding: 5px 0;
+      color: #666;
+    }
+    .summary-grand-total {
+      display: flex;
+      justify-content: space-between;
+      padding-top: 15px;
+      margin-top: 10px;
+      border-top: 2px solid #ddd;
+      font-weight: bold;
+      font-size: 1.2em;
+      color: #2c3e50;
+    }
+    .form-actions {
+      margin-top: 30px;
+      display: flex;
+      gap: 15px;
+      max-width: 800px;
+    }
+    .btn {
+      display: inline-block;
+      padding: 12px 30px;
+      border-radius: 5px;
+      text-decoration: none;
+      font-weight: 500;
+      text-align: center;
+      transition: background 0.2s;
+      border: none;
+      cursor: pointer;
+      font-size: 1em;
+    }
+    .btn-primary {
+      background: #27ae60;
+      color: white;
+    }
+    .btn-primary:hover {
+      background: #219a52;
+    }
+    .btn-secondary {
+      background: #95a5a6;
+      color: white;
+    }
+    .btn-secondary:hover {
+      background: #7f8c8d;
+    }
+    .btn-small {
+      padding: 8px 16px;
+      font-size: 0.9em;
+    }

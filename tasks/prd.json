@@ -293,6 +293,69 @@
         "Architecture tests pass"
       ],
       "passes": true
+    },
+    {
+      "id": "US-26",
+      "title": "Reduce Product Availability on Checkout",
+      "description": "When a checkout is confirmed, the product availability must be reduced by the quantities purchased. The product context listens for the CheckoutConfirmed integration event and reduces availability for each line item.",
+      "acceptance_criteria": [
+        "Product context has a CheckoutConfirmedEventListener that listens for CheckoutConfirmed events",
+        "For each line item in the checkout, product availability is reduced by the purchased quantity",
+        "Uses existing Product aggregate's reduceAvailability() method",
+        "Architecture tests pass (no direct coupling between Checkout and Product domains)"
+      ],
+      "architectural_guidance": {
+        "affected_layers": [
+          "adapter"
+        ],
+        "locations": [
+          "product.adapter.incoming.event.CheckoutConfirmedEventListener"
+        ],
+        "patterns": [
+          "Event Consumer",
+          "Cross-Context Integration"
+        ],
+        "constraints": [
+          "Event listener in product.adapter.incoming.event package",
+          "No direct imports from checkout.domain - only checkout integration events",
+          "Call ProductRepository via application layer or directly (simple case)",
+          "Use @EventListener or @TransactionalEventListener(phase = AFTER_COMMIT)",
+          "Run ./gradlew test-architecture to verify"
+        ]
+      },
+      "passes": true
+    },
+    {
+      "id": "US-27",
+      "title": "Remove Deprecated CartCheckedOut Availability Logic",
+      "description": "The CartCheckedOut event was previously used to reduce product availability. Since US-26 now handles this via CheckoutConfirmed event, the old CartCheckedOut event consumer and related logic in the product context should be removed.",
+      "acceptance_criteria": [
+        "CartCheckedOutEventListener in product context is removed (if exists)",
+        "Any CartCheckedOut event handling for availability reduction is removed",
+        "CartCheckedOut event itself remains if still used for cart status updates",
+        "Build and architecture tests pass",
+        "Product availability is only reduced via CheckoutConfirmed (US-26)"
+      ],
+      "architectural_guidance": {
+        "affected_layers": [
+          "adapter"
+        ],
+        "locations": [
+          "product.adapter.incoming.event.CartCheckedOutEventListener (DELETE)"
+        ],
+        "patterns": [
+          "Code Removal",
+          "Dead Code Cleanup"
+        ],
+        "constraints": [
+          "Search for CartCheckedOut references in product context",
+          "Verify event is not used elsewhere before removing listener",
+          "Keep CartCheckedOut event if cart context still publishes it for other purposes",
+          "Run ./gradlew test-architecture after removal",
+          "Run ./gradlew build to ensure no compilation errors"
+        ]
+      },
+      "passes": false
     }
   ]
 }

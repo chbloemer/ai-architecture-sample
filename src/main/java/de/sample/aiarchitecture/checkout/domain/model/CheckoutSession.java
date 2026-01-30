@@ -260,7 +260,8 @@ public final class CheckoutSession extends BaseAggregateRoot<CheckoutSession, Ch
     this.status = CheckoutSessionStatus.CONFIRMED;
     this.currentStep = CheckoutStep.CONFIRMATION;
 
-    registerEvent(CheckoutConfirmed.now(this.id, this.cartId, this.customerId, this.totals.total()));
+    registerEvent(CheckoutConfirmed.now(
+        this.id, this.cartId, this.customerId, this.totals.total(), this.lineItems));
   }
 
   /**

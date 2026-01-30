@@ -43,8 +43,7 @@ block content
 
     .cart-actions
       if cart.status() === 'ACTIVE'
-        form(method="post" action=`/cart/${cartId}/checkout` style="display: inline;")
-          button.btn.btn-primary(type="submit") Checkout Cart
+        a.btn.btn-primary(href=`/checkout/start?cartId=${cartId}`) Proceed to Checkout
         p.info Use the REST API to add or remove items
       else
         .status-badge

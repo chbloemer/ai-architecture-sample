@@ -3,9 +3,6 @@ package de.sample.aiarchitecture.cart.adapter.incoming.web;
 import de.sample.aiarchitecture.cart.application.additemtocart.AddItemToCartCommand;
 import de.sample.aiarchitecture.cart.application.additemtocart.AddItemToCartResponse;
 import de.sample.aiarchitecture.cart.application.additemtocart.AddItemToCartUseCase;
-import de.sample.aiarchitecture.cart.application.checkoutcart.CheckoutCartCommand;
-import de.sample.aiarchitecture.cart.application.checkoutcart.CheckoutCartResponse;
-import de.sample.aiarchitecture.cart.application.checkoutcart.CheckoutCartUseCase;
 import de.sample.aiarchitecture.cart.application.getcartbyid.GetCartByIdQuery;
 import de.sample.aiarchitecture.cart.application.getcartbyid.GetCartByIdResponse;
 import de.sample.aiarchitecture.cart.application.getcartbyid.GetCartByIdUseCase;
@@ -45,17 +42,14 @@ public class CartPageController {
   private final GetCartByIdUseCase getCartByIdUseCase;
   private final GetOrCreateActiveCartUseCase getOrCreateActiveCartUseCase;
   private final AddItemToCartUseCase addItemToCartUseCase;
-  private final CheckoutCartUseCase checkoutCartUseCase;
 
   public CartPageController(
       final GetCartByIdUseCase getCartByIdUseCase,
       final GetOrCreateActiveCartUseCase getOrCreateActiveCartUseCase,
-      final AddItemToCartUseCase addItemToCartUseCase,
-      final CheckoutCartUseCase checkoutCartUseCase) {
+      final AddItemToCartUseCase addItemToCartUseCase) {
     this.getCartByIdUseCase = getCartByIdUseCase;
     this.getOrCreateActiveCartUseCase = getOrCreateActiveCartUseCase;
     this.addItemToCartUseCase = addItemToCartUseCase;
-    this.checkoutCartUseCase = checkoutCartUseCase;
   }
 
   /**
@@ -130,40 +124,5 @@ public class CartPageController {
 
     // Redirect to cart view
     return "redirect:/cart/" + cartResponse.cartId();
-  }
-
-  /**
-   * Handles cart checkout.
-   *
-   * <p>This endpoint:
-   * <ul>
-   *   <li>Checks out the cart (changes status to CHECKED_OUT)
-   *   <li>Publishes CartCheckedOut domain event (triggers stock reduction)
-   *   <li>Redirects back to cart view with success message
-   * </ul>
-   *
-   * @param cartId the cart ID to checkout
-   * @param redirectAttributes for passing flash messages
-   * @return redirect to cart view
-   */
-  @PostMapping("/{cartId}/checkout")
-  public String checkoutCart(
-      @PathVariable final String cartId,
-      final RedirectAttributes redirectAttributes) {
-
-    try {
-      final CheckoutCartResponse response = checkoutCartUseCase.execute(new CheckoutCartCommand(cartId));
-
-      redirectAttributes.addFlashAttribute("message",
-          "Cart checked out successfully! Order total: " +
-          response.totalAmount() + " " + response.totalCurrency());
-
-    } catch (IllegalStateException e) {
-      redirectAttributes.addFlashAttribute("error", e.getMessage());
-    } catch (IllegalArgumentException e) {
-      redirectAttributes.addFlashAttribute("error", "Cart not found");
-    }
-
-    return "redirect:/cart/" + cartId;
   }
 }

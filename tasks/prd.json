@@ -281,6 +281,18 @@
         "Cart status is CHECKED_OUT after completion"
       ],
       "passes": true
+    },
+    {
+      "id": "US-25",
+      "title": "Connect Cart Checkout Button to Checkout Flow",
+      "description": "Replace the fake checkout button on the cart page with a link to the new checkout bounded context. The cart page should redirect to the checkout flow instead of the old fake checkout endpoint.",
+      "acceptance_criteria": [
+        "Cart page checkout button redirects to /checkout/start?cartId={cartId} instead of /cart/{cartId}/checkout",
+        "Old /cart/{cartId}/checkout endpoint is removed or deprecated",
+        "Checkout flow can be started from the cart page",
+        "Architecture tests pass"
+      ],
+      "passes": true
     }
   ]
 }

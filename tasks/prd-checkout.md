@@ -355,3 +355,18 @@ Create a new **Checkout** bounded context with a multi-step checkout flow suppor
 - Can complete full flow: Buyer → Delivery → Payment → Review → Confirm
 - Confirmation page shows order details
 - Cart status is CHECKED_OUT after completion
+
+---
+
+### US-25: Connect Cart Checkout Button to Checkout Flow
+**As a** customer
+**I want** the cart checkout button to start the real checkout flow
+**So that** I can complete my purchase through the multi-step checkout process
+
+**Acceptance Criteria:**
+- Cart page checkout button redirects to /checkout/start?cartId={cartId} instead of /cart/{cartId}/checkout
+- Old /cart/{cartId}/checkout endpoint is removed or deprecated
+- Checkout flow can be started from the cart page
+- Architecture tests pass
+
+---

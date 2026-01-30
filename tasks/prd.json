@@ -211,7 +211,7 @@
         "GET returns payment.pug template",
         "POST redirects to review"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "US-19",

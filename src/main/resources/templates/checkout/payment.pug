@@ -1,0 +1,273 @@
+extends ../layout
+
+block content
+  h2 Payment Method
+
+  if error
+    .error-message= error
+
+  .checkout-progress
+    span.step.completed Buyer Info
+    span.step.completed Delivery
+    span.step.active Payment
+    span.step Confirmation
+
+  .session-summary
+    p Session ID: #{session.sessionId()}
+    p Status: #{session.status()}
+
+  form(method="post" action=`/checkout/${session.sessionId()}/payment`)
+    h3 Select Payment Method
+
+    .payment-options
+      each provider in paymentProviders
+        if provider.available()
+          - var isSelected = session.payment() && session.payment().providerId() === provider.id()
+          label.payment-option(class=isSelected ? 'selected' : '')
+            input(type="radio" name="providerId" value=provider.id() required checked=isSelected)
+            .option-details
+              span.option-name #{provider.displayName()}
+              if !provider.available()
+                span.unavailable (Unavailable)
+
+    .form-group
+      label(for="providerReference") Payment Reference (Optional)
+      input#providerReference(type="text" name="providerReference" placeholder="e.g., Payment Intent ID" value=(session.payment() ? session.payment().providerReference() : ''))
+
+    .form-actions
+      a.btn.btn-secondary(href=`/checkout/${session.sessionId()}/delivery`) Back
+      button.btn.btn-primary(type="submit") Continue to Review
+
+  if session.lineItems() && session.lineItems().size() > 0
+    .order-summary
+      h3 Order Summary
+      each item in session.lineItems()
+        .summary-item
+          span.item-name #{item.productName()}
+          span.item-qty x#{item.quantity()}
+          span.item-price #{item.lineTotal()} #{item.currencyCode()}
+
+      if session.totals()
+        .summary-total
+          span.label Subtotal:
+          span.value #{session.totals().subtotal()} #{session.totals().currencyCode()}
+        if session.totals().shippingCost()
+          .summary-shipping
+            span.label Shipping:
+            span.value #{session.totals().shippingCost()} #{session.totals().currencyCode()}
+        .summary-grand-total
+          span.label Total:
+          span.value #{session.totals().total()} #{session.totals().currencyCode()}
+
+  script.
+    document.querySelectorAll('.payment-option input[type="radio"]').forEach(function(radio) {
+      radio.addEventListener('change', function() {
+        document.querySelectorAll('.payment-option').forEach(function(opt) {
+          opt.classList.remove('selected');
+        });
+        this.closest('.payment-option').classList.add('selected');
+      });
+    });
+
+  style.
+    .checkout-progress {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 30px;
+      padding: 20px;
+      background: #f0f4f8;
+      border-radius: 8px;
+    }
+    .checkout-progress .step {
+      padding: 10px 20px;
+      background: #e0e0e0;
+      border-radius: 4px;
+      color: #666;
+      font-weight: 500;
+    }
+    .checkout-progress .step.active {
+      background: #3498db;
+      color: white;
+    }
+    .checkout-progress .step.completed {
+      background: #27ae60;
+      color: white;
+    }
+    .session-summary {
+      background: #f9f9f9;
+      padding: 15px;
+      border-radius: 6px;
+      margin-bottom: 25px;
+      font-size: 0.9em;
+      color: #666;
+    }
+    .session-summary p {
+      margin: 5px 0;
+    }
+    .error-message {
+      background: #f8d7da;
+      color: #721c24;
+      padding: 15px;
+      border-radius: 6px;
+      border: 1px solid #f5c6cb;
+      margin-bottom: 20px;
+      font-weight: 500;
+    }
+    form {
+      max-width: 600px;
+    }
+    form h3 {
+      margin-top: 30px;
+      margin-bottom: 20px;
+      color: #2c3e50;
+      border-bottom: 2px solid #3498db;
+      padding-bottom: 10px;
+    }
+    form h3:first-of-type {
+      margin-top: 0;
+    }
+    .form-group {
+      margin-bottom: 20px;
+      margin-top: 25px;
+    }
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+      color: #2c3e50;
+    }
+    .form-group input {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-size: 1em;
+      box-sizing: border-box;
+    }
+    .form-group input:focus {
+      outline: none;
+      border-color: #3498db;
+      box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+    }
+    .payment-options {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .payment-option {
+      display: flex;
+      align-items: center;
+      padding: 15px;
+      border: 2px solid #ddd;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .payment-option:hover {
+      border-color: #3498db;
+      background: #f8f9fa;
+    }
+    .payment-option.selected {
+      border-color: #3498db;
+      background: #e8f4fc;
+    }
+    .payment-option input[type="radio"] {
+      margin-right: 15px;
+      width: auto;
+    }
+    .option-details {
+      display: flex;
+      justify-content: space-between;
+      flex: 1;
+      gap: 20px;
+    }
+    .option-name {
+      font-weight: 600;
+      color: #2c3e50;
+    }
+    .unavailable {
+      color: #e74c3c;
+      font-style: italic;
+    }
+    .form-actions {
+      margin-top: 30px;
+      display: flex;
+      gap: 15px;
+    }
+    .btn {
+      display: inline-block;
+      padding: 12px 30px;
+      border-radius: 5px;
+      text-decoration: none;
+      font-weight: 500;
+      text-align: center;
+      transition: background 0.2s;
+      border: none;
+      cursor: pointer;
+      font-size: 1em;
+    }
+    .btn-primary {
+      background: #3498db;
+      color: white;
+    }
+    .btn-primary:hover {
+      background: #2980b9;
+    }
+    .btn-secondary {
+      background: #95a5a6;
+      color: white;
+    }
+    .btn-secondary:hover {
+      background: #7f8c8d;
+    }
+    .order-summary {
+      margin-top: 40px;
+      padding: 20px;
+      background: #f9f9f9;
+      border-radius: 8px;
+      border-left: 4px solid #3498db;
+    }
+    .order-summary h3 {
+      margin-top: 0;
+      color: #2c3e50;
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+    .summary-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px 0;
+      border-bottom: 1px solid #eee;
+    }
+    .summary-item:last-child {
+      border-bottom: none;
+    }
+    .item-name {
+      flex: 2;
+      color: #333;
+    }
+    .item-qty {
+      flex: 1;
+      text-align: center;
+      color: #666;
+    }
+    .item-price {
+      flex: 1;
+      text-align: right;
+      font-weight: 500;
+    }
+    .summary-total, .summary-shipping {
+      display: flex;
+      justify-content: space-between;
+      padding-top: 10px;
+      color: #666;
+    }
+    .summary-grand-total {
+      display: flex;
+      justify-content: space-between;
+      padding-top: 15px;
+      margin-top: 10px;
+      border-top: 2px solid #ddd;
+      font-weight: bold;
+      font-size: 1.1em;
+    }

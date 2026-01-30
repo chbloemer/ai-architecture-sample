@@ -167,7 +167,7 @@
         "validateStepAccess returns redirect URL or empty",
         "Handles invalid session, skip ahead, go back, terminal states"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "US-15",

@@ -355,7 +355,7 @@
           "Run ./gradlew build to ensure no compilation errors"
         ]
       },
-      "passes": false
+      "passes": true
     }
   ]
 }

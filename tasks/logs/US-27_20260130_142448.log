@@ -1,0 +1,17 @@
+Let me verify all acceptance criteria have been met:
+
+**US-27 Acceptance Criteria Verification:**
+
+1. ✅ **CartCheckedOutEventListener in product context is removed** - The `ProductStockEventConsumer.java` (which listened to `CartCheckedOut`) was deleted from `src/main/java/de/sample/aiarchitecture/product/adapter/incoming/event/`
+
+2. ✅ **Any CartCheckedOut event handling for availability reduction is removed** - The `CartEventTranslator.java` (ACL for translating `CartCheckedOut` to reduce stock commands) was also deleted from the Product context
+
+3. ✅ **CartCheckedOut event itself remains if still used for cart status updates** - The `CartCheckedOut` event exists in the Cart context and is still handled by `CartEventConsumer` for logging and cart status tracking
+
+4. ✅ **Build and architecture tests pass** - Both `./gradlew build` and `./gradlew test-architecture` passed successfully
+
+5. ✅ **Product availability is only reduced via CheckoutConfirmed (US-26)** - The `CheckoutConfirmedEventListener` in the Product context handles availability reduction via `CheckoutEventTranslator` (ACL)
+
+The story implementation is complete. The deprecated `CartCheckedOut` availability logic has been removed from the Product context, and availability reduction now happens exclusively via the `CheckoutConfirmed` event from the Checkout context.
+
+<promise>STORY_COMPLETE</promise>

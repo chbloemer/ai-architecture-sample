@@ -10,7 +10,8 @@
       "Bash(./gradlew test-architecture:*)",
       "mcp__product-catalog__all-products",
       "Write(src/**)",
-      "Edit(src/**)"
+      "Edit(src/**)",
+      "Bash(rm src/**)"
     ],
     "deny": [],
     "ask": []

@@ -156,7 +156,7 @@
         "Validates all required info",
         "Publishes CheckoutConfirmed event"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "US-14",

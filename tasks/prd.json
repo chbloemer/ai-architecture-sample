@@ -280,7 +280,7 @@
         "Complete flow: Buyer → Delivery → Payment → Review → Confirm",
         "Cart status is CHECKED_OUT after completion"
       ],
-      "passes": false
+      "passes": true
     }
   ]
 }

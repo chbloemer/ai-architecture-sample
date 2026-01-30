@@ -3,6 +3,7 @@ package de.sample.aiarchitecture.checkout.application.confirmcheckout;
 import de.sample.aiarchitecture.checkout.application.shared.CheckoutSessionRepository;
 import de.sample.aiarchitecture.checkout.domain.model.CheckoutSession;
 import de.sample.aiarchitecture.checkout.domain.model.CheckoutSessionId;
+import de.sample.aiarchitecture.sharedkernel.application.port.DomainEventPublisher;
 import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,9 +27,13 @@ import org.springframework.transaction.annotation.Transactional;
 public class ConfirmCheckoutUseCase implements ConfirmCheckoutInputPort {
 
   private final CheckoutSessionRepository checkoutSessionRepository;
+  private final DomainEventPublisher domainEventPublisher;
 
-  public ConfirmCheckoutUseCase(final CheckoutSessionRepository checkoutSessionRepository) {
+  public ConfirmCheckoutUseCase(
+      final CheckoutSessionRepository checkoutSessionRepository,
+      final DomainEventPublisher domainEventPublisher) {
     this.checkoutSessionRepository = checkoutSessionRepository;
+    this.domainEventPublisher = domainEventPublisher;
   }
 
   @Override
@@ -47,6 +52,9 @@ public class ConfirmCheckoutUseCase implements ConfirmCheckoutInputPort {
 
     // Save session
     checkoutSessionRepository.save(session);
+
+    // Publish domain events (triggers CheckoutEventConsumer to complete the cart)
+    domainEventPublisher.publishAndClearEvents(session);
 
     // Map to response
     return mapToResponse(session);

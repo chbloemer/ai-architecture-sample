@@ -268,7 +268,7 @@
         "Domain layer has no Spring annotations",
         "All use cases follow InputPort pattern"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "US-24",

@@ -1,7 +1,7 @@
 package de.sample.aiarchitecture.checkout.adapter.outgoing.persistence;
 
-import de.sample.aiarchitecture.cart.domain.model.CartId;
 import de.sample.aiarchitecture.checkout.application.shared.CheckoutSessionRepository;
+import de.sample.aiarchitecture.checkout.domain.model.CartId;
 import de.sample.aiarchitecture.checkout.domain.model.CheckoutSession;
 import de.sample.aiarchitecture.checkout.domain.model.CheckoutSessionId;
 import de.sample.aiarchitecture.checkout.domain.model.CheckoutSessionStatus;

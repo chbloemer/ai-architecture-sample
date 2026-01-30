@@ -1,10 +1,9 @@
 package de.sample.aiarchitecture.checkout.application.startcheckout;
 
-import de.sample.aiarchitecture.cart.application.shared.ShoppingCartRepository;
-import de.sample.aiarchitecture.cart.domain.model.CartId;
-import de.sample.aiarchitecture.cart.domain.model.CartItem;
-import de.sample.aiarchitecture.cart.domain.model.ShoppingCart;
+import de.sample.aiarchitecture.checkout.application.shared.CartData;
+import de.sample.aiarchitecture.checkout.application.shared.CartDataPort;
 import de.sample.aiarchitecture.checkout.application.shared.CheckoutSessionRepository;
+import de.sample.aiarchitecture.checkout.domain.model.CartId;
 import de.sample.aiarchitecture.checkout.domain.model.CheckoutLineItem;
 import de.sample.aiarchitecture.checkout.domain.model.CheckoutLineItemId;
 import de.sample.aiarchitecture.checkout.domain.model.CheckoutSession;
@@ -22,7 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
  *
  * <p>This use case creates a new checkout session by:
  * <ul>
- *   <li>Loading the cart and validating it can be checked out</li>
+ *   <li>Loading the cart data through the Anti-Corruption Layer</li>
  *   <li>Loading product information for line items</li>
  *   <li>Creating checkout line items with product details</li>
  *   <li>Creating and persisting the checkout session</li>
@@ -36,33 +35,33 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class StartCheckoutUseCase implements StartCheckoutInputPort {
 
-  private final ShoppingCartRepository shoppingCartRepository;
+  private final CartDataPort cartDataPort;
   private final ProductRepository productRepository;
   private final CheckoutSessionRepository checkoutSessionRepository;
 
   public StartCheckoutUseCase(
-      final ShoppingCartRepository shoppingCartRepository,
+      final CartDataPort cartDataPort,
       final ProductRepository productRepository,
       final CheckoutSessionRepository checkoutSessionRepository) {
-    this.shoppingCartRepository = shoppingCartRepository;
+    this.cartDataPort = cartDataPort;
     this.productRepository = productRepository;
     this.checkoutSessionRepository = checkoutSessionRepository;
   }
 
   @Override
   public @NonNull StartCheckoutResponse execute(@NonNull final StartCheckoutCommand command) {
-    // Load cart
+    // Load cart through ACL
     final CartId cartId = CartId.of(command.cartId());
-    final ShoppingCart cart =
-        shoppingCartRepository
+    final CartData cart =
+        cartDataPort
             .findById(cartId)
             .orElseThrow(() -> new IllegalArgumentException("Cart not found: " + command.cartId()));
 
     // Validate cart can be checked out
-    if (!cart.isActive()) {
+    if (!cart.active()) {
       throw new IllegalArgumentException("Cart is not active: " + command.cartId());
     }
-    if (cart.isEmpty()) {
+    if (cart.items().isEmpty()) {
       throw new IllegalArgumentException("Cannot checkout empty cart: " + command.cartId());
     }
 
@@ -70,7 +69,7 @@ public class StartCheckoutUseCase implements StartCheckoutInputPort {
     final List<CheckoutLineItem> lineItems = new ArrayList<>();
     Money subtotal = Money.euro(0.0);
 
-    for (final CartItem cartItem : cart.items()) {
+    for (final CartData.CartItemData cartItem : cart.items()) {
       // Load product to get name
       final Product product =
           productRepository
@@ -86,7 +85,7 @@ public class StartCheckoutUseCase implements StartCheckoutInputPort {
               cartItem.productId(),
               product.name().value(),
               cartItem.priceAtAddition().value(),
-              cartItem.quantity().value());
+              cartItem.quantity());
 
       lineItems.add(lineItem);
       subtotal = subtotal.add(lineItem.lineTotal());
@@ -94,14 +93,13 @@ public class StartCheckoutUseCase implements StartCheckoutInputPort {
 
     // Create checkout session
     final CheckoutSession session =
-        CheckoutSession.start(cart.id(), cart.customerId(), lineItems, subtotal);
+        CheckoutSession.start(cart.cartId(), cart.customerId(), lineItems, subtotal);
 
     // Save checkout session
     checkoutSessionRepository.save(session);
 
-    // Mark cart as checked out
-    cart.checkout();
-    shoppingCartRepository.save(cart);
+    // Mark cart as checked out through ACL
+    cartDataPort.markAsCheckedOut(cartId);
 
     // Map to response
     return mapToResponse(session);
@@ -123,7 +121,7 @@ public class StartCheckoutUseCase implements StartCheckoutInputPort {
 
     return new StartCheckoutResponse(
         session.id().value().toString(),
-        session.cartId().value().toString(),
+        session.cartId().value(),
         session.customerId().value(),
         session.currentStep().name(),
         session.status().name(),

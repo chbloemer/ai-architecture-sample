@@ -1,8 +1,8 @@
 package de.sample.aiarchitecture.checkout.domain.event;
 
-import de.sample.aiarchitecture.cart.domain.model.CartId;
-import de.sample.aiarchitecture.cart.domain.model.CustomerId;
+import de.sample.aiarchitecture.checkout.domain.model.CartId;
 import de.sample.aiarchitecture.checkout.domain.model.CheckoutSessionId;
+import de.sample.aiarchitecture.checkout.domain.model.CustomerId;
 import de.sample.aiarchitecture.sharedkernel.domain.common.Money;
 import de.sample.aiarchitecture.sharedkernel.domain.marker.IntegrationEvent;
 import java.time.Instant;

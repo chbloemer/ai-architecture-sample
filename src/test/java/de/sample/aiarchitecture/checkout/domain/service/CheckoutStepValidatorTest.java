@@ -2,9 +2,9 @@ package de.sample.aiarchitecture.checkout.domain.service;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import de.sample.aiarchitecture.cart.domain.model.CartId;
-import de.sample.aiarchitecture.cart.domain.model.CustomerId;
 import de.sample.aiarchitecture.checkout.domain.model.BuyerInfo;
+import de.sample.aiarchitecture.checkout.domain.model.CartId;
+import de.sample.aiarchitecture.checkout.domain.model.CustomerId;
 import de.sample.aiarchitecture.checkout.domain.model.CheckoutLineItem;
 import de.sample.aiarchitecture.checkout.domain.model.CheckoutLineItemId;
 import de.sample.aiarchitecture.checkout.domain.model.CheckoutSession;

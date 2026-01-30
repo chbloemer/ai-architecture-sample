@@ -1,6 +1,6 @@
 package de.sample.aiarchitecture.checkout.application.shared;
 
-import de.sample.aiarchitecture.cart.domain.model.CartId;
+import de.sample.aiarchitecture.checkout.domain.model.CartId;
 import de.sample.aiarchitecture.checkout.domain.model.CheckoutSession;
 import de.sample.aiarchitecture.checkout.domain.model.CheckoutSessionId;
 import de.sample.aiarchitecture.sharedkernel.application.port.Repository;

@@ -1,7 +1,5 @@
 package de.sample.aiarchitecture.checkout.domain.model;
 
-import de.sample.aiarchitecture.cart.domain.model.CartId;
-import de.sample.aiarchitecture.cart.domain.model.CustomerId;
 import de.sample.aiarchitecture.checkout.domain.event.BuyerInfoSubmitted;
 import de.sample.aiarchitecture.checkout.domain.event.CheckoutAbandoned;
 import de.sample.aiarchitecture.checkout.domain.event.CheckoutCompleted;

@@ -144,7 +144,7 @@
         "GetCheckoutSessionQuery and GetCheckoutSessionResponse",
         "Returns all session data or found=false"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "US-13",

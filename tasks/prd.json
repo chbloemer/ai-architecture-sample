@@ -233,7 +233,7 @@
         "GET /checkout/{id}/confirmation shows thank you page",
         "Only accessible after confirmation"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "US-21",

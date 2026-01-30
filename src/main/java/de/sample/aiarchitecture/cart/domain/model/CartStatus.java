@@ -17,6 +17,11 @@ public enum CartStatus implements Value {
   CHECKED_OUT,
 
   /**
+   * Cart checkout has been completed (order confirmed).
+   */
+  COMPLETED,
+
+  /**
    * Cart has been abandoned by the customer.
    */
   ABANDONED

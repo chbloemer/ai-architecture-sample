@@ -256,7 +256,7 @@
         "CheckoutEventConsumer listens for CheckoutConfirmed",
         "Calls CheckoutCartUseCase to update cart status"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "US-23",

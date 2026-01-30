@@ -50,6 +50,8 @@ block content
         .status-badge
           if cart.status() === 'CHECKED_OUT'
             span.badge.badge-success Checked Out
+          else if cart.status() === 'COMPLETED'
+            span.badge.badge-primary Order Completed
           else if cart.status() === 'ABANDONED'
             span.badge.badge-warning Abandoned
 

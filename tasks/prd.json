@@ -178,7 +178,7 @@
         "GET with cartId parameter",
         "Redirects to /checkout/{id}/buyer"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "US-16",

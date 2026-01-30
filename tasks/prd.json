@@ -189,7 +189,7 @@
         "GET returns buyer.pug template",
         "POST redirects to delivery"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "US-17",

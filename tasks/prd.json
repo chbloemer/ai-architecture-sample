@@ -245,7 +245,7 @@
         "confirmation.pug thank you page",
         "All extend layout with step progress"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "US-22",

@@ -8,11 +8,13 @@ import org.jspecify.annotations.NonNull;
 /**
  * Value Object representing a User's unique identifier.
  *
- * <p>This is the shared identity across all bounded contexts. A UserId can represent
- * either an anonymous user (soft identity) or a registered user (hard identity).
+ * <p>This is the shared identity across all bounded contexts. A UserId is a raw UUID
+ * that remains stable across the user lifecycle - from anonymous browsing through
+ * registration and beyond.
  *
- * <p>Anonymous users receive a UserId from the first visit, which is carried in their
- * JWT token. When they register, this same UserId is linked to their Account.
+ * <p>Anonymous users receive a UserId from their first visit, which is carried in their
+ * JWT token. When they register, this same UserId is linked to their Account, ensuring
+ * continuity of cart, checkout session, and other user data.
  *
  * <p>The UserId value is used as the JWT subject claim and maps 1:1 to:
  * <ul>
@@ -20,13 +22,12 @@ import org.jspecify.annotations.NonNull;
  *   <li>Checkout context's CustomerId</li>
  *   <li>Account context's linked identity</li>
  * </ul>
+ *
+ * <p><b>Note:</b> The distinction between anonymous and registered users is tracked
+ * in the JWT claims (type: "anonymous" vs "registered"), not in the UserId itself.
+ * This ensures the UserId remains unchanged on registration.
  */
 public record UserId(@NonNull String value) implements Id, Value {
-
-  /**
-   * Prefix for anonymous user IDs.
-   */
-  public static final String ANONYMOUS_PREFIX = "anon-";
 
   public UserId {
     if (value == null || value.isBlank()) {
@@ -45,49 +46,26 @@ public record UserId(@NonNull String value) implements Id, Value {
   }
 
   /**
-   * Generates a new anonymous UserId.
+   * Generates a new UserId for an anonymous user.
    *
-   * <p>Anonymous user IDs are prefixed with "anon-" to distinguish them
-   * from registered user IDs.
+   * <p>The generated UserId is a raw UUID without any prefix. This ensures
+   * the UserId remains stable when the user later registers, preserving
+   * cart and checkout session data.
    *
-   * @return a new anonymous UserId
+   * @return a new UserId
    */
   public static UserId generateAnonymous() {
-    return new UserId(ANONYMOUS_PREFIX + UUID.randomUUID());
-  }
-
-  /**
-   * Generates a new registered UserId.
-   *
-   * <p>Registered user IDs do not have a prefix.
-   *
-   * @return a new registered UserId
-   */
-  public static UserId generateRegistered() {
     return new UserId(UUID.randomUUID().toString());
   }
 
   /**
-   * Checks if this UserId represents an anonymous user.
+   * Generates a new UserId for a registered user.
    *
-   * @return true if this is an anonymous user ID
+   * <p>Generates a raw UUID, same format as anonymous users.
+   *
+   * @return a new UserId
    */
-  public boolean isAnonymous() {
-    return value.startsWith(ANONYMOUS_PREFIX);
-  }
-
-  /**
-   * Returns the raw UUID portion of the user ID.
-   *
-   * <p>For anonymous users, this strips the "anon-" prefix.
-   * For registered users, this returns the full value.
-   *
-   * @return the UUID portion of the user ID
-   */
-  public String rawUuid() {
-    if (isAnonymous()) {
-      return value.substring(ANONYMOUS_PREFIX.length());
-    }
-    return value;
+  public static UserId generateRegistered() {
+    return new UserId(UUID.randomUUID().toString());
   }
 }

@@ -771,6 +771,35 @@ Reference implementation demonstrating Domain-Centric Architecture with DDD, Hex
 
 ---
 
+### US-47: Preserve Cart and Checkout Session on Registration
+**As a** customer
+**I want** my cart and checkout session preserved when I register during checkout
+**So that** I don't lose my items and checkout progress
+
+**Acceptance Criteria:**
+- Anonymous tokens use raw UUID without 'anon-' prefix
+- UserId remains unchanged after registration
+- Cart items preserved after registration during checkout
+- Checkout session preserved after registration during checkout
+- User returns to checkout flow after registration without losing progress
+- Architecture tests pass
+
+**Architectural Guidance:**
+- **Affected Layers:** Infrastructure, Domain, Shared Kernel
+- **Locations:**
+  - `infrastructure.security.jwt.JwtTokenService`
+  - `sharedkernel.domain.common.UserId`
+  - `account.domain.model.Account`
+- **Patterns:** Identity Continuity
+- **Constraints:**
+  - Anonymous tokens must use raw UUID format (no prefix)
+  - UserId must be identical before and after registration
+  - Update `UserId.isAnonymous()` to use IdentityType from JWT instead of prefix
+  - Remove UserId transformation in `Account.register()`
+  - Run `./gradlew test-architecture` to verify
+
+---
+
 ## Goals
 - 5-step checkout flow (Buyer Info -> Delivery -> Payment -> Review -> Confirmation)
 - Guest checkout (no account required)

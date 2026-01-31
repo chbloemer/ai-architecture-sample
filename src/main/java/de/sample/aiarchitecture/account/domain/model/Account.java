@@ -72,13 +72,16 @@ public final class Account extends BaseAggregateRoot<Account, AccountId> {
    *   <li>Validates password strength</li>
    *   <li>Hashes the password</li>
    *   <li>Generates a new AccountId</li>
-   *   <li>Converts anonymous UserId to registered UserId if needed</li>
+   *   <li>Links the existing UserId (preserving cart and checkout session)</li>
    *   <li>Raises AccountRegistered and AccountLinkedToIdentity events</li>
    * </ol>
    *
+   * <p>The UserId remains unchanged during registration. This ensures continuity
+   * of cart items and checkout session for users who register during checkout.
+   *
    * @param email the user's email address (login credential)
    * @param plainPassword the plaintext password (will be validated and hashed)
-   * @param currentUserId the UserId to link to (from the anonymous user's JWT)
+   * @param currentUserId the UserId to link to (from the user's JWT)
    * @param passwordHasher the password hasher domain service
    * @return a new Account instance
    * @throws IllegalArgumentException if email or password is invalid
@@ -92,23 +95,16 @@ public final class Account extends BaseAggregateRoot<Account, AccountId> {
     final HashedPassword hashedPassword = HashedPassword.fromPlaintext(plainPassword, passwordHasher);
     final AccountId accountId = AccountId.generate();
 
-    // Convert anonymous UserId to registered UserId if needed
-    final UserId registeredUserId;
-    if (currentUserId.isAnonymous()) {
-      // Keep the same UUID but remove the "anon-" prefix
-      registeredUserId = UserId.of(currentUserId.rawUuid());
-    } else {
-      registeredUserId = currentUserId;
-    }
-
+    // UserId remains unchanged - no prefix conversion needed
+    // This preserves cart and checkout session data
     final Set<String> defaultRoles = Set.of("CUSTOMER");
 
     final Account account = new Account(
-        accountId, email, registeredUserId, hashedPassword, defaultRoles);
+        accountId, email, currentUserId, hashedPassword, defaultRoles);
 
     // Raise domain events
-    account.registerEvent(AccountRegistered.now(accountId, email, registeredUserId));
-    account.registerEvent(AccountLinkedToIdentity.now(accountId, registeredUserId));
+    account.registerEvent(AccountRegistered.now(accountId, email, currentUserId));
+    account.registerEvent(AccountLinkedToIdentity.now(accountId, currentUserId));
 
     return account;
   }

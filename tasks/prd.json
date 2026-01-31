@@ -791,6 +791,42 @@
         ]
       },
       "passes": true
+    },
+    {
+      "id": "US-47",
+      "title": "Preserve Cart and Checkout Session on Registration",
+      "description": "When registering during checkout, the cart and checkout session should be preserved. Fix by removing the 'anon-' prefix from anonymous tokens so UserId doesn't change on registration.",
+      "acceptance_criteria": [
+        "Anonymous tokens use raw UUID without 'anon-' prefix",
+        "UserId remains unchanged after registration",
+        "Cart items preserved after registration during checkout",
+        "Checkout session preserved after registration during checkout",
+        "User returns to checkout flow after registration without losing progress",
+        "Architecture tests pass"
+      ],
+      "architectural_guidance": {
+        "affected_layers": [
+          "infrastructure",
+          "domain",
+          "sharedkernel"
+        ],
+        "locations": [
+          "infrastructure.security.jwt.JwtTokenService",
+          "sharedkernel.domain.common.UserId",
+          "account.domain.model.Account"
+        ],
+        "patterns": [
+          "Identity Continuity"
+        ],
+        "constraints": [
+          "Anonymous tokens must use raw UUID format (no prefix)",
+          "UserId must be identical before and after registration",
+          "Update UserId.isAnonymous() to use IdentityType from JWT instead of prefix",
+          "Remove UserId transformation in Account.register()",
+          "Run ./gradlew test-architecture to verify"
+        ]
+      },
+      "passes": true
     }
   ]
 }

@@ -1,0 +1,23 @@
+All tests pass. Let me verify the implementation meets all acceptance criteria:
+
+**Acceptance Criteria Verification:**
+
+1. ✅ **Anonymous tokens use raw UUID without 'anon-' prefix** - `UserId.generateAnonymous()` now returns `new UserId(UUID.randomUUID().toString())` without any prefix.
+
+2. ✅ **UserId remains unchanged after registration** - `Account.register()` now uses `currentUserId` directly without any conversion, preserving the exact same ID.
+
+3. ✅ **Cart items preserved after registration during checkout** - Since the UserId stays the same, the `CustomerId` (which is created from `identity.userId().value()`) also remains unchanged, so cart lookups will find the same cart.
+
+4. ✅ **Checkout session preserved after registration during checkout** - Same reasoning as cart - the UserId/CustomerId continuity ensures checkout session is found.
+
+5. ✅ **User returns to checkout flow after registration without losing progress** - The registration page already handles redirecting back to checkout via the `returnTo` parameter, and now the cart/checkout data will be preserved.
+
+6. ✅ **Architecture tests pass** - Verified with `./gradlew test-architecture`
+
+The implementation removes the "anon-" prefix entirely from anonymous user IDs. Now:
+- Anonymous users get a raw UUID (e.g., `550e8400-e29b-41d4-a716-446655440000`)
+- The JWT claims still track the user type (`type: "anonymous"` vs `type: "registered"`)
+- When registering, the UserId remains unchanged
+- Cart and checkout session lookups continue to work because the CustomerId matches
+
+<promise>STORY_COMPLETE</promise>

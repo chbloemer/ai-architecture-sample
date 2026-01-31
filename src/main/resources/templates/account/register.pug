@@ -1,0 +1,124 @@
+extends ../layout
+
+block content
+  h2 Create Account
+
+  if message
+    .success-message= message
+
+  if error
+    .error-message= error
+
+  .auth-form
+    form(method="POST" action="/register")
+      if returnUrl
+        input(type="hidden" name="returnUrl" value=returnUrl)
+
+      .form-group
+        label(for="email") Email
+        input#email(type="email" name="email" value=(email || "") required autofocus)
+
+      .form-group
+        label(for="password") Password
+        input#password(type="password" name="password" required minlength="8")
+        .form-hint Password must be at least 8 characters
+
+      .form-group
+        label(for="confirmPassword") Confirm Password
+        input#confirmPassword(type="password" name="confirmPassword" required)
+
+      .form-actions
+        button.btn.btn-primary(type="submit") Create Account
+
+    .auth-links
+      p Already have an account?
+        |
+        a(href=returnUrl ? "/login?returnUrl=" + returnUrl : "/login") Login here
+
+  style.
+    .auth-form {
+      max-width: 400px;
+      margin: 0 auto;
+      padding: 30px;
+    }
+    .form-group {
+      margin-bottom: 20px;
+    }
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+      color: #2c3e50;
+    }
+    .form-group input {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-size: 1em;
+      transition: border-color 0.2s;
+      box-sizing: border-box;
+    }
+    .form-group input:focus {
+      outline: none;
+      border-color: #3498db;
+    }
+    .form-hint {
+      margin-top: 6px;
+      font-size: 0.85em;
+      color: #95a5a6;
+    }
+    .form-actions {
+      margin-top: 30px;
+    }
+    .btn {
+      display: inline-block;
+      padding: 12px 30px;
+      border-radius: 5px;
+      text-decoration: none;
+      font-weight: 500;
+      text-align: center;
+      transition: background 0.2s;
+      cursor: pointer;
+      border: none;
+      font-size: 1em;
+      width: 100%;
+    }
+    .btn-primary {
+      background: #3498db;
+      color: white;
+    }
+    .btn-primary:hover {
+      background: #2980b9;
+    }
+    .auth-links {
+      margin-top: 30px;
+      text-align: center;
+      color: #7f8c8d;
+    }
+    .auth-links a {
+      color: #3498db;
+      text-decoration: none;
+      margin-left: 5px;
+    }
+    .auth-links a:hover {
+      text-decoration: underline;
+    }
+    .success-message {
+      background: #d4edda;
+      color: #155724;
+      padding: 15px;
+      border-radius: 6px;
+      border: 1px solid #c3e6cb;
+      margin-bottom: 20px;
+      font-weight: 500;
+    }
+    .error-message {
+      background: #f8d7da;
+      color: #721c24;
+      padding: 15px;
+      border-radius: 6px;
+      border: 1px solid #f5c6cb;
+      margin-bottom: 20px;
+      font-weight: 500;
+    }

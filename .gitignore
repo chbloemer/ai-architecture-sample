@@ -15,3 +15,9 @@ slides/dist
 bin
 .serena
 .vscode
+
+# Gas Town (added by gt)
+.runtime/
+.claude/
+.beads/
+.logs/

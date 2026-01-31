@@ -827,6 +827,91 @@
         ]
       },
       "passes": true
+    },
+    {
+      "id": "US-48",
+      "title": "Cart Merge Options on Login During Checkout",
+      "description": "When an anonymous user with items in their anonymous cart logs in and their account already has a cart with items, present them with a choice: (1) Merge both carts, (2) Use account cart only, or (3) Use anonymous cart only. Execute the selected choice.",
+      "acceptance_criteria": [
+        "Detect if both anonymous cart and account cart have items during login",
+        "Display merge options UI only when both carts have items",
+        "Option 1: Merge - combine items from both carts (add quantities for same products)",
+        "Option 2: Use account cart - discard anonymous cart, keep account cart",
+        "Option 3: Use anonymous cart - replace account cart with anonymous cart items",
+        "After merge/use account: delete anonymous cart",
+        "After use anonymous: keep anonymous cart (becomes the account cart)",
+        "User returns to checkout flow after selection",
+        "Architecture tests pass"
+      ],
+      "architectural_guidance": {
+        "affected_layers": [
+          "domain",
+          "application",
+          "adapter"
+        ],
+        "locations": [
+          "cart.domain.model.ShoppingCart (merge method)",
+          "cart.application.mergecarts/MergeCartsUseCase",
+          "cart.application.mergecarts/MergeCartsInputPort",
+          "cart.application.mergecarts/MergeCartsCommand",
+          "cart.application.mergecarts/MergeCartsResponse",
+          "cart.application.getcartmergeoptions/GetCartMergeOptionsUseCase",
+          "cart.adapter.incoming.web.CartMergePageController",
+          "account.adapter.incoming.web.LoginPageController (redirect logic)",
+          "templates/cart/merge-options.pug"
+        ],
+        "patterns": [
+          "Use Case Pattern",
+          "Domain Logic in Aggregate",
+          "Progressive Authentication"
+        ],
+        "constraints": [
+          "Merge logic belongs in ShoppingCart aggregate",
+          "Use case orchestrates loading both carts and calling merge",
+          "No direct cart manipulation in controllers",
+          "Controller redirects to merge page when conflict detected",
+          "Run ./gradlew test-architecture to verify"
+        ]
+      },
+      "passes": true
+    },
+    {
+      "id": "US-49",
+      "title": "Cart Merge Test Coverage",
+      "description": "Implement comprehensive test coverage for cart merge functionality using a layered testing approach: unit tests for domain logic, integration tests for use case orchestration, and one E2E test for the full flow.",
+      "acceptance_criteria": [
+        "Unit tests for ShoppingCart.merge() covering: same product quantity combination, different products addition, empty cart handling",
+        "Integration tests for MergeCartsUseCase covering all 3 strategies: merge, use-account, use-anonymous",
+        "Integration tests verify correct cart deletion based on strategy",
+        "One E2E test verifying the full flow: login with both carts having items, see merge options, select merge, verify combined cart",
+        "All tests pass: ./gradlew test, ./gradlew test-e2e"
+      ],
+      "architectural_guidance": {
+        "affected_layers": [
+          "domain",
+          "application",
+          "test-e2e"
+        ],
+        "locations": [
+          "src/test/java/de/sample/aiarchitecture/cart/domain/model/ShoppingCartTest.java",
+          "src/test/java/de/sample/aiarchitecture/cart/application/mergecarts/MergeCartsUseCaseTest.java",
+          "src/test-e2e/java/de/sample/aiarchitecture/e2e/CartMergeE2ETest.java",
+          "src/test-e2e/java/de/sample/aiarchitecture/e2e/pages/CartMergePage.java"
+        ],
+        "patterns": [
+          "Layered Testing",
+          "Page Object Pattern",
+          "Unit Test Isolation"
+        ],
+        "constraints": [
+          "Unit tests must not depend on Spring context",
+          "Integration tests use @SpringBootTest with test slices where appropriate",
+          "E2E test uses Page Object pattern for CartMergePage",
+          "E2E test covers only one happy path scenario (merge strategy)",
+          "Edge cases and error scenarios covered by unit/integration tests"
+        ]
+      },
+      "passes": false
     }
   ]
 }

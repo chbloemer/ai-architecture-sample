@@ -800,6 +800,73 @@ Reference implementation demonstrating Domain-Centric Architecture with DDD, Hex
 
 ---
 
+### US-48: Cart Merge Options on Login During Checkout
+**As a** customer
+**I want** to choose what happens to my carts when I log in with items in both my anonymous cart and account cart
+**So that** I don't unexpectedly lose items from either cart
+
+**Acceptance Criteria:**
+- Detect if both anonymous cart and account cart have items during login
+- Display merge options UI only when both carts have items
+- Option 1: Merge - combine items from both carts (add quantities for same products)
+- Option 2: Use account cart - discard anonymous cart, keep account cart
+- Option 3: Use anonymous cart - replace account cart with anonymous cart items
+- After merge/use account: delete anonymous cart
+- After use anonymous: keep anonymous cart (becomes the account cart)
+- User returns to checkout flow after selection
+- Architecture tests pass
+
+**Architectural Guidance:**
+- **Affected Layers:** Domain, Application, Adapter
+- **Locations:**
+  - `cart.domain.model.ShoppingCart` (merge method)
+  - `cart.application.mergecarts/MergeCartsUseCase`
+  - `cart.application.mergecarts/MergeCartsInputPort`
+  - `cart.application.mergecarts/MergeCartsCommand`
+  - `cart.application.mergecarts/MergeCartsResponse`
+  - `cart.application.getcartmergeoptions/GetCartMergeOptionsUseCase`
+  - `cart.adapter.incoming.web.CartMergePageController`
+  - `account.adapter.incoming.web.LoginPageController` (redirect logic)
+  - `templates/cart/merge-options.pug`
+- **Patterns:** Use Case Pattern, Domain Logic in Aggregate, Progressive Authentication
+- **Constraints:**
+  - Merge logic belongs in `ShoppingCart` aggregate
+  - Use case orchestrates loading both carts and calling merge
+  - No direct cart manipulation in controllers
+  - Controller redirects to merge page when conflict detected
+  - Run `./gradlew test-architecture` to verify
+
+---
+
+### US-49: Cart Merge Test Coverage
+**As a** developer
+**I want** comprehensive test coverage for cart merge functionality
+**So that** I can confidently refactor and extend the feature
+
+**Acceptance Criteria:**
+- Unit tests for `ShoppingCart.merge()` covering: same product quantity combination, different products addition, empty cart handling
+- Integration tests for `MergeCartsUseCase` covering all 3 strategies: merge, use-account, use-anonymous
+- Integration tests verify correct cart deletion based on strategy
+- One E2E test verifying the full flow: login with both carts having items, see merge options, select merge, verify combined cart
+- All tests pass: `./gradlew test`, `./gradlew test-e2e`
+
+**Architectural Guidance:**
+- **Affected Layers:** Domain, Application, test-e2e
+- **Locations:**
+  - `src/test/java/.../cart/domain/model/ShoppingCartTest.java`
+  - `src/test/java/.../cart/application/mergecarts/MergeCartsUseCaseTest.java`
+  - `src/test-e2e/java/.../e2e/CartMergeE2ETest.java`
+  - `src/test-e2e/java/.../e2e/pages/CartMergePage.java`
+- **Patterns:** Layered Testing, Page Object Pattern, Unit Test Isolation
+- **Constraints:**
+  - Unit tests must not depend on Spring context
+  - Integration tests use `@SpringBootTest` with test slices where appropriate
+  - E2E test uses Page Object pattern for `CartMergePage`
+  - E2E test covers only one happy path scenario (merge strategy)
+  - Edge cases and error scenarios covered by unit/integration tests
+
+---
+
 ## Goals
 - 5-step checkout flow (Buyer Info -> Delivery -> Payment -> Review -> Confirmation)
 - Guest checkout (no account required)

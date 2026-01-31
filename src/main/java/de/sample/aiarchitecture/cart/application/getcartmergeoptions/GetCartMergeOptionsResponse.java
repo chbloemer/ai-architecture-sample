@@ -1,0 +1,74 @@
+package de.sample.aiarchitecture.cart.application.getcartmergeoptions;
+
+import java.math.BigDecimal;
+import java.util.List;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
+
+/**
+ * Response containing cart merge options information.
+ *
+ * <p>When both anonymous and account carts have items, this response provides
+ * details about each cart so the user can make an informed decision about
+ * how to handle the merge.
+ *
+ * @param mergeRequired true if user must choose between merge options
+ * @param anonymousCart summary of the anonymous cart (null if empty/not exists)
+ * @param accountCart summary of the account cart (null if empty/not exists)
+ */
+public record GetCartMergeOptionsResponse(
+    boolean mergeRequired,
+    @Nullable CartSummary anonymousCart,
+    @Nullable CartSummary accountCart
+) {
+
+  /**
+   * Creates a response indicating no merge is required.
+   */
+  public static GetCartMergeOptionsResponse noMergeRequired() {
+    return new GetCartMergeOptionsResponse(false, null, null);
+  }
+
+  /**
+   * Creates a response indicating merge options should be presented.
+   */
+  public static GetCartMergeOptionsResponse mergeRequired(
+      @NonNull CartSummary anonymousCart,
+      @NonNull CartSummary accountCart) {
+    return new GetCartMergeOptionsResponse(true, anonymousCart, accountCart);
+  }
+
+  /**
+   * Summary of a cart for display in merge options UI.
+   *
+   * @param cartId the cart ID
+   * @param itemCount number of distinct items
+   * @param totalQuantity total quantity of all items
+   * @param totalAmount total cart value
+   * @param totalCurrency currency of total
+   * @param items list of item summaries
+   */
+  public record CartSummary(
+      @NonNull String cartId,
+      int itemCount,
+      int totalQuantity,
+      @NonNull BigDecimal totalAmount,
+      @NonNull String totalCurrency,
+      @NonNull List<CartItemSummary> items
+  ) {}
+
+  /**
+   * Summary of a cart item for display.
+   *
+   * @param productId the product ID
+   * @param quantity the quantity
+   * @param unitPriceAmount the unit price amount
+   * @param unitPriceCurrency the unit price currency
+   */
+  public record CartItemSummary(
+      @NonNull String productId,
+      int quantity,
+      @NonNull BigDecimal unitPriceAmount,
+      @NonNull String unitPriceCurrency
+  ) {}
+}

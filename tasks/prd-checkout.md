@@ -355,3 +355,69 @@ Create a new **Checkout** bounded context with a multi-step checkout flow suppor
 - Can complete full flow: Buyer → Delivery → Payment → Review → Confirm
 - Confirmation page shows order details
 - Cart status is CHECKED_OUT after completion
+
+---
+
+### US-25: Connect Cart Checkout Button to Checkout Flow
+**As a** customer
+**I want** the cart checkout button to start the real checkout flow
+**So that** I can complete my purchase through the multi-step checkout process
+
+**Acceptance Criteria:**
+- Cart page checkout button redirects to /checkout/start?cartId={cartId} instead of /cart/{cartId}/checkout
+- Old /cart/{cartId}/checkout endpoint is removed or deprecated
+- Checkout flow can be started from the cart page
+- Architecture tests pass
+
+---
+
+### US-26: Reduce Product Availability on Checkout
+**As a** developer
+**I want** product availability reduced when checkout is confirmed
+**So that** inventory reflects purchased quantities
+
+**Acceptance Criteria:**
+- Product context has a CheckoutConfirmedEventListener that listens for CheckoutConfirmed events
+- For each line item in the checkout, product availability is reduced by the purchased quantity
+- Uses existing Product aggregate's reduceAvailability() method
+- Architecture tests pass (no direct coupling between Checkout and Product domains)
+
+**Architectural Guidance:**
+- **Affected Layers:** Adapter
+- **Locations:**
+  - `product.adapter.incoming.event.CheckoutConfirmedEventListener`
+- **Patterns:** Event Consumer, Cross-Context Integration
+- **Constraints:**
+  - Event listener in `product.adapter.incoming.event` package
+  - No direct imports from `checkout.domain` - only checkout integration events
+  - Call ProductRepository via application layer or directly (simple case)
+  - Use `@EventListener` or `@TransactionalEventListener(phase = AFTER_COMMIT)`
+  - Run `./gradlew test-architecture` to verify
+
+---
+
+### US-27: Remove Deprecated CartCheckedOut Availability Logic
+**As a** developer
+**I want** the old CartCheckedOut availability reduction logic removed
+**So that** there is no duplicate/dead code for inventory management
+
+**Acceptance Criteria:**
+- CartCheckedOutEventListener in product context is removed (if exists)
+- Any CartCheckedOut event handling for availability reduction is removed
+- CartCheckedOut event itself remains if still used for cart status updates
+- Build and architecture tests pass
+- Product availability is only reduced via CheckoutConfirmed (US-26)
+
+**Architectural Guidance:**
+- **Affected Layers:** Adapter
+- **Locations:**
+  - `product.adapter.incoming.event.CartCheckedOutEventListener` (DELETE)
+- **Patterns:** Code Removal, Dead Code Cleanup
+- **Constraints:**
+  - Search for CartCheckedOut references in product context
+  - Verify event is not used elsewhere before removing listener
+  - Keep CartCheckedOut event if cart context still publishes it for other purposes
+  - Run `./gradlew test-architecture` after removal
+  - Run `./gradlew build` to ensure no compilation errors
+
+---

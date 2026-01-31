@@ -14,7 +14,7 @@
         "CheckoutTotals, CheckoutLineItemId, CheckoutLineItem value objects",
         "All implement Value interface with proper validation"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "US-2",
@@ -27,7 +27,7 @@
         "Step validation: cannot skip steps, can go back",
         "Raises domain events for each step"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "US-3",
@@ -40,7 +40,7 @@
         "PaymentSubmitted event",
         "CheckoutConfirmed integration event"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "US-4",
@@ -51,7 +51,7 @@
         "Methods: save(), findById(), findByCartId(), findExpiredSessions()",
         "InMemoryCheckoutSessionRepository implementation"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "US-5",
@@ -63,7 +63,7 @@
         "StartCheckoutUseCase implementation",
         "Loads cart, creates session, saves session"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "US-6",
@@ -75,7 +75,7 @@
         "Validates session and step",
         "Updates session with buyer info"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "US-7",
@@ -87,7 +87,7 @@
         "Validates session and step",
         "Updates session with delivery info"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "US-8",
@@ -98,7 +98,7 @@
         "GetShippingOptionsQuery and GetShippingOptionsResponse",
         "Returns hardcoded shipping options"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "US-9",
@@ -110,7 +110,7 @@
         "MockPaymentProvider adapter",
         "InMemoryPaymentProviderRegistry adapter"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "US-10",
@@ -122,7 +122,7 @@
         "Validates provider exists",
         "Updates session with payment"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "US-11",
@@ -133,7 +133,7 @@
         "GetPaymentProvidersQuery and GetPaymentProvidersResponse",
         "Uses PaymentProviderRegistry"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "US-12",
@@ -144,7 +144,7 @@
         "GetCheckoutSessionQuery and GetCheckoutSessionResponse",
         "Returns all session data or found=false"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "US-13",
@@ -156,7 +156,7 @@
         "Validates all required info",
         "Publishes CheckoutConfirmed event"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "US-14",
@@ -167,7 +167,7 @@
         "validateStepAccess returns redirect URL or empty",
         "Handles invalid session, skip ahead, go back, terminal states"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "US-15",
@@ -178,7 +178,7 @@
         "GET with cartId parameter",
         "Redirects to /checkout/{id}/buyer"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "US-16",
@@ -189,7 +189,7 @@
         "GET returns buyer.pug template",
         "POST redirects to delivery"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "US-17",
@@ -200,7 +200,7 @@
         "GET returns delivery.pug template",
         "POST redirects to payment"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "US-18",
@@ -211,7 +211,7 @@
         "GET returns payment.pug template",
         "POST redirects to review"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "US-19",
@@ -222,7 +222,7 @@
         "GET returns review.pug with all order details",
         "Edit links to previous steps"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "US-20",
@@ -233,7 +233,7 @@
         "GET /checkout/{id}/confirmation shows thank you page",
         "Only accessible after confirmation"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "US-21",
@@ -245,7 +245,7 @@
         "confirmation.pug thank you page",
         "All extend layout with step progress"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "US-22",
@@ -256,7 +256,7 @@
         "CheckoutEventConsumer listens for CheckoutConfirmed",
         "Calls CheckoutCartUseCase to update cart status"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "US-23",
@@ -268,7 +268,7 @@
         "Domain layer has no Spring annotations",
         "All use cases follow InputPort pattern"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "US-24",
@@ -280,7 +280,82 @@
         "Complete flow: Buyer → Delivery → Payment → Review → Confirm",
         "Cart status is CHECKED_OUT after completion"
       ],
-      "passes": false
+      "passes": true
+    },
+    {
+      "id": "US-25",
+      "title": "Connect Cart Checkout Button to Checkout Flow",
+      "description": "Replace the fake checkout button on the cart page with a link to the new checkout bounded context. The cart page should redirect to the checkout flow instead of the old fake checkout endpoint.",
+      "acceptance_criteria": [
+        "Cart page checkout button redirects to /checkout/start?cartId={cartId} instead of /cart/{cartId}/checkout",
+        "Old /cart/{cartId}/checkout endpoint is removed or deprecated",
+        "Checkout flow can be started from the cart page",
+        "Architecture tests pass"
+      ],
+      "passes": true
+    },
+    {
+      "id": "US-26",
+      "title": "Reduce Product Availability on Checkout",
+      "description": "When a checkout is confirmed, the product availability must be reduced by the quantities purchased. The product context listens for the CheckoutConfirmed integration event and reduces availability for each line item.",
+      "acceptance_criteria": [
+        "Product context has a CheckoutConfirmedEventListener that listens for CheckoutConfirmed events",
+        "For each line item in the checkout, product availability is reduced by the purchased quantity",
+        "Uses existing Product aggregate's reduceAvailability() method",
+        "Architecture tests pass (no direct coupling between Checkout and Product domains)"
+      ],
+      "architectural_guidance": {
+        "affected_layers": [
+          "adapter"
+        ],
+        "locations": [
+          "product.adapter.incoming.event.CheckoutConfirmedEventListener"
+        ],
+        "patterns": [
+          "Event Consumer",
+          "Cross-Context Integration"
+        ],
+        "constraints": [
+          "Event listener in product.adapter.incoming.event package",
+          "No direct imports from checkout.domain - only checkout integration events",
+          "Call ProductRepository via application layer or directly (simple case)",
+          "Use @EventListener or @TransactionalEventListener(phase = AFTER_COMMIT)",
+          "Run ./gradlew test-architecture to verify"
+        ]
+      },
+      "passes": true
+    },
+    {
+      "id": "US-27",
+      "title": "Remove Deprecated CartCheckedOut Availability Logic",
+      "description": "The CartCheckedOut event was previously used to reduce product availability. Since US-26 now handles this via CheckoutConfirmed event, the old CartCheckedOut event consumer and related logic in the product context should be removed.",
+      "acceptance_criteria": [
+        "CartCheckedOutEventListener in product context is removed (if exists)",
+        "Any CartCheckedOut event handling for availability reduction is removed",
+        "CartCheckedOut event itself remains if still used for cart status updates",
+        "Build and architecture tests pass",
+        "Product availability is only reduced via CheckoutConfirmed (US-26)"
+      ],
+      "architectural_guidance": {
+        "affected_layers": [
+          "adapter"
+        ],
+        "locations": [
+          "product.adapter.incoming.event.CartCheckedOutEventListener (DELETE)"
+        ],
+        "patterns": [
+          "Code Removal",
+          "Dead Code Cleanup"
+        ],
+        "constraints": [
+          "Search for CartCheckedOut references in product context",
+          "Verify event is not used elsewhere before removing listener",
+          "Keep CartCheckedOut event if cart context still publishes it for other purposes",
+          "Run ./gradlew test-architecture after removal",
+          "Run ./gradlew build to ensure no compilation errors"
+        ]
+      },
+      "passes": true
     }
   ]
 }

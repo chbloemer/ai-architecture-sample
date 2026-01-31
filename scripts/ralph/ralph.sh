@@ -3,6 +3,8 @@
 # RALPH Loop - Autonomous AI Agent for PRD Implementation
 # Runs Claude Code repeatedly until all PRD stories pass
 #
+# Usage: ./ralph.sh [max_iterations] [--verbose|-v]
+#
 
 set -e
 
@@ -11,9 +13,24 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 PRD_FILE="$PROJECT_ROOT/tasks/prd.json"
 PROGRESS_FILE="$PROJECT_ROOT/tasks/progress.txt"
+LOG_DIR="$PROJECT_ROOT/tasks/logs"
 PROMPT_FILE="$SCRIPT_DIR/prompt.md"
-MAX_ITERATIONS="${1:-10}"
-TOOL="${2:-claude}"
+HEARTBEAT_INTERVAL=30  # seconds between heartbeat messages
+TIMEOUT_WARNING=300    # warn after 5 minutes of no output
+
+# Parse arguments
+MAX_ITERATIONS=10
+VERBOSE=false
+for arg in "$@"; do
+    case $arg in
+        -v|--verbose)
+            VERBOSE=true
+            ;;
+        [0-9]*)
+            MAX_ITERATIONS=$arg
+            ;;
+    esac
+done
 
 # Colors for output
 RED='\033[0;31m'
@@ -37,6 +54,64 @@ log_warn() {
 log_error() {
     echo -e "${RED}[RALPH]${NC} $1"
 }
+
+log_verbose() {
+    if [ "$VERBOSE" = true ]; then
+        echo -e "${BLUE}[RALPH DEBUG]${NC} $1"
+    fi
+}
+
+# Format elapsed time as HH:MM:SS
+format_elapsed() {
+    local seconds=$1
+    printf "%02d:%02d:%02d" $((seconds/3600)) $((seconds%3600/60)) $((seconds%60))
+}
+
+# Heartbeat monitor - runs in background to show progress
+HEARTBEAT_PID=""
+start_heartbeat() {
+    local story_id="$1"
+    local start_time=$(date +%s)
+    local output_file="$2"
+
+    (
+        while true; do
+            sleep $HEARTBEAT_INTERVAL
+            local now=$(date +%s)
+            local elapsed=$((now - start_time))
+            local elapsed_fmt=$(format_elapsed $elapsed)
+
+            # Check if claude process is still running
+            if pgrep -f "claude.*--print" > /dev/null 2>&1; then
+                local cpu=$(ps -p $(pgrep -f "claude.*--print" | head -1) -o %cpu= 2>/dev/null || echo "?")
+                local output_size=$(wc -c < "$output_file" 2>/dev/null | tr -d ' ' || echo "0")
+                echo -e "${YELLOW}[RALPH ⏱ $elapsed_fmt]${NC} Still working on $story_id (CPU: ${cpu}%, Output: ${output_size} bytes)"
+
+                # Timeout warning
+                if [ $elapsed -gt $TIMEOUT_WARNING ]; then
+                    echo -e "${YELLOW}[RALPH ⚠️]${NC} Claude has been running for over 5 minutes. Check if stuck."
+                fi
+            else
+                break
+            fi
+        done
+    ) &
+    HEARTBEAT_PID=$!
+}
+
+stop_heartbeat() {
+    if [ -n "$HEARTBEAT_PID" ]; then
+        kill $HEARTBEAT_PID 2>/dev/null || true
+        wait $HEARTBEAT_PID 2>/dev/null || true
+        HEARTBEAT_PID=""
+    fi
+}
+
+# Cleanup on exit
+cleanup() {
+    stop_heartbeat
+}
+trap cleanup EXIT
 
 # Check prerequisites
 check_prerequisites() {
@@ -176,7 +251,13 @@ run_iteration() {
     fi
 
     local story_title=$(get_story_title "$story_id")
-    log_info "Iteration $iteration: Working on $story_id - $story_title"
+    local story_desc=$(get_story_description "$story_id")
+
+    echo ""
+    log_info "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    log_info "Iteration $iteration: $story_id"
+    log_info "Title: $story_title"
+    log_info "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 
     # Build prompt
     local prompt=$(build_prompt "$story_id")
@@ -185,15 +266,37 @@ run_iteration() {
     local prompt_file=$(mktemp)
     echo "$prompt" > "$prompt_file"
 
+    # Show prompt in verbose mode
+    if [ "$VERBOSE" = true ]; then
+        log_verbose "Prompt being sent to Claude:"
+        echo "----------------------------------------"
+        echo "$prompt" | head -30
+        echo "... (truncated, see full prompt in verbose mode)"
+        echo "----------------------------------------"
+    fi
+
     # Run Claude Code
-    log_info "Starting Claude Code session..."
+    log_info "Starting Claude Code session at $(date '+%H:%M:%S')..."
 
     cd "$PROJECT_ROOT"
 
-    # Run claude with the prompt, capture output
-    local output_file=$(mktemp)
+    # Create persistent log file
+    mkdir -p "$LOG_DIR"
+    local timestamp=$(date '+%Y%m%d_%H%M%S')
+    local output_file="$LOG_DIR/${story_id}_${timestamp}.log"
+    log_info "Output log: $output_file"
 
-    if claude --print "$prompt" 2>&1 | tee "$output_file"; then
+    # Start heartbeat monitor
+    start_heartbeat "$story_id" "$output_file"
+
+    # Run claude with unbuffered output (stdbuf if available)
+    local tee_cmd="tee"
+    if command -v stdbuf &> /dev/null; then
+        tee_cmd="stdbuf -oL tee"
+    fi
+
+    if claude --print "$prompt" 2>&1 | $tee_cmd "$output_file"; then
+        stop_heartbeat
         # Check for completion signal
         if grep -q "<promise>STORY_COMPLETE</promise>" "$output_file"; then
             log_success "Story $story_id completed!"
@@ -218,21 +321,34 @@ Co-Authored-By: Claude <noreply@anthropic.com>" || true
             append_progress "$story_id" "IN_PROGRESS" "Iteration completed without explicit completion signal"
         fi
     else
+        stop_heartbeat
         log_error "Claude Code session failed"
         append_progress "$story_id" "ERROR" "Claude Code session failed"
     fi
 
-    # Cleanup
-    rm -f "$prompt_file" "$output_file"
+    # Show completion stats
+    local end_time=$(date '+%H:%M:%S')
+    log_info "Iteration $iteration finished at $end_time"
+    log_info "Full output saved to: $output_file"
+
+    # Cleanup temp files only (keep output log)
+    rm -f "$prompt_file"
 
     return 0
 }
 
 # Main loop
 main() {
-    log_info "Starting RALPH Loop"
+    echo ""
+    log_info "╔══════════════════════════════════════════════════════════════╗"
+    log_info "║              RALPH Loop - Starting                          ║"
+    log_info "╚══════════════════════════════════════════════════════════════╝"
     log_info "PRD: $PRD_FILE"
     log_info "Max iterations: $MAX_ITERATIONS"
+    log_info "Verbose mode: $VERBOSE"
+    log_info "Log directory: $LOG_DIR"
+    log_info "Heartbeat interval: ${HEARTBEAT_INTERVAL}s"
+    echo ""
 
     check_prerequisites
 
@@ -247,6 +363,18 @@ main() {
     local total=$(count_total)
     log_info "Progress: $completed / $total stories complete"
 
+    # Show next story
+    local next_story=$(get_next_story)
+    if [ -n "$next_story" ]; then
+        local next_title=$(get_story_title "$next_story")
+        log_info "Next story: $next_story - $next_title"
+    fi
+
+    echo ""
+    log_info "💡 Tip: Monitor logs in another terminal with:"
+    log_info "   tail -f $LOG_DIR/*.log"
+    echo ""
+
     # Check if already complete
     if all_complete; then
         log_success "All stories already complete!"
@@ -256,9 +384,6 @@ main() {
 
     # Run iterations
     for ((i=1; i<=MAX_ITERATIONS; i++)); do
-        echo ""
-        log_info "========== Iteration $i / $MAX_ITERATIONS =========="
-
         if ! run_iteration "$i"; then
             break
         fi

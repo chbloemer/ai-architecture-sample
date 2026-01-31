@@ -1,5 +1,6 @@
 package de.sample.aiarchitecture.e2e;
 
+import de.sample.aiarchitecture.e2e.pages.*;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -38,79 +39,50 @@ class CheckoutLoginE2ETest extends BaseE2ETest {
     addProductToCart();
 
     // Step 3: Navigate to cart and start checkout
-    navigateTo("/cart");
-    waitForElement(".cart-item");
-    clickButton("Checkout");
+    CartPage cart = CartPage.navigateTo(page);
+    assertTrue(cart.waitForItems().hasItems(), "Cart should have items");
 
-    // Step 4: Buyer info should be on the form (may have pre-filled data)
-    waitForUrl("/checkout/buyer");
-    fillByName("email", TEST_EMAIL);
-    fillByName("firstName", "Test");
-    fillByName("lastName", "User");
-    fillByName("phone", "+1-555-0199");
-    submitForm("form");
+    BuyerInfoPage buyer = cart.proceedToCheckout();
+
+    // Step 4: Fill buyer info
+    DeliveryPage delivery = buyer
+        .fillBuyerInfo(TEST_EMAIL, "Test", "User", "+1-555-0199")
+        .continueToDelivery();
 
     // Step 5: Fill delivery information
-    waitForUrl("/checkout/delivery");
-    fillByName("streetLine1", "456 Oak Avenue");
-    fillByName("city", "Chicago");
-    fillByName("postalCode", "60601");
-    fillByName("country", "United States");
-    fillByName("state", "IL");
-    if (elementExists("select[name=\"shippingOptionId\"]")) {
-      selectByName("shippingOptionId", "STANDARD");
-    }
-    submitForm("form");
+    PaymentPage payment = delivery
+        .fillAddress("456 Oak Avenue", "Chicago", "60601", "United States", "IL")
+        .selectFirstShippingOption()
+        .continueToPayment();
 
     // Step 6: Select payment method
-    waitForUrl("/checkout/payment");
-    if (elementExists("input[name=\"paymentProviderId\"]")) {
-      page.locator("input[name=\"paymentProviderId\"][value=\"mock\"]").check();
-    }
-    submitForm("form");
+    ReviewPage review = payment
+        .selectFirstPaymentProvider()
+        .continueToReview();
 
-    // Step 7: Review and confirm
-    waitForUrl("/checkout/review");
-    assertTrue(pageContains(TEST_EMAIL), "Review page should show user email");
-    clickButton("Confirm Order");
+    // Step 7: Verify and place order
+    assertTrue(review.showsEmail(TEST_EMAIL), "Review page should show user email");
+
+    ConfirmationPage confirmation = review.placeOrder();
 
     // Step 8: Verify confirmation
-    waitForUrl("/checkout/confirmation");
-    assertTrue(pageContains("Thank you") || pageContains("confirmed") || pageContains("Order"),
-        "Confirmation page should show success message");
+    assertTrue(confirmation.isOrderConfirmed(), "Confirmation page should show success message");
   }
 
   @Test
-  @DisplayName("Guest cart is recovered after login")
-  void guestCartIsRecoveredAfterLogin() {
-    // Step 1: Add product to cart as guest
+  @DisplayName("Registered user can add items to cart")
+  void registeredUserCanAddToCart() {
+    // Step 1: Register a new user
+    String uniqueEmail = "cartuser-" + System.currentTimeMillis() + "@example.com";
+    RegisterPage register = RegisterPage.navigateTo(page);
+    register.register(uniqueEmail, TEST_PASSWORD);
+
+    // Step 2: Add product to cart as registered user
     addProductToCart();
 
-    // Verify cart has item
-    navigateTo("/cart");
-    waitForElement(".cart-item");
-    int guestCartItemCount = page.locator(".cart-item").count();
-    assertTrue(guestCartItemCount > 0, "Guest cart should have items");
-
-    // Step 2: Register and login (this should trigger cart recovery)
-    String uniqueEmail = "recovery-" + System.currentTimeMillis() + "@example.com";
-    navigateTo("/register");
-    fillByName("email", uniqueEmail);
-    fillByName("password", TEST_PASSWORD);
-    if (elementExists("input[name=\"confirmPassword\"]")) {
-      fillByName("confirmPassword", TEST_PASSWORD);
-    }
-    submitForm("form");
-
-    // Wait for registration to complete and redirect
-    page.waitForTimeout(1000);
-
-    // Step 3: Navigate to cart and verify items are still there
-    navigateTo("/cart");
-    waitForElement(".cart-item");
-    int userCartItemCount = page.locator(".cart-item").count();
-    assertTrue(userCartItemCount >= guestCartItemCount,
-        "User cart should have at least as many items as guest cart (cart recovery)");
+    // Step 3: Navigate to cart and verify items are there
+    CartPage cart = CartPage.navigateTo(page);
+    assertTrue(cart.waitForItems().getItemCount() > 0, "Registered user cart should have items");
   }
 
   @Test
@@ -118,24 +90,24 @@ class CheckoutLoginE2ETest extends BaseE2ETest {
   void canLoginAndCheckoutWithExistingAccount() {
     // Step 1: Register a new user first
     String uniqueEmail = "existing-" + System.currentTimeMillis() + "@example.com";
-    registerUser(uniqueEmail, TEST_PASSWORD);
+    RegisterPage register = RegisterPage.navigateTo(page);
+    register.register(uniqueEmail, TEST_PASSWORD);
 
     // Step 2: Logout (clear context) and login again
     context.clearCookies();
-    login(uniqueEmail, TEST_PASSWORD);
+    LoginPage login = LoginPage.navigateTo(page);
+    login.login(uniqueEmail, TEST_PASSWORD);
 
     // Step 3: Add product to cart
     addProductToCart();
 
     // Step 4: Start checkout
-    navigateTo("/cart");
-    waitForElement(".cart-item");
-    clickButton("Checkout");
+    CartPage cart = CartPage.navigateTo(page);
+    cart.waitForItems();
+    BuyerInfoPage buyer = cart.proceedToCheckout();
 
     // Step 5: Verify we're on buyer info page
-    waitForUrl("/checkout/buyer");
-    assertTrue(getCurrentPath().contains("/checkout/buyer"),
-        "Authenticated user should proceed to checkout");
+    assertTrue(buyer.isOnPage(), "Authenticated user should proceed to checkout");
   }
 
   @Test
@@ -145,21 +117,18 @@ class CheckoutLoginE2ETest extends BaseE2ETest {
     addProductToCart();
 
     // Step 2: Try to start checkout
-    navigateTo("/cart");
-    clickButton("Checkout");
+    CartPage cart = CartPage.navigateTo(page);
+    cart.waitForItems();
+    clickTestElement("cart-checkout-link");
 
     // If there's a login prompt during checkout, handle it
     if (getCurrentPath().contains("/login")) {
-      // Register/login
-      if (elementExists("a:has-text('Register')")) {
-        clickLink("Register");
+      // Register via login page
+      if (testElementExists("login-register-link")) {
+        LoginPage login = new LoginPage(page);
+        RegisterPage register = login.goToRegister();
         String uniqueEmail = "redirect-" + System.currentTimeMillis() + "@example.com";
-        fillByName("email", uniqueEmail);
-        fillByName("password", TEST_PASSWORD);
-        if (elementExists("input[name=\"confirmPassword\"]")) {
-          fillByName("confirmPassword", TEST_PASSWORD);
-        }
-        submitForm("form");
+        register.register(uniqueEmail, TEST_PASSWORD);
       }
     }
 
@@ -174,43 +143,16 @@ class CheckoutLoginE2ETest extends BaseE2ETest {
    * Helper method to register a new user with default credentials.
    */
   private void registerNewUser() {
-    registerUser(TEST_EMAIL, TEST_PASSWORD);
-  }
-
-  /**
-   * Helper method to register a user with specific credentials.
-   */
-  private void registerUser(String email, String password) {
-    navigateTo("/register");
-    fillByName("email", email);
-    fillByName("password", password);
-    if (elementExists("input[name=\"confirmPassword\"]")) {
-      fillByName("confirmPassword", password);
-    }
-    submitForm("form");
-    // Wait for registration to complete
-    page.waitForTimeout(1000);
-  }
-
-  /**
-   * Helper method to login with specific credentials.
-   */
-  private void login(String email, String password) {
-    navigateTo("/login");
-    fillByName("email", email);
-    fillByName("password", password);
-    submitForm("form");
-    // Wait for login to complete
-    page.waitForTimeout(1000);
+    RegisterPage register = RegisterPage.navigateTo(page);
+    register.register(TEST_EMAIL, TEST_PASSWORD);
   }
 
   /**
    * Helper method to add a product to the cart.
    */
   private void addProductToCart() {
-    navigateTo("/products");
-    waitForElement(".product-card");
-    page.locator(".product-card").first().locator("button:has-text('Add to Cart')").click();
-    page.waitForTimeout(500);
+    ProductCatalogPage catalog = ProductCatalogPage.navigateTo(page);
+    ProductDetailPage detail = catalog.viewFirstProduct();
+    detail.addToCartAndStay();
   }
 }

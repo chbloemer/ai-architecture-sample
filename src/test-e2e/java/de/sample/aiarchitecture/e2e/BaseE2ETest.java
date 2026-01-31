@@ -104,7 +104,9 @@ public abstract class BaseE2ETest {
    * Clicks a button by its text content.
    *
    * @param text the button text
+   * @deprecated Use {@link #clickTestElement(String)} with data-test attributes instead (ADR-017)
    */
+  @Deprecated
   protected void clickButton(String text) {
     page.locator("button:has-text(\"" + text + "\")").click();
   }
@@ -113,9 +115,29 @@ public abstract class BaseE2ETest {
    * Clicks a link by its text content.
    *
    * @param text the link text
+   * @deprecated Use {@link #clickTestElement(String)} with data-test attributes instead (ADR-017)
    */
+  @Deprecated
   protected void clickLink(String text) {
     page.locator("a:has-text(\"" + text + "\")").click();
+  }
+
+  /**
+   * Clicks an element by its data-test attribute value.
+   *
+   * @param dataTestValue the value of the data-test attribute
+   */
+  protected void clickTestElement(String dataTestValue) {
+    page.locator("[data-test='" + dataTestValue + "']").click();
+  }
+
+  /**
+   * Clicks the first matching element by its data-test attribute value.
+   *
+   * @param dataTestValue the value of the data-test attribute
+   */
+  protected void clickFirstTestElement(String dataTestValue) {
+    page.locator("[data-test='" + dataTestValue + "']").first().click();
   }
 
   /**
@@ -167,21 +189,51 @@ public abstract class BaseE2ETest {
   }
 
   /**
-   * Waits for an element to be visible.
+   * Checks if an element with the given data-test attribute exists on the page.
+   *
+   * @param dataTestValue the value of the data-test attribute
+   * @return true if the element exists
+   */
+  protected boolean testElementExists(String dataTestValue) {
+    return page.locator("[data-test='" + dataTestValue + "']").count() > 0;
+  }
+
+  /**
+   * Waits for at least one element matching the selector to be visible.
    *
    * @param selector the CSS selector
    */
   protected void waitForElement(String selector) {
-    page.locator(selector).waitFor();
+    page.locator(selector).first().waitFor();
+  }
+
+  /**
+   * Waits for at least one element with the given data-test attribute to be visible.
+   *
+   * @param dataTestValue the value of the data-test attribute
+   */
+  protected void waitForTestElement(String dataTestValue) {
+    page.locator("[data-test='" + dataTestValue + "']").first().waitFor();
   }
 
   /**
    * Submits a form by clicking the submit button within it.
    *
    * @param formSelector the CSS selector for the form
+   * @deprecated Use {@link #submitTestForm(String)} with data-test attributes instead (ADR-017)
    */
+  @Deprecated
   protected void submitForm(String formSelector) {
     page.locator(formSelector + " button[type=\"submit\"]").click();
+  }
+
+  /**
+   * Submits a form by clicking the submit button within a form identified by data-test attribute.
+   *
+   * @param dataTestValue the value of the data-test attribute on the form
+   */
+  protected void submitTestForm(String dataTestValue) {
+    page.locator("[data-test='" + dataTestValue + "'] button[type=\"submit\"]").click();
   }
 
   /**

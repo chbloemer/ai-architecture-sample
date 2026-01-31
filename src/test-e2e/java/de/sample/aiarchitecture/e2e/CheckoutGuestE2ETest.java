@@ -1,5 +1,6 @@
 package de.sample.aiarchitecture.e2e;
 
+import de.sample.aiarchitecture.e2e.pages.*;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -30,63 +31,40 @@ class CheckoutGuestE2ETest extends BaseE2ETest {
   @Test
   @DisplayName("Complete checkout flow as guest user")
   void completeGuestCheckoutFlow() {
-    // Step 1: Navigate to product list and add a product to cart
-    navigateTo("/products");
-    waitForElement(".product-card");
-
-    // Click "Add to Cart" on the first product
-    page.locator(".product-card").first().locator("button:has-text('Add to Cart')").click();
+    // Step 1: Navigate to product catalog and add product to cart
+    ProductCatalogPage catalog = ProductCatalogPage.navigateTo(page);
+    ProductDetailPage detail = catalog.viewFirstProduct();
+    detail.addToCart();
 
     // Step 2: Navigate to cart and verify product is added
-    navigateTo("/cart");
-    waitForElement(".cart-item");
-    assertTrue(elementExists(".cart-item"), "Cart should have at least one item");
+    CartPage cart = CartPage.navigateTo(page);
+    assertTrue(cart.hasItems(), "Cart should have at least one item");
 
-    // Step 3: Start checkout
-    clickButton("Checkout");
-    waitForUrl("/checkout/buyer");
+    // Step 3: Start checkout and fill buyer information
+    BuyerInfoPage buyer = cart.proceedToCheckout();
+    DeliveryPage delivery = buyer
+        .fillBuyerInfo("guest@example.com", "Test", "Guest", "+1-555-0100")
+        .continueToDelivery();
 
-    // Step 4: Fill buyer information
-    fillByName("email", "guest@example.com");
-    fillByName("firstName", "Test");
-    fillByName("lastName", "Guest");
-    fillByName("phone", "+1-555-0100");
-    submitForm("form");
+    // Step 4: Fill delivery information
+    PaymentPage payment = delivery
+        .fillAddress("123 Main Street", "Springfield", "12345", "United States", "IL")
+        .selectFirstShippingOption()
+        .continueToPayment();
 
-    // Step 5: Wait for delivery page and fill delivery information
-    waitForUrl("/checkout/delivery");
-    fillByName("streetLine1", "123 Main Street");
-    fillByName("city", "Springfield");
-    fillByName("postalCode", "12345");
-    fillByName("country", "United States");
-    fillByName("state", "IL");
+    // Step 5: Select payment method
+    ReviewPage review = payment
+        .selectFirstPaymentProvider()
+        .continueToReview();
 
-    // Select shipping option if available
-    if (elementExists("select[name=\"shippingOptionId\"]")) {
-      selectByName("shippingOptionId", "STANDARD");
-    }
-    submitForm("form");
+    // Step 6: Verify order details and place order
+    assertTrue(review.showsEmail("guest@example.com"), "Review page should show buyer email");
+    assertTrue(review.showsAddress("123 Main Street"), "Review page should show delivery address");
 
-    // Step 6: Wait for payment page and select payment method
-    waitForUrl("/checkout/payment");
-    // Select mock payment provider for testing
-    if (elementExists("input[name=\"paymentProviderId\"]")) {
-      page.locator("input[name=\"paymentProviderId\"][value=\"mock\"]").check();
-    }
-    submitForm("form");
+    ConfirmationPage confirmation = review.placeOrder();
 
-    // Step 7: Wait for review page and verify order details
-    waitForUrl("/checkout/review");
-    assertTrue(pageContains("guest@example.com"), "Review page should show buyer email");
-    assertTrue(pageContains("123 Main Street"), "Review page should show delivery address");
-
-    // Step 8: Confirm order
-    clickButton("Confirm Order");
-
-    // Step 9: Verify confirmation page
-    waitForUrl("/checkout/confirmation");
-    assertTrue(pageContains("Thank you") || pageContains("confirmed") || pageContains("Order"),
-        "Confirmation page should show success message");
+    // Step 7: Verify confirmation
+    assertTrue(confirmation.isOrderConfirmed(), "Confirmation page should show success message");
   }
 
   @Test
@@ -108,40 +86,34 @@ class CheckoutGuestE2ETest extends BaseE2ETest {
 
     // Start checkout
     navigateTo("/checkout/start");
-    waitForUrl("/checkout/buyer");
+    BuyerInfoPage buyer = new BuyerInfoPage(page);
 
     // Submit form with invalid email
-    fillByName("email", "invalid-email");
-    fillByName("firstName", "Test");
-    fillByName("lastName", "User");
-    submitForm("form");
+    buyer.fillBuyerInfo("invalid-email", "Test", "User", "")
+        .submitWithErrors();
 
-    // Should show validation error
-    assertTrue(elementExists(".error") || pageContains("valid email"),
-        "Should show email validation error");
-
-    // Should stay on buyer info page
-    assertTrue(getCurrentPath().contains("/checkout/buyer"),
-        "Should stay on buyer info page on validation error");
+    // Should show validation error and stay on buyer info page
+    assertTrue(buyer.hasValidationErrors(), "Should show email validation error");
+    assertTrue(buyer.isOnPage(), "Should stay on buyer info page on validation error");
   }
 
   @Test
   @DisplayName("Can navigate back through checkout steps")
   void canNavigateBackThroughCheckoutSteps() {
-    // Complete buyer info
+    // Add product and go to checkout
     addProductToCart();
     navigateTo("/checkout/start");
-    waitForUrl("/checkout/buyer");
-    fillBuyerInfo();
-    submitForm("form");
 
-    // On delivery page, click back
-    waitForUrl("/checkout/delivery");
-    if (elementExists("a:has-text('Back')")) {
-      clickLink("Back");
-      waitForUrl("/checkout/buyer");
-      assertTrue(getCurrentPath().contains("/checkout/buyer"),
-          "Should navigate back to buyer info");
+    // Fill buyer info and continue
+    BuyerInfoPage buyer = new BuyerInfoPage(page);
+    DeliveryPage delivery = buyer
+        .fillBuyerInfo("guest@example.com", "Test", "Guest", "+1-555-0100")
+        .continueToDelivery();
+
+    // On delivery page, click back if available
+    if (delivery.hasBackLink()) {
+      BuyerInfoPage backToBuyer = delivery.goBack();
+      assertTrue(backToBuyer.isOnPage(), "Should navigate back to buyer info");
     }
   }
 
@@ -149,20 +121,8 @@ class CheckoutGuestE2ETest extends BaseE2ETest {
    * Helper method to add a product to the cart.
    */
   private void addProductToCart() {
-    navigateTo("/products");
-    waitForElement(".product-card");
-    page.locator(".product-card").first().locator("button:has-text('Add to Cart')").click();
-    // Wait briefly for cart to update
-    page.waitForTimeout(500);
-  }
-
-  /**
-   * Helper method to fill buyer information form.
-   */
-  private void fillBuyerInfo() {
-    fillByName("email", "guest@example.com");
-    fillByName("firstName", "Test");
-    fillByName("lastName", "Guest");
-    fillByName("phone", "+1-555-0100");
+    ProductCatalogPage catalog = ProductCatalogPage.navigateTo(page);
+    ProductDetailPage detail = catalog.viewFirstProduct();
+    detail.addToCartAndStay();
   }
 }

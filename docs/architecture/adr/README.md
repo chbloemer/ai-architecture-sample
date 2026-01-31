@@ -23,6 +23,8 @@ Architecture Decision Records capture important architectural decisions with con
 | [ADR-014](adr-014-factory-pattern.md) | Factory Pattern for Complex Aggregate Creation | ✅ Accepted |
 | [ADR-015](adr-015-archunit-governance.md) | ArchUnit for Architecture Governance | ✅ Accepted |
 | [ADR-016](adr-016-shared-kernel-pattern.md) | Shared Kernel Pattern for Cross-Context Value Objects | ✅ Accepted |
+| [ADR-017](adr-017-e2e-data-test-attributes.md) | Data-Test Attributes for E2E Test Selectors | ✅ Accepted |
+| [ADR-018](adr-018-page-object-pattern-e2e.md) | Page Object Pattern for E2E Tests | ✅ Accepted |
 
 ### Proposed 🟡
 

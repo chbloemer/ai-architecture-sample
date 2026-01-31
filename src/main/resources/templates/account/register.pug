@@ -7,33 +7,33 @@ block content
     .success-message= message
 
   if error
-    .error-message= error
+    .error-message(data-test="register-error-message")= error
 
   .auth-form
-    form(method="POST" action="/register")
+    form(method="POST" action="/register" data-test="register-form")
       if returnUrl
         input(type="hidden" name="returnUrl" value=returnUrl)
 
       .form-group
         label(for="email") Email
-        input#email(type="email" name="email" value=(email || "") required autofocus)
+        input#email(type="email" name="email" value=(email || "") required autofocus data-test="register-email-input")
 
       .form-group
         label(for="password") Password
-        input#password(type="password" name="password" required minlength="8")
+        input#password(type="password" name="password" required minlength="8" data-test="register-password-input")
         .form-hint Password must be at least 8 characters
 
       .form-group
         label(for="confirmPassword") Confirm Password
-        input#confirmPassword(type="password" name="confirmPassword" required)
+        input#confirmPassword(type="password" name="confirmPassword" required data-test="register-confirm-password-input")
 
       .form-actions
-        button.btn.btn-primary(type="submit") Create Account
+        button.btn.btn-primary(type="submit" data-test="register-submit-button") Create Account
 
     .auth-links
       p Already have an account?
         |
-        a(href=returnUrl ? "/login?returnUrl=" + returnUrl : "/login") Login here
+        a(href=returnUrl ? "/login?returnUrl=" + returnUrl : "/login" data-test="register-login-link") Login here
 
   style.
     .auth-form {

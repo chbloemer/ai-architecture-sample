@@ -7,28 +7,28 @@ block content
     .success-message= message
 
   if error
-    .error-message= error
+    .error-message(data-test="login-error-message")= error
 
   .auth-form
-    form(method="POST" action="/login")
+    form(method="POST" action="/login" data-test="login-form")
       if returnUrl
         input(type="hidden" name="returnUrl" value=returnUrl)
 
       .form-group
         label(for="email") Email
-        input#email(type="email" name="email" value=(email || "") required autofocus)
+        input#email(type="email" name="email" value=(email || "") required autofocus data-test="login-email-input")
 
       .form-group
         label(for="password") Password
-        input#password(type="password" name="password" required)
+        input#password(type="password" name="password" required data-test="login-password-input")
 
       .form-actions
-        button.btn.btn-primary(type="submit") Login
+        button.btn.btn-primary(type="submit" data-test="login-submit-button") Login
 
     .auth-links
       p Don't have an account?
         |
-        a(href=returnUrl ? "/register?returnUrl=" + returnUrl : "/register") Register here
+        a(href=returnUrl ? "/register?returnUrl=" + returnUrl : "/register" data-test="login-register-link") Register here
 
   style.
     .auth-form {

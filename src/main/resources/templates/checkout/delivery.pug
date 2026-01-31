@@ -4,7 +4,7 @@ block content
   h2 Delivery Information
 
   if error
-    .error-message= error
+    .error-message(data-test="delivery-error-message")= error
 
   .checkout-progress
     span.step.completed Buyer Info
@@ -16,42 +16,42 @@ block content
     p Session ID: #{session.sessionId()}
     p Status: #{session.status()}
 
-  form(method="post" action="/checkout/delivery")
+  form(method="post" action="/checkout/delivery" data-test="delivery-form")
     h3 Shipping Address
 
     .form-group
       label(for="street") Street Address
-      input#street(type="text" name="street" required placeholder="123 Main Street" value=(session.delivery() && session.delivery().address() ? session.delivery().address().street() : ''))
+      input#street(type="text" name="street" required placeholder="123 Main Street" value=(session.delivery() && session.delivery().address() ? session.delivery().address().street() : '') data-test="delivery-street-input")
 
     .form-group
       label(for="streetLine2") Address Line 2 (Optional)
-      input#streetLine2(type="text" name="streetLine2" placeholder="Apt, Suite, Unit, etc." value=(session.delivery() && session.delivery().address() ? session.delivery().address().streetLine2() : ''))
+      input#streetLine2(type="text" name="streetLine2" placeholder="Apt, Suite, Unit, etc." value=(session.delivery() && session.delivery().address() ? session.delivery().address().streetLine2() : '') data-test="delivery-street2-input")
 
     .form-row
       .form-group.half
         label(for="city") City
-        input#city(type="text" name="city" required placeholder="City" value=(session.delivery() && session.delivery().address() ? session.delivery().address().city() : ''))
+        input#city(type="text" name="city" required placeholder="City" value=(session.delivery() && session.delivery().address() ? session.delivery().address().city() : '') data-test="delivery-city-input")
 
       .form-group.half
         label(for="state") State/Province (Optional)
-        input#state(type="text" name="state" placeholder="State" value=(session.delivery() && session.delivery().address() ? session.delivery().address().state() : ''))
+        input#state(type="text" name="state" placeholder="State" value=(session.delivery() && session.delivery().address() ? session.delivery().address().state() : '') data-test="delivery-state-input")
 
     .form-row
       .form-group.half
         label(for="postalCode") Postal Code
-        input#postalCode(type="text" name="postalCode" required placeholder="12345" value=(session.delivery() && session.delivery().address() ? session.delivery().address().postalCode() : ''))
+        input#postalCode(type="text" name="postalCode" required placeholder="12345" value=(session.delivery() && session.delivery().address() ? session.delivery().address().postalCode() : '') data-test="delivery-postalcode-input")
 
       .form-group.half
         label(for="country") Country
-        input#country(type="text" name="country" required placeholder="Country" value=(session.delivery() && session.delivery().address() ? session.delivery().address().country() : ''))
+        input#country(type="text" name="country" required placeholder="Country" value=(session.delivery() && session.delivery().address() ? session.delivery().address().country() : '') data-test="delivery-country-input")
 
     h3 Shipping Method
 
-    .shipping-options
+    .shipping-options(data-test="delivery-shipping-options")
       each option in shippingOptions
         - var isSelected = session.delivery() && session.delivery().shippingOption() && session.delivery().shippingOption().id() === option.id()
-        label.shipping-option(class=isSelected ? 'selected' : '')
-          input(type="radio" name="shippingOptionId" value=option.id() required checked=isSelected)
+        label.shipping-option(class=isSelected ? 'selected' : '' data-test="delivery-shipping-option")
+          input(type="radio" name="shippingOptionId" value=option.id() required checked=isSelected data-test="delivery-shipping-radio")
           input(type="hidden" name="shippingOptionName" value=option.name() disabled=!isSelected)
           input(type="hidden" name="estimatedDelivery" value=option.estimatedDelivery() disabled=!isSelected)
           input(type="hidden" name="shippingCost" value=option.cost() disabled=!isSelected)
@@ -62,8 +62,8 @@ block content
             span.option-price #{option.cost()} #{option.currencyCode()}
 
     .form-actions
-      a.btn.btn-secondary(href="/checkout/buyer") Back
-      button.btn.btn-primary(type="submit") Continue to Payment
+      a.btn.btn-secondary(href="/checkout/buyer" data-test="delivery-back-link") Back
+      button.btn.btn-primary(type="submit" data-test="delivery-continue-button") Continue to Payment
 
   if session.lineItems() && session.lineItems().size() > 0
     .order-summary

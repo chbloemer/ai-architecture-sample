@@ -1,7 +1,7 @@
 extends ../layout
 
 block content
-  .product-detail
+  .product-detail(data-test="product-detail")
     .product-header
       h2= product.name
       if isAvailable
@@ -47,12 +47,12 @@ block content
               .info-value.text-danger ✗ Currently out of stock
 
     .product-actions
-      a.btn.btn-secondary(href="/products") ← Back to Catalog
+      a.btn.btn-secondary(href="/products" data-test="product-back-link") ← Back to Catalog
       if isAvailable
-        form(method="post" action="/cart/add-product" style="display: inline;")
+        form(method="post" action="/cart/add-product" style="display: inline;" data-test="product-add-to-cart-form")
           input(type="hidden" name="productId" value=product.productId)
           input(type="hidden" name="quantity" value="1")
-          button.btn.btn-primary(type="submit") Add to Cart
+          button.btn.btn-primary(type="submit" data-test="product-add-to-cart-button") Add to Cart
 
   style.
     .product-detail {

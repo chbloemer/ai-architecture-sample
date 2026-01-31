@@ -4,7 +4,7 @@ block content
   h2 Review Your Order
 
   if error
-    .error-message= error
+    .error-message(data-test="review-error-message")= error
 
   .checkout-progress
     span.step.completed Buyer Info
@@ -16,12 +16,12 @@ block content
     p Session ID: #{session.sessionId()}
     p Status: #{session.status()}
 
-  .review-sections
+  .review-sections(data-test="review-sections")
     //- Buyer Information Section
-    .review-section
+    .review-section(data-test="review-buyer-section")
       .section-header
         h3 Buyer Information
-        a.edit-link(href="/checkout/buyer") Edit
+        a.edit-link(href="/checkout/buyer" data-test="review-buyer-edit-link") Edit
       if session.buyerInfo()
         .section-content
           p
@@ -39,10 +39,10 @@ block content
           a.btn.btn-small(href="/checkout/buyer") Complete
 
     //- Delivery Information Section
-    .review-section
+    .review-section(data-test="review-delivery-section")
       .section-header
         h3 Delivery
-        a.edit-link(href="/checkout/delivery") Edit
+        a.edit-link(href="/checkout/delivery" data-test="review-delivery-edit-link") Edit
       if session.delivery()
         .section-content
           h4 Shipping Address
@@ -66,10 +66,10 @@ block content
           a.btn.btn-small(href="/checkout/delivery") Complete
 
     //- Payment Information Section
-    .review-section
+    .review-section(data-test="review-payment-section")
       .section-header
         h3 Payment Method
-        a.edit-link(href="/checkout/payment") Edit
+        a.edit-link(href="/checkout/payment" data-test="review-payment-edit-link") Edit
       if session.payment()
         .section-content
           p
@@ -113,9 +113,9 @@ block content
             span.value #{session.totals().total()} #{session.totals().currencyCode()}
 
   .form-actions
-    a.btn.btn-secondary(href="/checkout/payment") Back
-    form(method="post" action="/checkout/confirm" style="display: inline")
-      button.btn.btn-primary(type="submit") Place Order
+    a.btn.btn-secondary(href="/checkout/payment" data-test="review-back-link") Back
+    form(method="post" action="/checkout/confirm" style="display: inline" data-test="review-confirm-form")
+      button.btn.btn-primary(type="submit" data-test="review-place-order-button") Place Order
 
   style.
     .checkout-progress {

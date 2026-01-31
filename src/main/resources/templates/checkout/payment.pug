@@ -4,7 +4,7 @@ block content
   h2 Payment Method
 
   if error
-    .error-message= error
+    .error-message(data-test="payment-error-message")= error
 
   .checkout-progress
     span.step.completed Buyer Info
@@ -16,15 +16,15 @@ block content
     p Session ID: #{session.sessionId()}
     p Status: #{session.status()}
 
-  form(method="post" action="/checkout/payment")
+  form(method="post" action="/checkout/payment" data-test="payment-form")
     h3 Select Payment Method
 
-    .payment-options
+    .payment-options(data-test="payment-options")
       each provider in paymentProviders
         if provider.available()
           - var isSelected = session.payment() && session.payment().providerId() === provider.id()
-          label.payment-option(class=isSelected ? 'selected' : '')
-            input(type="radio" name="providerId" value=provider.id() required checked=isSelected)
+          label.payment-option(class=isSelected ? 'selected' : '' data-test="payment-provider-option")
+            input(type="radio" name="providerId" value=provider.id() required checked=isSelected data-test="payment-provider-radio")
             .option-details
               span.option-name #{provider.displayName()}
               if !provider.available()
@@ -35,8 +35,8 @@ block content
       input#providerReference(type="text" name="providerReference" placeholder="e.g., Payment Intent ID" value=(session.payment() ? session.payment().providerReference() : ''))
 
     .form-actions
-      a.btn.btn-secondary(href="/checkout/delivery") Back
-      button.btn.btn-primary(type="submit") Continue to Review
+      a.btn.btn-secondary(href="/checkout/delivery" data-test="payment-back-link") Back
+      button.btn.btn-primary(type="submit" data-test="payment-continue-button") Continue to Review
 
   if session.lineItems() && session.lineItems().size() > 0
     .order-summary

@@ -9,10 +9,10 @@ block content
     span.step.completed Payment
     span.step.completed Confirmed
 
-  .confirmation-message
+  .confirmation-message(data-test="confirmation-message")
     .success-icon
       | &#10003;
-    h3 Your order has been placed successfully
+    h3(data-test="confirmation-title") Your order has been placed successfully
     p Order Reference: #{session.sessionId()}
 
   .order-details
@@ -79,7 +79,7 @@ block content
     p You can track your order status using your order reference.
 
   .form-actions
-    a.btn.btn-primary(href="/") Continue Shopping
+    a.btn.btn-primary(href="/" data-test="confirmation-continue-link") Continue Shopping
 
   style.
     .checkout-progress {

@@ -4,7 +4,7 @@ block content
   h2 Buyer Information
 
   if error
-    .error-message= error
+    .error-message(data-test="buyer-error-message")= error
 
   .checkout-progress
     span.step.active Buyer Info
@@ -14,11 +14,11 @@ block content
 
   //- Auth options: show login/register for anonymous, or logged-in status for registered users
   if identity.isAnonymous()
-    .auth-options
+    .auth-options(data-test="buyer-auth-options")
       p Already have an account? Log in to speed up checkout.
       .auth-buttons
-        a.btn.btn-secondary(href="/login?returnUrl=/checkout/buyer") Login
-        a.btn.btn-secondary(href="/register?returnUrl=/checkout/buyer") Register
+        a.btn.btn-secondary(href="/login?returnUrl=/checkout/buyer" data-test="buyer-login-link") Login
+        a.btn.btn-secondary(href="/register?returnUrl=/checkout/buyer" data-test="buyer-register-link") Register
   else
     .auth-options.logged-in
       p Logged in as #{identity.email().orElse('')}
@@ -27,26 +27,26 @@ block content
     p Session ID: #{session.sessionId()}
     p Status: #{session.status()}
 
-  form(method="post" action="/checkout/buyer")
+  form(method="post" action="/checkout/buyer" data-test="buyer-form")
     .form-group
       label(for="email") Email Address
       - var emailValue = session.buyerInfo() ? session.buyerInfo().email() : (identity.isRegistered() ? identity.email().orElse('') : '')
-      input#email(type="email" name="email" required placeholder="your@email.com" value=emailValue)
+      input#email(type="email" name="email" required placeholder="your@email.com" value=emailValue data-test="buyer-email-input")
 
     .form-group
       label(for="firstName") First Name
-      input#firstName(type="text" name="firstName" required placeholder="First Name" value=(session.buyerInfo() ? session.buyerInfo().firstName() : ''))
+      input#firstName(type="text" name="firstName" required placeholder="First Name" value=(session.buyerInfo() ? session.buyerInfo().firstName() : '') data-test="buyer-firstname-input")
 
     .form-group
       label(for="lastName") Last Name
-      input#lastName(type="text" name="lastName" required placeholder="Last Name" value=(session.buyerInfo() ? session.buyerInfo().lastName() : ''))
+      input#lastName(type="text" name="lastName" required placeholder="Last Name" value=(session.buyerInfo() ? session.buyerInfo().lastName() : '') data-test="buyer-lastname-input")
 
     .form-group
       label(for="phone") Phone Number
-      input#phone(type="tel" name="phone" required placeholder="+1 (555) 123-4567" value=(session.buyerInfo() ? session.buyerInfo().phone() : ''))
+      input#phone(type="tel" name="phone" required placeholder="+1 (555) 123-4567" value=(session.buyerInfo() ? session.buyerInfo().phone() : '') data-test="buyer-phone-input")
 
     .form-actions
-      button.btn.btn-primary(type="submit") Continue to Delivery
+      button.btn.btn-primary(type="submit" data-test="buyer-continue-button") Continue to Delivery
 
   if session.lineItems() && session.lineItems().size() > 0
     .order-summary

@@ -8,7 +8,7 @@ block content
   if totalProducts > 0
     .product-grid
       each product in products
-        .product-card
+        .product-card(data-test="product-card")
           h3= product.name
           //- description not available in ProductSummary DTO; omitted
 
@@ -36,7 +36,7 @@ block content
               else
                 span.badge.badge-danger Out of Stock
 
-          a.btn(href='/products/' + product.productId) View Details
+          a.btn(href='/products/' + product.productId data-test="product-view-details-link") View Details
   else
     .empty-state
       p No products available.

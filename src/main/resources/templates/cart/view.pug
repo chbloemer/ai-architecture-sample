@@ -4,10 +4,10 @@ block content
   h2 Shopping Cart
 
   if message
-    .success-message= message
+    .success-message(data-test="cart-success-message")= message
 
   if error
-    .error-message= error
+    .error-message(data-test="cart-error-message")= error
 
   .cart-summary
     p Cart ID: #{cartId}
@@ -15,9 +15,9 @@ block content
     p Total Quantity: #{totalQuantity}
 
   if cart.items() && cart.items().size() > 0
-    .cart-items
+    .cart-items(data-test="cart-items")
       each item in cart.items()
-        .cart-item
+        .cart-item(data-test="cart-item")
           .item-details
             h3 Product ID: #{item.productId()}
             p.item-id Item ID: #{item.itemId()}
@@ -43,7 +43,7 @@ block content
 
     .cart-actions
       if cart.status() === 'ACTIVE'
-        a.btn.btn-primary(href=`/checkout/start?cartId=${cartId}`) Proceed to Checkout
+        a.btn.btn-primary(href=`/checkout/start?cartId=${cartId}` data-test="cart-checkout-link") Proceed to Checkout
         p.info Use the REST API to add or remove items
       else
         .status-badge

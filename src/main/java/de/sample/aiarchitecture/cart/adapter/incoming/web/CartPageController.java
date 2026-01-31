@@ -9,11 +9,12 @@ import de.sample.aiarchitecture.cart.application.getcartbyid.GetCartByIdUseCase;
 import de.sample.aiarchitecture.cart.application.getorcreateactivecart.GetOrCreateActiveCartCommand;
 import de.sample.aiarchitecture.cart.application.getorcreateactivecart.GetOrCreateActiveCartResponse;
 import de.sample.aiarchitecture.cart.application.getorcreateactivecart.GetOrCreateActiveCartUseCase;
-import jakarta.servlet.http.HttpSession;
+import de.sample.aiarchitecture.cart.domain.model.CustomerId;
+import de.sample.aiarchitecture.sharedkernel.application.port.security.Identity;
+import de.sample.aiarchitecture.sharedkernel.application.port.security.IdentityProvider;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -42,28 +43,40 @@ public class CartPageController {
   private final GetCartByIdUseCase getCartByIdUseCase;
   private final GetOrCreateActiveCartUseCase getOrCreateActiveCartUseCase;
   private final AddItemToCartUseCase addItemToCartUseCase;
+  private final IdentityProvider identityProvider;
 
   public CartPageController(
       final GetCartByIdUseCase getCartByIdUseCase,
       final GetOrCreateActiveCartUseCase getOrCreateActiveCartUseCase,
-      final AddItemToCartUseCase addItemToCartUseCase) {
+      final AddItemToCartUseCase addItemToCartUseCase,
+      final IdentityProvider identityProvider) {
     this.getCartByIdUseCase = getCartByIdUseCase;
     this.getOrCreateActiveCartUseCase = getOrCreateActiveCartUseCase;
     this.addItemToCartUseCase = addItemToCartUseCase;
+    this.identityProvider = identityProvider;
   }
 
   /**
-   * Displays the shopping cart page.
+   * Displays the shopping cart page for the current user.
    *
    * <p>Returns the cart details rendered using the Pug template.
+   * The user's identity is obtained from the JWT token via IdentityProvider.
    *
-   * @param cartId the cart ID from path variable
    * @param model Spring MVC model to pass data to the view
    * @return view name "cart/view" which resolves to templates/cart/view.pug
    */
-  @GetMapping("/{cartId}")
-  public String showCart(@PathVariable final String cartId, final Model model) {
-    final GetCartByIdResponse output = getCartByIdUseCase.execute(new GetCartByIdQuery(cartId));
+  @GetMapping
+  public String showCart(final Model model) {
+    final Identity identity = identityProvider.getCurrentIdentity();
+    final CustomerId customerId = CustomerId.of(identity.userId().value());
+
+    // Get or create active cart for the current user
+    final GetOrCreateActiveCartResponse cartResponse =
+        getOrCreateActiveCartUseCase.execute(new GetOrCreateActiveCartCommand(customerId.value()));
+
+    // Fetch cart details
+    final GetCartByIdResponse output =
+        getCartByIdUseCase.execute(new GetCartByIdQuery(cartResponse.cartId()));
 
     if (!output.found()) {
       return "error/404";
@@ -71,7 +84,7 @@ public class CartPageController {
 
     model.addAttribute("cart", output);
     model.addAttribute("title", "Shopping Cart");
-    model.addAttribute("cartId", cartId);
+    model.addAttribute("cartId", cartResponse.cartId());
     model.addAttribute("itemCount", output.items().size());
     model.addAttribute("totalQuantity", output.items().stream()
         .mapToInt(item -> item.quantity())
@@ -85,14 +98,13 @@ public class CartPageController {
    *
    * <p>This endpoint:
    * <ul>
-   *   <li>Gets or creates an active cart for the current session
+   *   <li>Gets or creates an active cart for the current user (via JWT identity)
    *   <li>Adds the specified product to the cart
    *   <li>Redirects to the cart view page
    * </ul>
    *
    * @param productId the product ID to add
    * @param quantity the quantity to add (default: 1)
-   * @param session HTTP session to track customer cart
    * @param redirectAttributes for passing flash messages
    * @return redirect to cart view
    */
@@ -100,19 +112,15 @@ public class CartPageController {
   public String addProductToCart(
       @RequestParam final String productId,
       @RequestParam(defaultValue = "1") final int quantity,
-      final HttpSession session,
       final RedirectAttributes redirectAttributes) {
 
-    // Get or create customer ID from session
-    String customerId = (String) session.getAttribute("customerId");
-    if (customerId == null) {
-      customerId = "customer-" + session.getId();
-      session.setAttribute("customerId", customerId);
-    }
+    // Get customer ID from JWT identity
+    final Identity identity = identityProvider.getCurrentIdentity();
+    final CustomerId customerId = CustomerId.of(identity.userId().value());
 
     // Get or create active cart
     final GetOrCreateActiveCartResponse cartResponse =
-        getOrCreateActiveCartUseCase.execute(new GetOrCreateActiveCartCommand(customerId));
+        getOrCreateActiveCartUseCase.execute(new GetOrCreateActiveCartCommand(customerId.value()));
 
     // Add product to cart
     final AddItemToCartCommand command =
@@ -123,6 +131,6 @@ public class CartPageController {
     redirectAttributes.addFlashAttribute("message", "Product added to cart!");
 
     // Redirect to cart view
-    return "redirect:/cart/" + cartResponse.cartId();
+    return "redirect:/cart";
   }
 }

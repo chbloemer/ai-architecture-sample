@@ -58,7 +58,7 @@ public class StartCheckoutPageController {
 
     } catch (IllegalArgumentException | IllegalStateException e) {
       redirectAttributes.addFlashAttribute("error", e.getMessage());
-      return "redirect:/cart/" + cartId;
+      return "redirect:/cart";
     }
   }
 }

@@ -12,6 +12,7 @@ apply from: "gradle/plugins/test-common.gradle"
 apply from: "gradle/plugins/test-unit.gradle"
 apply from: "gradle/plugins/test-architecture.gradle"
 apply from: "gradle/plugins/test-integration.gradle"
+apply from: "gradle/plugins/test-e2e.gradle"
 
 // Project Configuration
 group = 'de.sample'
@@ -138,6 +139,9 @@ idea {
       testSources.from(sourceSets.testArchitecture.java.srcDirs)
       testSources.from(sourceSets.testArchitecture.groovy.srcDirs)
       testResources.from(sourceSets.testArchitecture.resources.srcDirs)
+
+      testSources.from(sourceSets.testE2e.java.srcDirs)
+      testResources.from(sourceSets.testE2e.resources.srcDirs)
   }
 }
 

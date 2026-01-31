@@ -1,0 +1,71 @@
+// E2E tests source set and task using Playwright Java
+
+sourceSets {
+  testE2e {
+    java.srcDir file("src/test-e2e/java")
+    resources.srcDir file("src/test-e2e/resources")
+    compileClasspath += sourceSets.main.output
+    runtimeClasspath += sourceSets.main.output
+  }
+}
+
+configurations {
+  // Reuse unit-test dependencies for common test utilities
+  testE2eImplementation.extendsFrom(testImplementation)
+  testE2eRuntimeOnly.extendsFrom(testRuntimeOnly)
+}
+
+dependencies {
+  // Playwright for browser automation
+  testE2eImplementation 'com.microsoft.playwright:playwright:1.50.0'
+
+  // JUnit 5 for test framework
+  testE2eImplementation 'org.junit.jupiter:junit-jupiter:5.11.4'
+
+  // Main outputs for testing against the application
+  testE2eImplementation sourceSets.main.output
+}
+
+// Register dedicated E2E test task
+tasks.register('test-e2e', Test) {
+  description = 'Runs E2E tests using Playwright (requires running application)'
+  group = 'verification'
+  testClassesDirs = sourceSets.testE2e.output.classesDirs
+  classpath = sourceSets.testE2e.runtimeClasspath
+
+  // E2E tests should not run as part of normal build
+  // They require a running application instance
+  shouldRunAfter 'test', 'test-integration'
+}
+
+// Apply common test task configuration
+configureTestTask(tasks.getByName('test-e2e'), "test-e2e")
+
+// E2E test configuration
+tasks.named('test-e2e').configure {
+  // Increase timeout for E2E tests (browser operations can be slow)
+  systemProperty 'junit.jupiter.execution.timeout.default', '5m'
+
+  // Base URL for the application under test (can be overridden)
+  systemProperty 'e2e.baseUrl', System.getProperty('e2e.baseUrl', 'http://localhost:8080')
+
+  // Browser configuration (chromium, firefox, webkit)
+  systemProperty 'e2e.browser', System.getProperty('e2e.browser', 'chromium')
+
+  // Headless mode (default: true for CI, can set false for debugging)
+  systemProperty 'e2e.headless', System.getProperty('e2e.headless', 'true')
+
+  // Verbose logging for debugging
+  if (project.hasProperty('log-debug')) {
+    beforeTest { descriptor ->
+      logger.lifecycle("# ${descriptor.className}: ${descriptor.name}")
+    }
+    testLogging {
+      events 'started', 'passed', 'skipped', 'failed'
+    }
+  }
+}
+
+// Note: E2E tests are NOT added to check task
+// They require manual execution with a running application:
+//   ./gradlew test-e2e -De2e.baseUrl=http://localhost:8080

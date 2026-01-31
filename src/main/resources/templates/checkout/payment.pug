@@ -16,7 +16,7 @@ block content
     p Session ID: #{session.sessionId()}
     p Status: #{session.status()}
 
-  form(method="post" action=`/checkout/${session.sessionId()}/payment`)
+  form(method="post" action="/checkout/payment")
     h3 Select Payment Method
 
     .payment-options
@@ -35,7 +35,7 @@ block content
       input#providerReference(type="text" name="providerReference" placeholder="e.g., Payment Intent ID" value=(session.payment() ? session.payment().providerReference() : ''))
 
     .form-actions
-      a.btn.btn-secondary(href=`/checkout/${session.sessionId()}/delivery`) Back
+      a.btn.btn-secondary(href="/checkout/delivery") Back
       button.btn.btn-primary(type="submit") Continue to Review
 
   if session.lineItems() && session.lineItems().size() > 0

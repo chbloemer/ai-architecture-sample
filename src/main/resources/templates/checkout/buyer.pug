@@ -16,7 +16,7 @@ block content
     p Session ID: #{session.sessionId()}
     p Status: #{session.status()}
 
-  form(method="post" action=`/checkout/${session.sessionId()}/buyer`)
+  form(method="post" action="/checkout/buyer")
     .form-group
       label(for="email") Email Address
       input#email(type="email" name="email" required placeholder="your@email.com" value=(session.buyerInfo() ? session.buyerInfo().email() : ''))

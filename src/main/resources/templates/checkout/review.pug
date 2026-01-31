@@ -21,7 +21,7 @@ block content
     .review-section
       .section-header
         h3 Buyer Information
-        a.edit-link(href=`/checkout/${session.sessionId()}/buyer`) Edit
+        a.edit-link(href="/checkout/buyer") Edit
       if session.buyerInfo()
         .section-content
           p
@@ -36,13 +36,13 @@ block content
       else
         .section-content.incomplete
           p Buyer information not provided
-          a.btn.btn-small(href=`/checkout/${session.sessionId()}/buyer`) Complete
+          a.btn.btn-small(href="/checkout/buyer") Complete
 
     //- Delivery Information Section
     .review-section
       .section-header
         h3 Delivery
-        a.edit-link(href=`/checkout/${session.sessionId()}/delivery`) Edit
+        a.edit-link(href="/checkout/delivery") Edit
       if session.delivery()
         .section-content
           h4 Shipping Address
@@ -63,13 +63,13 @@ block content
       else
         .section-content.incomplete
           p Delivery information not provided
-          a.btn.btn-small(href=`/checkout/${session.sessionId()}/delivery`) Complete
+          a.btn.btn-small(href="/checkout/delivery") Complete
 
     //- Payment Information Section
     .review-section
       .section-header
         h3 Payment Method
-        a.edit-link(href=`/checkout/${session.sessionId()}/payment`) Edit
+        a.edit-link(href="/checkout/payment") Edit
       if session.payment()
         .section-content
           p
@@ -82,7 +82,7 @@ block content
       else
         .section-content.incomplete
           p Payment method not selected
-          a.btn.btn-small(href=`/checkout/${session.sessionId()}/payment`) Complete
+          a.btn.btn-small(href="/checkout/payment") Complete
 
   //- Order Summary
   if session.lineItems() && session.lineItems().size() > 0
@@ -113,8 +113,8 @@ block content
             span.value #{session.totals().total()} #{session.totals().currencyCode()}
 
   .form-actions
-    a.btn.btn-secondary(href=`/checkout/${session.sessionId()}/payment`) Back
-    form(method="post" action=`/checkout/${session.sessionId()}/confirm` style="display: inline")
+    a.btn.btn-secondary(href="/checkout/payment") Back
+    form(method="post" action="/checkout/confirm" style="display: inline")
       button.btn.btn-primary(type="submit") Place Order
 
   style.

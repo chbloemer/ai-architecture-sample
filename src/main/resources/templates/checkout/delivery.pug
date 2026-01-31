@@ -16,7 +16,7 @@ block content
     p Session ID: #{session.sessionId()}
     p Status: #{session.status()}
 
-  form(method="post" action=`/checkout/${session.sessionId()}/delivery`)
+  form(method="post" action="/checkout/delivery")
     h3 Shipping Address
 
     .form-group
@@ -62,7 +62,7 @@ block content
             span.option-price #{option.cost()} #{option.currencyCode()}
 
     .form-actions
-      a.btn.btn-secondary(href=`/checkout/${session.sessionId()}/buyer`) Back
+      a.btn.btn-secondary(href="/checkout/buyer") Back
       button.btn.btn-primary(type="submit") Continue to Payment
 
   if session.lineItems() && session.lineItems().size() > 0

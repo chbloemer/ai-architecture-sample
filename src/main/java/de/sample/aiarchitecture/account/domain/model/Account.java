@@ -2,13 +2,13 @@ package de.sample.aiarchitecture.account.domain.model;
 
 import de.sample.aiarchitecture.account.domain.event.AccountLinkedToIdentity;
 import de.sample.aiarchitecture.account.domain.event.AccountRegistered;
+import de.sample.aiarchitecture.account.domain.service.PasswordHasher;
 import de.sample.aiarchitecture.sharedkernel.domain.common.UserId;
 import de.sample.aiarchitecture.sharedkernel.domain.marker.BaseAggregateRoot;
 import java.time.Instant;
 import java.util.HashSet;
 import java.util.Set;
 import org.jspecify.annotations.NonNull;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
 /**
  * Account Aggregate Root.
@@ -27,7 +27,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
  * <p><b>Business Rules:</b>
  * <ul>
  *   <li>Email must be unique across all accounts</li>
- *   <li>Password must meet strength requirements</li>
+ *   <li>Password must meet strength requirements (validated by domain)</li>
  *   <li>Each account is linked to exactly one UserId</li>
  *   <li>Cannot login if account is suspended or closed</li>
  * </ul>
@@ -69,27 +69,28 @@ public final class Account extends BaseAggregateRoot<Account, AccountId> {
    *
    * <p>This method:
    * <ol>
+   *   <li>Validates password strength</li>
+   *   <li>Hashes the password</li>
    *   <li>Generates a new AccountId</li>
-   *   <li>Hashes the password using BCrypt</li>
-   *   <li>Links the account to the provided UserId</li>
+   *   <li>Converts anonymous UserId to registered UserId if needed</li>
    *   <li>Raises AccountRegistered and AccountLinkedToIdentity events</li>
    * </ol>
    *
    * @param email the user's email address (login credential)
-   * @param plainPassword the plaintext password (will be hashed)
+   * @param plainPassword the plaintext password (will be validated and hashed)
    * @param currentUserId the UserId to link to (from the anonymous user's JWT)
-   * @param encoder the password encoder to use
+   * @param passwordHasher the password hasher domain service
    * @return a new Account instance
-   * @throws IllegalArgumentException if email is invalid or password doesn't meet requirements
+   * @throws IllegalArgumentException if email or password is invalid
    */
   public static Account register(
       @NonNull final Email email,
       @NonNull final String plainPassword,
       @NonNull final UserId currentUserId,
-      @NonNull final PasswordEncoder encoder) {
+      @NonNull final PasswordHasher passwordHasher) {
 
+    final HashedPassword hashedPassword = HashedPassword.fromPlaintext(plainPassword, passwordHasher);
     final AccountId accountId = AccountId.generate();
-    final HashedPassword hashedPassword = HashedPassword.fromPlaintext(plainPassword, encoder);
 
     // Convert anonymous UserId to registered UserId if needed
     final UserId registeredUserId;
@@ -172,14 +173,27 @@ public final class Account extends BaseAggregateRoot<Account, AccountId> {
   }
 
   /**
-   * Checks if the provided password matches this account's password.
+   * Gets the hashed password for persistence.
    *
-   * @param plainPassword the plaintext password to check
-   * @param encoder the password encoder
+   * <p>Use {@link #checkPassword(String, PasswordHasher)} for authentication.
+   *
+   * @return the hashed password
+   */
+  public HashedPassword password() {
+    return password;
+  }
+
+  /**
+   * Verifies if the given plaintext password matches the account's password.
+   *
+   * @param plainPassword the plaintext password to verify
+   * @param passwordHasher the password hasher domain service
    * @return true if the password matches
    */
-  public boolean checkPassword(final String plainPassword, final PasswordEncoder encoder) {
-    return password.matches(plainPassword, encoder);
+  public boolean checkPassword(
+      @NonNull final String plainPassword,
+      @NonNull final PasswordHasher passwordHasher) {
+    return password.matches(plainPassword, passwordHasher);
   }
 
   /**
@@ -199,15 +213,18 @@ public final class Account extends BaseAggregateRoot<Account, AccountId> {
   /**
    * Changes the account password.
    *
-   * @param newPlainPassword the new plaintext password
-   * @param encoder the password encoder
+   * @param newPlainPassword the new plaintext password (will be validated and hashed)
+   * @param passwordHasher the password hasher domain service
    * @throws IllegalStateException if the account is closed
+   * @throws IllegalArgumentException if the password doesn't meet requirements
    */
-  public void changePassword(final String newPlainPassword, final PasswordEncoder encoder) {
+  public void changePassword(
+      @NonNull final String newPlainPassword,
+      @NonNull final PasswordHasher passwordHasher) {
     if (status.isTerminal()) {
       throw new IllegalStateException("Cannot change password on closed account");
     }
-    this.password = HashedPassword.fromPlaintext(newPlainPassword, encoder);
+    this.password = HashedPassword.fromPlaintext(newPlainPassword, passwordHasher);
   }
 
   /**

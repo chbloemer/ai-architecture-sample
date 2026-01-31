@@ -3,7 +3,7 @@ package de.sample.aiarchitecture.account.adapter.incoming.web;
 import de.sample.aiarchitecture.account.application.authenticateaccount.AuthenticateAccountCommand;
 import de.sample.aiarchitecture.account.application.authenticateaccount.AuthenticateAccountInputPort;
 import de.sample.aiarchitecture.account.application.authenticateaccount.AuthenticateAccountResponse;
-import de.sample.aiarchitecture.infrastructure.security.jwt.JwtAuthenticationFilter;
+import de.sample.aiarchitecture.sharedkernel.application.port.security.IdentityCookieService;
 import de.sample.aiarchitecture.sharedkernel.application.port.security.TokenService;
 import de.sample.aiarchitecture.sharedkernel.domain.common.UserId;
 import jakarta.servlet.http.HttpServletResponse;
@@ -28,15 +28,15 @@ public class LoginPageController {
 
   private final AuthenticateAccountInputPort authenticateAccountUseCase;
   private final TokenService tokenService;
-  private final JwtAuthenticationFilter jwtAuthenticationFilter;
+  private final IdentityCookieService identityCookieService;
 
   public LoginPageController(
       final AuthenticateAccountInputPort authenticateAccountUseCase,
       final TokenService tokenService,
-      final JwtAuthenticationFilter jwtAuthenticationFilter) {
+      final IdentityCookieService identityCookieService) {
     this.authenticateAccountUseCase = authenticateAccountUseCase;
     this.tokenService = tokenService;
-    this.jwtAuthenticationFilter = jwtAuthenticationFilter;
+    this.identityCookieService = identityCookieService;
   }
 
   /**
@@ -93,7 +93,7 @@ public class LoginPageController {
           result.email(),
           result.roles());
 
-      jwtAuthenticationFilter.setRegisteredUserCookie(response, token);
+      identityCookieService.setRegisteredUserCookie(response, token);
 
       redirectAttributes.addFlashAttribute("message", "Welcome back!");
 

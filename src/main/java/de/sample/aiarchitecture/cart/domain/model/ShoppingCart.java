@@ -250,13 +250,17 @@ public final class ShoppingCart extends BaseAggregateRoot<ShoppingCart, CartId> 
    * Marks the cart as completed after checkout confirmation.
    *
    * <p>This method is called when the checkout process has been fully confirmed
-   * (customer has completed payment/review steps).
+   * (customer has completed payment/review steps). The cart can be completed
+   * from either ACTIVE or CHECKED_OUT status.
    *
-   * @throws IllegalStateException if cart is not in CHECKED_OUT status
+   * @throws IllegalStateException if cart is already completed or abandoned
    */
   public void complete() {
-    if (status != CartStatus.CHECKED_OUT) {
-      throw new IllegalStateException("Can only complete a checked-out cart, current status: " + status);
+    if (status == CartStatus.COMPLETED) {
+      throw new IllegalStateException("Cart is already completed");
+    }
+    if (status == CartStatus.ABANDONED) {
+      throw new IllegalStateException("Cannot complete an abandoned cart");
     }
     this.status = CartStatus.COMPLETED;
   }

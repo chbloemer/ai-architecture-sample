@@ -1,8 +1,8 @@
 package de.sample.aiarchitecture.account.domain.model;
 
+import de.sample.aiarchitecture.account.domain.service.PasswordHasher;
 import de.sample.aiarchitecture.sharedkernel.domain.marker.Value;
 import org.jspecify.annotations.NonNull;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
 /**
  * Value Object representing a securely hashed password.
@@ -10,28 +10,26 @@ import org.springframework.security.crypto.password.PasswordEncoder;
  * <p>This value object:
  * <ul>
  *   <li>Never stores plaintext passwords</li>
- *   <li>Uses BCrypt for hashing (delegated to Spring's PasswordEncoder)</li>
- *   <li>Provides timing-safe comparison via BCrypt</li>
+ *   <li>Validates password strength requirements</li>
+ *   <li>Delegates hashing to a {@link PasswordHasher} domain service</li>
  * </ul>
  *
  * <p><b>Security:</b>
  * <ul>
  *   <li>Passwords are hashed with BCrypt (cost factor 12)</li>
- *   <li>Each hash includes a random salt</li>
  *   <li>toString() does not reveal the hash</li>
- *   <li>Comparison is timing-safe</li>
  * </ul>
  *
  * <p><b>Usage:</b>
  * <pre>{@code
- * // Create from plaintext (for registration)
- * HashedPassword password = HashedPassword.fromPlaintext("MyP@ssw0rd!", encoder);
+ * // Create from plaintext (validates strength and hashes)
+ * HashedPassword password = HashedPassword.fromPlaintext("MyP@ssw0rd!", hasher);
  *
- * // Verify (for login)
- * boolean valid = password.matches("MyP@ssw0rd!", encoder);
+ * // Verify password
+ * boolean valid = password.matches("MyP@ssw0rd!", hasher);
  *
- * // Restore from database
- * HashedPassword stored = HashedPassword.fromHash("$2a$12$...");
+ * // Restore from persistence
+ * HashedPassword restored = HashedPassword.of("$2a$12$...");
  * }</pre>
  */
 public record HashedPassword(@NonNull String hash) implements Value {
@@ -48,46 +46,58 @@ public record HashedPassword(@NonNull String hash) implements Value {
   }
 
   /**
-   * Creates a HashedPassword from a plaintext password.
+   * Creates a HashedPassword from plaintext by validating and hashing.
    *
-   * <p>This method validates the password strength and hashes it using BCrypt.
+   * <p>This factory method:
+   * <ol>
+   *   <li>Validates password strength requirements</li>
+   *   <li>Hashes the password using the provided hasher</li>
+   * </ol>
    *
    * @param plaintext the plaintext password
-   * @param encoder the password encoder to use
-   * @return a new HashedPassword with the BCrypt hash
-   * @throws IllegalArgumentException if the password doesn't meet strength requirements
+   * @param hasher the password hasher service
+   * @return a HashedPassword wrapping the generated hash
+   * @throws IllegalArgumentException if password doesn't meet strength requirements
    */
   public static HashedPassword fromPlaintext(
       @NonNull final String plaintext,
-      @NonNull final PasswordEncoder encoder) {
+      @NonNull final PasswordHasher hasher) {
     validatePasswordStrength(plaintext);
-    return new HashedPassword(encoder.encode(plaintext));
+    return new HashedPassword(hasher.hash(plaintext));
   }
 
   /**
-   * Restores a HashedPassword from an existing hash (from database).
+   * Creates a HashedPassword from an existing hash.
    *
-   * <p>This method does not validate the hash format - it assumes the hash
-   * was previously created by this class.
+   * <p>This factory method creates a HashedPassword from a pre-computed hash,
+   * such as one loaded from storage.
+   *
+   * @param hash the BCrypt hash
+   * @return a HashedPassword wrapping the hash
+   */
+  public static HashedPassword of(@NonNull final String hash) {
+    return new HashedPassword(hash);
+  }
+
+  /**
+   * Alias for {@link #of(String)} - restores a HashedPassword from storage.
    *
    * @param hash the existing BCrypt hash
    * @return a HashedPassword wrapping the hash
    */
-  public static HashedPassword fromHash(final String hash) {
-    return new HashedPassword(hash);
+  public static HashedPassword fromHash(@NonNull final String hash) {
+    return of(hash);
   }
 
   /**
    * Checks if a plaintext password matches this hashed password.
    *
-   * <p>Uses timing-safe comparison provided by BCrypt.
-   *
-   * @param plaintext the plaintext password to check
-   * @param encoder the password encoder to use
+   * @param plaintext the plaintext password to verify
+   * @param hasher the password hasher service
    * @return true if the password matches
    */
-  public boolean matches(@NonNull final String plaintext, @NonNull final PasswordEncoder encoder) {
-    return encoder.matches(plaintext, hash);
+  public boolean matches(@NonNull final String plaintext, @NonNull final PasswordHasher hasher) {
+    return hasher.matches(plaintext, hash);
   }
 
   /**
@@ -104,7 +114,7 @@ public record HashedPassword(@NonNull String hash) implements Value {
    * @param plaintext the password to validate
    * @throws IllegalArgumentException if requirements are not met
    */
-  private static void validatePasswordStrength(final String plaintext) {
+  public static void validatePasswordStrength(@NonNull final String plaintext) {
     if (plaintext == null || plaintext.length() < MIN_LENGTH) {
       throw new IllegalArgumentException(
           "Password must be at least " + MIN_LENGTH + " characters long");

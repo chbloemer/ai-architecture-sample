@@ -1,7 +1,7 @@
 package de.sample.aiarchitecture.infrastructure.security.jwt;
 
-import de.sample.aiarchitecture.sharedkernel.application.port.security.Identity;
-import de.sample.aiarchitecture.sharedkernel.application.port.security.IdentityType;
+import de.sample.aiarchitecture.sharedkernel.application.common.security.Identity;
+import de.sample.aiarchitecture.sharedkernel.application.common.security.IdentityType;
 import de.sample.aiarchitecture.sharedkernel.application.port.security.TokenService;
 import de.sample.aiarchitecture.sharedkernel.domain.common.UserId;
 import io.jsonwebtoken.Claims;

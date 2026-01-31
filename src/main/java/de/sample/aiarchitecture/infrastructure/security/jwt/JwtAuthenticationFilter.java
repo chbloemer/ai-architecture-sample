@@ -1,6 +1,8 @@
 package de.sample.aiarchitecture.infrastructure.security.jwt;
 
-import de.sample.aiarchitecture.sharedkernel.application.port.security.Identity;
+import de.sample.aiarchitecture.sharedkernel.application.common.security.Identity;
+import de.sample.aiarchitecture.sharedkernel.application.port.security.IdentityCookieService;
+import de.sample.aiarchitecture.sharedkernel.application.port.security.RegisteredUserValidator;
 import de.sample.aiarchitecture.sharedkernel.application.port.security.TokenService;
 import de.sample.aiarchitecture.sharedkernel.domain.common.UserId;
 import jakarta.servlet.FilterChain;
@@ -46,7 +48,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
  * the identity via SecurityContextHolder or the IdentityProvider.
  */
 @Component
-public class JwtAuthenticationFilter extends OncePerRequestFilter {
+public class JwtAuthenticationFilter extends OncePerRequestFilter implements IdentityCookieService {
 
   private static final Logger LOG = LoggerFactory.getLogger(JwtAuthenticationFilter.class);
 
@@ -55,12 +57,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
   private final TokenService tokenService;
   private final JwtProperties jwtProperties;
+  private final RegisteredUserValidator registeredUserValidator;
 
   public JwtAuthenticationFilter(
       final TokenService tokenService,
-      final JwtProperties jwtProperties) {
+      final JwtProperties jwtProperties,
+      final RegisteredUserValidator registeredUserValidator) {
     this.tokenService = tokenService;
     this.jwtProperties = jwtProperties;
+    this.registeredUserValidator = registeredUserValidator;
   }
 
   @Override
@@ -92,7 +97,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
       if (identityOpt.isPresent()) {
         identity = identityOpt.get();
-        LOG.debug("Valid JWT found for user: {} ({})", identity.userId().value(), identity.type());
+
+        // For registered users, verify account still exists (handles app restart with in-memory storage)
+        if (identity.isRegistered() && !registeredUserValidator.existsForUserId(identity.userId())) {
+          LOG.info("Registered user {} has no account - creating anonymous identity",
+                   identity.userId().value());
+          identity = createAnonymousIdentity();
+          token = tokenService.generateAnonymousToken(identity.userId());
+          newTokenCreated = true;
+        } else {
+          LOG.debug("Valid JWT found for user: {} ({})", identity.userId().value(), identity.type());
+        }
       } else {
         // Token invalid or expired - create new anonymous identity
         LOG.debug("Invalid/expired JWT, creating new anonymous identity");
@@ -197,23 +212,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
   }
 
   /**
-   * Creates and sets a new registered user cookie.
-   *
-   * <p>This method is called by authentication services after successful login/registration
-   * to update the user's cookie with their registered identity token.
-   *
-   * @param response the HTTP response to set the cookie on
-   * @param token the registered user's JWT token
+   * {@inheritDoc}
    */
+  @Override
   public void setRegisteredUserCookie(final HttpServletResponse response, final String token) {
     setIdentityCookie(response, token, jwtProperties.registeredExpirationDays() * 24 * 60 * 60);
   }
 
   /**
-   * Clears the identity cookie (for logout).
-   *
-   * @param response the HTTP response
+   * {@inheritDoc}
    */
+  @Override
   public void clearIdentityCookie(final HttpServletResponse response) {
     final Cookie cookie = new Cookie(jwtProperties.cookieName(), "");
     cookie.setHttpOnly(true);

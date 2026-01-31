@@ -1,4 +1,4 @@
-package de.sample.aiarchitecture.sharedkernel.application.port.security;
+package de.sample.aiarchitecture.sharedkernel.application.common.security;
 
 /**
  * Represents the type of user identity.

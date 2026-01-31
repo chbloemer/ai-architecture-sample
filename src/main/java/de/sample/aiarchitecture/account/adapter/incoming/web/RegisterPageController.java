@@ -3,7 +3,7 @@ package de.sample.aiarchitecture.account.adapter.incoming.web;
 import de.sample.aiarchitecture.account.application.registeraccount.RegisterAccountCommand;
 import de.sample.aiarchitecture.account.application.registeraccount.RegisterAccountInputPort;
 import de.sample.aiarchitecture.account.application.registeraccount.RegisterAccountResponse;
-import de.sample.aiarchitecture.infrastructure.security.jwt.JwtAuthenticationFilter;
+import de.sample.aiarchitecture.sharedkernel.application.port.security.IdentityCookieService;
 import de.sample.aiarchitecture.sharedkernel.application.port.security.IdentityProvider;
 import de.sample.aiarchitecture.sharedkernel.application.port.security.TokenService;
 import de.sample.aiarchitecture.sharedkernel.domain.common.UserId;
@@ -30,17 +30,17 @@ public class RegisterPageController {
   private final RegisterAccountInputPort registerAccountUseCase;
   private final TokenService tokenService;
   private final IdentityProvider identityProvider;
-  private final JwtAuthenticationFilter jwtAuthenticationFilter;
+  private final IdentityCookieService identityCookieService;
 
   public RegisterPageController(
       final RegisterAccountInputPort registerAccountUseCase,
       final TokenService tokenService,
       final IdentityProvider identityProvider,
-      final JwtAuthenticationFilter jwtAuthenticationFilter) {
+      final IdentityCookieService identityCookieService) {
     this.registerAccountUseCase = registerAccountUseCase;
     this.tokenService = tokenService;
     this.identityProvider = identityProvider;
-    this.jwtAuthenticationFilter = jwtAuthenticationFilter;
+    this.identityCookieService = identityCookieService;
   }
 
   /**
@@ -113,7 +113,7 @@ public class RegisterPageController {
           result.email(),
           result.roles());
 
-      jwtAuthenticationFilter.setRegisteredUserCookie(response, token);
+      identityCookieService.setRegisteredUserCookie(response, token);
 
       redirectAttributes.addFlashAttribute("message", "Account created successfully! Welcome!");
 

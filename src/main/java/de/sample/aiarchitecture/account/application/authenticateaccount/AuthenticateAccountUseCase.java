@@ -3,11 +3,11 @@ package de.sample.aiarchitecture.account.application.authenticateaccount;
 import de.sample.aiarchitecture.account.application.shared.AccountRepository;
 import de.sample.aiarchitecture.account.domain.model.Account;
 import de.sample.aiarchitecture.account.domain.model.Email;
+import de.sample.aiarchitecture.account.domain.service.PasswordHasher;
 import java.util.Optional;
 import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,7 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
  * <p>This use case:
  * <ol>
  *   <li>Looks up the account by email</li>
- *   <li>Verifies the password using BCrypt</li>
+ *   <li>Verifies the password (delegated to domain)</li>
  *   <li>Checks the account is active</li>
  *   <li>Records the login time</li>
  *   <li>Returns information needed to issue a new JWT</li>
@@ -45,13 +45,13 @@ public class AuthenticateAccountUseCase implements AuthenticateAccountInputPort 
   private static final String GENERIC_ERROR = "Invalid email or password";
 
   private final AccountRepository accountRepository;
-  private final PasswordEncoder passwordEncoder;
+  private final PasswordHasher passwordHasher;
 
   public AuthenticateAccountUseCase(
       final AccountRepository accountRepository,
-      final PasswordEncoder passwordEncoder) {
+      final PasswordHasher passwordHasher) {
     this.accountRepository = accountRepository;
-    this.passwordEncoder = passwordEncoder;
+    this.passwordHasher = passwordHasher;
   }
 
   @Override
@@ -76,8 +76,8 @@ public class AuthenticateAccountUseCase implements AuthenticateAccountInputPort 
 
     final Account account = accountOpt.get();
 
-    // Check password
-    if (!account.checkPassword(command.password(), passwordEncoder)) {
+    // Check password using the domain method
+    if (!account.checkPassword(command.password(), passwordHasher)) {
       LOG.warn("Failed login attempt for email: {}", email.value());
       return AuthenticateAccountResponse.failure(GENERIC_ERROR);
     }

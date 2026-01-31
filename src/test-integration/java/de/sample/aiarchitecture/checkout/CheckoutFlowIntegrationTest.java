@@ -40,7 +40,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * <p>This test verifies:
  * <ul>
  *   <li>Create cart and add items</li>
- *   <li>Start checkout (cart becomes CHECKED_OUT)</li>
+ *   <li>Start checkout (cart remains ACTIVE - can still be modified)</li>
  *   <li>Submit buyer information</li>
  *   <li>Submit delivery information</li>
  *   <li>Submit payment information</li>
@@ -113,7 +113,7 @@ class CheckoutFlowIntegrationTest {
         assertEquals("ACTIVE", cartBefore.status(), "Cart should be ACTIVE before checkout");
         assertFalse(cartBefore.items().isEmpty(), "Cart should have items");
 
-        // Step 2: Start checkout (this should mark cart as CHECKED_OUT)
+        // Step 2: Start checkout (cart remains ACTIVE - user can still modify it)
         StartCheckoutResponse startResponse =
             startCheckoutInputPort.execute(new StartCheckoutCommand(cartId));
         String sessionId = startResponse.sessionId();
@@ -121,9 +121,9 @@ class CheckoutFlowIntegrationTest {
         assertEquals("BUYER_INFO", startResponse.currentStep(), "Should start at BUYER_INFO step");
         assertEquals("ACTIVE", startResponse.status(), "Session should be ACTIVE");
 
-        // Verify cart is now CHECKED_OUT
+        // Verify cart remains ACTIVE during checkout (can still be modified)
         GetCartByIdResponse cartAfterStart = getCartByIdUseCase.execute(new GetCartByIdQuery(cartId));
-        assertEquals("CHECKED_OUT", cartAfterStart.status(), "Cart should be CHECKED_OUT after starting checkout");
+        assertEquals("ACTIVE", cartAfterStart.status(), "Cart should remain ACTIVE during checkout");
 
         // Step 3: Submit buyer information
         submitBuyerInfoInputPort.execute(new SubmitBuyerInfoCommand(
@@ -201,7 +201,7 @@ class CheckoutFlowIntegrationTest {
     }
 
     @Test
-    void checkoutFlow_shouldRejectAlreadyCheckedOutCart() {
+    void checkoutFlow_allowsMultipleCheckoutSessionsWhileCartIsActive() {
         // Create a cart and add a product
         String customerId = "test-customer-double-" + System.currentTimeMillis();
 
@@ -216,12 +216,16 @@ class CheckoutFlowIntegrationTest {
         addItemToCartUseCase.execute(new AddItemToCartCommand(cartId, productId, 1));
 
         // Start first checkout
-        startCheckoutInputPort.execute(new StartCheckoutCommand(cartId));
+        StartCheckoutResponse firstSession = startCheckoutInputPort.execute(new StartCheckoutCommand(cartId));
+        assertNotNull(firstSession.sessionId(), "First checkout session should be created");
 
-        // Try to start second checkout with same cart - should fail
-        assertThrows(IllegalArgumentException.class, () ->
-            startCheckoutInputPort.execute(new StartCheckoutCommand(cartId)),
-            "Should reject checkout of already checked out cart"
-        );
+        // Cart remains ACTIVE, so starting another checkout is allowed
+        // (user abandoned previous checkout and started fresh)
+        StartCheckoutResponse secondSession = startCheckoutInputPort.execute(new StartCheckoutCommand(cartId));
+        assertNotNull(secondSession.sessionId(), "Second checkout session should be created");
+
+        // Verify cart is still ACTIVE
+        GetCartByIdResponse cart = getCartByIdUseCase.execute(new GetCartByIdQuery(cartId));
+        assertEquals("ACTIVE", cart.status(), "Cart should remain ACTIVE");
     }
 }

@@ -1,4 +1,4 @@
-package de.sample.aiarchitecture.sharedkernel.application.port.security;
+package de.sample.aiarchitecture.sharedkernel.application.common.security;
 
 import de.sample.aiarchitecture.sharedkernel.domain.common.UserId;
 import java.util.Optional;
@@ -9,7 +9,7 @@ import org.jspecify.annotations.NonNull;
  * Represents the current user's identity extracted from their JWT token.
  *
  * <p>This is an immutable record that carries identity information throughout
- * a request. It is available via {@link IdentityProvider#getCurrentIdentity()}.
+ * a request. It is available via {@link de.sample.aiarchitecture.sharedkernel.application.port.security.IdentityProvider#getCurrentIdentity()}.
  *
  * <p>Identity can be either:
  * <ul>

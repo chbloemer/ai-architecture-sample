@@ -1,5 +1,6 @@
 package de.sample.aiarchitecture.sharedkernel.application.port.security;
 
+import de.sample.aiarchitecture.sharedkernel.application.common.security.Identity;
 import org.jspecify.annotations.NonNull;
 
 /**

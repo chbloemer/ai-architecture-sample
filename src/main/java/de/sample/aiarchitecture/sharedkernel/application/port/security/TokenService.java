@@ -1,5 +1,6 @@
 package de.sample.aiarchitecture.sharedkernel.application.port.security;
 
+import de.sample.aiarchitecture.sharedkernel.application.common.security.Identity;
 import de.sample.aiarchitecture.sharedkernel.domain.common.UserId;
 import java.util.Optional;
 import java.util.Set;

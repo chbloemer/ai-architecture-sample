@@ -1,6 +1,6 @@
 package de.sample.aiarchitecture.infrastructure.security;
 
-import de.sample.aiarchitecture.sharedkernel.application.port.security.Identity;
+import de.sample.aiarchitecture.sharedkernel.application.common.security.Identity;
 import de.sample.aiarchitecture.sharedkernel.application.port.security.IdentityProvider;
 import org.jspecify.annotations.NonNull;
 import org.springframework.security.core.Authentication;

@@ -6,7 +6,7 @@ import de.sample.aiarchitecture.account.application.authenticateaccount.Authenti
 import de.sample.aiarchitecture.account.application.registeraccount.RegisterAccountCommand;
 import de.sample.aiarchitecture.account.application.registeraccount.RegisterAccountInputPort;
 import de.sample.aiarchitecture.account.application.registeraccount.RegisterAccountResponse;
-import de.sample.aiarchitecture.infrastructure.security.jwt.JwtAuthenticationFilter;
+import de.sample.aiarchitecture.sharedkernel.application.port.security.IdentityCookieService;
 import de.sample.aiarchitecture.sharedkernel.application.port.security.IdentityProvider;
 import de.sample.aiarchitecture.sharedkernel.application.port.security.TokenService;
 import de.sample.aiarchitecture.sharedkernel.domain.common.UserId;
@@ -40,23 +40,23 @@ public class AuthResource {
   private final RegisterAccountInputPort registerAccountUseCase;
   private final TokenService tokenService;
   private final IdentityProvider identityProvider;
-  private final JwtAuthenticationFilter jwtAuthenticationFilter;
+  private final IdentityCookieService identityCookieService;
 
   public AuthResource(
       final AuthenticateAccountInputPort authenticateAccountUseCase,
       final RegisterAccountInputPort registerAccountUseCase,
       final TokenService tokenService,
       final IdentityProvider identityProvider,
-      final JwtAuthenticationFilter jwtAuthenticationFilter) {
+      final IdentityCookieService identityCookieService) {
     this.authenticateAccountUseCase = authenticateAccountUseCase;
     this.registerAccountUseCase = registerAccountUseCase;
     this.tokenService = tokenService;
     this.identityProvider = identityProvider;
-    this.jwtAuthenticationFilter = jwtAuthenticationFilter;
+    this.identityCookieService = identityCookieService;
   }
 
   @PostMapping("/login")
-  public ResponseEntity<LoginResponse> login(
+  public ResponseEntity<LoginApiResult> login(
       @Valid @RequestBody final LoginRequest request,
       final HttpServletResponse response) {
 
@@ -68,7 +68,7 @@ public class AuthResource {
 
     if (!result.success()) {
       return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-          .body(LoginResponse.failure(result.errorMessage()));
+          .body(LoginApiResult.failure(result.errorMessage()));
     }
 
     final String token = tokenService.generateRegisteredToken(
@@ -76,13 +76,13 @@ public class AuthResource {
         result.email(),
         result.roles());
 
-    jwtAuthenticationFilter.setRegisteredUserCookie(response, token);
+    identityCookieService.setRegisteredUserCookie(response, token);
 
-    return ResponseEntity.ok(LoginResponse.success(token, result.email()));
+    return ResponseEntity.ok(LoginApiResult.success(token, result.email()));
   }
 
   @PostMapping("/register")
-  public ResponseEntity<RegisterResponse> register(
+  public ResponseEntity<RegisterApiResult> register(
       @Valid @RequestBody final RegisterRequest request,
       final HttpServletResponse response) {
 
@@ -101,20 +101,20 @@ public class AuthResource {
           result.email(),
           result.roles());
 
-      jwtAuthenticationFilter.setRegisteredUserCookie(response, token);
+      identityCookieService.setRegisteredUserCookie(response, token);
 
       return ResponseEntity.status(HttpStatus.CREATED)
-          .body(RegisterResponse.success(token, result.email()));
+          .body(RegisterApiResult.success(token, result.email()));
 
     } catch (final IllegalArgumentException e) {
       return ResponseEntity.badRequest()
-          .body(RegisterResponse.failure(e.getMessage()));
+          .body(RegisterApiResult.failure(e.getMessage()));
     }
   }
 
   @PostMapping("/logout")
   public ResponseEntity<Void> logout(final HttpServletResponse response) {
-    jwtAuthenticationFilter.clearIdentityCookie(response);
+    identityCookieService.clearIdentityCookie(response);
     return ResponseEntity.ok().build();
   }
 }

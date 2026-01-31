@@ -61,6 +61,12 @@ abstract class BaseArchUnitTest extends Specification {
   protected static final String CHECKOUT_APPLICATION_PACKAGE = "${BASE_PACKAGE}.checkout.application.."
   protected static final String CHECKOUT_ADAPTER_PACKAGE = "${BASE_PACKAGE}.checkout.adapter.."
 
+  protected static final String ACCOUNT_CONTEXT_PACKAGE = "${BASE_PACKAGE}.account.."
+  protected static final String ACCOUNT_DOMAIN_PACKAGE = "${BASE_PACKAGE}.account.domain.."
+  protected static final String ACCOUNT_DOMAIN_MODEL_PACKAGE = "${BASE_PACKAGE}.account.domain.model.."
+  protected static final String ACCOUNT_APPLICATION_PACKAGE = "${BASE_PACKAGE}.account.application.."
+  protected static final String ACCOUNT_ADAPTER_PACKAGE = "${BASE_PACKAGE}.account.adapter.."
+
   // Generic patterns (matching all bounded contexts)
   protected static final String DOMAIN_PACKAGE = "${BASE_PACKAGE}.*.domain.."
   protected static final String DOMAIN_MODEL_PACKAGE = "${BASE_PACKAGE}.*.domain.model.."

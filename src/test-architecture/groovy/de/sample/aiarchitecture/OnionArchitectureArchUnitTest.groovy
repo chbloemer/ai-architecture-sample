@@ -29,8 +29,8 @@ class OnionArchitectureArchUnitTest extends BaseArchUnitTest {
   def "Domain must not access Application Services (Onion Architecture - Domain is innermost layer)"() {
     expect:
     noClasses()
-    .that().resideInAnyPackage(PRODUCT_DOMAIN_PACKAGE, CART_DOMAIN_PACKAGE, SHAREDKERNEL_DOMAIN_PACKAGE)
-    .should().dependOnClassesThat().resideInAnyPackage(PRODUCT_APPLICATION_PACKAGE, CART_APPLICATION_PACKAGE, SHAREDKERNEL_APPLICATION_PACKAGE)
+    .that().resideInAnyPackage(PRODUCT_DOMAIN_PACKAGE, CART_DOMAIN_PACKAGE, CHECKOUT_DOMAIN_PACKAGE, ACCOUNT_DOMAIN_PACKAGE, SHAREDKERNEL_DOMAIN_PACKAGE)
+    .should().dependOnClassesThat().resideInAnyPackage(PRODUCT_APPLICATION_PACKAGE, CART_APPLICATION_PACKAGE, CHECKOUT_APPLICATION_PACKAGE, ACCOUNT_APPLICATION_PACKAGE, SHAREDKERNEL_APPLICATION_PACKAGE)
     .because("Domain is the innermost layer in onion architecture and should not depend on application services")
     .check(allClasses)
   }
@@ -44,6 +44,8 @@ class OnionArchitectureArchUnitTest extends BaseArchUnitTest {
     final String[] domainPackagePatterns = [
       "${BASE_PACKAGE}.product.domain..",
       "${BASE_PACKAGE}.cart.domain..",
+      "${BASE_PACKAGE}.checkout.domain..",
+      "${BASE_PACKAGE}.account.domain..",
       "${BASE_PACKAGE}.sharedkernel.domain.."
     ] as String[]
 
@@ -61,7 +63,7 @@ class OnionArchitectureArchUnitTest extends BaseArchUnitTest {
   def "Domain Models must not have Spring/JPA annotations"() {
     expect:
     noClasses()
-    .that().resideInAnyPackage(PRODUCT_DOMAIN_MODEL_PACKAGE, CART_DOMAIN_MODEL_PACKAGE, SHAREDKERNEL_DOMAIN_PACKAGE)
+    .that().resideInAnyPackage(PRODUCT_DOMAIN_MODEL_PACKAGE, CART_DOMAIN_MODEL_PACKAGE, CHECKOUT_DOMAIN_MODEL_PACKAGE, ACCOUNT_DOMAIN_MODEL_PACKAGE, SHAREDKERNEL_DOMAIN_PACKAGE)
     .should().beAnnotatedWith(Component.class)
     .orShould().beAnnotatedWith(Service.class)
     .orShould().beAnnotatedWith("jakarta.persistence.Entity")

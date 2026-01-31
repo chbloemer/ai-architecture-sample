@@ -12,6 +12,17 @@ block content
     span.step Payment
     span.step Confirmation
 
+  //- Auth options: show login/register for anonymous, or logged-in status for registered users
+  if identity.isAnonymous()
+    .auth-options
+      p Already have an account? Log in to speed up checkout.
+      .auth-buttons
+        a.btn.btn-secondary(href="/login?returnUrl=/checkout/buyer") Login
+        a.btn.btn-secondary(href="/register?returnUrl=/checkout/buyer") Register
+  else
+    .auth-options.logged-in
+      p Logged in as #{identity.email().orElse('')}
+
   .session-summary
     p Session ID: #{session.sessionId()}
     p Status: #{session.status()}
@@ -19,7 +30,8 @@ block content
   form(method="post" action="/checkout/buyer")
     .form-group
       label(for="email") Email Address
-      input#email(type="email" name="email" required placeholder="your@email.com" value=(session.buyerInfo() ? session.buyerInfo().email() : ''))
+      - var emailValue = session.buyerInfo() ? session.buyerInfo().email() : (identity.isRegistered() ? identity.email().orElse('') : '')
+      input#email(type="email" name="email" required placeholder="your@email.com" value=emailValue)
 
     .form-group
       label(for="firstName") First Name
@@ -69,6 +81,37 @@ block content
     .checkout-progress .step.active {
       background: #3498db;
       color: white;
+    }
+    .auth-options {
+      background: #e8f4fd;
+      padding: 20px;
+      border-radius: 8px;
+      margin-bottom: 25px;
+      border: 1px solid #b8daff;
+    }
+    .auth-options p {
+      margin: 0 0 15px 0;
+      color: #2c3e50;
+    }
+    .auth-options.logged-in {
+      background: #d4edda;
+      border-color: #c3e6cb;
+    }
+    .auth-options.logged-in p {
+      margin: 0;
+      color: #155724;
+      font-weight: 500;
+    }
+    .auth-buttons {
+      display: flex;
+      gap: 10px;
+    }
+    .btn-secondary {
+      background: #6c757d;
+      color: white;
+    }
+    .btn-secondary:hover {
+      background: #5a6268;
     }
     .session-summary {
       background: #f9f9f9;

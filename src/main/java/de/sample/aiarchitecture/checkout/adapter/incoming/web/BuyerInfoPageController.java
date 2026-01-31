@@ -95,6 +95,7 @@ public class BuyerInfoPageController {
     }
 
     model.addAttribute("session", session);
+    model.addAttribute("identity", identity);
     model.addAttribute("title", "Buyer Information - Checkout");
 
     return "checkout/buyer";

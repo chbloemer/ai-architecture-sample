@@ -867,6 +867,38 @@ Reference implementation demonstrating Domain-Centric Architecture with DDD, Hex
 
 ---
 
+### US-50: Fix Incoming Adapter Cross-Context Violations
+**As a** developer
+**I want** incoming adapters to only access their own bounded context
+**So that** bounded context isolation is enforced at the adapter layer
+
+**Acceptance Criteria:**
+- StartCheckoutPageController accepts cartId as URL parameter instead of calling GetOrCreateActiveCartUseCase
+- LoginPageController redirects to /cart/merge with URL parameters instead of calling GetCartMergeOptionsUseCase
+- CartMergePageController accepts anonymousUserId and returnUrl from URL parameters (stateless, no session)
+- No imports from cart context in checkout adapters
+- No imports from cart context in account adapters
+- Architecture tests pass: `./gradlew test-architecture`
+- All tests pass: `./gradlew test`
+
+**Architectural Guidance:**
+- **Affected Layers:** Adapter
+- **Locations:**
+  - `checkout.adapter.incoming.web.StartCheckoutPageController`
+  - `account.adapter.incoming.web.LoginPageController`
+  - `cart.adapter.incoming.web.CartMergePageController`
+  - `templates/cart/merge-options.pug`
+- **Patterns:** Bounded Context Isolation, URL Parameter State Transfer, Stateless Controllers
+- **Constraints:**
+  - Incoming adapters must only access their own bounded context's use cases
+  - Cross-context coordination happens via URL redirects with parameters
+  - No session storage - use URL parameters for state transfer
+  - Cart context decides if merge is needed (not account context)
+  - UI passes known data (cartId) instead of controller querying other contexts
+  - Run `./gradlew test-architecture` to verify
+
+---
+
 ## Goals
 - 5-step checkout flow (Buyer Info -> Delivery -> Payment -> Review -> Confirmation)
 - Guest checkout (no account required)

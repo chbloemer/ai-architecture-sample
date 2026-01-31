@@ -9,7 +9,6 @@ import de.sample.aiarchitecture.cart.application.mergecarts.MergeCartsInputPort;
 import de.sample.aiarchitecture.cart.application.mergecarts.MergeCartsResponse;
 import de.sample.aiarchitecture.sharedkernel.application.common.security.Identity;
 import de.sample.aiarchitecture.sharedkernel.application.port.security.IdentityProvider;
-import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,14 +23,15 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
  * <p>This controller handles the cart merge decision flow when a user logs in
  * and both their anonymous cart and account cart have items.
  *
+ * <p><b>Stateless Design:</b> This controller uses URL parameters instead of HTTP sessions
+ * to pass state between requests. The anonymous user ID and return URL are passed via URL,
+ * making it compatible with session-disabled configurations.
+ *
  * <p><b>Template Location:</b> {@code src/main/resources/templates/cart/merge-options.pug}
  */
 @Controller
 @RequestMapping("/cart/merge")
 public class CartMergePageController {
-
-  public static final String SESSION_ATTR_ANONYMOUS_USER_ID = "anonymousUserIdForMerge";
-  public static final String SESSION_ATTR_RETURN_URL = "mergeReturnUrl";
 
   private final GetCartMergeOptionsInputPort getCartMergeOptionsUseCase;
   private final MergeCartsInputPort mergeCartsUseCase;
@@ -50,48 +50,34 @@ public class CartMergePageController {
    * Displays the cart merge options page.
    *
    * <p>Shows the user both carts and lets them choose how to handle the conflict.
-   * Requires anonymous user ID to be stored in session (set by login controller).
+   * If no merge is required, redirects to the return URL or cart page.
    *
    * @param model Spring MVC model
-   * @param session HTTP session containing anonymous user ID
+   * @param anonymousUserId the anonymous user ID (passed via URL from login)
    * @param returnUrl optional URL to redirect to after merge
-   * @return view name "cart/merge-options"
+   * @param redirectAttributes for passing flash messages
+   * @return view name "cart/merge-options" or redirect if no merge needed
    */
   @GetMapping
   public String showMergeOptions(
       final Model model,
-      final HttpSession session,
-      @RequestParam(required = false) final String returnUrl) {
+      @RequestParam final String anonymousUserId,
+      @RequestParam(required = false) final String returnUrl,
+      final RedirectAttributes redirectAttributes) {
 
     final Identity identity = identityProvider.getCurrentIdentity();
     final String registeredUserId = identity.userId().value();
-
-    // Get anonymous user ID from session
-    final String anonymousUserId = (String) session.getAttribute(SESSION_ATTR_ANONYMOUS_USER_ID);
-
-    if (anonymousUserId == null) {
-      // No anonymous user ID stored - shouldn't happen normally
-      // Redirect to cart
-      return "redirect:/cart";
-    }
-
-    // Store return URL in session for after merge
-    if (returnUrl != null && !returnUrl.isBlank()) {
-      session.setAttribute(SESSION_ATTR_RETURN_URL, returnUrl);
-    }
 
     // Get merge options
     final GetCartMergeOptionsQuery query = new GetCartMergeOptionsQuery(anonymousUserId, registeredUserId);
     final GetCartMergeOptionsResponse options = getCartMergeOptionsUseCase.execute(query);
 
     if (!options.mergeRequired()) {
-      // No merge needed - clean up session and redirect
-      session.removeAttribute(SESSION_ATTR_ANONYMOUS_USER_ID);
-      final String storedReturnUrl = (String) session.getAttribute(SESSION_ATTR_RETURN_URL);
-      session.removeAttribute(SESSION_ATTR_RETURN_URL);
+      // No merge needed - redirect with welcome message
+      redirectAttributes.addFlashAttribute("message", "Welcome back!");
 
-      if (storedReturnUrl != null && !storedReturnUrl.isBlank()) {
-        return "redirect:" + storedReturnUrl;
+      if (returnUrl != null && !returnUrl.isBlank()) {
+        return "redirect:" + returnUrl;
       }
       return "redirect:/cart";
     }
@@ -99,6 +85,7 @@ public class CartMergePageController {
     model.addAttribute("title", "Cart Merge Options");
     model.addAttribute("anonymousCart", options.anonymousCart());
     model.addAttribute("accountCart", options.accountCart());
+    model.addAttribute("anonymousUserId", anonymousUserId);
     model.addAttribute("returnUrl", returnUrl);
 
     return "cart/merge-options";
@@ -108,25 +95,20 @@ public class CartMergePageController {
    * Handles the user's cart merge decision.
    *
    * @param strategy the chosen merge strategy
-   * @param session HTTP session containing anonymous user ID
+   * @param anonymousUserId the anonymous user ID (from hidden form field)
+   * @param returnUrl optional URL to redirect to after merge
    * @param redirectAttributes for passing flash messages
    * @return redirect to return URL or cart
    */
   @PostMapping
   public String handleMergeDecision(
       @RequestParam final String strategy,
-      final HttpSession session,
+      @RequestParam final String anonymousUserId,
+      @RequestParam(required = false) final String returnUrl,
       final RedirectAttributes redirectAttributes) {
 
     final Identity identity = identityProvider.getCurrentIdentity();
     final String registeredUserId = identity.userId().value();
-
-    // Get anonymous user ID from session
-    final String anonymousUserId = (String) session.getAttribute(SESSION_ATTR_ANONYMOUS_USER_ID);
-
-    if (anonymousUserId == null) {
-      return "redirect:/cart";
-    }
 
     // Parse strategy
     final CartMergeStrategy mergeStrategy;
@@ -134,17 +116,13 @@ public class CartMergePageController {
       mergeStrategy = CartMergeStrategy.valueOf(strategy);
     } catch (final IllegalArgumentException e) {
       redirectAttributes.addFlashAttribute("error", "Invalid merge option selected");
-      return "redirect:/cart/merge";
+      return "redirect:/cart/merge?anonymousUserId=" + anonymousUserId
+          + (returnUrl != null ? "&returnUrl=" + returnUrl : "");
     }
 
     // Execute merge
     final MergeCartsCommand command = new MergeCartsCommand(anonymousUserId, registeredUserId, mergeStrategy);
     final MergeCartsResponse response = mergeCartsUseCase.execute(command);
-
-    // Clean up session
-    session.removeAttribute(SESSION_ATTR_ANONYMOUS_USER_ID);
-    final String returnUrl = (String) session.getAttribute(SESSION_ATTR_RETURN_URL);
-    session.removeAttribute(SESSION_ATTR_RETURN_URL);
 
     // Add success message based on strategy
     final String message = switch (mergeStrategy) {

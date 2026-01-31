@@ -68,6 +68,74 @@ class HexagonalArchitectureArchUnitTest extends BaseArchUnitTest {
       .check(allClasses)
   }
 
+  def "Incoming adapters must only access their own bounded context (except event consumers)"() {
+    expect:
+    // Product incoming adapters (except event consumers) must not access other contexts
+    noClasses()
+      .that().resideInAPackage("${BASE_PACKAGE}.product.adapter.incoming..")
+        .and().resideOutsideOfPackage("..adapter.incoming.event..")
+      .should().accessClassesThat().resideInAnyPackage(
+        CART_CONTEXT_PACKAGE,
+        CHECKOUT_CONTEXT_PACKAGE,
+        ACCOUNT_CONTEXT_PACKAGE,
+        PORTAL_CONTEXT_PACKAGE
+      )
+      .because("Incoming adapters must only orchestrate use cases from their own bounded context - use domain events for cross-context integration")
+      .check(allClasses)
+
+    // Cart incoming adapters (except event consumers) must not access other contexts
+    noClasses()
+      .that().resideInAPackage("${BASE_PACKAGE}.cart.adapter.incoming..")
+        .and().resideOutsideOfPackage("..adapter.incoming.event..")
+      .should().accessClassesThat().resideInAnyPackage(
+        PRODUCT_CONTEXT_PACKAGE,
+        CHECKOUT_CONTEXT_PACKAGE,
+        ACCOUNT_CONTEXT_PACKAGE,
+        PORTAL_CONTEXT_PACKAGE
+      )
+      .because("Incoming adapters must only orchestrate use cases from their own bounded context - use domain events for cross-context integration")
+      .check(allClasses)
+
+    // Checkout incoming adapters (except event consumers) must not access other contexts
+    noClasses()
+      .that().resideInAPackage("${BASE_PACKAGE}.checkout.adapter.incoming..")
+        .and().resideOutsideOfPackage("..adapter.incoming.event..")
+      .should().accessClassesThat().resideInAnyPackage(
+        PRODUCT_CONTEXT_PACKAGE,
+        CART_CONTEXT_PACKAGE,
+        ACCOUNT_CONTEXT_PACKAGE,
+        PORTAL_CONTEXT_PACKAGE
+      )
+      .because("Incoming adapters must only orchestrate use cases from their own bounded context - use domain events for cross-context integration")
+      .check(allClasses)
+
+    // Account incoming adapters (except event consumers) must not access other contexts
+    noClasses()
+      .that().resideInAPackage("${BASE_PACKAGE}.account.adapter.incoming..")
+        .and().resideOutsideOfPackage("..adapter.incoming.event..")
+      .should().accessClassesThat().resideInAnyPackage(
+        PRODUCT_CONTEXT_PACKAGE,
+        CART_CONTEXT_PACKAGE,
+        CHECKOUT_CONTEXT_PACKAGE,
+        PORTAL_CONTEXT_PACKAGE
+      )
+      .because("Incoming adapters must only orchestrate use cases from their own bounded context - use domain events for cross-context integration")
+      .check(allClasses)
+
+    // Portal incoming adapters (except event consumers) must not access other contexts
+    noClasses()
+      .that().resideInAPackage("${BASE_PACKAGE}.portal.adapter.incoming..")
+        .and().resideOutsideOfPackage("..adapter.incoming.event..")
+      .should().accessClassesThat().resideInAnyPackage(
+        PRODUCT_CONTEXT_PACKAGE,
+        CART_CONTEXT_PACKAGE,
+        CHECKOUT_CONTEXT_PACKAGE,
+        ACCOUNT_CONTEXT_PACKAGE
+      )
+      .because("Incoming adapters must only orchestrate use cases from their own bounded context - use domain events for cross-context integration")
+      .check(allClasses)
+  }
+
   def "Repository Implementations must reside in portadapter.outgoing package"() {
     expect:
     ArchRuleDefinition.classes()

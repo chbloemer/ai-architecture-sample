@@ -44,6 +44,9 @@ block content
     h3 Choose an Option
 
     form(method="POST" action="/cart/merge" data-test="merge-form")
+      input(type="hidden" name="anonymousUserId" value=anonymousUserId)
+      if returnUrl
+        input(type="hidden" name="returnUrl" value=returnUrl)
       .option-cards
         .option-card(data-test="merge-option-merge-both")
           input#merge-both(type="radio" name="strategy" value="MERGE_BOTH" checked)

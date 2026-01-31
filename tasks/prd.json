@@ -912,6 +912,45 @@
         ]
       },
       "passes": true
+    },
+    {
+      "id": "US-50",
+      "title": "Fix Incoming Adapter Cross-Context Violations",
+      "description": "Fix architectural violations where incoming adapters access other bounded contexts directly. StartCheckoutPageController should not call cart use cases, and LoginPageController should not call cart use cases. Enforce bounded context isolation at the adapter layer.",
+      "acceptance_criteria": [
+        "StartCheckoutPageController accepts cartId as URL parameter instead of calling GetOrCreateActiveCartUseCase",
+        "LoginPageController redirects to /cart/merge with URL parameters instead of calling GetCartMergeOptionsUseCase",
+        "CartMergePageController accepts anonymousUserId and returnUrl from URL parameters (stateless, no session)",
+        "No imports from cart context in checkout adapters",
+        "No imports from cart context in account adapters",
+        "Architecture tests pass: ./gradlew test-architecture",
+        "All tests pass: ./gradlew test"
+      ],
+      "architectural_guidance": {
+        "affected_layers": [
+          "adapter"
+        ],
+        "locations": [
+          "checkout.adapter.incoming.web.StartCheckoutPageController",
+          "account.adapter.incoming.web.LoginPageController",
+          "cart.adapter.incoming.web.CartMergePageController",
+          "templates/cart/merge-options.pug"
+        ],
+        "patterns": [
+          "Bounded Context Isolation",
+          "URL Parameter State Transfer",
+          "Stateless Controllers"
+        ],
+        "constraints": [
+          "Incoming adapters must only access their own bounded context's use cases",
+          "Cross-context coordination happens via URL redirects with parameters",
+          "No session storage - use URL parameters for state transfer",
+          "Cart context decides if merge is needed (not account context)",
+          "UI passes known data (cartId) instead of controller querying other contexts",
+          "Run ./gradlew test-architecture to verify"
+        ]
+      },
+      "passes": true
     }
   ]
 }

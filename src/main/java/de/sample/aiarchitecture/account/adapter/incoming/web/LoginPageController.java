@@ -3,16 +3,13 @@ package de.sample.aiarchitecture.account.adapter.incoming.web;
 import de.sample.aiarchitecture.account.application.authenticateaccount.AuthenticateAccountCommand;
 import de.sample.aiarchitecture.account.application.authenticateaccount.AuthenticateAccountInputPort;
 import de.sample.aiarchitecture.account.application.authenticateaccount.AuthenticateAccountResponse;
-import de.sample.aiarchitecture.cart.adapter.incoming.web.CartMergePageController;
-import de.sample.aiarchitecture.cart.application.getcartmergeoptions.GetCartMergeOptionsInputPort;
-import de.sample.aiarchitecture.cart.application.getcartmergeoptions.GetCartMergeOptionsQuery;
-import de.sample.aiarchitecture.cart.application.getcartmergeoptions.GetCartMergeOptionsResponse;
 import de.sample.aiarchitecture.sharedkernel.application.port.security.IdentityCookieService;
 import de.sample.aiarchitecture.sharedkernel.application.port.security.IdentityProvider;
 import de.sample.aiarchitecture.sharedkernel.application.port.security.TokenService;
 import de.sample.aiarchitecture.sharedkernel.domain.common.UserId;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,6 +23,11 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
  *
  * <p>This controller handles server-side rendered login pages using Pug templates.
  *
+ * <p><b>Clean Architecture:</b> This controller only depends on its own bounded context
+ * (account). After successful login, it redirects to the cart merge page with URL parameters,
+ * allowing the cart context to decide if a merge is actually needed. This avoids cross-context
+ * dependencies.
+ *
  * <p><b>Template Location:</b> {@code src/main/resources/templates/account/login.pug}
  */
 @Controller
@@ -33,19 +35,16 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 public class LoginPageController {
 
   private final AuthenticateAccountInputPort authenticateAccountUseCase;
-  private final GetCartMergeOptionsInputPort getCartMergeOptionsUseCase;
   private final TokenService tokenService;
   private final IdentityProvider identityProvider;
   private final IdentityCookieService identityCookieService;
 
   public LoginPageController(
       final AuthenticateAccountInputPort authenticateAccountUseCase,
-      final GetCartMergeOptionsInputPort getCartMergeOptionsUseCase,
       final TokenService tokenService,
       final IdentityProvider identityProvider,
       final IdentityCookieService identityCookieService) {
     this.authenticateAccountUseCase = authenticateAccountUseCase;
-    this.getCartMergeOptionsUseCase = getCartMergeOptionsUseCase;
     this.tokenService = tokenService;
     this.identityProvider = identityProvider;
     this.identityCookieService = identityCookieService;
@@ -71,17 +70,17 @@ public class LoginPageController {
   /**
    * Handles login form submission.
    *
-   * <p>After successful login, checks if the user has items in both their anonymous
-   * cart and account cart. If so, redirects to the cart merge options page.
+   * <p>After successful login, always redirects to the cart merge page with the anonymous
+   * user ID as a URL parameter. The cart context will determine if a merge is actually
+   * required and redirect appropriately if not.
    *
    * @param email the user's email
    * @param password the user's password
    * @param returnUrl optional URL to redirect to after login
    * @param response HTTP response for setting cookies
-   * @param session HTTP session for storing anonymous user ID for merge
    * @param redirectAttributes for passing flash messages
    * @param model Spring MVC model
-   * @return redirect to home, returnUrl, or cart merge page on success, login page on failure
+   * @return redirect to cart merge page on success, login page on failure
    */
   @PostMapping
   public String handleLogin(
@@ -89,7 +88,6 @@ public class LoginPageController {
       @RequestParam final String password,
       @RequestParam(required = false) final String returnUrl,
       final HttpServletResponse response,
-      final HttpSession session,
       final RedirectAttributes redirectAttributes,
       final Model model) {
 
@@ -117,25 +115,13 @@ public class LoginPageController {
 
       identityCookieService.setRegisteredUserCookie(response, token);
 
-      // Check if cart merge is required
-      final GetCartMergeOptionsQuery mergeQuery = new GetCartMergeOptionsQuery(anonymousUserId, registeredUserId);
-      final GetCartMergeOptionsResponse mergeOptions = getCartMergeOptionsUseCase.execute(mergeQuery);
-
-      if (mergeOptions.mergeRequired()) {
-        // Store anonymous user ID in session for the merge page
-        session.setAttribute(CartMergePageController.SESSION_ATTR_ANONYMOUS_USER_ID, anonymousUserId);
-        if (returnUrl != null && !returnUrl.isBlank()) {
-          session.setAttribute(CartMergePageController.SESSION_ATTR_RETURN_URL, returnUrl);
-        }
-        return "redirect:/cart/merge";
-      }
-
-      redirectAttributes.addFlashAttribute("message", "Welcome back!");
-
+      // Always redirect to merge page - let cart context decide if merge is needed
+      // This avoids cross-context dependency (account → cart)
+      String mergeUrl = "/cart/merge?anonymousUserId=" + anonymousUserId;
       if (returnUrl != null && !returnUrl.isBlank()) {
-        return "redirect:" + returnUrl;
+        mergeUrl += "&returnUrl=" + URLEncoder.encode(returnUrl, StandardCharsets.UTF_8);
       }
-      return "redirect:/";
+      return "redirect:" + mergeUrl;
 
     } catch (final IllegalArgumentException e) {
       model.addAttribute("title", "Login");

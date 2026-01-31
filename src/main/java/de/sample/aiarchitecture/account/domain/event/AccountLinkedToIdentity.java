@@ -4,6 +4,7 @@ import de.sample.aiarchitecture.account.domain.model.AccountId;
 import de.sample.aiarchitecture.sharedkernel.domain.common.UserId;
 import de.sample.aiarchitecture.sharedkernel.domain.marker.DomainEvent;
 import java.time.Instant;
+import java.util.UUID;
 import org.jspecify.annotations.NonNull;
 
 /**
@@ -18,14 +19,18 @@ import org.jspecify.annotations.NonNull;
  *   <li>Resources associated with this UserId (like carts) now belong to an account</li>
  * </ul>
  *
+ * @param eventId unique identifier for this event instance
  * @param accountId the account that was linked
  * @param userId the UserId that was linked
- * @param occurredAt when the linking occurred
+ * @param occurredOn when the linking occurred
+ * @param version event schema version
  */
 public record AccountLinkedToIdentity(
+    @NonNull UUID eventId,
     @NonNull AccountId accountId,
     @NonNull UserId userId,
-    @NonNull Instant occurredAt) implements DomainEvent {
+    @NonNull Instant occurredOn,
+    int version) implements DomainEvent {
 
   /**
    * Creates an AccountLinkedToIdentity event with the current timestamp.
@@ -35,6 +40,6 @@ public record AccountLinkedToIdentity(
    * @return a new AccountLinkedToIdentity event
    */
   public static AccountLinkedToIdentity now(final AccountId accountId, final UserId userId) {
-    return new AccountLinkedToIdentity(accountId, userId, Instant.now());
+    return new AccountLinkedToIdentity(UUID.randomUUID(), accountId, userId, Instant.now(), 1);
   }
 }

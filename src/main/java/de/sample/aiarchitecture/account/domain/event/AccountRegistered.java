@@ -5,6 +5,7 @@ import de.sample.aiarchitecture.account.domain.model.Email;
 import de.sample.aiarchitecture.sharedkernel.domain.common.UserId;
 import de.sample.aiarchitecture.sharedkernel.domain.marker.DomainEvent;
 import java.time.Instant;
+import java.util.UUID;
 import org.jspecify.annotations.NonNull;
 
 /**
@@ -17,16 +18,20 @@ import org.jspecify.annotations.NonNull;
  *   <li>Other bounded contexts that need to know about new users</li>
  * </ul>
  *
+ * @param eventId unique identifier for this event instance
  * @param accountId the new account's ID
  * @param email the user's email address
  * @param linkedUserId the UserId linked to this account
- * @param occurredAt when the registration occurred
+ * @param occurredOn when the registration occurred
+ * @param version event schema version
  */
 public record AccountRegistered(
+    @NonNull UUID eventId,
     @NonNull AccountId accountId,
     @NonNull Email email,
     @NonNull UserId linkedUserId,
-    @NonNull Instant occurredAt) implements DomainEvent {
+    @NonNull Instant occurredOn,
+    int version) implements DomainEvent {
 
   /**
    * Creates an AccountRegistered event with the current timestamp.
@@ -40,6 +45,6 @@ public record AccountRegistered(
       final AccountId accountId,
       final Email email,
       final UserId linkedUserId) {
-    return new AccountRegistered(accountId, email, linkedUserId, Instant.now());
+    return new AccountRegistered(UUID.randomUUID(), accountId, email, linkedUserId, Instant.now(), 1);
   }
 }

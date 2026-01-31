@@ -1,10 +1,10 @@
 package de.sample.aiarchitecture.account.application.registeraccount;
 
-import de.sample.aiarchitecture.sharedkernel.application.port.InputPort;
+import de.sample.aiarchitecture.sharedkernel.application.port.UseCase;
 
 /**
  * Input port for the Register Account use case.
  */
 public interface RegisterAccountInputPort
-    extends InputPort<RegisterAccountCommand, RegisterAccountResponse> {
+    extends UseCase<RegisterAccountCommand, RegisterAccountResponse> {
 }

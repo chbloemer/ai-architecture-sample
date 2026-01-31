@@ -1,0 +1,224 @@
+package de.sample.aiarchitecture.infrastructure.security.jwt;
+
+import de.sample.aiarchitecture.sharedkernel.application.port.security.Identity;
+import de.sample.aiarchitecture.sharedkernel.application.port.security.TokenService;
+import de.sample.aiarchitecture.sharedkernel.domain.common.UserId;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.Optional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.lang.NonNull;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
+import org.springframework.web.filter.OncePerRequestFilter;
+
+/**
+ * JWT Authentication Filter that runs on every request.
+ *
+ * <p>This filter is responsible for:
+ * <ol>
+ *   <li>Extracting JWT from the cookie (or Authorization header)</li>
+ *   <li>If no JWT exists, generating an anonymous token and setting the cookie</li>
+ *   <li>Validating the token and extracting the Identity</li>
+ *   <li>Setting the SecurityContext with the Identity for downstream access</li>
+ * </ol>
+ *
+ * <p><b>Cookie Settings:</b>
+ * <ul>
+ *   <li>HttpOnly: true (prevents XSS attacks)</li>
+ *   <li>Secure: based on request scheme (https = secure)</li>
+ *   <li>SameSite: Lax (CSRF protection)</li>
+ *   <li>Path: / (accessible site-wide)</li>
+ *   <li>MaxAge: based on token type (30 days anonymous, 7 days registered)</li>
+ * </ul>
+ *
+ * <p><b>Security Context:</b>
+ * The Identity is stored in the SecurityContext as the principal of an
+ * UsernamePasswordAuthenticationToken. This allows downstream code to access
+ * the identity via SecurityContextHolder or the IdentityProvider.
+ */
+@Component
+public class JwtAuthenticationFilter extends OncePerRequestFilter {
+
+  private static final Logger LOG = LoggerFactory.getLogger(JwtAuthenticationFilter.class);
+
+  private static final String AUTHORIZATION_HEADER = "Authorization";
+  private static final String BEARER_PREFIX = "Bearer ";
+
+  private final TokenService tokenService;
+  private final JwtProperties jwtProperties;
+
+  public JwtAuthenticationFilter(
+      final TokenService tokenService,
+      final JwtProperties jwtProperties) {
+    this.tokenService = tokenService;
+    this.jwtProperties = jwtProperties;
+  }
+
+  @Override
+  protected void doFilterInternal(
+      @NonNull final HttpServletRequest request,
+      @NonNull final HttpServletResponse response,
+      @NonNull final FilterChain filterChain) throws ServletException, IOException {
+
+    // Skip filter for static resources
+    if (isStaticResource(request)) {
+      filterChain.doFilter(request, response);
+      return;
+    }
+
+    // Try to extract token from cookie or header
+    Optional<String> tokenOpt = extractTokenFromCookie(request);
+    if (tokenOpt.isEmpty()) {
+      tokenOpt = extractTokenFromHeader(request);
+    }
+
+    Identity identity;
+    boolean newTokenCreated = false;
+    String token;
+
+    if (tokenOpt.isPresent()) {
+      token = tokenOpt.get();
+      // Validate existing token
+      final Optional<Identity> identityOpt = tokenService.validateAndParse(token);
+
+      if (identityOpt.isPresent()) {
+        identity = identityOpt.get();
+        LOG.debug("Valid JWT found for user: {} ({})", identity.userId().value(), identity.type());
+      } else {
+        // Token invalid or expired - create new anonymous identity
+        LOG.debug("Invalid/expired JWT, creating new anonymous identity");
+        identity = createAnonymousIdentity();
+        token = tokenService.generateAnonymousToken(identity.userId());
+        newTokenCreated = true;
+      }
+    } else {
+      // No token found - create new anonymous identity
+      LOG.debug("No JWT found, creating new anonymous identity");
+      identity = createAnonymousIdentity();
+      token = tokenService.generateAnonymousToken(identity.userId());
+      newTokenCreated = true;
+    }
+
+    // Set cookie if new token was created
+    if (newTokenCreated) {
+      setIdentityCookie(response, token, jwtProperties.anonymousExpirationDays() * 24 * 60 * 60);
+    }
+
+    // Set security context
+    setSecurityContext(identity);
+
+    // Continue filter chain
+    filterChain.doFilter(request, response);
+  }
+
+  private Optional<String> extractTokenFromCookie(final HttpServletRequest request) {
+    if (request.getCookies() == null) {
+      return Optional.empty();
+    }
+
+    return Arrays.stream(request.getCookies())
+        .filter(cookie -> jwtProperties.cookieName().equals(cookie.getName()))
+        .map(Cookie::getValue)
+        .filter(value -> value != null && !value.isBlank())
+        .findFirst();
+  }
+
+  private Optional<String> extractTokenFromHeader(final HttpServletRequest request) {
+    final String header = request.getHeader(AUTHORIZATION_HEADER);
+
+    if (header != null && header.startsWith(BEARER_PREFIX)) {
+      return Optional.of(header.substring(BEARER_PREFIX.length()));
+    }
+
+    return Optional.empty();
+  }
+
+  private Identity createAnonymousIdentity() {
+    final UserId userId = UserId.generateAnonymous();
+    return Identity.anonymous(userId);
+  }
+
+  private void setIdentityCookie(
+      final HttpServletResponse response,
+      final String token,
+      final int maxAgeSeconds) {
+
+    final Cookie cookie = new Cookie(jwtProperties.cookieName(), token);
+    cookie.setHttpOnly(true);
+    cookie.setPath("/");
+    cookie.setMaxAge(maxAgeSeconds);
+    // In production, this should be true (HTTPS only)
+    // For local development, we allow non-secure cookies
+    cookie.setSecure(false);
+    // SameSite=Lax provides CSRF protection while allowing normal navigation
+    cookie.setAttribute("SameSite", "Lax");
+
+    response.addCookie(cookie);
+  }
+
+  private void setSecurityContext(final Identity identity) {
+    final var authorities = identity.roles().stream()
+        .map(role -> new SimpleGrantedAuthority("ROLE_" + role))
+        .toList();
+
+    final var authentication = new UsernamePasswordAuthenticationToken(
+        identity,  // principal
+        null,      // credentials (not needed for JWT)
+        authorities);
+
+    SecurityContextHolder.getContext().setAuthentication(authentication);
+  }
+
+  private boolean isStaticResource(final HttpServletRequest request) {
+    final String path = request.getRequestURI();
+    return path.startsWith("/css/")
+        || path.startsWith("/js/")
+        || path.startsWith("/images/")
+        || path.startsWith("/fonts/")
+        || path.startsWith("/favicon")
+        || path.endsWith(".css")
+        || path.endsWith(".js")
+        || path.endsWith(".ico")
+        || path.endsWith(".png")
+        || path.endsWith(".jpg")
+        || path.endsWith(".gif")
+        || path.endsWith(".svg")
+        || path.endsWith(".woff")
+        || path.endsWith(".woff2");
+  }
+
+  /**
+   * Creates and sets a new registered user cookie.
+   *
+   * <p>This method is called by authentication services after successful login/registration
+   * to update the user's cookie with their registered identity token.
+   *
+   * @param response the HTTP response to set the cookie on
+   * @param token the registered user's JWT token
+   */
+  public void setRegisteredUserCookie(final HttpServletResponse response, final String token) {
+    setIdentityCookie(response, token, jwtProperties.registeredExpirationDays() * 24 * 60 * 60);
+  }
+
+  /**
+   * Clears the identity cookie (for logout).
+   *
+   * @param response the HTTP response
+   */
+  public void clearIdentityCookie(final HttpServletResponse response) {
+    final Cookie cookie = new Cookie(jwtProperties.cookieName(), "");
+    cookie.setHttpOnly(true);
+    cookie.setPath("/");
+    cookie.setMaxAge(0);
+    response.addCookie(cookie);
+  }
+}

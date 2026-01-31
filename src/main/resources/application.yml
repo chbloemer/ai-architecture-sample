@@ -52,3 +52,20 @@ logging:
     org.springframework.web: INFO
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss} - %logger{36} - %msg%n"
+
+# JWT Security Configuration
+app:
+  security:
+    jwt:
+      # IMPORTANT: In production, use a strong secret from environment variable
+      # The secret must be at least 256 bits (32 bytes) for HS256
+      secret: ${JWT_SECRET:dev-only-secret-key-must-be-at-least-256-bits-long-for-hmac-sha256}
+      # Anonymous tokens last 30 days (for cart persistence)
+      anonymous-expiration-days: 30
+      # Registered tokens last 7 days (more sensitive)
+      registered-expiration-days: 7
+      issuer: ai-architecture-sample
+      cookie-name: shop-identity
+    password:
+      bcrypt-strength: 12
+      min-length: 8

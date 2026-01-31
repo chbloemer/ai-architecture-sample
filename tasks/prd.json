@@ -1,9 +1,143 @@
 {
-  "name": "Checkout Bounded Context",
-  "description": "Multi-step checkout flow with guest checkout and payment provider support",
+  "name": "AI Architecture Sample - E-Commerce Application",
+  "description": "Reference implementation demonstrating Domain-Centric Architecture with DDD, Hexagonal Architecture, and Clean Architecture patterns",
   "stories": [
     {
       "id": "US-1",
+      "title": "Initial Project Setup & Spring Boot Application",
+      "description": "Set up Spring Boot project with Gradle, Pug template engine, and basic web infrastructure for the e-commerce sample application.",
+      "acceptance_criteria": [
+        "Spring Boot 3.x project with Java 21",
+        "Gradle build configuration with required dependencies",
+        "Pug4j template engine integration",
+        "Basic layout template with navigation",
+        "Home page controller and template"
+      ],
+      "passes": true
+    },
+    {
+      "id": "US-2",
+      "title": "ArchUnit Architecture Tests",
+      "description": "Set up ArchUnit test infrastructure to enforce architectural rules automatically.",
+      "acceptance_criteria": [
+        "Separate test-architecture source set with Spock/Groovy",
+        "Tests for hexagonal architecture (ports and adapters)",
+        "Tests for onion architecture (layer dependencies)",
+        "Tests for DDD tactical patterns (aggregates, entities, value objects)",
+        "Tests for naming conventions"
+      ],
+      "passes": true
+    },
+    {
+      "id": "US-3",
+      "title": "Product Catalog Bounded Context",
+      "description": "Implement Product Catalog bounded context with domain model, repository, and use cases for browsing products.",
+      "acceptance_criteria": [
+        "Product aggregate with ProductId, Name, Description, Price, Availability",
+        "ProductRepository interface in application layer",
+        "InMemoryProductRepository implementation",
+        "GetAllProductsUseCase for catalog listing",
+        "GetProductByIdUseCase for product details",
+        "CatalogPageController and ProductDetailPageController",
+        "Pug templates for catalog and product detail pages"
+      ],
+      "passes": true
+    },
+    {
+      "id": "US-4",
+      "title": "Use Case Pattern Implementation",
+      "description": "Implement use case pattern from Clean Architecture with InputPort/UseCase interfaces and Command/Query objects.",
+      "acceptance_criteria": [
+        "UseCase<INPUT, OUTPUT> base interface",
+        "InputPort marker interface",
+        "Use cases organized by bounded context",
+        "Command objects for write operations",
+        "Query objects for read operations"
+      ],
+      "passes": true
+    },
+    {
+      "id": "US-5",
+      "title": "Shared Kernel & DDD Marker Interfaces",
+      "description": "Create shared kernel with DDD marker interfaces and common domain primitives used across bounded contexts.",
+      "acceptance_criteria": [
+        "AggregateRoot, Entity, Value marker interfaces",
+        "DomainEvent and DomainService markers",
+        "Repository and OutputPort base interfaces",
+        "BaseAggregateRoot with event collection",
+        "Shared value objects (CustomerId, Money)",
+        "All in sharedkernel package"
+      ],
+      "passes": true
+    },
+    {
+      "id": "US-6",
+      "title": "Domain-Centric Architecture Refactoring",
+      "description": "Refactor package structure to follow domain-centric architecture with clear layer separation.",
+      "acceptance_criteria": [
+        "Package structure: domain, application, adapter, infrastructure",
+        "Adapters split into incoming (controllers) and outgoing (repositories)",
+        "Spring application class in infrastructure layer",
+        "Naming conventions documented and applied",
+        "Event listeners moved to adapter layer"
+      ],
+      "passes": true
+    },
+    {
+      "id": "US-7",
+      "title": "Shopping Cart Bounded Context",
+      "description": "Implement Shopping Cart bounded context with cart aggregate and add-to-cart functionality.",
+      "acceptance_criteria": [
+        "ShoppingCart aggregate with CartId, CustomerId, line items",
+        "CartLineItem entity with product reference and quantity",
+        "AddToCartUseCase for adding products",
+        "CartRepository interface and implementation",
+        "CartPageController for viewing cart",
+        "Cart view template"
+      ],
+      "passes": true
+    },
+    {
+      "id": "US-8",
+      "title": "Cross-Context Integration Events",
+      "description": "Implement event-driven communication between bounded contexts using domain and integration events.",
+      "acceptance_criteria": [
+        "DomainEvent interface for internal events",
+        "IntegrationEvent for cross-context communication",
+        "Event publishing infrastructure with Spring events",
+        "Event consumers in adapter.incoming.event package",
+        "ProductAddedToCart example integration"
+      ],
+      "passes": true
+    },
+    {
+      "id": "US-9",
+      "title": "In-Memory Repository Implementation",
+      "description": "Implement thread-safe in-memory repositories using ConcurrentHashMap for development and testing.",
+      "acceptance_criteria": [
+        "ConcurrentHashMap-based storage",
+        "Thread-safe operations",
+        "Secondary indexes for efficient lookups",
+        "InMemoryProductRepository implementation",
+        "InMemoryCartRepository implementation"
+      ],
+      "passes": true
+    },
+    {
+      "id": "US-10",
+      "title": "Specification Pattern",
+      "description": "Implement Specification pattern for encapsulating business rules and query criteria.",
+      "acceptance_criteria": [
+        "Specification<T> interface with isSatisfiedBy method",
+        "Composite specifications (and, or, not)",
+        "Example specification implementations",
+        "Repository support for specification queries"
+      ],
+      "passes": true
+    },
+    {
+      "id": "US-11",
+      "renamed_from": "US-1",
       "title": "Domain Value Objects",
       "description": "Create checkout domain value objects (CheckoutSessionId, CheckoutStep, BuyerInfo, DeliveryAddress, ShippingOption, PaymentProviderId, PaymentSelection, CheckoutTotals, CheckoutLineItem)",
       "acceptance_criteria": [
@@ -17,7 +151,8 @@
       "passes": true
     },
     {
-      "id": "US-2",
+      "id": "US-12",
+      "renamed_from": "US-2",
       "title": "CheckoutSession Aggregate",
       "description": "Create CheckoutSession aggregate root with state management and invariants",
       "acceptance_criteria": [
@@ -30,7 +165,8 @@
       "passes": true
     },
     {
-      "id": "US-3",
+      "id": "US-13",
+      "renamed_from": "US-3",
       "title": "Domain Events",
       "description": "Create checkout domain events for state changes",
       "acceptance_criteria": [
@@ -43,7 +179,8 @@
       "passes": true
     },
     {
-      "id": "US-4",
+      "id": "US-14",
+      "renamed_from": "US-4",
       "title": "Repository and Persistence",
       "description": "Create checkout session repository interface and in-memory implementation",
       "acceptance_criteria": [
@@ -54,7 +191,8 @@
       "passes": true
     },
     {
-      "id": "US-5",
+      "id": "US-15",
+      "renamed_from": "US-5",
       "title": "Start Checkout Use Case",
       "description": "Use case to begin checkout process from cart",
       "acceptance_criteria": [
@@ -66,7 +204,8 @@
       "passes": true
     },
     {
-      "id": "US-6",
+      "id": "US-16",
+      "renamed_from": "US-6",
       "title": "Submit Buyer Info Use Case",
       "description": "Use case for customer contact information",
       "acceptance_criteria": [
@@ -78,7 +217,8 @@
       "passes": true
     },
     {
-      "id": "US-7",
+      "id": "US-17",
+      "renamed_from": "US-7",
       "title": "Submit Delivery Use Case",
       "description": "Use case for delivery address and shipping option",
       "acceptance_criteria": [
@@ -90,7 +230,8 @@
       "passes": true
     },
     {
-      "id": "US-8",
+      "id": "US-18",
+      "renamed_from": "US-8",
       "title": "Get Shipping Options Use Case",
       "description": "Use case to retrieve available shipping methods",
       "acceptance_criteria": [
@@ -101,7 +242,8 @@
       "passes": true
     },
     {
-      "id": "US-9",
+      "id": "US-19",
+      "renamed_from": "US-9",
       "title": "Payment Provider System",
       "description": "Plugin architecture for payment providers",
       "acceptance_criteria": [
@@ -113,7 +255,8 @@
       "passes": true
     },
     {
-      "id": "US-10",
+      "id": "US-20",
+      "renamed_from": "US-10",
       "title": "Submit Payment Use Case",
       "description": "Use case for payment selection and authorization",
       "acceptance_criteria": [
@@ -125,7 +268,8 @@
       "passes": true
     },
     {
-      "id": "US-11",
+      "id": "US-21",
+      "renamed_from": "US-11",
       "title": "Get Payment Providers Use Case",
       "description": "Use case to retrieve available payment methods",
       "acceptance_criteria": [
@@ -136,7 +280,8 @@
       "passes": true
     },
     {
-      "id": "US-12",
+      "id": "US-22",
+      "renamed_from": "US-12",
       "title": "Get Checkout Session Use Case",
       "description": "Use case to load session data for display",
       "acceptance_criteria": [
@@ -147,7 +292,8 @@
       "passes": true
     },
     {
-      "id": "US-13",
+      "id": "US-23",
+      "renamed_from": "US-13",
       "title": "Confirm Checkout Use Case",
       "description": "Use case to complete the order",
       "acceptance_criteria": [
@@ -159,7 +305,8 @@
       "passes": true
     },
     {
-      "id": "US-14",
+      "id": "US-24",
+      "renamed_from": "US-14",
       "title": "Checkout Step Validator",
       "description": "Component to enforce step navigation rules",
       "acceptance_criteria": [
@@ -170,7 +317,8 @@
       "passes": true
     },
     {
-      "id": "US-15",
+      "id": "US-25",
+      "renamed_from": "US-15",
       "title": "Start Checkout Controller",
       "description": "Controller to initiate checkout from cart",
       "acceptance_criteria": [
@@ -181,7 +329,8 @@
       "passes": true
     },
     {
-      "id": "US-16",
+      "id": "US-26",
+      "renamed_from": "US-16",
       "title": "Buyer Info Controller",
       "description": "Controller for contact information page",
       "acceptance_criteria": [
@@ -192,7 +341,8 @@
       "passes": true
     },
     {
-      "id": "US-17",
+      "id": "US-27",
+      "renamed_from": "US-17",
       "title": "Delivery Controller",
       "description": "Controller for shipping address page",
       "acceptance_criteria": [
@@ -203,7 +353,8 @@
       "passes": true
     },
     {
-      "id": "US-18",
+      "id": "US-28",
+      "renamed_from": "US-18",
       "title": "Payment Controller",
       "description": "Controller for payment method page",
       "acceptance_criteria": [
@@ -214,7 +365,8 @@
       "passes": true
     },
     {
-      "id": "US-19",
+      "id": "US-29",
+      "renamed_from": "US-19",
       "title": "Review Controller",
       "description": "Controller for order review page",
       "acceptance_criteria": [
@@ -225,7 +377,8 @@
       "passes": true
     },
     {
-      "id": "US-20",
+      "id": "US-30",
+      "renamed_from": "US-20",
       "title": "Confirmation Controller",
       "description": "Controller for order confirmation",
       "acceptance_criteria": [
@@ -236,7 +389,8 @@
       "passes": true
     },
     {
-      "id": "US-21",
+      "id": "US-31",
+      "renamed_from": "US-21",
       "title": "Checkout Templates",
       "description": "Pug templates for checkout pages",
       "acceptance_criteria": [
@@ -248,7 +402,8 @@
       "passes": true
     },
     {
-      "id": "US-22",
+      "id": "US-32",
+      "renamed_from": "US-22",
       "title": "Cart Integration",
       "description": "Integrate checkout with cart context",
       "acceptance_criteria": [
@@ -259,7 +414,8 @@
       "passes": true
     },
     {
-      "id": "US-23",
+      "id": "US-33",
+      "renamed_from": "US-23",
       "title": "Architecture Tests Pass",
       "description": "Verify checkout follows project patterns",
       "acceptance_criteria": [
@@ -271,7 +427,8 @@
       "passes": true
     },
     {
-      "id": "US-24",
+      "id": "US-34",
+      "renamed_from": "US-24",
       "title": "Build and Manual Test",
       "description": "Verify complete checkout flow works end-to-end",
       "acceptance_criteria": [
@@ -283,7 +440,8 @@
       "passes": true
     },
     {
-      "id": "US-25",
+      "id": "US-35",
+      "renamed_from": "US-25",
       "title": "Connect Cart Checkout Button to Checkout Flow",
       "description": "Replace the fake checkout button on the cart page with a link to the new checkout bounded context. The cart page should redirect to the checkout flow instead of the old fake checkout endpoint.",
       "acceptance_criteria": [
@@ -295,7 +453,8 @@
       "passes": true
     },
     {
-      "id": "US-26",
+      "id": "US-36",
+      "renamed_from": "US-26",
       "title": "Reduce Product Availability on Checkout",
       "description": "When a checkout is confirmed, the product availability must be reduced by the quantities purchased. The product context listens for the CheckoutConfirmed integration event and reduces availability for each line item.",
       "acceptance_criteria": [
@@ -326,15 +485,16 @@
       "passes": true
     },
     {
-      "id": "US-27",
+      "id": "US-37",
+      "renamed_from": "US-27",
       "title": "Remove Deprecated CartCheckedOut Availability Logic",
-      "description": "The CartCheckedOut event was previously used to reduce product availability. Since US-26 now handles this via CheckoutConfirmed event, the old CartCheckedOut event consumer and related logic in the product context should be removed.",
+      "description": "The CartCheckedOut event was previously used to reduce product availability. Since US-36 now handles this via CheckoutConfirmed event, the old CartCheckedOut event consumer and related logic in the product context should be removed.",
       "acceptance_criteria": [
         "CartCheckedOutEventListener in product context is removed (if exists)",
         "Any CartCheckedOut event handling for availability reduction is removed",
         "CartCheckedOut event itself remains if still used for cart status updates",
         "Build and architecture tests pass",
-        "Product availability is only reduced via CheckoutConfirmed (US-26)"
+        "Product availability is only reduced via CheckoutConfirmed (US-36)"
       ],
       "architectural_guidance": {
         "affected_layers": [
@@ -353,6 +513,281 @@
           "Keep CartCheckedOut event if cart context still publishes it for other purposes",
           "Run ./gradlew test-architecture after removal",
           "Run ./gradlew build to ensure no compilation errors"
+        ]
+      },
+      "passes": true
+    },
+    {
+      "id": "US-38",
+      "renamed_from": "US-28",
+      "title": "Handle Missing Account After Application Restart",
+      "description": "After application restart with in-memory storage, JWT tokens remain valid but accounts are lost. Registered users should be treated as anonymous when their account no longer exists.",
+      "acceptance_criteria": [
+        "RegisteredUserValidator port interface in sharedkernel/application/port/security",
+        "AccountBasedRegisteredUserValidator implementation in account/adapter/outgoing/security",
+        "JwtAuthenticationFilter checks if registered user's account exists",
+        "If account doesn't exist, creates new anonymous identity and token",
+        "User sees logged-out state and can register/login again",
+        "Architecture tests pass"
+      ],
+      "architectural_guidance": {
+        "affected_layers": [
+          "sharedkernel",
+          "adapter",
+          "infrastructure"
+        ],
+        "locations": [
+          "sharedkernel.application.port.security.RegisteredUserValidator",
+          "account.adapter.outgoing.security.AccountBasedRegisteredUserValidator",
+          "infrastructure.security.jwt.JwtAuthenticationFilter"
+        ],
+        "patterns": [
+          "Port/Adapter",
+          "Cross-Context Integration via Shared Kernel"
+        ],
+        "constraints": [
+          "Port interface in shared kernel maintains bounded context isolation",
+          "Infrastructure depends on port, not account context directly",
+          "Account context provides implementation"
+        ]
+      },
+      "passes": true
+    },
+    {
+      "id": "US-39",
+      "renamed_from": "US-29",
+      "title": "E2E Test Infrastructure with Playwright",
+      "description": "Set up end-to-end testing infrastructure using Playwright for Java to test critical user flows through the browser.",
+      "acceptance_criteria": [
+        "Playwright Java dependency added to build.gradle",
+        "test-e2e source set configured separately from unit tests",
+        "BaseE2ETest class with Playwright setup/teardown",
+        "IntelliJ run configurations for E2E tests (headless and headed)",
+        "E2E tests can be run via ./gradlew test-e2e"
+      ],
+      "architectural_guidance": {
+        "affected_layers": [
+          "test-e2e"
+        ],
+        "locations": [
+          "src/test-e2e/java/de/sample/aiarchitecture/e2e/BaseE2ETest.java"
+        ],
+        "patterns": [
+          "Test Infrastructure",
+          "Browser Automation"
+        ]
+      },
+      "passes": true
+    },
+    {
+      "id": "US-40",
+      "renamed_from": "US-30",
+      "title": "Data-Test Attributes for E2E Testing",
+      "description": "Add data-test attributes to UI elements to provide stable selectors for E2E tests, decoupling tests from CSS classes and DOM structure.",
+      "acceptance_criteria": [
+        "data-test attributes added to interactive elements (buttons, links, forms)",
+        "data-test attributes added to key display elements (prices, totals, messages)",
+        "Naming convention: kebab-case descriptive names (e.g., data-test=\"checkout-button\")",
+        "ADR documenting the data-test attribute strategy",
+        "Templates updated: login, register, cart, catalog, product detail, checkout pages"
+      ],
+      "architectural_guidance": {
+        "affected_layers": [
+          "adapter"
+        ],
+        "locations": [
+          "src/main/resources/templates/**/*.pug",
+          "docs/architecture/adr/adr-017-e2e-data-test-attributes.md"
+        ],
+        "patterns": [
+          "Test Attribute Strategy",
+          "Stable Selectors"
+        ],
+        "constraints": [
+          "Never use data-test attributes for styling",
+          "data-test attributes are for testing infrastructure only",
+          "Keep attribute names semantic and descriptive"
+        ]
+      },
+      "passes": true
+    },
+    {
+      "id": "US-41",
+      "renamed_from": "US-31",
+      "title": "Page Object Pattern for E2E Tests",
+      "description": "Implement Page Object pattern to encapsulate page interactions and selectors, improving test maintainability and readability.",
+      "acceptance_criteria": [
+        "Page object classes for each major page (LoginPage, RegisterPage, CartPage, etc.)",
+        "Page objects use data-test attributes for element selection",
+        "Page objects provide high-level methods for user actions",
+        "ADR documenting the Page Object pattern",
+        "E2E tests refactored to use page objects"
+      ],
+      "architectural_guidance": {
+        "affected_layers": [
+          "test-e2e"
+        ],
+        "locations": [
+          "src/test-e2e/java/de/sample/aiarchitecture/e2e/pages/",
+          "docs/architecture/adr/adr-018-page-object-pattern-e2e.md"
+        ],
+        "patterns": [
+          "Page Object Pattern",
+          "Test Abstraction"
+        ],
+        "constraints": [
+          "Page objects should not contain assertions",
+          "Page objects return page objects for fluent navigation",
+          "Selectors centralized in page objects, not in tests"
+        ]
+      },
+      "passes": true
+    },
+    {
+      "id": "US-42",
+      "renamed_from": "US-32",
+      "title": "JWT Authentication Infrastructure",
+      "description": "Implement JWT-based authentication infrastructure with anonymous and registered user support. Anonymous users get a soft identity via JWT cookie, which converts to a hard identity on registration/login.",
+      "acceptance_criteria": [
+        "JwtTokenService for generating and validating JWT tokens",
+        "JwtAuthenticationFilter extracts identity from cookie or creates anonymous identity",
+        "Identity record with userId, type (ANONYMOUS/REGISTERED), email, and roles",
+        "IdentityProvider port for accessing current identity in use cases",
+        "TokenService port interface in shared kernel",
+        "JWT cookie with HttpOnly, SameSite=Lax settings",
+        "Anonymous tokens valid 30 days, registered tokens valid 7 days"
+      ],
+      "architectural_guidance": {
+        "affected_layers": [
+          "sharedkernel",
+          "infrastructure"
+        ],
+        "locations": [
+          "sharedkernel.application.port.security.TokenService",
+          "sharedkernel.application.port.security.IdentityProvider",
+          "sharedkernel.application.common.security.Identity",
+          "infrastructure.security.jwt.JwtTokenService",
+          "infrastructure.security.jwt.JwtAuthenticationFilter",
+          "infrastructure.security.SpringSecurityIdentityProvider"
+        ],
+        "patterns": [
+          "Port/Adapter",
+          "Security Filter Chain"
+        ]
+      },
+      "passes": true
+    },
+    {
+      "id": "US-43",
+      "renamed_from": "US-33",
+      "title": "Account Bounded Context with Registration and Login",
+      "description": "Create Account bounded context with user registration and authentication capabilities. Accounts are linked to UserId for cart continuity.",
+      "acceptance_criteria": [
+        "Account aggregate with AccountId, Email, HashedPassword, linkedUserId",
+        "RegisterAccountUseCase for new user registration",
+        "AuthenticateAccountUseCase for login validation",
+        "AccountRepository interface and InMemoryAccountRepository",
+        "PasswordHasher port with BCrypt implementation",
+        "AuthResource REST controller for API authentication",
+        "LoginPageController and RegisterPageController for web UI",
+        "Login and register Pug templates"
+      ],
+      "architectural_guidance": {
+        "affected_layers": [
+          "domain",
+          "application",
+          "adapter"
+        ],
+        "locations": [
+          "account.domain.model.Account",
+          "account.application.registeraccount.RegisterAccountUseCase",
+          "account.application.authenticateaccount.AuthenticateAccountUseCase",
+          "account.adapter.incoming.api.AuthResource",
+          "account.adapter.incoming.web.LoginPageController",
+          "account.adapter.incoming.web.RegisterPageController"
+        ],
+        "patterns": [
+          "Aggregate",
+          "Use Case Pattern",
+          "Port/Adapter"
+        ]
+      },
+      "passes": true
+    },
+    {
+      "id": "US-44",
+      "renamed_from": "US-34",
+      "title": "Migrate Controllers to JWT Identity",
+      "description": "Migrate Cart and Checkout controllers from session-based customer ID to JWT-based identity. Controllers use IdentityProvider to get current user instead of URL parameters.",
+      "acceptance_criteria": [
+        "CartPageController uses IdentityProvider.getCurrentIdentity()",
+        "All Checkout controllers use IdentityProvider for user identification",
+        "Session IDs removed from checkout URLs (use /checkout/{sessionId}/step pattern)",
+        "CustomerId derived from Identity.userId()",
+        "Cart is automatically associated with current identity"
+      ],
+      "architectural_guidance": {
+        "affected_layers": [
+          "adapter"
+        ],
+        "locations": [
+          "cart.adapter.incoming.web.CartPageController",
+          "checkout.adapter.incoming.web.*PageController"
+        ],
+        "patterns": [
+          "Identity Provider",
+          "Security Context"
+        ]
+      },
+      "passes": true
+    },
+    {
+      "id": "US-45",
+      "renamed_from": "US-35",
+      "title": "Recover Cart on Login",
+      "description": "When an anonymous user logs in, their cart should be recovered and associated with their registered account. The cart created during anonymous browsing persists after login.",
+      "acceptance_criteria": [
+        "RecoverCartOnLoginUseCase transfers cart ownership on login",
+        "Anonymous user's cart items preserved after registration/login",
+        "Cart associated with registered user's linkedUserId",
+        "Login flow triggers cart recovery automatically"
+      ],
+      "architectural_guidance": {
+        "affected_layers": [
+          "application"
+        ],
+        "locations": [
+          "cart.application.recovercart.RecoverCartOnLoginUseCase"
+        ],
+        "patterns": [
+          "Use Case Pattern",
+          "Identity Continuity"
+        ]
+      },
+      "passes": true
+    },
+    {
+      "id": "US-46",
+      "renamed_from": "US-36",
+      "title": "Checkout Login/Register Options on Buyer Page",
+      "description": "Add login and register options to the checkout buyer info page, allowing anonymous users to create an account or login during checkout.",
+      "acceptance_criteria": [
+        "Buyer page shows login/register options for anonymous users",
+        "Login redirects back to checkout after authentication",
+        "Register redirects back to checkout after account creation",
+        "Registered users see their email pre-filled",
+        "Guest checkout still available without account"
+      ],
+      "architectural_guidance": {
+        "affected_layers": [
+          "adapter"
+        ],
+        "locations": [
+          "checkout.adapter.incoming.web.BuyerInfoPageController",
+          "templates/checkout/buyer.pug"
+        ],
+        "patterns": [
+          "Progressive Authentication"
         ]
       },
       "passes": true

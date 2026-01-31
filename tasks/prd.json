@@ -911,7 +911,7 @@
           "Edge cases and error scenarios covered by unit/integration tests"
         ]
       },
-      "passes": false
+      "passes": true
     }
   ]
 }

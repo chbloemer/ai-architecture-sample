@@ -330,6 +330,37 @@ public final class ShoppingCart extends BaseAggregateRoot<ShoppingCart, CartId> 
     return items.stream().anyMatch(item -> item.productId().equals(productId));
   }
 
+  /**
+   * Merges items from another cart into this cart.
+   *
+   * <p>For each item in the source cart:
+   * <ul>
+   *   <li>If the product already exists in this cart, quantities are combined</li>
+   *   <li>If the product doesn't exist, a new item is added with the source item's price</li>
+   * </ul>
+   *
+   * <p>This method does not modify the source cart.
+   *
+   * @param sourceCart the cart to merge items from
+   * @return the number of items merged (added or quantity increased)
+   * @throws IllegalStateException if this cart is not active
+   * @throws IllegalArgumentException if sourceCart is null
+   */
+  public int merge(@NonNull final ShoppingCart sourceCart) {
+    if (sourceCart == null) {
+      throw new IllegalArgumentException("Source cart cannot be null");
+    }
+    ensureCartIsActive();
+
+    int mergedCount = 0;
+    for (final CartItem sourceItem : sourceCart.items()) {
+      addItem(sourceItem.productId(), sourceItem.quantity(), sourceItem.priceAtAddition());
+      mergedCount++;
+    }
+
+    return mergedCount;
+  }
+
   private Optional<CartItem> findItemById(final CartItemId itemId) {
     return items.stream().filter(item -> item.id().equals(itemId)).findFirst();
   }

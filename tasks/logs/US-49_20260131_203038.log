@@ -1,0 +1,60 @@
+All tests pass. Let me provide a summary of what was implemented for US-49:
+
+## Summary - US-49: Cart Merge Test Coverage
+
+### Completed Implementation:
+
+1. **Added `merge()` method to ShoppingCart domain class** (`src/main/java/.../cart/domain/model/ShoppingCart.java:332-364`)
+   - Merges items from a source cart into the target cart
+   - Handles same product quantity combination (quantities are added)
+   - Handles different products addition (new items are added)
+   - Preserves source cart (not modified)
+   - Returns the number of items merged
+
+2. **Unit tests for ShoppingCart.merge()** (`src/test/java/.../cart/domain/model/ShoppingCartMergeTest.java`)
+   - **Same Product Quantity Combination tests:**
+     - Merges same product by combining quantities
+     - Keeps original price when merging same product
+     - Handles multiple same products
+   - **Different Products Addition tests:**
+     - Adds new products from source cart
+     - Preserves source item price for new products
+     - Handles mix of same and different products
+   - **Empty Cart Handling tests:**
+     - Merging empty source cart leaves target unchanged
+     - Merging into empty target cart adds all source items
+     - Merging two empty carts results in empty target
+   - **Error Handling tests:**
+     - Throws exception when target cart is not active
+     - Source cart is not modified after merge
+   - **Domain Events tests:**
+     - Raises CartItemAddedToCart events for merged items
+
+3. **Integration tests for MergeCartsUseCase** (`src/test/java/.../cart/application/mergecarts/MergeCartsUseCaseTest.java`)
+   - **MERGE_BOTH strategy tests:**
+     - Combines items from both carts
+     - Combines quantities for same product
+     - Handles empty anonymous cart
+   - **USE_ACCOUNT_CART strategy tests:**
+     - Keeps account cart items only
+     - Deletes anonymous cart
+     - Handles missing anonymous cart gracefully
+   - **USE_ANONYMOUS_CART strategy tests:**
+     - Replaces account cart with anonymous cart items
+     - Deletes anonymous cart after moving items
+     - Clears existing account cart items before adding anonymous items
+     - Handles empty anonymous cart
+   - **Cart Creation tests:**
+     - Creates account cart if not exists
+
+4. **E2E test for full cart merge flow** (`src/test-e2e/java/.../e2e/CartMergeE2ETest.java`)
+   - Tests the full flow: login with both carts, see merge options, select merge, verify combined cart
+   - Created `CartMergePage` page object for the merge options page
+
+### Test Results:
+- `./gradlew test` - All unit tests pass ✓
+- `./gradlew test-architecture` - All architecture tests pass ✓
+- `./gradlew build` - Full build passes ✓
+- E2E tests compile correctly ✓
+
+<promise>STORY_COMPLETE</promise>

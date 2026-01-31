@@ -1,6 +1,8 @@
 package de.sample.aiarchitecture
 
 import de.sample.aiarchitecture.sharedkernel.domain.marker.IntegrationEvent
+import de.sample.aiarchitecture.sharedkernel.stereotype.BoundedContext
+import de.sample.aiarchitecture.sharedkernel.stereotype.OpenHostService
 
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses
@@ -9,88 +11,172 @@ import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses
  * ArchUnit tests for DDD Strategic Patterns.
  *
  * Tests strategic DDD concepts:
- * - Bounded Contexts: Explicit boundaries with linguistic consistency
+ * - Bounded Contexts: Explicit boundaries with linguistic consistency (discovered via @BoundedContext)
  * - Context Mapping: Relationships between bounded contexts
- * - Shared Kernel: Small, carefully curated shared domain model
+ * - Shared Kernel: Small, carefully curated shared domain model (discovered via @SharedKernel)
  * - Context Isolation: Bounded contexts should not directly depend on each other
- *
- * Identified Bounded Contexts in this service:
- * 1. Shared Kernel (shared) - Shared value objects across contexts
- *    - Money, ProductId, Price
- * 2. Product Catalog Context (product) - Product management
- * 3. Shopping Cart Context (cart) - Cart and checkout operations
+ * - Open Host Service: Public APIs that bounded contexts expose to other contexts
  *
  * Context Mapping Strategy:
  * - Shared Kernel Pattern: Common value objects (Money, ProductId, Price)
- * - Both contexts may access the Shared Kernel
- * - Contexts may NOT access each other directly
+ * - All contexts may access the Shared Kernel
+ * - Contexts may NOT access each other directly in application layer
+ * - Outgoing adapters may only access @OpenHostService classes from other contexts
  * - Aggregates reference other aggregates by ID only (through Shared Kernel)
  *
  * Reference:
  * - Eric Evans' Domain-Driven Design (Strategic Design section, Chapter 14)
  * - Vaughn Vernon's Implementing DDD (Chapter 2: Domains, Subdomains, and Bounded Contexts)
- * - Martin Fowler's patterns of Enterprise Application Architecture
  */
 class DddStrategicPatternsArchUnitTest extends BaseArchUnitTest {
+
+  // ============================================================================
+  // ALLOWED CROSS-CONTEXT DEPENDENCIES
+  // ============================================================================
+
+  /**
+   * Known, documented cross-context dependencies that are allowed in the APPLICATION LAYER.
+   *
+   * Format: "source-context" -> ["target-context", ...]
+   *
+   * With the Open Host Service pattern in place:
+   * - Cart and Checkout NO LONGER directly access Product in their application layer
+   * - They define their own output ports (ProductDataPort, ProductInfoPort)
+   * - Outgoing adapters implement these ports by calling Product's Open Host Service
+   *
+   * Remaining allowed dependency:
+   * - Checkout -> Cart: Checkout accesses Cart domain via CartDataAdapter (ACL pattern)
+   *   to retrieve cart contents and mark carts as checked out
+   */
+  private static final Map<String, List<String>> ALLOWED_CROSS_CONTEXT_DEPENDENCIES = [
+    "checkout": ["cart"]   // Checkout accesses Cart for cart data via CartDataAdapter
+  ]
+
+  /**
+   * Allowed direct adapter-to-context dependencies for ACL patterns.
+   *
+   * These are documented exceptions where an outgoing adapter directly accesses another
+   * context's domain/application layers instead of using an Open Host Service.
+   *
+   * Format: "source-context" -> ["target-context", ...]
+   *
+   * Checkout -> Cart: CartDataAdapter directly accesses Cart's domain to:
+   * - Retrieve cart contents for checkout
+   * - Mark carts as checked out
+   * This is an intentional ACL pattern, not using Open Host Service.
+   */
+  private static final Map<String, List<String>> ALLOWED_ADAPTER_CROSS_CONTEXT_ACCESS = [
+    "checkout": ["cart"]   // CartDataAdapter directly accesses Cart domain (ACL pattern)
+  ]
+
+  // ============================================================================
+  // DIAGNOSTIC: BOUNDED CONTEXT DISCOVERY
+  // ============================================================================
+
+  def "Diagnostic: Display discovered bounded contexts"() {
+    when:
+    Map<String, BoundedContext> contexts = discoverBoundedContextPackages()
+    String sharedKernel = discoverSharedKernelPackage()
+
+    then:
+    println "=== Discovered Bounded Contexts ==="
+    contexts.each { pkg, annotation ->
+      println "  ${annotation.name()}: ${pkg}"
+      if (annotation.description()) {
+        println "    Description: ${annotation.description()}"
+      }
+    }
+    println "=== Shared Kernel ==="
+    println "  Package: ${sharedKernel}"
+    println "=================================="
+
+    // Verify we discovered the expected contexts
+    contexts.size() >= 1
+    sharedKernel != null
+  }
 
   // ============================================================================
   // SHARED KERNEL PATTERN
   // ============================================================================
 
-  def "Shared Kernel must not have dependencies on bounded contexts"() {
+  def "Shared Kernel must not have dependencies on any bounded context"() {
+    given:
+    String sharedKernelPackage = discoverSharedKernelPackage()
+    Map<String, BoundedContext> boundedContexts = discoverBoundedContextPackages()
+
     expect:
     // The Shared Kernel should be truly shared - no dependencies on specific contexts
-    noClasses()
-      .that().resideInAPackage(SHARED_KERNEL_PACKAGE)
-      .should().accessClassesThat().resideInAPackage(PRODUCT_CONTEXT_PACKAGE)
-      .orShould().accessClassesThat().resideInAPackage(CART_CONTEXT_PACKAGE)
-      .because("Shared Kernel must be context-independent to be truly shared (DDD Strategic Pattern)")
-      .check(allClasses)
+    // Dynamically check against all discovered bounded contexts
+    boundedContexts.each { contextPackage, annotation ->
+      noClasses()
+        .that().resideInAPackage(sharedKernelPackage + "..")
+        .should().accessClassesThat().resideInAPackage(contextPackage + "..")
+        .allowEmptyShould(true)
+        .because("Shared Kernel must not depend on bounded context '${annotation.name()}' (${contextPackage}) - Shared Kernel must be context-independent")
+        .check(allClasses)
+    }
   }
 
   // ============================================================================
-  // BOUNDED CONTEXT ISOLATION
+  // BOUNDED CONTEXT ISOLATION (DYNAMIC)
   // ============================================================================
 
-  def "Product Context must not directly access Cart Context"() {
+  def "Bounded contexts must not directly access each other in application layer (except allowed dependencies)"() {
+    given:
+    Map<String, BoundedContext> boundedContexts = discoverBoundedContextPackages()
+    List<String> contextPackages = boundedContexts.keySet().toList()
+
     expect:
-    // Product context should not access Cart context directly
-    // Integration must happen through Shared Kernel or domain events
-    // EXCEPTION: Event listeners may access domain events from other contexts (standard DDD pattern)
-    noClasses()
-      .that().resideInAPackage(PRODUCT_CONTEXT_PACKAGE)
-        .and().resideOutsideOfPackage("..adapter.incoming.event..")
-      .should().accessClassesThat().resideInAPackage(CART_CONTEXT_PACKAGE)
-      .because("Bounded contexts must remain isolated - use Shared Kernel or events for integration (event listeners are exempt)")
-      .check(allClasses)
+    // For each bounded context, verify its application layer does not access any other bounded context
+    // Exceptions:
+    // 1. Event consumers (..adapter.incoming.event..) may access other contexts' events
+    // 2. Allowed cross-context dependencies documented in ALLOWED_CROSS_CONTEXT_DEPENDENCIES
+    contextPackages.each { sourceContext ->
+      String sourceName = boundedContexts[sourceContext].name()
+      String sourceContextShort = extractContextName(sourceContext)
+
+      // Get allowed target contexts for this source
+      List<String> allowedTargets = ALLOWED_CROSS_CONTEXT_DEPENDENCIES.getOrDefault(sourceContextShort, [])
+
+      // Get all other contexts, excluding allowed targets
+      List<String> forbiddenContexts = contextPackages.findAll { targetContext ->
+        if (targetContext == sourceContext) return false
+        String targetContextShort = extractContextName(targetContext)
+        return !allowedTargets.contains(targetContextShort)
+      }
+
+      if (!forbiddenContexts.isEmpty()) {
+        String[] forbiddenContextPatterns = forbiddenContexts.collect { it + ".." } as String[]
+
+        // Check application layer isolation
+        // Use allowEmptyShould(true) for contexts that may not have an application layer yet
+        noClasses()
+          .that().resideInAPackage(sourceContext + ".application..")
+          .should().accessClassesThat().resideInAnyPackage(forbiddenContextPatterns)
+          .allowEmptyShould(true)
+          .because("Application layer of bounded context '${sourceName}' must not access other contexts directly - define output ports and use adapters instead")
+          .check(allClasses)
+      }
+    }
   }
 
-  def "Cart Context must not directly access Product Domain Model (except for pragmatic cross-context queries)"() {
-    expect:
-    // NOTE: ShoppingCartApplicationService currently accesses Product domain model to check stock availability
-    // and retrieve price. This is a known architectural tradeoff in this sample application.
-    //
-    // Ideally, we would use one of these patterns:
-    // 1. Anti-Corruption Layer: Cart context wraps Product access in its own abstraction
-    // 2. Read Model: Product publishes events, Cart maintains denormalized view
-    // 3. Shared Query Service: Separate service for cross-context queries
-    //
-    // For this sample, we accept the pragmatic cross-context dependency through the repository interface.
-    //
-    // Test is currently disabled to reflect this architectural decision.
-    // When implementing in production, consider refactoring to proper bounded context isolation.
-
-    true // Temporarily accepting this violation as documented above
+  /**
+   * Extracts the short context name from a full package path.
+   * E.g., "de.sample.aiarchitecture.cart" -> "cart"
+   */
+  private String extractContextName(String packagePath) {
+    return packagePath.substring(packagePath.lastIndexOf('.') + 1)
   }
 
   // Note: Shared Kernel Pattern (Eric Evans, DDD Chapter 14)
   //
   // In this architecture, we use the Shared Kernel pattern for cross-cutting value objects:
   //
-  // Shared Kernel (domain.model.shared):
+  // Shared Kernel (sharedkernel):
   // - Money: Universal monetary value representation
   // - ProductId: Product identifier shared across contexts
   // - Price: Pricing value object wrapping Money
+  // - DDD marker interfaces (Entity, AggregateRoot, Value, etc.)
   //
   // Benefits:
   // - Consistency: Single definition of Money prevents currency mismatches
@@ -100,21 +186,70 @@ class DddStrategicPatternsArchUnitTest extends BaseArchUnitTest {
   // Trade-offs:
   // - Coupling: Changes to shared kernel affect all contexts (requires coordination)
   // - Limited scope: Only truly universal concepts belong here
-  //
-  // What belongs in Shared Kernel:
-  // ✅ Universal value objects (Money, Currency)
-  // ✅ Cross-context identifiers (ProductId when used by multiple contexts)
-  // ✅ Common domain primitives
-  //
-  // What does NOT belong in Shared Kernel:
-  // ❌ Aggregates (each belongs to one context)
-  // ❌ Context-specific business logic
-  // ❌ Infrastructure concerns
-  //
-  // Alternative patterns considered:
-  // - Separate Ways: Duplicate Money in each context (rejected: high risk of inconsistency)
-  // - Published Language: Share via events (rejected: too complex for simple value objects)
-  // - Customer/Supplier: One context defines, other consumes (rejected: creates ownership issues)
+
+  // ============================================================================
+  // OPEN HOST SERVICE PATTERN
+  // ============================================================================
+
+  def "Open Host Services must reside in adapter.incoming.openhost packages"() {
+    expect:
+    classes()
+      .that().areAnnotatedWith(OpenHostService)
+      .should().resideInAPackage("..adapter.incoming.openhost..")
+      .allowEmptyShould(true)
+      .because("Open Host Services are incoming adapters that expose context capabilities to other contexts")
+      .check(allClasses)
+  }
+
+  def "Outgoing adapters accessing other contexts must only use OpenHostService classes (except allowed ACL patterns)"() {
+    given:
+    Map<String, BoundedContext> boundedContexts = discoverBoundedContextPackages()
+    List<String> contextPackages = boundedContexts.keySet().toList()
+
+    expect:
+    // For each bounded context's outgoing adapters, verify they only access
+    // @OpenHostService annotated classes (or Shared Kernel) from other contexts
+    // Exception: Documented ACL patterns in ALLOWED_ADAPTER_CROSS_CONTEXT_ACCESS
+    contextPackages.each { sourceContext ->
+      String sourceName = boundedContexts[sourceContext].name()
+      String sourceContextShort = extractContextName(sourceContext)
+
+      // Get allowed ACL targets for this source
+      List<String> allowedAclTargets = ALLOWED_ADAPTER_CROSS_CONTEXT_ACCESS.getOrDefault(sourceContextShort, [])
+
+      // Get all other contexts, excluding allowed ACL targets
+      List<String> otherContexts = contextPackages.findAll { targetContext ->
+        if (targetContext == sourceContext) return false
+        String targetContextShort = extractContextName(targetContext)
+        return !allowedAclTargets.contains(targetContextShort)
+      }
+
+      if (!otherContexts.isEmpty()) {
+        // For each other context (not in ACL exceptions), outgoing adapters should only access openhost packages
+        otherContexts.each { targetContext ->
+          String targetName = boundedContexts[targetContext].name()
+
+          // Forbid access to domain layers of other contexts
+          noClasses()
+            .that().resideInAPackage("${sourceContext}.adapter.outgoing..")
+            .should().accessClassesThat()
+              .resideInAPackage("${targetContext}.domain..")
+            .allowEmptyShould(true)
+            .because("Outgoing adapters in '${sourceName}' must not access domain layer of '${targetName}' - use Open Host Service instead")
+            .check(allClasses)
+
+          // Forbid access to application layers of other contexts
+          noClasses()
+            .that().resideInAPackage("${sourceContext}.adapter.outgoing..")
+            .should().accessClassesThat()
+              .resideInAPackage("${targetContext}.application..")
+            .allowEmptyShould(true)
+            .because("Outgoing adapters in '${sourceName}' must not access application layer of '${targetName}' - use Open Host Service instead")
+            .check(allClasses)
+        }
+      }
+    }
+  }
 
   // ============================================================================
   // INTEGRATION EVENTS PATTERN
@@ -127,6 +262,7 @@ class DddStrategicPatternsArchUnitTest extends BaseArchUnitTest {
     classes()
       .that().implement(IntegrationEvent)
       .should().resideInAPackage("..domain.event..")
+      .allowEmptyShould(true)
       .because("Integration Events are domain concepts and must be in domain.event packages (DDD Strategic Pattern)")
       .check(allClasses)
   }
@@ -138,6 +274,7 @@ class DddStrategicPatternsArchUnitTest extends BaseArchUnitTest {
     classes()
       .that().implement(IntegrationEvent)
       .should().beRecords()
+      .allowEmptyShould(true)
       .because("Integration Events must be immutable to ensure event integrity across contexts (Event Sourcing best practice)")
       .check(allClasses)
   }
@@ -151,6 +288,7 @@ class DddStrategicPatternsArchUnitTest extends BaseArchUnitTest {
       .or().haveSimpleNameEndingWith("ACL")
       .or().haveSimpleNameEndingWith("AntiCorruptionLayer")
       .should().resideInAPackage("..acl..")
+      .allowEmptyShould(true)
       .because("Anti-Corruption Layer components must be in 'acl' packages for clear architectural intent (DDD Strategic Pattern)")
       .check(allClasses)
   }

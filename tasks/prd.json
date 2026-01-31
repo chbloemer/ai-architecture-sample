@@ -951,6 +951,59 @@
         ]
       },
       "passes": true
+    },
+    {
+      "id": "US-51",
+      "title": "Bounded Context Isolation via Open Host Service Pattern",
+      "description": "Eliminate cross-context imports in application layer by introducing ProductCatalogService as an Open Host Service in Product context. Cart and Checkout define their own output ports (ProductDataPort, ProductInfoPort) with outgoing adapters that call the OHS. This ensures use cases never import from other bounded contexts.",
+      "acceptance_criteria": [
+        "OpenHostService annotation created in sharedkernel/stereotype",
+        "ProductCatalogService created in product/adapter/incoming/openhost with @OpenHostService annotation",
+        "ProductDataPort created in cart/application/shared as Cart's output port for product data",
+        "ProductDataAdapter created in cart/adapter/outgoing/product implementing ProductDataPort",
+        "AddItemToCartUseCase uses ProductDataPort instead of ProductRepository from Product context",
+        "ProductInfoPort created in checkout/application/shared as Checkout's output port for product names",
+        "ProductInfoAdapter created in checkout/adapter/outgoing/product implementing ProductInfoPort",
+        "StartCheckoutUseCase and SyncCheckoutWithCartUseCase use ProductInfoPort instead of ProductRepository",
+        "ArchUnit test updated: application layer has no cross-context imports except documented exceptions",
+        "ArchUnit test added: outgoing adapters may only access @OpenHostService from other contexts",
+        "All tests pass: ./gradlew test-architecture, ./gradlew build"
+      ],
+      "architectural_guidance": {
+        "affected_layers": [
+          "sharedkernel",
+          "application",
+          "adapter"
+        ],
+        "locations": [
+          "sharedkernel.stereotype.OpenHostService",
+          "product.adapter.incoming.openhost.ProductCatalogService",
+          "cart.application.shared.ProductDataPort",
+          "cart.adapter.outgoing.product.ProductDataAdapter",
+          "cart.application.additemtocart.AddItemToCartUseCase",
+          "checkout.application.shared.ProductInfoPort",
+          "checkout.adapter.outgoing.product.ProductInfoAdapter",
+          "checkout.application.startcheckout.StartCheckoutUseCase",
+          "checkout.application.synccheckoutwithcart.SyncCheckoutWithCartUseCase",
+          "DddStrategicPatternsArchUnitTest.groovy",
+          "HexagonalArchitectureArchUnitTest.groovy"
+        ],
+        "patterns": [
+          "Open Host Service",
+          "Output Port",
+          "Adapter Pattern",
+          "Bounded Context Isolation"
+        ],
+        "constraints": [
+          "Use cases must NEVER import from other bounded contexts directly",
+          "Cross-context access is isolated to outgoing adapters",
+          "Outgoing adapters may only import @OpenHostService classes from other contexts",
+          "Open Host Services return DTOs, never domain objects",
+          "Each context owns its output port definitions",
+          "Run ./gradlew test-architecture to verify"
+        ]
+      },
+      "passes": true
     }
   ]
 }

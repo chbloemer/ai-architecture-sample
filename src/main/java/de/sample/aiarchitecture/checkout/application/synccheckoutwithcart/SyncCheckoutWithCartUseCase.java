@@ -3,12 +3,11 @@ package de.sample.aiarchitecture.checkout.application.synccheckoutwithcart;
 import de.sample.aiarchitecture.checkout.application.shared.CartData;
 import de.sample.aiarchitecture.checkout.application.shared.CartDataPort;
 import de.sample.aiarchitecture.checkout.application.shared.CheckoutSessionRepository;
+import de.sample.aiarchitecture.checkout.application.shared.ProductInfoPort;
 import de.sample.aiarchitecture.checkout.domain.model.CartId;
 import de.sample.aiarchitecture.checkout.domain.model.CheckoutLineItem;
 import de.sample.aiarchitecture.checkout.domain.model.CheckoutLineItemId;
 import de.sample.aiarchitecture.checkout.domain.model.CheckoutSession;
-import de.sample.aiarchitecture.product.application.shared.ProductRepository;
-import de.sample.aiarchitecture.product.domain.model.Product;
 import de.sample.aiarchitecture.sharedkernel.domain.common.Money;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,94 +30,101 @@ import org.springframework.transaction.annotation.Transactional;
  *
  * <p><b>Hexagonal Architecture:</b> This class implements the {@link SyncCheckoutWithCartInputPort}
  * interface, which is a primary/driving port in the application layer.
+ *
+ * <p><b>Bounded Context Isolation:</b> This use case accesses:
+ * <ul>
+ *   <li>Cart data through {@link CartDataPort} output port</li>
+ *   <li>Product names through {@link ProductInfoPort} output port</li>
+ * </ul>
+ * This isolates the Checkout context from direct coupling to other contexts' domain models.
  */
 @Service
 @Transactional
 public class SyncCheckoutWithCartUseCase implements SyncCheckoutWithCartInputPort {
 
-  private static final Logger logger = LoggerFactory.getLogger(SyncCheckoutWithCartUseCase.class);
+    private static final Logger logger = LoggerFactory.getLogger(SyncCheckoutWithCartUseCase.class);
 
-  private final CheckoutSessionRepository checkoutSessionRepository;
-  private final CartDataPort cartDataPort;
-  private final ProductRepository productRepository;
+    private final CheckoutSessionRepository checkoutSessionRepository;
+    private final CartDataPort cartDataPort;
+    private final ProductInfoPort productInfoPort;
 
-  public SyncCheckoutWithCartUseCase(
-      final CheckoutSessionRepository checkoutSessionRepository,
-      final CartDataPort cartDataPort,
-      final ProductRepository productRepository) {
-    this.checkoutSessionRepository = checkoutSessionRepository;
-    this.cartDataPort = cartDataPort;
-    this.productRepository = productRepository;
-  }
-
-  @Override
-  public @NonNull SyncCheckoutWithCartResponse execute(
-      @NonNull final SyncCheckoutWithCartCommand command) {
-
-    final CartId cartId = CartId.of(command.cartId());
-
-    // Find active checkout session for this cart
-    final Optional<CheckoutSession> activeSession =
-        checkoutSessionRepository.findActiveByCartId(cartId);
-
-    if (activeSession.isEmpty()) {
-      logger.debug("No active checkout session for cart {}, skipping sync", command.cartId());
-      return SyncCheckoutWithCartResponse.noActiveSession();
+    public SyncCheckoutWithCartUseCase(
+        final CheckoutSessionRepository checkoutSessionRepository,
+        final CartDataPort cartDataPort,
+        final ProductInfoPort productInfoPort) {
+        this.checkoutSessionRepository = checkoutSessionRepository;
+        this.cartDataPort = cartDataPort;
+        this.productInfoPort = productInfoPort;
     }
 
-    final CheckoutSession session = activeSession.get();
+    @Override
+    public @NonNull SyncCheckoutWithCartResponse execute(
+        @NonNull final SyncCheckoutWithCartCommand command) {
 
-    // Load current cart data through ACL
-    final CartData cart =
-        cartDataPort
-            .findById(cartId)
-            .orElseThrow(
-                () -> new IllegalStateException("Cart not found for active session: " + command.cartId()));
+        final CartId cartId = CartId.of(command.cartId());
 
-    // Handle empty cart - this shouldn't normally happen, but handle gracefully
-    if (cart.items().isEmpty()) {
-      logger.warn("Cart {} is empty but has active checkout session {}, skipping sync",
-          command.cartId(), session.id().value());
-      return SyncCheckoutWithCartResponse.noActiveSession();
+        // Find active checkout session for this cart
+        final Optional<CheckoutSession> activeSession =
+            checkoutSessionRepository.findActiveByCartId(cartId);
+
+        if (activeSession.isEmpty()) {
+            logger.debug("No active checkout session for cart {}, skipping sync", command.cartId());
+            return SyncCheckoutWithCartResponse.noActiveSession();
+        }
+
+        final CheckoutSession session = activeSession.get();
+
+        // Load current cart data through ACL
+        final CartData cart =
+            cartDataPort
+                .findById(cartId)
+                .orElseThrow(
+                    () -> new IllegalStateException("Cart not found for active session: " + command.cartId()));
+
+        // Handle empty cart - this shouldn't normally happen, but handle gracefully
+        if (cart.items().isEmpty()) {
+            logger.warn("Cart {} is empty but has active checkout session {}, skipping sync",
+                command.cartId(), session.id().value());
+            return SyncCheckoutWithCartResponse.noActiveSession();
+        }
+
+        // Build new line items from current cart state
+        final List<CheckoutLineItem> newLineItems = new ArrayList<>();
+        Money subtotal = Money.euro(0.0);
+
+        for (final CartData.CartItemData cartItem : cart.items()) {
+            // Load product name through output port
+            final String productName =
+                productInfoPort
+                    .getProductName(cartItem.productId())
+                    .orElseThrow(
+                        () ->
+                            new IllegalArgumentException(
+                                "Product not found: " + cartItem.productId().value()));
+
+            final CheckoutLineItem lineItem =
+                CheckoutLineItem.of(
+                    CheckoutLineItemId.generate(),
+                    cartItem.productId(),
+                    productName,
+                    cartItem.priceAtAddition().value(),
+                    cartItem.quantity());
+
+            newLineItems.add(lineItem);
+            subtotal = subtotal.add(lineItem.lineTotal());
+        }
+
+        // Sync line items to session
+        session.syncLineItems(newLineItems, subtotal);
+
+        // Persist updated session
+        checkoutSessionRepository.save(session);
+
+        logger.info("Synced checkout session {} with cart {} - {} items, subtotal: {}",
+            session.id().value(), command.cartId(), newLineItems.size(), subtotal);
+
+        return SyncCheckoutWithCartResponse.synced(
+            session.id().value().toString(),
+            newLineItems.size());
     }
-
-    // Build new line items from current cart state
-    final List<CheckoutLineItem> newLineItems = new ArrayList<>();
-    Money subtotal = Money.euro(0.0);
-
-    for (final CartData.CartItemData cartItem : cart.items()) {
-      // Load product to get current name
-      final Product product =
-          productRepository
-              .findById(cartItem.productId())
-              .orElseThrow(
-                  () ->
-                      new IllegalArgumentException(
-                          "Product not found: " + cartItem.productId().value()));
-
-      final CheckoutLineItem lineItem =
-          CheckoutLineItem.of(
-              CheckoutLineItemId.generate(),
-              cartItem.productId(),
-              product.name().value(),
-              cartItem.priceAtAddition().value(),
-              cartItem.quantity());
-
-      newLineItems.add(lineItem);
-      subtotal = subtotal.add(lineItem.lineTotal());
-    }
-
-    // Sync line items to session
-    session.syncLineItems(newLineItems, subtotal);
-
-    // Persist updated session
-    checkoutSessionRepository.save(session);
-
-    logger.info("Synced checkout session {} with cart {} - {} items, subtotal: {}",
-        session.id().value(), command.cartId(), newLineItems.size(), subtotal);
-
-    return SyncCheckoutWithCartResponse.synced(
-        session.id().value().toString(),
-        newLineItems.size());
-  }
 }

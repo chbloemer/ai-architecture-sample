@@ -899,6 +899,47 @@ Reference implementation demonstrating Domain-Centric Architecture with DDD, Hex
 
 ---
 
+### US-51: Bounded Context Isolation via Open Host Service Pattern
+**As a** developer
+**I want** cross-context imports eliminated from the application layer
+**So that** bounded contexts are properly isolated and communicate only through defined ports
+
+**Acceptance Criteria:**
+- OpenHostService annotation created in sharedkernel/stereotype
+- ProductCatalogService created in product/adapter/incoming/openhost with @OpenHostService annotation
+- ProductDataPort created in cart/application/shared as Cart's output port for product data
+- ProductDataAdapter created in cart/adapter/outgoing/product implementing ProductDataPort
+- AddItemToCartUseCase uses ProductDataPort instead of ProductRepository from Product context
+- ProductInfoPort created in checkout/application/shared as Checkout's output port for product names
+- ProductInfoAdapter created in checkout/adapter/outgoing/product implementing ProductInfoPort
+- StartCheckoutUseCase and SyncCheckoutWithCartUseCase use ProductInfoPort instead of ProductRepository
+- ArchUnit test updated: application layer has no cross-context imports except documented exceptions
+- ArchUnit test added: outgoing adapters may only access @OpenHostService from other contexts
+- All tests pass: `./gradlew test-architecture`, `./gradlew build`
+
+**Architectural Guidance:**
+- **Affected Layers:** SharedKernel, Application, Adapter
+- **Locations:**
+  - `sharedkernel.stereotype.OpenHostService`
+  - `product.adapter.incoming.openhost.ProductCatalogService`
+  - `cart.application.shared.ProductDataPort`
+  - `cart.adapter.outgoing.product.ProductDataAdapter`
+  - `cart.application.additemtocart.AddItemToCartUseCase`
+  - `checkout.application.shared.ProductInfoPort`
+  - `checkout.adapter.outgoing.product.ProductInfoAdapter`
+  - `checkout.application.startcheckout.StartCheckoutUseCase`
+  - `checkout.application.synccheckoutwithcart.SyncCheckoutWithCartUseCase`
+- **Patterns:** Open Host Service, Output Port, Adapter Pattern, Bounded Context Isolation
+- **Constraints:**
+  - Use cases must NEVER import from other bounded contexts directly
+  - Cross-context access is isolated to outgoing adapters
+  - Outgoing adapters may only import @OpenHostService classes from other contexts
+  - Open Host Services return DTOs, never domain objects
+  - Each context owns its output port definitions
+  - Run `./gradlew test-architecture` to verify
+
+---
+
 ## Goals
 - 5-step checkout flow (Buyer Info -> Delivery -> Payment -> Review -> Confirmation)
 - Guest checkout (no account required)

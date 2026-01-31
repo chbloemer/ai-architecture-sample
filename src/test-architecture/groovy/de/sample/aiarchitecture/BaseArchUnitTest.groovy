@@ -6,6 +6,8 @@ import com.tngtech.archunit.core.domain.JavaClasses
 import com.tngtech.archunit.core.importer.ClassFileImporter
 import com.tngtech.archunit.core.importer.ImportOption
 import com.tngtech.archunit.core.importer.Location
+import de.sample.aiarchitecture.sharedkernel.stereotype.BoundedContext
+import de.sample.aiarchitecture.sharedkernel.stereotype.SharedKernel
 import spock.lang.Shared
 import spock.lang.Specification
 
@@ -113,4 +115,128 @@ abstract class BaseArchUnitTest extends Specification {
   .withImportOption(ImportOption.Predefined.DO_NOT_INCLUDE_ARCHIVES)
   .withImportOption(new DoNotIncludeArchitectureTests())
   .importPackages(BASE_PACKAGE)
+
+  // ============================================================================
+  // BOUNDED CONTEXT DISCOVERY UTILITIES
+  // ============================================================================
+
+  /**
+   * Discovers all packages annotated with @BoundedContext.
+   *
+   * @return Map of package name to BoundedContext annotation
+   */
+  protected Map<String, BoundedContext> discoverBoundedContextPackages() {
+    Map<String, BoundedContext> contexts = [:]
+
+    allClasses.each { javaClass ->
+      String packageName = javaClass.getPackageName()
+      // Get the root context package (e.g., de.sample.aiarchitecture.product from de.sample.aiarchitecture.product.domain.model)
+      String rootPackage = extractRootContextPackage(packageName)
+      if (rootPackage && !contexts.containsKey(rootPackage)) {
+        BoundedContext annotation = getPackageAnnotation(rootPackage, BoundedContext)
+        if (annotation != null) {
+          contexts[rootPackage] = annotation
+        }
+      }
+    }
+
+    return contexts
+  }
+
+  /**
+   * Discovers the package annotated with @SharedKernel.
+   *
+   * @return the shared kernel package name, or null if not found
+   */
+  protected String discoverSharedKernelPackage() {
+    Set<String> checkedPackages = [] as Set
+
+    for (def javaClass : allClasses) {
+      String packageName = javaClass.getPackageName()
+      String rootPackage = extractRootContextPackage(packageName)
+      if (rootPackage && !checkedPackages.contains(rootPackage)) {
+        checkedPackages.add(rootPackage)
+        SharedKernel annotation = getPackageAnnotation(rootPackage, SharedKernel)
+        if (annotation != null) {
+          return rootPackage
+        }
+      }
+    }
+
+    return null
+  }
+
+  /**
+   * Gets the BoundedContext annotation for a specific package.
+   *
+   * @param packageName the package name
+   * @return the BoundedContext annotation, or null if not found
+   */
+  protected BoundedContext getBoundedContextAnnotation(String packageName) {
+    return getPackageAnnotation(packageName, BoundedContext)
+  }
+
+  /**
+   * Gets a specific annotation from a package's package-info class.
+   *
+   * @param packageName the package name
+   * @param annotationType the annotation type to retrieve
+   * @return the annotation, or null if not found
+   */
+  protected <T extends java.lang.annotation.Annotation> T getPackageAnnotation(String packageName, Class<T> annotationType) {
+    try {
+      Package pkg = Package.getPackage(packageName)
+      if (pkg != null) {
+        return pkg.getAnnotation(annotationType)
+      }
+      // Package might not be loaded yet, try loading package-info class
+      Class<?> packageInfoClass = Class.forName(packageName + ".package-info")
+      return packageInfoClass.getAnnotation(annotationType)
+    } catch (ClassNotFoundException ignored) {
+      return null
+    }
+  }
+
+  /**
+   * Extracts the root bounded context package from a full package name.
+   * E.g., "de.sample.aiarchitecture.product.domain.model" -> "de.sample.aiarchitecture.product"
+   *
+   * @param fullPackageName the full package name
+   * @return the root context package, or null if not a context package
+   */
+  protected String extractRootContextPackage(String fullPackageName) {
+    if (!fullPackageName.startsWith(BASE_PACKAGE + ".")) {
+      return null
+    }
+
+    String remainder = fullPackageName.substring((BASE_PACKAGE + ".").length())
+    int dotIndex = remainder.indexOf('.')
+    if (dotIndex > 0) {
+      return BASE_PACKAGE + "." + remainder.substring(0, dotIndex)
+    } else if (remainder.length() > 0) {
+      return BASE_PACKAGE + "." + remainder
+    }
+    return null
+  }
+
+  /**
+   * Gets all bounded context package patterns (with ".." suffix) for use in ArchUnit rules.
+   *
+   * @return list of package patterns like "de.sample.aiarchitecture.product.."
+   */
+  protected List<String> getBoundedContextPackagePatterns() {
+    return discoverBoundedContextPackages().keySet().collect { it + ".." }
+  }
+
+  /**
+   * Gets bounded context package patterns excluding a specific context.
+   *
+   * @param excludePackage the package to exclude (without ".." suffix)
+   * @return list of package patterns
+   */
+  protected List<String> getBoundedContextPackagePatternsExcluding(String excludePackage) {
+    return discoverBoundedContextPackages().keySet()
+      .findAll { it != excludePackage }
+      .collect { it + ".." }
+  }
 }

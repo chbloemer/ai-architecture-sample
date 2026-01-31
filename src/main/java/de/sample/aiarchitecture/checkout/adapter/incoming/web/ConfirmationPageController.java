@@ -2,14 +2,21 @@ package de.sample.aiarchitecture.checkout.adapter.incoming.web;
 
 import de.sample.aiarchitecture.checkout.application.confirmcheckout.ConfirmCheckoutCommand;
 import de.sample.aiarchitecture.checkout.application.confirmcheckout.ConfirmCheckoutInputPort;
-import de.sample.aiarchitecture.checkout.application.confirmcheckout.ConfirmCheckoutResponse;
+import de.sample.aiarchitecture.checkout.application.getactivecheckoutsession.GetActiveCheckoutSessionInputPort;
+import de.sample.aiarchitecture.checkout.application.getactivecheckoutsession.GetActiveCheckoutSessionQuery;
+import de.sample.aiarchitecture.checkout.application.getactivecheckoutsession.GetActiveCheckoutSessionResponse;
 import de.sample.aiarchitecture.checkout.application.getcheckoutsession.GetCheckoutSessionInputPort;
 import de.sample.aiarchitecture.checkout.application.getcheckoutsession.GetCheckoutSessionQuery;
 import de.sample.aiarchitecture.checkout.application.getcheckoutsession.GetCheckoutSessionResponse;
+import de.sample.aiarchitecture.checkout.application.getconfirmedcheckoutsession.GetConfirmedCheckoutSessionInputPort;
+import de.sample.aiarchitecture.checkout.application.getconfirmedcheckoutsession.GetConfirmedCheckoutSessionQuery;
+import de.sample.aiarchitecture.checkout.application.getconfirmedcheckoutsession.GetConfirmedCheckoutSessionResponse;
+import de.sample.aiarchitecture.checkout.domain.model.CustomerId;
+import de.sample.aiarchitecture.sharedkernel.application.port.security.Identity;
+import de.sample.aiarchitecture.sharedkernel.application.port.security.IdentityProvider;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -19,6 +26,9 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
  *
  * <p>This controller handles the confirmation step of checkout where the customer
  * confirms their order and views the thank you page.
+ *
+ * <p>The checkout session is identified via JWT identity, removing the need
+ * for session IDs in URLs.
  *
  * <p><b>Clean Architecture:</b> This controller depends on use case interfaces (input ports)
  * instead of application services, following the Dependency Inversion Principle.
@@ -32,38 +42,59 @@ public class ConfirmationPageController {
 
   private final ConfirmCheckoutInputPort confirmCheckoutInputPort;
   private final GetCheckoutSessionInputPort getCheckoutSessionInputPort;
+  private final GetActiveCheckoutSessionInputPort getActiveCheckoutSessionInputPort;
+  private final GetConfirmedCheckoutSessionInputPort getConfirmedCheckoutSessionInputPort;
+  private final IdentityProvider identityProvider;
 
   public ConfirmationPageController(
       final ConfirmCheckoutInputPort confirmCheckoutInputPort,
-      final GetCheckoutSessionInputPort getCheckoutSessionInputPort) {
+      final GetCheckoutSessionInputPort getCheckoutSessionInputPort,
+      final GetActiveCheckoutSessionInputPort getActiveCheckoutSessionInputPort,
+      final GetConfirmedCheckoutSessionInputPort getConfirmedCheckoutSessionInputPort,
+      final IdentityProvider identityProvider) {
     this.confirmCheckoutInputPort = confirmCheckoutInputPort;
     this.getCheckoutSessionInputPort = getCheckoutSessionInputPort;
+    this.getActiveCheckoutSessionInputPort = getActiveCheckoutSessionInputPort;
+    this.getConfirmedCheckoutSessionInputPort = getConfirmedCheckoutSessionInputPort;
+    this.identityProvider = identityProvider;
   }
 
   /**
    * Confirms the checkout and places the order.
    *
-   * <p>This endpoint processes the order confirmation and redirects
+   * <p>This endpoint finds the active checkout session for the current user
+   * (via JWT identity), processes the order confirmation, and redirects
    * to the confirmation page on success.
    *
-   * @param id the checkout session ID
    * @param redirectAttributes for passing flash messages
    * @return redirect to confirmation page or back to review on error
    */
-  @PostMapping("/{id}/confirm")
-  public String confirmOrder(
-      @PathVariable final String id, final RedirectAttributes redirectAttributes) {
+  @PostMapping("/confirm")
+  public String confirmOrder(final RedirectAttributes redirectAttributes) {
+
+    // Get customer ID from JWT identity
+    final Identity identity = identityProvider.getCurrentIdentity();
+    final CustomerId customerId = CustomerId.of(identity.userId().value());
+
+    // Find active checkout session for the user
+    final GetActiveCheckoutSessionResponse activeSession =
+        getActiveCheckoutSessionInputPort.execute(
+            GetActiveCheckoutSessionQuery.of(customerId.value()));
+
+    if (!activeSession.found()) {
+      redirectAttributes.addFlashAttribute("error", "No active checkout session found");
+      return "redirect:/cart";
+    }
 
     try {
-      final ConfirmCheckoutResponse response =
-          confirmCheckoutInputPort.execute(new ConfirmCheckoutCommand(id));
+      confirmCheckoutInputPort.execute(new ConfirmCheckoutCommand(activeSession.sessionId()));
 
       redirectAttributes.addFlashAttribute("orderConfirmed", true);
-      return "redirect:/checkout/" + response.sessionId() + "/confirmation";
+      return "redirect:/checkout/confirmation";
 
     } catch (IllegalArgumentException | IllegalStateException e) {
       redirectAttributes.addFlashAttribute("error", e.getMessage());
-      return "redirect:/checkout/" + id + "/review";
+      return "redirect:/checkout/review";
     }
   }
 
@@ -71,31 +102,46 @@ public class ConfirmationPageController {
    * Displays the order confirmation (thank you) page.
    *
    * <p>This endpoint shows the confirmation page after a successful order.
-   * It is only accessible after the checkout has been confirmed.
+   * It looks up the confirmed/completed session for the current user
+   * (via JWT identity). It is only accessible after the checkout has been confirmed.
    *
-   * @param id the checkout session ID
    * @param model the Spring MVC model
    * @param redirectAttributes for passing flash messages on error
    * @return the confirmation.pug template or redirect on error
    */
-  @GetMapping("/{id}/confirmation")
+  @GetMapping("/confirmation")
   public String showConfirmationPage(
-      @PathVariable final String id,
       final Model model,
       final RedirectAttributes redirectAttributes) {
 
+    // Get customer ID from JWT identity
+    final Identity identity = identityProvider.getCurrentIdentity();
+    final CustomerId customerId = CustomerId.of(identity.userId().value());
+
+    // Find confirmed or completed checkout session for the user
+    final GetConfirmedCheckoutSessionResponse confirmedSession =
+        getConfirmedCheckoutSessionInputPort.execute(
+            GetConfirmedCheckoutSessionQuery.of(customerId.value()));
+
+    if (!confirmedSession.found()) {
+      redirectAttributes.addFlashAttribute("error", "No confirmed order found");
+      return "redirect:/cart";
+    }
+
+    // Get full session details
     final GetCheckoutSessionResponse session =
-        getCheckoutSessionInputPort.execute(GetCheckoutSessionQuery.of(id));
+        getCheckoutSessionInputPort.execute(
+            GetCheckoutSessionQuery.of(confirmedSession.sessionId()));
 
     if (!session.found()) {
       redirectAttributes.addFlashAttribute("error", "Checkout session not found");
-      return "redirect:/";
+      return "redirect:/cart";
     }
 
     // Only allow access to confirmation page if the session is confirmed or completed
     if (!isConfirmedOrCompleted(session.status())) {
       redirectAttributes.addFlashAttribute("error", "Order has not been confirmed yet");
-      return "redirect:/checkout/" + id + "/review";
+      return "redirect:/checkout/review";
     }
 
     model.addAttribute("session", session);

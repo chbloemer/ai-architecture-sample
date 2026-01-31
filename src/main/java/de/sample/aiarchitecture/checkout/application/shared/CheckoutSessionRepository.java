@@ -3,6 +3,7 @@ package de.sample.aiarchitecture.checkout.application.shared;
 import de.sample.aiarchitecture.checkout.domain.model.CartId;
 import de.sample.aiarchitecture.checkout.domain.model.CheckoutSession;
 import de.sample.aiarchitecture.checkout.domain.model.CheckoutSessionId;
+import de.sample.aiarchitecture.checkout.domain.model.CustomerId;
 import de.sample.aiarchitecture.sharedkernel.application.port.Repository;
 import java.util.List;
 import java.util.Optional;
@@ -34,6 +35,17 @@ public interface CheckoutSessionRepository extends Repository<CheckoutSession, C
   Optional<CheckoutSession> findByCartId(@NonNull CartId cartId);
 
   /**
+   * Finds an active checkout session for a customer.
+   *
+   * <p>A customer can have at most one active checkout session at a time.
+   * Active means the session status is ACTIVE (not confirmed, completed, abandoned, or expired).
+   *
+   * @param customerId the customer ID
+   * @return the active checkout session if found, empty otherwise
+   */
+  Optional<CheckoutSession> findActiveByCustomerId(@NonNull CustomerId customerId);
+
+  /**
    * Finds all checkout sessions that have expired.
    *
    * <p>A session is considered expired when its status is EXPIRED. This method
@@ -49,4 +61,14 @@ public interface CheckoutSessionRepository extends Repository<CheckoutSession, C
    * @return list of all checkout sessions
    */
   List<CheckoutSession> findAll();
+
+  /**
+   * Finds a confirmed or completed checkout session for a customer.
+   *
+   * <p>Used for displaying the confirmation/thank you page after order confirmation.
+   *
+   * @param customerId the customer ID
+   * @return the confirmed or completed checkout session if found, empty otherwise
+   */
+  Optional<CheckoutSession> findConfirmedOrCompletedByCustomerId(@NonNull CustomerId customerId);
 }

@@ -5,6 +5,7 @@ import de.sample.aiarchitecture.checkout.domain.model.CartId;
 import de.sample.aiarchitecture.checkout.domain.model.CheckoutSession;
 import de.sample.aiarchitecture.checkout.domain.model.CheckoutSessionId;
 import de.sample.aiarchitecture.checkout.domain.model.CheckoutSessionStatus;
+import de.sample.aiarchitecture.checkout.domain.model.CustomerId;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
@@ -39,6 +40,14 @@ public class InMemoryCheckoutSessionRepository implements CheckoutSessionReposit
   }
 
   @Override
+  public Optional<CheckoutSession> findActiveByCustomerId(@NonNull final CustomerId customerId) {
+    return sessions.values().stream()
+        .filter(session -> session.customerId().equals(customerId))
+        .filter(session -> session.status() == CheckoutSessionStatus.ACTIVE)
+        .findFirst();
+  }
+
+  @Override
   public List<CheckoutSession> findExpiredSessions() {
     return sessions.values().stream()
         .filter(session -> session.status() == CheckoutSessionStatus.EXPIRED)
@@ -59,5 +68,16 @@ public class InMemoryCheckoutSessionRepository implements CheckoutSessionReposit
   @Override
   public void deleteById(@NonNull final CheckoutSessionId id) {
     sessions.remove(id);
+  }
+
+  @Override
+  public Optional<CheckoutSession> findConfirmedOrCompletedByCustomerId(
+      @NonNull final CustomerId customerId) {
+    return sessions.values().stream()
+        .filter(session -> session.customerId().equals(customerId))
+        .filter(session ->
+            session.status() == CheckoutSessionStatus.CONFIRMED
+                || session.status() == CheckoutSessionStatus.COMPLETED)
+        .findFirst();
   }
 }

@@ -1,5 +1,8 @@
 package de.sample.aiarchitecture.checkout.adapter.incoming.web;
 
+import de.sample.aiarchitecture.checkout.application.getactivecheckoutsession.GetActiveCheckoutSessionInputPort;
+import de.sample.aiarchitecture.checkout.application.getactivecheckoutsession.GetActiveCheckoutSessionQuery;
+import de.sample.aiarchitecture.checkout.application.getactivecheckoutsession.GetActiveCheckoutSessionResponse;
 import de.sample.aiarchitecture.checkout.application.getcheckoutsession.GetCheckoutSessionInputPort;
 import de.sample.aiarchitecture.checkout.application.getcheckoutsession.GetCheckoutSessionQuery;
 import de.sample.aiarchitecture.checkout.application.getcheckoutsession.GetCheckoutSessionResponse;
@@ -8,10 +11,12 @@ import de.sample.aiarchitecture.checkout.application.getpaymentproviders.GetPaym
 import de.sample.aiarchitecture.checkout.application.getpaymentproviders.GetPaymentProvidersResponse;
 import de.sample.aiarchitecture.checkout.application.submitpayment.SubmitPaymentCommand;
 import de.sample.aiarchitecture.checkout.application.submitpayment.SubmitPaymentInputPort;
+import de.sample.aiarchitecture.checkout.domain.model.CustomerId;
+import de.sample.aiarchitecture.sharedkernel.application.port.security.Identity;
+import de.sample.aiarchitecture.sharedkernel.application.port.security.IdentityProvider;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -22,6 +27,9 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
  *
  * <p>This controller handles the payment step of checkout where the customer
  * selects their payment method.
+ *
+ * <p>The active checkout session is identified via JWT identity, removing the need
+ * for session IDs in URLs.
  *
  * <p><b>Clean Architecture:</b> This controller depends on use case interfaces (input ports)
  * instead of application services, following the Dependency Inversion Principle.
@@ -34,41 +42,62 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 public class PaymentPageController {
 
   private final GetCheckoutSessionInputPort getCheckoutSessionInputPort;
+  private final GetActiveCheckoutSessionInputPort getActiveCheckoutSessionInputPort;
   private final GetPaymentProvidersInputPort getPaymentProvidersInputPort;
   private final SubmitPaymentInputPort submitPaymentInputPort;
+  private final IdentityProvider identityProvider;
 
   public PaymentPageController(
       final GetCheckoutSessionInputPort getCheckoutSessionInputPort,
+      final GetActiveCheckoutSessionInputPort getActiveCheckoutSessionInputPort,
       final GetPaymentProvidersInputPort getPaymentProvidersInputPort,
-      final SubmitPaymentInputPort submitPaymentInputPort) {
+      final SubmitPaymentInputPort submitPaymentInputPort,
+      final IdentityProvider identityProvider) {
     this.getCheckoutSessionInputPort = getCheckoutSessionInputPort;
+    this.getActiveCheckoutSessionInputPort = getActiveCheckoutSessionInputPort;
     this.getPaymentProvidersInputPort = getPaymentProvidersInputPort;
     this.submitPaymentInputPort = submitPaymentInputPort;
+    this.identityProvider = identityProvider;
   }
 
   /**
    * Displays the payment method selection form.
    *
-   * <p>This endpoint retrieves the checkout session and available payment providers,
-   * then displays the payment form. If the session is not found, redirects to home with an error.
+   * <p>This endpoint retrieves the active checkout session for the current user
+   * (via JWT identity) and available payment providers, then displays the payment form.
+   * If no active session is found, redirects to cart with an error.
    *
-   * @param id the checkout session ID
    * @param model the Spring MVC model
    * @param redirectAttributes for passing flash messages on error
    * @return the payment.pug template or redirect on error
    */
-  @GetMapping("/{id}/payment")
+  @GetMapping("/payment")
   public String showPaymentForm(
-      @PathVariable final String id,
       final Model model,
       final RedirectAttributes redirectAttributes) {
 
+    // Get customer ID from JWT identity
+    final Identity identity = identityProvider.getCurrentIdentity();
+    final CustomerId customerId = CustomerId.of(identity.userId().value());
+
+    // Find active checkout session for the user
+    final GetActiveCheckoutSessionResponse activeSession =
+        getActiveCheckoutSessionInputPort.execute(
+            GetActiveCheckoutSessionQuery.of(customerId.value()));
+
+    if (!activeSession.found()) {
+      redirectAttributes.addFlashAttribute("error", "No active checkout session found");
+      return "redirect:/cart";
+    }
+
+    // Get full session details
     final GetCheckoutSessionResponse session =
-        getCheckoutSessionInputPort.execute(GetCheckoutSessionQuery.of(id));
+        getCheckoutSessionInputPort.execute(
+            GetCheckoutSessionQuery.of(activeSession.sessionId()));
 
     if (!session.found()) {
       redirectAttributes.addFlashAttribute("error", "Checkout session not found");
-      return "redirect:/";
+      return "redirect:/cart";
     }
 
     final GetPaymentProvidersResponse paymentProviders =
@@ -87,28 +116,40 @@ public class PaymentPageController {
    * <p>This endpoint processes the payment method selection and redirects
    * to the review step on success.
    *
-   * @param id the checkout session ID
    * @param providerId the selected payment provider ID
    * @param providerReference optional provider-specific reference
    * @param redirectAttributes for passing flash messages
    * @return redirect to review step or back to payment on error
    */
-  @PostMapping("/{id}/payment")
+  @PostMapping("/payment")
   public String submitPayment(
-      @PathVariable final String id,
       @RequestParam final String providerId,
       @RequestParam(required = false) final String providerReference,
       final RedirectAttributes redirectAttributes) {
 
+    // Get customer ID from JWT identity
+    final Identity identity = identityProvider.getCurrentIdentity();
+    final CustomerId customerId = CustomerId.of(identity.userId().value());
+
+    // Find active checkout session for the user
+    final GetActiveCheckoutSessionResponse activeSession =
+        getActiveCheckoutSessionInputPort.execute(
+            GetActiveCheckoutSessionQuery.of(customerId.value()));
+
+    if (!activeSession.found()) {
+      redirectAttributes.addFlashAttribute("error", "No active checkout session found");
+      return "redirect:/cart";
+    }
+
     try {
       submitPaymentInputPort.execute(
-          new SubmitPaymentCommand(id, providerId, providerReference));
+          new SubmitPaymentCommand(activeSession.sessionId(), providerId, providerReference));
 
-      return "redirect:/checkout/" + id + "/review";
+      return "redirect:/checkout/review";
 
     } catch (IllegalArgumentException | IllegalStateException e) {
       redirectAttributes.addFlashAttribute("error", e.getMessage());
-      return "redirect:/checkout/" + id + "/payment";
+      return "redirect:/checkout/payment";
     }
   }
 }

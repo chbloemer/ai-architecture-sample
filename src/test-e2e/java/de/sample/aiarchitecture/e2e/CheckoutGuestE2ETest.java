@@ -68,12 +68,12 @@ class CheckoutGuestE2ETest extends BaseE2ETest {
   }
 
   @Test
-  @DisplayName("Checkout should redirect to cart if cart is empty")
-  void checkoutWithEmptyCartRedirectsToCart() {
-    // Try to access checkout directly without items in cart
-    navigateTo("/checkout/start");
+  @DisplayName("Checkout should redirect to cart if no active session")
+  void checkoutWithNoActiveSessionRedirectsToCart() {
+    // Try to access buyer info page directly without starting checkout
+    navigateTo("/checkout/buyer");
 
-    // Should redirect to cart with error message
+    // Should redirect to cart with error message (no active checkout session)
     waitForUrl("/cart**");
     assertTrue(getCurrentPath().startsWith("/cart"), "Should redirect to cart page");
   }
@@ -81,12 +81,14 @@ class CheckoutGuestE2ETest extends BaseE2ETest {
   @Test
   @DisplayName("Buyer info validation shows errors for invalid input")
   void buyerInfoValidationShowsErrors() {
-    // Add a product to cart first
-    addProductToCart();
+    // Add a product to cart and start checkout properly
+    ProductCatalogPage catalog = ProductCatalogPage.navigateTo(page);
+    ProductDetailPage detail = catalog.viewFirstProduct();
+    detail.addToCart();
 
-    // Start checkout
-    navigateTo("/checkout/start");
-    BuyerInfoPage buyer = new BuyerInfoPage(page);
+    // Go to cart and start checkout properly (with cartId parameter)
+    CartPage cart = CartPage.navigateTo(page);
+    BuyerInfoPage buyer = cart.proceedToCheckout();
 
     // Submit form with invalid email
     buyer.fillBuyerInfo("invalid-email", "Test", "User", "")
@@ -100,12 +102,16 @@ class CheckoutGuestE2ETest extends BaseE2ETest {
   @Test
   @DisplayName("Can navigate back through checkout steps")
   void canNavigateBackThroughCheckoutSteps() {
-    // Add product and go to checkout
-    addProductToCart();
-    navigateTo("/checkout/start");
+    // Add product to cart and start checkout properly
+    ProductCatalogPage catalog = ProductCatalogPage.navigateTo(page);
+    ProductDetailPage detail = catalog.viewFirstProduct();
+    detail.addToCart();
+
+    // Go to cart and start checkout properly (with cartId parameter)
+    CartPage cart = CartPage.navigateTo(page);
+    BuyerInfoPage buyer = cart.proceedToCheckout();
 
     // Fill buyer info and continue
-    BuyerInfoPage buyer = new BuyerInfoPage(page);
     DeliveryPage delivery = buyer
         .fillBuyerInfo("guest@example.com", "Test", "Guest", "+1-555-0100")
         .continueToDelivery();
@@ -117,12 +123,4 @@ class CheckoutGuestE2ETest extends BaseE2ETest {
     }
   }
 
-  /**
-   * Helper method to add a product to the cart.
-   */
-  private void addProductToCart() {
-    ProductCatalogPage catalog = ProductCatalogPage.navigateTo(page);
-    ProductDetailPage detail = catalog.viewFirstProduct();
-    detail.addToCartAndStay();
-  }
 }

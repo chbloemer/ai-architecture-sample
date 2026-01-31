@@ -1,5 +1,9 @@
 server:
   port: 8080
+  servlet:
+    session:
+      # Disable HTTP session tracking - we use JWT-based authentication
+      tracking-modes: []
 
 spring:
   application:

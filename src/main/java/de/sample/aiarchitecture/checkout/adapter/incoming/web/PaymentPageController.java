@@ -12,7 +12,7 @@ import de.sample.aiarchitecture.checkout.application.getpaymentproviders.GetPaym
 import de.sample.aiarchitecture.checkout.application.submitpayment.SubmitPaymentCommand;
 import de.sample.aiarchitecture.checkout.application.submitpayment.SubmitPaymentInputPort;
 import de.sample.aiarchitecture.checkout.domain.model.CustomerId;
-import de.sample.aiarchitecture.sharedkernel.application.port.security.Identity;
+import de.sample.aiarchitecture.sharedkernel.application.common.security.Identity;
 import de.sample.aiarchitecture.sharedkernel.application.port.security.IdentityProvider;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;

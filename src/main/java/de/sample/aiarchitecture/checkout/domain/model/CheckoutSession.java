@@ -168,6 +168,39 @@ public final class CheckoutSession extends BaseAggregateRoot<CheckoutSession, Ch
   }
 
   /**
+   * Synchronizes line items with the current cart state.
+   *
+   * <p>This method updates the checkout session's line items when the underlying cart
+   * changes during the checkout flow. It recalculates the subtotal and updates totals
+   * accordingly.
+   *
+   * @param newLineItems the updated line items from the cart
+   * @param newSubtotal the new subtotal calculated from the cart
+   * @throws IllegalStateException if session is not modifiable
+   * @throws IllegalArgumentException if newLineItems is empty
+   */
+  public void syncLineItems(
+      @NonNull final List<CheckoutLineItem> newLineItems,
+      @NonNull final Money newSubtotal) {
+    ensureModifiable();
+
+    if (newLineItems == null || newLineItems.isEmpty()) {
+      throw new IllegalArgumentException("Cannot sync with empty line items");
+    }
+
+    this.lineItems.clear();
+    this.lineItems.addAll(newLineItems);
+
+    // Recalculate totals with existing shipping cost
+    final Money shippingCost = this.totals.shipping();
+    this.totals = CheckoutTotals.of(
+        newSubtotal,
+        shippingCost,
+        Money.zero(newSubtotal.currency()),
+        newSubtotal.add(shippingCost));
+  }
+
+  /**
    * Submits buyer information for the checkout.
    *
    * <p>Raises a {@link BuyerInfoSubmitted} domain event.

@@ -6,7 +6,7 @@ import de.sample.aiarchitecture.cart.application.getorcreateactivecart.GetOrCrea
 import de.sample.aiarchitecture.cart.domain.model.CustomerId;
 import de.sample.aiarchitecture.checkout.application.startcheckout.StartCheckoutCommand;
 import de.sample.aiarchitecture.checkout.application.startcheckout.StartCheckoutInputPort;
-import de.sample.aiarchitecture.sharedkernel.application.port.security.Identity;
+import de.sample.aiarchitecture.sharedkernel.application.common.security.Identity;
 import de.sample.aiarchitecture.sharedkernel.application.port.security.IdentityProvider;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;

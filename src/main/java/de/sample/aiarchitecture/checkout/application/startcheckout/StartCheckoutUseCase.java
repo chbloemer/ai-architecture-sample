@@ -98,8 +98,8 @@ public class StartCheckoutUseCase implements StartCheckoutInputPort {
     // Save checkout session
     checkoutSessionRepository.save(session);
 
-    // Mark cart as checked out through ACL
-    cartDataPort.markAsCheckedOut(cartId);
+    // Cart remains ACTIVE during checkout - user can still modify it
+    // Cart only transitions to COMPLETED when checkout is confirmed
 
     // Map to response
     return mapToResponse(session);

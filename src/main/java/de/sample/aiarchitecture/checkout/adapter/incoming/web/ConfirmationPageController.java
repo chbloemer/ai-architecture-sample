@@ -12,7 +12,7 @@ import de.sample.aiarchitecture.checkout.application.getconfirmedcheckoutsession
 import de.sample.aiarchitecture.checkout.application.getconfirmedcheckoutsession.GetConfirmedCheckoutSessionQuery;
 import de.sample.aiarchitecture.checkout.application.getconfirmedcheckoutsession.GetConfirmedCheckoutSessionResponse;
 import de.sample.aiarchitecture.checkout.domain.model.CustomerId;
-import de.sample.aiarchitecture.sharedkernel.application.port.security.Identity;
+import de.sample.aiarchitecture.sharedkernel.application.common.security.Identity;
 import de.sample.aiarchitecture.sharedkernel.application.port.security.IdentityProvider;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;

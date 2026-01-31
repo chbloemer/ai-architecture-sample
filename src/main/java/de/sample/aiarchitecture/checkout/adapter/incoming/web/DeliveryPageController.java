@@ -12,7 +12,7 @@ import de.sample.aiarchitecture.checkout.application.getshippingoptions.GetShipp
 import de.sample.aiarchitecture.checkout.application.submitdelivery.SubmitDeliveryCommand;
 import de.sample.aiarchitecture.checkout.application.submitdelivery.SubmitDeliveryInputPort;
 import de.sample.aiarchitecture.checkout.domain.model.CustomerId;
-import de.sample.aiarchitecture.sharedkernel.application.port.security.Identity;
+import de.sample.aiarchitecture.sharedkernel.application.common.security.Identity;
 import de.sample.aiarchitecture.sharedkernel.application.port.security.IdentityProvider;
 import java.math.BigDecimal;
 import org.springframework.stereotype.Controller;

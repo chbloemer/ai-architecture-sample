@@ -9,7 +9,7 @@ import de.sample.aiarchitecture.checkout.application.getcheckoutsession.GetCheck
 import de.sample.aiarchitecture.checkout.application.submitbuyerinfo.SubmitBuyerInfoCommand;
 import de.sample.aiarchitecture.checkout.application.submitbuyerinfo.SubmitBuyerInfoInputPort;
 import de.sample.aiarchitecture.checkout.domain.model.CustomerId;
-import de.sample.aiarchitecture.sharedkernel.application.port.security.Identity;
+import de.sample.aiarchitecture.sharedkernel.application.common.security.Identity;
 import de.sample.aiarchitecture.sharedkernel.application.port.security.IdentityProvider;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;

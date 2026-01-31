@@ -40,6 +40,14 @@ public class InMemoryCheckoutSessionRepository implements CheckoutSessionReposit
   }
 
   @Override
+  public Optional<CheckoutSession> findActiveByCartId(@NonNull final CartId cartId) {
+    return sessions.values().stream()
+        .filter(session -> session.cartId().equals(cartId))
+        .filter(session -> session.status() == CheckoutSessionStatus.ACTIVE)
+        .findFirst();
+  }
+
+  @Override
   public Optional<CheckoutSession> findActiveByCustomerId(@NonNull final CustomerId customerId) {
     return sessions.values().stream()
         .filter(session -> session.customerId().equals(customerId))

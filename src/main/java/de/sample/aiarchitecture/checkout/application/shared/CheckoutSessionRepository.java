@@ -27,12 +27,22 @@ public interface CheckoutSessionRepository extends Repository<CheckoutSession, C
   /**
    * Finds a checkout session by the cart it was created from.
    *
-   * <p>A cart can have at most one active checkout session at a time.
+   * <p>Returns any session for this cart, regardless of status.
    *
    * @param cartId the cart ID
    * @return the checkout session if found, empty otherwise
    */
   Optional<CheckoutSession> findByCartId(@NonNull CartId cartId);
+
+  /**
+   * Finds an active checkout session by the cart it was created from.
+   *
+   * <p>Only returns sessions with ACTIVE status that can still be modified.
+   *
+   * @param cartId the cart ID
+   * @return the active checkout session if found, empty otherwise
+   */
+  Optional<CheckoutSession> findActiveByCartId(@NonNull CartId cartId);
 
   /**
    * Finds an active checkout session for a customer.

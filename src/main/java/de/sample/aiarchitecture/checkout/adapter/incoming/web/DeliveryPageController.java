@@ -12,8 +12,7 @@ import de.sample.aiarchitecture.checkout.application.getshippingoptions.GetShipp
 import de.sample.aiarchitecture.checkout.application.submitdelivery.SubmitDeliveryCommand;
 import de.sample.aiarchitecture.checkout.application.submitdelivery.SubmitDeliveryInputPort;
 import de.sample.aiarchitecture.checkout.domain.model.CustomerId;
-import de.sample.aiarchitecture.sharedkernel.application.common.security.Identity;
-import de.sample.aiarchitecture.sharedkernel.application.port.security.IdentityProvider;
+import de.sample.aiarchitecture.sharedkernel.marker.port.out.IdentityProvider;
 import java.math.BigDecimal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -78,7 +77,7 @@ public class DeliveryPageController {
       final RedirectAttributes redirectAttributes) {
 
     // Get customer ID from JWT identity
-    final Identity identity = identityProvider.getCurrentIdentity();
+    final IdentityProvider.Identity identity = identityProvider.getCurrentIdentity();
     final CustomerId customerId = CustomerId.of(identity.userId().value());
 
     // Find active checkout session for the user
@@ -147,7 +146,7 @@ public class DeliveryPageController {
       final RedirectAttributes redirectAttributes) {
 
     // Get customer ID from JWT identity
-    final Identity identity = identityProvider.getCurrentIdentity();
+    final IdentityProvider.Identity identity = identityProvider.getCurrentIdentity();
     final CustomerId customerId = CustomerId.of(identity.userId().value());
 
     // Find active checkout session for the user

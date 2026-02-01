@@ -8,4 +8,4 @@
     description = "Product management, catalog browsing, and inventory tracking")
 package de.sample.aiarchitecture.product;
 
-import de.sample.aiarchitecture.sharedkernel.stereotype.BoundedContext;
+import de.sample.aiarchitecture.sharedkernel.marker.strategic.BoundedContext;

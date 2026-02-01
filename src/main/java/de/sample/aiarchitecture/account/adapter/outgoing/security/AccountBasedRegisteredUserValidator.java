@@ -1,8 +1,8 @@
 package de.sample.aiarchitecture.account.adapter.outgoing.security;
 
 import de.sample.aiarchitecture.account.application.shared.AccountRepository;
-import de.sample.aiarchitecture.sharedkernel.application.port.security.RegisteredUserValidator;
-import de.sample.aiarchitecture.sharedkernel.domain.common.UserId;
+import de.sample.aiarchitecture.account.application.shared.RegisteredUserValidator;
+import de.sample.aiarchitecture.sharedkernel.domain.model.UserId;
 import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Component;
 

@@ -65,28 +65,43 @@ Layers (from innermost to outermost):
 ```
 src/main/java/de/sample/aiarchitecture/
 ├── sharedkernel/                         # Shared Kernel (cross-context)
-│   ├── domain/
-│   │   ├── marker/                       # DDD marker interfaces
-│   │   │   ├── AggregateRoot.java
+│   ├── marker/                           # Architectural markers
+│   │   ├── tactical/                     # DDD tactical patterns
+│   │   │   ├── Id.java                   # Identity marker
 │   │   │   ├── Entity.java
 │   │   │   ├── Value.java
-│   │   │   ├── Repository.java
+│   │   │   ├── AggregateRoot.java
+│   │   │   ├── BaseAggregateRoot.java
+│   │   │   ├── DomainEvent.java
+│   │   │   ├── IntegrationEvent.java
 │   │   │   ├── DomainService.java
 │   │   │   ├── Factory.java
-│   │   │   ├── Specification.java
-│   │   │   └── DomainEvent.java
-│   │   └── common/                       # Shared value objects
-│   │       ├── ProductId.java            # Cross-context ID
-│   │       ├── Money.java                # Cross-context value
-│   │       └── Price.java                # Cross-context value
-│   ├── common/
-│   │   └── annotation/                   # Framework-agnostic annotations
-│   │       └── AsyncInitialize.java
-│   └── application/
-│       └── port/                         # Outbound ports (cross-context)
-│           ├── UseCase.java              # Base use case interface
-│           ├── Repository.java           # Base repository interface
-│           └── DomainEventPublisher.java # Event publisher interface
+│   │   │   └── Specification.java
+│   │   ├── strategic/                    # DDD strategic patterns
+│   │   │   ├── BoundedContext.java
+│   │   │   ├── SharedKernel.java
+│   │   │   └── OpenHostService.java
+│   │   └── port/                         # Hexagonal Architecture ports
+│   │       ├── in/                       # Input ports (driving)
+│   │       │   ├── InputPort.java
+│   │       │   └── UseCase.java
+│   │       └── out/                      # Output ports (driven)
+│   │           ├── OutputPort.java
+│   │           ├── Repository.java
+│   │           ├── DomainEventPublisher.java
+│   │           └── IdentityProvider.java
+│   └── domain/
+│       ├── model/                        # Shared value objects
+│       │   ├── ProductId.java            # Cross-context ID
+│       │   ├── UserId.java               # Cross-context ID
+│       │   ├── Money.java                # Cross-context value
+│       │   └── Price.java                # Cross-context value
+│       └── specification/                # Composable specification pattern
+│           ├── CompositeSpecification.java
+│           ├── AndSpecification.java
+│           ├── OrSpecification.java
+│           ├── NotSpecification.java
+│           └── SpecificationVisitor.java
 │
 ├── product/                              # Product Catalog bounded context
 │   ├── domain/
@@ -418,10 +433,12 @@ For comprehensive architecture documentation, see:
 - Adapters don't communicate directly
 
 **Shared Kernel** - Cross-context shared concepts
-- `sharedkernel.domain.marker` - DDD marker interfaces
-- `sharedkernel.domain.common` - Shared value objects (Money, ProductId, Price)
-- `sharedkernel.common.annotation` - Framework-agnostic custom annotations
-- `sharedkernel.application.port` - Outbound ports (UseCase, Repository, DomainEventPublisher)
+- `sharedkernel.marker.tactical` - DDD tactical patterns (Entity, Value, AggregateRoot, DomainEvent, etc.)
+- `sharedkernel.marker.strategic` - DDD strategic patterns (BoundedContext, SharedKernel)
+- `sharedkernel.marker.port.in` - Input ports (UseCase, InputPort)
+- `sharedkernel.marker.port.out` - Output ports (Repository, DomainEventPublisher, IdentityProvider)
+- `sharedkernel.domain.model` - Shared value objects (Money, Price, ProductId, UserId)
+- `sharedkernel.domain.specification` - Composable specification pattern
 
 **Infrastructure Layer** - Cross-cutting concerns
 - `infrastructure.config` - Spring configuration and framework integrations

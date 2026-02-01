@@ -1,7 +1,7 @@
 package de.sample.aiarchitecture.cart.domain.model;
 
-import de.sample.aiarchitecture.sharedkernel.domain.marker.Id;
-import de.sample.aiarchitecture.sharedkernel.domain.marker.Value;
+import de.sample.aiarchitecture.sharedkernel.marker.tactical.Id;
+import de.sample.aiarchitecture.sharedkernel.marker.tactical.Value;
 import java.util.UUID;
 import org.jspecify.annotations.NonNull;
 

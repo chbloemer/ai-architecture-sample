@@ -2,9 +2,9 @@ package de.sample.aiarchitecture.product.domain.model;
 
 import de.sample.aiarchitecture.product.domain.event.ProductCreated;
 
-import de.sample.aiarchitecture.sharedkernel.domain.marker.Factory;
-import de.sample.aiarchitecture.sharedkernel.domain.common.Price;
-import de.sample.aiarchitecture.sharedkernel.domain.common.ProductId;
+import de.sample.aiarchitecture.sharedkernel.marker.tactical.Factory;
+import de.sample.aiarchitecture.sharedkernel.domain.model.Price;
+import de.sample.aiarchitecture.sharedkernel.domain.model.ProductId;
 import org.jspecify.annotations.NonNull;
 
 /**

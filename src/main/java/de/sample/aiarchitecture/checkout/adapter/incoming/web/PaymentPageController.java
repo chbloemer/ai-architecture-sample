@@ -12,8 +12,7 @@ import de.sample.aiarchitecture.checkout.application.getpaymentproviders.GetPaym
 import de.sample.aiarchitecture.checkout.application.submitpayment.SubmitPaymentCommand;
 import de.sample.aiarchitecture.checkout.application.submitpayment.SubmitPaymentInputPort;
 import de.sample.aiarchitecture.checkout.domain.model.CustomerId;
-import de.sample.aiarchitecture.sharedkernel.application.common.security.Identity;
-import de.sample.aiarchitecture.sharedkernel.application.port.security.IdentityProvider;
+import de.sample.aiarchitecture.sharedkernel.marker.port.out.IdentityProvider;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -77,7 +76,7 @@ public class PaymentPageController {
       final RedirectAttributes redirectAttributes) {
 
     // Get customer ID from JWT identity
-    final Identity identity = identityProvider.getCurrentIdentity();
+    final IdentityProvider.Identity identity = identityProvider.getCurrentIdentity();
     final CustomerId customerId = CustomerId.of(identity.userId().value());
 
     // Find active checkout session for the user
@@ -128,7 +127,7 @@ public class PaymentPageController {
       final RedirectAttributes redirectAttributes) {
 
     // Get customer ID from JWT identity
-    final Identity identity = identityProvider.getCurrentIdentity();
+    final IdentityProvider.Identity identity = identityProvider.getCurrentIdentity();
     final CustomerId customerId = CustomerId.of(identity.userId().value());
 
     // Find active checkout session for the user

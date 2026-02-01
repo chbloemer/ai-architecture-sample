@@ -1,9 +1,9 @@
-package de.sample.aiarchitecture.cart.domain.specificationificationificationificationification;
+package de.sample.aiarchitecture.cart.domain.specification;
 
 import de.sample.aiarchitecture.cart.domain.model.CartStatus;
 import de.sample.aiarchitecture.cart.domain.model.ShoppingCart;
-import de.sample.aiarchitecture.sharedkernel.domain.specificationificationificationificationification.AndSpecification;
-import de.sample.aiarchitecture.sharedkernel.domain.specificationificationificationificationification.SpecificationVisitor;
+import de.sample.aiarchitecture.sharedkernel.domain.specification.AndSpecification;
+import de.sample.aiarchitecture.sharedkernel.domain.specification.SpecificationVisitor;
 import org.jspecify.annotations.NonNull;
 
 /**

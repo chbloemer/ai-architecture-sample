@@ -2,8 +2,8 @@ package de.sample.aiarchitecture.account.domain.event;
 
 import de.sample.aiarchitecture.account.domain.model.AccountId;
 import de.sample.aiarchitecture.account.domain.model.Email;
-import de.sample.aiarchitecture.sharedkernel.domain.common.UserId;
-import de.sample.aiarchitecture.sharedkernel.domain.marker.DomainEvent;
+import de.sample.aiarchitecture.sharedkernel.domain.model.UserId;
+import de.sample.aiarchitecture.sharedkernel.marker.tactical.DomainEvent;
 import java.time.Instant;
 import java.util.UUID;
 import org.jspecify.annotations.NonNull;

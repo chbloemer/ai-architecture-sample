@@ -2,9 +2,9 @@ package de.sample.aiarchitecture.cart.domain.model;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import de.sample.aiarchitecture.sharedkernel.domain.common.Money;
-import de.sample.aiarchitecture.sharedkernel.domain.common.Price;
-import de.sample.aiarchitecture.sharedkernel.domain.common.ProductId;
+import de.sample.aiarchitecture.sharedkernel.domain.model.Money;
+import de.sample.aiarchitecture.sharedkernel.domain.model.Price;
+import de.sample.aiarchitecture.sharedkernel.domain.model.ProductId;
 import java.math.BigDecimal;
 import java.util.Currency;
 import org.junit.jupiter.api.BeforeEach;

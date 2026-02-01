@@ -4,8 +4,8 @@ import de.sample.aiarchitecture.cart.application.checkoutcart.CheckoutCartInputP
 import de.sample.aiarchitecture.cart.domain.model.CartId;
 import de.sample.aiarchitecture.cart.domain.model.ShoppingCart;
 import de.sample.aiarchitecture.cart.application.shared.ShoppingCartRepository;
-import de.sample.aiarchitecture.sharedkernel.domain.common.Money;
-import de.sample.aiarchitecture.sharedkernel.application.port.DomainEventPublisher;
+import de.sample.aiarchitecture.sharedkernel.domain.model.Money;
+import de.sample.aiarchitecture.sharedkernel.marker.port.out.DomainEventPublisher;
 import java.time.Instant;
 import java.util.List;
 import org.jspecify.annotations.NonNull;

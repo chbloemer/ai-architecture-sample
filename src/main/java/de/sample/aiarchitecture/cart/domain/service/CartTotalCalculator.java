@@ -1,7 +1,7 @@
 package de.sample.aiarchitecture.cart.domain.service;
 
-import de.sample.aiarchitecture.sharedkernel.domain.marker.DomainService;
-import de.sample.aiarchitecture.sharedkernel.domain.common.Money;
+import de.sample.aiarchitecture.sharedkernel.marker.tactical.DomainService;
+import de.sample.aiarchitecture.sharedkernel.domain.model.Money;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import org.jspecify.annotations.NonNull;

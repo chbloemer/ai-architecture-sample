@@ -6,10 +6,10 @@ import de.sample.aiarchitecture.account.application.authenticateaccount.Authenti
 import de.sample.aiarchitecture.account.application.registeraccount.RegisterAccountCommand;
 import de.sample.aiarchitecture.account.application.registeraccount.RegisterAccountInputPort;
 import de.sample.aiarchitecture.account.application.registeraccount.RegisterAccountResponse;
-import de.sample.aiarchitecture.sharedkernel.application.port.security.IdentityCookieService;
-import de.sample.aiarchitecture.sharedkernel.application.port.security.IdentityProvider;
-import de.sample.aiarchitecture.sharedkernel.application.port.security.TokenService;
-import de.sample.aiarchitecture.sharedkernel.domain.common.UserId;
+import de.sample.aiarchitecture.infrastructure.security.jwt.JwtAuthenticationFilter;
+import de.sample.aiarchitecture.infrastructure.security.jwt.JwtTokenService;
+import de.sample.aiarchitecture.sharedkernel.domain.model.UserId;
+import de.sample.aiarchitecture.sharedkernel.marker.port.out.IdentityProvider;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -38,21 +38,21 @@ public class AuthResource {
 
   private final AuthenticateAccountInputPort authenticateAccountUseCase;
   private final RegisterAccountInputPort registerAccountUseCase;
-  private final TokenService tokenService;
+  private final JwtTokenService tokenService;
   private final IdentityProvider identityProvider;
-  private final IdentityCookieService identityCookieService;
+  private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
   public AuthResource(
       final AuthenticateAccountInputPort authenticateAccountUseCase,
       final RegisterAccountInputPort registerAccountUseCase,
-      final TokenService tokenService,
+      final JwtTokenService tokenService,
       final IdentityProvider identityProvider,
-      final IdentityCookieService identityCookieService) {
+      final JwtAuthenticationFilter jwtAuthenticationFilter) {
     this.authenticateAccountUseCase = authenticateAccountUseCase;
     this.registerAccountUseCase = registerAccountUseCase;
     this.tokenService = tokenService;
     this.identityProvider = identityProvider;
-    this.identityCookieService = identityCookieService;
+    this.jwtAuthenticationFilter = jwtAuthenticationFilter;
   }
 
   @PostMapping("/login")
@@ -76,7 +76,7 @@ public class AuthResource {
         result.email(),
         result.roles());
 
-    identityCookieService.setRegisteredUserCookie(response, token);
+    jwtAuthenticationFilter.setRegisteredUserCookie(response, token);
 
     return ResponseEntity.ok(LoginApiResult.success(token, result.email()));
   }
@@ -101,7 +101,7 @@ public class AuthResource {
           result.email(),
           result.roles());
 
-      identityCookieService.setRegisteredUserCookie(response, token);
+      jwtAuthenticationFilter.setRegisteredUserCookie(response, token);
 
       return ResponseEntity.status(HttpStatus.CREATED)
           .body(RegisterApiResult.success(token, result.email()));
@@ -114,7 +114,7 @@ public class AuthResource {
 
   @PostMapping("/logout")
   public ResponseEntity<Void> logout(final HttpServletResponse response) {
-    identityCookieService.clearIdentityCookie(response);
+    jwtAuthenticationFilter.clearIdentityCookie(response);
     return ResponseEntity.ok().build();
   }
 }

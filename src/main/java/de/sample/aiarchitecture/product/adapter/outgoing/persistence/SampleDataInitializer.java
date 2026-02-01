@@ -8,8 +8,8 @@ import de.sample.aiarchitecture.product.domain.model.ProductFactory;
 import de.sample.aiarchitecture.product.domain.model.ProductName;
 import de.sample.aiarchitecture.product.domain.model.ProductStock;
 import de.sample.aiarchitecture.product.domain.model.SKU;
-import de.sample.aiarchitecture.sharedkernel.domain.common.Money;
-import de.sample.aiarchitecture.sharedkernel.domain.common.Price;
+import de.sample.aiarchitecture.sharedkernel.domain.model.Money;
+import de.sample.aiarchitecture.sharedkernel.domain.model.Price;
 import jakarta.annotation.PostConstruct;
 import org.springframework.stereotype.Component;
 

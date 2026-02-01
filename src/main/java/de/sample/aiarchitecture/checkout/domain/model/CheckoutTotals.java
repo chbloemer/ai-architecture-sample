@@ -1,7 +1,7 @@
 package de.sample.aiarchitecture.checkout.domain.model;
 
-import de.sample.aiarchitecture.sharedkernel.domain.common.Money;
-import de.sample.aiarchitecture.sharedkernel.domain.marker.Value;
+import de.sample.aiarchitecture.sharedkernel.domain.model.Money;
+import de.sample.aiarchitecture.sharedkernel.marker.tactical.Value;
 import java.util.Currency;
 import org.jspecify.annotations.NonNull;
 

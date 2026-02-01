@@ -3,7 +3,7 @@ package de.sample.aiarchitecture.product.application.getproductbyid;
 import de.sample.aiarchitecture.product.application.getproductbyid.GetProductByIdInputPort;
 import de.sample.aiarchitecture.product.domain.model.Product;
 import de.sample.aiarchitecture.product.application.shared.ProductRepository;
-import de.sample.aiarchitecture.sharedkernel.domain.common.ProductId;
+import de.sample.aiarchitecture.sharedkernel.domain.model.ProductId;
 import java.util.Optional;
 import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Service;

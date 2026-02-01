@@ -4,9 +4,9 @@ import de.sample.aiarchitecture.cart.application.removeitemfromcart.RemoveItemFr
 import de.sample.aiarchitecture.cart.application.shared.ShoppingCartRepository;
 import de.sample.aiarchitecture.cart.domain.model.CartId;
 import de.sample.aiarchitecture.cart.domain.model.ShoppingCart;
-import de.sample.aiarchitecture.sharedkernel.application.port.DomainEventPublisher;
-import de.sample.aiarchitecture.sharedkernel.domain.common.Money;
-import de.sample.aiarchitecture.sharedkernel.domain.common.ProductId;
+import de.sample.aiarchitecture.sharedkernel.marker.port.out.DomainEventPublisher;
+import de.sample.aiarchitecture.sharedkernel.domain.model.Money;
+import de.sample.aiarchitecture.sharedkernel.domain.model.ProductId;
 import java.util.List;
 import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Service;

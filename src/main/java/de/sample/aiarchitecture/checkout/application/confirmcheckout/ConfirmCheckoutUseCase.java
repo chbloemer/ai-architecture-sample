@@ -3,7 +3,7 @@ package de.sample.aiarchitecture.checkout.application.confirmcheckout;
 import de.sample.aiarchitecture.checkout.application.shared.CheckoutSessionRepository;
 import de.sample.aiarchitecture.checkout.domain.model.CheckoutSession;
 import de.sample.aiarchitecture.checkout.domain.model.CheckoutSessionId;
-import de.sample.aiarchitecture.sharedkernel.application.port.DomainEventPublisher;
+import de.sample.aiarchitecture.sharedkernel.marker.port.out.DomainEventPublisher;
 import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

@@ -10,8 +10,7 @@ import de.sample.aiarchitecture.cart.application.getorcreateactivecart.GetOrCrea
 import de.sample.aiarchitecture.cart.application.getorcreateactivecart.GetOrCreateActiveCartResponse;
 import de.sample.aiarchitecture.cart.application.getorcreateactivecart.GetOrCreateActiveCartUseCase;
 import de.sample.aiarchitecture.cart.domain.model.CustomerId;
-import de.sample.aiarchitecture.sharedkernel.application.common.security.Identity;
-import de.sample.aiarchitecture.sharedkernel.application.port.security.IdentityProvider;
+import de.sample.aiarchitecture.sharedkernel.marker.port.out.IdentityProvider;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -67,7 +66,7 @@ public class CartPageController {
    */
   @GetMapping
   public String showCart(final Model model) {
-    final Identity identity = identityProvider.getCurrentIdentity();
+    final IdentityProvider.Identity identity = identityProvider.getCurrentIdentity();
     final CustomerId customerId = CustomerId.of(identity.userId().value());
 
     // Get or create active cart for the current user
@@ -115,7 +114,7 @@ public class CartPageController {
       final RedirectAttributes redirectAttributes) {
 
     // Get customer ID from JWT identity
-    final Identity identity = identityProvider.getCurrentIdentity();
+    final IdentityProvider.Identity identity = identityProvider.getCurrentIdentity();
     final CustomerId customerId = CustomerId.of(identity.userId().value());
 
     // Get or create active cart

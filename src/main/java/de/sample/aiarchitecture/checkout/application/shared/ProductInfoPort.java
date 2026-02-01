@@ -1,7 +1,7 @@
 package de.sample.aiarchitecture.checkout.application.shared;
 
-import de.sample.aiarchitecture.sharedkernel.application.port.OutputPort;
-import de.sample.aiarchitecture.sharedkernel.domain.common.ProductId;
+import de.sample.aiarchitecture.sharedkernel.marker.port.out.OutputPort;
+import de.sample.aiarchitecture.sharedkernel.domain.model.ProductId;
 import java.util.Optional;
 
 /**

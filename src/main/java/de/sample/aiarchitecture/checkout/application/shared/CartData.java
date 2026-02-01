@@ -2,8 +2,8 @@ package de.sample.aiarchitecture.checkout.application.shared;
 
 import de.sample.aiarchitecture.checkout.domain.model.CartId;
 import de.sample.aiarchitecture.checkout.domain.model.CustomerId;
-import de.sample.aiarchitecture.sharedkernel.domain.common.Price;
-import de.sample.aiarchitecture.sharedkernel.domain.common.ProductId;
+import de.sample.aiarchitecture.sharedkernel.domain.model.Price;
+import de.sample.aiarchitecture.sharedkernel.domain.model.ProductId;
 import java.util.List;
 import org.jspecify.annotations.NonNull;
 

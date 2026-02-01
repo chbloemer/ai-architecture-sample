@@ -2,11 +2,11 @@ package de.sample.aiarchitecture.cart.adapter.outgoing.persistence.jdbc;
 
 import de.sample.aiarchitecture.cart.domain.model.CartStatus;
 import de.sample.aiarchitecture.cart.domain.model.ShoppingCart;
-import de.sample.aiarchitecture.cart.domain.specificationificationificationificationification.*;
-import de.sample.aiarchitecture.sharedkernel.domain.specificationificationificationificationification.AndSpecification;
-import de.sample.aiarchitecture.sharedkernel.domain.specificationificationificationificationification.CompositeSpecification;
-import de.sample.aiarchitecture.sharedkernel.domain.specificationificationificationificationification.NotSpecification;
-import de.sample.aiarchitecture.sharedkernel.domain.specificationificationificationificationification.OrSpecification;
+import de.sample.aiarchitecture.cart.domain.specification.*;
+import de.sample.aiarchitecture.sharedkernel.domain.specification.AndSpecification;
+import de.sample.aiarchitecture.sharedkernel.domain.specification.CompositeSpecification;
+import de.sample.aiarchitecture.sharedkernel.domain.specification.NotSpecification;
+import de.sample.aiarchitecture.sharedkernel.domain.specification.OrSpecification;
 import java.util.ArrayList;
 import java.util.List;
 import org.jspecify.annotations.NonNull;

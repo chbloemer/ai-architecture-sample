@@ -1,6 +1,6 @@
 package de.sample.aiarchitecture.checkout.domain.model;
 
-import de.sample.aiarchitecture.sharedkernel.domain.marker.Value;
+import de.sample.aiarchitecture.sharedkernel.marker.tactical.Value;
 
 /**
  * Enum representing the steps in the checkout flow.

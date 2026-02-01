@@ -6,10 +6,10 @@ import de.sample.aiarchitecture.cart.domain.event.CartItemAddedToCart;
 import de.sample.aiarchitecture.cart.domain.event.CartItemQuantityChanged;
 import de.sample.aiarchitecture.cart.domain.event.ProductRemovedFromCart;
 
-import de.sample.aiarchitecture.sharedkernel.domain.marker.BaseAggregateRoot;
-import de.sample.aiarchitecture.sharedkernel.domain.common.Money;
-import de.sample.aiarchitecture.sharedkernel.domain.common.Price;
-import de.sample.aiarchitecture.sharedkernel.domain.common.ProductId;
+import de.sample.aiarchitecture.sharedkernel.marker.tactical.BaseAggregateRoot;
+import de.sample.aiarchitecture.sharedkernel.domain.model.Money;
+import de.sample.aiarchitecture.sharedkernel.domain.model.Price;
+import de.sample.aiarchitecture.sharedkernel.domain.model.ProductId;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;

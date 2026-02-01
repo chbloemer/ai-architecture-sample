@@ -2,7 +2,7 @@ package de.sample.aiarchitecture.checkout.domain.event;
 
 import de.sample.aiarchitecture.checkout.domain.model.CheckoutSessionId;
 import de.sample.aiarchitecture.checkout.domain.model.CheckoutStep;
-import de.sample.aiarchitecture.sharedkernel.domain.marker.DomainEvent;
+import de.sample.aiarchitecture.sharedkernel.marker.tactical.DomainEvent;
 import java.time.Instant;
 import java.util.UUID;
 import org.jspecify.annotations.NonNull;

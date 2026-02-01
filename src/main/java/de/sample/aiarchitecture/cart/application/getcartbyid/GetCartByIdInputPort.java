@@ -1,6 +1,6 @@
 package de.sample.aiarchitecture.cart.application.getcartbyid;
 
-import de.sample.aiarchitecture.sharedkernel.application.port.UseCase;
+import de.sample.aiarchitecture.sharedkernel.marker.port.in.UseCase;
 import org.jspecify.annotations.NonNull;
 
 /**

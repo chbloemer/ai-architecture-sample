@@ -12,8 +12,7 @@ import de.sample.aiarchitecture.checkout.application.getconfirmedcheckoutsession
 import de.sample.aiarchitecture.checkout.application.getconfirmedcheckoutsession.GetConfirmedCheckoutSessionQuery;
 import de.sample.aiarchitecture.checkout.application.getconfirmedcheckoutsession.GetConfirmedCheckoutSessionResponse;
 import de.sample.aiarchitecture.checkout.domain.model.CustomerId;
-import de.sample.aiarchitecture.sharedkernel.application.common.security.Identity;
-import de.sample.aiarchitecture.sharedkernel.application.port.security.IdentityProvider;
+import de.sample.aiarchitecture.sharedkernel.marker.port.out.IdentityProvider;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -73,7 +72,7 @@ public class ConfirmationPageController {
   public String confirmOrder(final RedirectAttributes redirectAttributes) {
 
     // Get customer ID from JWT identity
-    final Identity identity = identityProvider.getCurrentIdentity();
+    final IdentityProvider.Identity identity = identityProvider.getCurrentIdentity();
     final CustomerId customerId = CustomerId.of(identity.userId().value());
 
     // Find active checkout session for the user
@@ -115,7 +114,7 @@ public class ConfirmationPageController {
       final RedirectAttributes redirectAttributes) {
 
     // Get customer ID from JWT identity
-    final Identity identity = identityProvider.getCurrentIdentity();
+    final IdentityProvider.Identity identity = identityProvider.getCurrentIdentity();
     final CustomerId customerId = CustomerId.of(identity.userId().value());
 
     // Find confirmed or completed checkout session for the user

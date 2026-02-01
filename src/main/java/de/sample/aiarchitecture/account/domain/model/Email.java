@@ -1,6 +1,6 @@
 package de.sample.aiarchitecture.account.domain.model;
 
-import de.sample.aiarchitecture.sharedkernel.domain.marker.Value;
+import de.sample.aiarchitecture.sharedkernel.marker.tactical.Value;
 import java.util.regex.Pattern;
 import org.jspecify.annotations.NonNull;
 

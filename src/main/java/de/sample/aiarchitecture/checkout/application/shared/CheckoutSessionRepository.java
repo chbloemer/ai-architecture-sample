@@ -4,7 +4,7 @@ import de.sample.aiarchitecture.checkout.domain.model.CartId;
 import de.sample.aiarchitecture.checkout.domain.model.CheckoutSession;
 import de.sample.aiarchitecture.checkout.domain.model.CheckoutSessionId;
 import de.sample.aiarchitecture.checkout.domain.model.CustomerId;
-import de.sample.aiarchitecture.sharedkernel.application.port.Repository;
+import de.sample.aiarchitecture.sharedkernel.marker.port.out.Repository;
 import java.util.List;
 import java.util.Optional;
 import org.jspecify.annotations.NonNull;

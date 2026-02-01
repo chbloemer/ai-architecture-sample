@@ -2,7 +2,7 @@ package de.sample.aiarchitecture.cart.adapter.outgoing.product;
 
 import de.sample.aiarchitecture.cart.application.shared.ProductDataPort;
 import de.sample.aiarchitecture.product.adapter.incoming.openhost.ProductCatalogService;
-import de.sample.aiarchitecture.sharedkernel.domain.common.ProductId;
+import de.sample.aiarchitecture.sharedkernel.domain.model.ProductId;
 import java.util.Optional;
 import org.springframework.stereotype.Component;
 

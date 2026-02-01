@@ -2,10 +2,10 @@ package de.sample.aiarchitecture.product.domain.event;
 
 import de.sample.aiarchitecture.product.domain.model.ProductName;
 import de.sample.aiarchitecture.product.domain.model.SKU;
-import de.sample.aiarchitecture.sharedkernel.domain.marker.DomainEvent;
+import de.sample.aiarchitecture.sharedkernel.marker.tactical.DomainEvent;
 
-import de.sample.aiarchitecture.sharedkernel.domain.marker.DomainEvent;
-import de.sample.aiarchitecture.sharedkernel.domain.common.ProductId;
+import de.sample.aiarchitecture.sharedkernel.marker.tactical.DomainEvent;
+import de.sample.aiarchitecture.sharedkernel.domain.model.ProductId;
 import java.time.Instant;
 import java.util.UUID;
 import org.jspecify.annotations.NonNull;

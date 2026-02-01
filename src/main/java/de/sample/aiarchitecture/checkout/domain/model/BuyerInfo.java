@@ -1,6 +1,6 @@
 package de.sample.aiarchitecture.checkout.domain.model;
 
-import de.sample.aiarchitecture.sharedkernel.domain.marker.Value;
+import de.sample.aiarchitecture.sharedkernel.marker.tactical.Value;
 import org.jspecify.annotations.NonNull;
 
 /**

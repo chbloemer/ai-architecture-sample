@@ -1,10 +1,9 @@
 package de.sample.aiarchitecture.infrastructure.security.jwt;
 
-import de.sample.aiarchitecture.sharedkernel.application.common.security.Identity;
-import de.sample.aiarchitecture.sharedkernel.application.port.security.IdentityCookieService;
-import de.sample.aiarchitecture.sharedkernel.application.port.security.RegisteredUserValidator;
-import de.sample.aiarchitecture.sharedkernel.application.port.security.TokenService;
-import de.sample.aiarchitecture.sharedkernel.domain.common.UserId;
+import de.sample.aiarchitecture.account.application.shared.RegisteredUserValidator;
+import de.sample.aiarchitecture.infrastructure.security.JwtIdentity;
+import de.sample.aiarchitecture.sharedkernel.domain.model.UserId;
+import de.sample.aiarchitecture.sharedkernel.marker.port.out.IdentityProvider;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
@@ -48,19 +47,19 @@ import org.springframework.web.filter.OncePerRequestFilter;
  * the identity via SecurityContextHolder or the IdentityProvider.
  */
 @Component
-public class JwtAuthenticationFilter extends OncePerRequestFilter implements IdentityCookieService {
+public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
   private static final Logger LOG = LoggerFactory.getLogger(JwtAuthenticationFilter.class);
 
   private static final String AUTHORIZATION_HEADER = "Authorization";
   private static final String BEARER_PREFIX = "Bearer ";
 
-  private final TokenService tokenService;
+  private final JwtTokenService tokenService;
   private final JwtProperties jwtProperties;
   private final RegisteredUserValidator registeredUserValidator;
 
   public JwtAuthenticationFilter(
-      final TokenService tokenService,
+      final JwtTokenService tokenService,
       final JwtProperties jwtProperties,
       final RegisteredUserValidator registeredUserValidator) {
     this.tokenService = tokenService;
@@ -86,14 +85,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter implements Ide
       tokenOpt = extractTokenFromHeader(request);
     }
 
-    Identity identity;
+    IdentityProvider.Identity identity;
     boolean newTokenCreated = false;
     String token;
 
     if (tokenOpt.isPresent()) {
       token = tokenOpt.get();
       // Validate existing token
-      final Optional<Identity> identityOpt = tokenService.validateAndParse(token);
+      final Optional<IdentityProvider.Identity> identityOpt = tokenService.validateAndParse(token);
 
       if (identityOpt.isPresent()) {
         identity = identityOpt.get();
@@ -157,9 +156,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter implements Ide
     return Optional.empty();
   }
 
-  private Identity createAnonymousIdentity() {
+  private IdentityProvider.Identity createAnonymousIdentity() {
     final UserId userId = UserId.generateAnonymous();
-    return Identity.anonymous(userId);
+    return JwtIdentity.anonymous(userId);
   }
 
   private void setIdentityCookie(
@@ -180,7 +179,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter implements Ide
     response.addCookie(cookie);
   }
 
-  private void setSecurityContext(final Identity identity) {
+  private void setSecurityContext(final IdentityProvider.Identity identity) {
     final var authorities = identity.roles().stream()
         .map(role -> new SimpleGrantedAuthority("ROLE_" + role))
         .toList();
@@ -212,17 +211,20 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter implements Ide
   }
 
   /**
-   * {@inheritDoc}
+   * Sets the identity cookie for a registered user.
+   *
+   * @param response HTTP response to set the cookie on
+   * @param token the JWT token to store in the cookie
    */
-  @Override
   public void setRegisteredUserCookie(final HttpServletResponse response, final String token) {
     setIdentityCookie(response, token, jwtProperties.registeredExpirationDays() * 24 * 60 * 60);
   }
 
   /**
-   * {@inheritDoc}
+   * Clears the identity cookie, effectively logging out the user.
+   *
+   * @param response HTTP response to clear the cookie on
    */
-  @Override
   public void clearIdentityCookie(final HttpServletResponse response) {
     final Cookie cookie = new Cookie(jwtProperties.cookieName(), "");
     cookie.setHttpOnly(true);

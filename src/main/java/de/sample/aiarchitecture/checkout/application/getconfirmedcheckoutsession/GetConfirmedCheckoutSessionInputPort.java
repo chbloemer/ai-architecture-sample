@@ -1,6 +1,6 @@
 package de.sample.aiarchitecture.checkout.application.getconfirmedcheckoutsession;
 
-import de.sample.aiarchitecture.sharedkernel.application.port.UseCase;
+import de.sample.aiarchitecture.sharedkernel.marker.port.in.UseCase;
 
 /**
  * Input Port for getting a confirmed or completed checkout session for a customer.

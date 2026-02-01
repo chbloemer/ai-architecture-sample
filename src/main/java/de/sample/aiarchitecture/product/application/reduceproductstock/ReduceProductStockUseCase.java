@@ -3,7 +3,7 @@ package de.sample.aiarchitecture.product.application.reduceproductstock;
 import de.sample.aiarchitecture.product.application.reduceproductstock.ReduceProductStockInputPort;
 import de.sample.aiarchitecture.product.application.shared.ProductRepository;
 import de.sample.aiarchitecture.product.domain.model.Product;
-import de.sample.aiarchitecture.sharedkernel.domain.common.ProductId;
+import de.sample.aiarchitecture.sharedkernel.domain.model.ProductId;
 import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

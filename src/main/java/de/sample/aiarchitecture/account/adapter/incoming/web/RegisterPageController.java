@@ -3,10 +3,10 @@ package de.sample.aiarchitecture.account.adapter.incoming.web;
 import de.sample.aiarchitecture.account.application.registeraccount.RegisterAccountCommand;
 import de.sample.aiarchitecture.account.application.registeraccount.RegisterAccountInputPort;
 import de.sample.aiarchitecture.account.application.registeraccount.RegisterAccountResponse;
-import de.sample.aiarchitecture.sharedkernel.application.port.security.IdentityCookieService;
-import de.sample.aiarchitecture.sharedkernel.application.port.security.IdentityProvider;
-import de.sample.aiarchitecture.sharedkernel.application.port.security.TokenService;
-import de.sample.aiarchitecture.sharedkernel.domain.common.UserId;
+import de.sample.aiarchitecture.infrastructure.security.jwt.JwtAuthenticationFilter;
+import de.sample.aiarchitecture.infrastructure.security.jwt.JwtTokenService;
+import de.sample.aiarchitecture.sharedkernel.domain.model.UserId;
+import de.sample.aiarchitecture.sharedkernel.marker.port.out.IdentityProvider;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -28,19 +28,19 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 public class RegisterPageController {
 
   private final RegisterAccountInputPort registerAccountUseCase;
-  private final TokenService tokenService;
+  private final JwtTokenService tokenService;
   private final IdentityProvider identityProvider;
-  private final IdentityCookieService identityCookieService;
+  private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
   public RegisterPageController(
       final RegisterAccountInputPort registerAccountUseCase,
-      final TokenService tokenService,
+      final JwtTokenService tokenService,
       final IdentityProvider identityProvider,
-      final IdentityCookieService identityCookieService) {
+      final JwtAuthenticationFilter jwtAuthenticationFilter) {
     this.registerAccountUseCase = registerAccountUseCase;
     this.tokenService = tokenService;
     this.identityProvider = identityProvider;
-    this.identityCookieService = identityCookieService;
+    this.jwtAuthenticationFilter = jwtAuthenticationFilter;
   }
 
   /**
@@ -113,7 +113,7 @@ public class RegisterPageController {
           result.email(),
           result.roles());
 
-      identityCookieService.setRegisteredUserCookie(response, token);
+      jwtAuthenticationFilter.setRegisteredUserCookie(response, token);
 
       redirectAttributes.addFlashAttribute("message", "Account created successfully! Welcome!");
 

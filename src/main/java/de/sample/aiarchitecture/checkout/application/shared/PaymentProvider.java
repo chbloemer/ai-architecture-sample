@@ -2,8 +2,8 @@ package de.sample.aiarchitecture.checkout.application.shared;
 
 import de.sample.aiarchitecture.checkout.domain.model.CheckoutSessionId;
 import de.sample.aiarchitecture.checkout.domain.model.PaymentProviderId;
-import de.sample.aiarchitecture.sharedkernel.application.port.OutputPort;
-import de.sample.aiarchitecture.sharedkernel.domain.common.Money;
+import de.sample.aiarchitecture.sharedkernel.marker.port.out.OutputPort;
+import de.sample.aiarchitecture.sharedkernel.domain.model.Money;
 import org.jspecify.annotations.NonNull;
 
 /**

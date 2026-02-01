@@ -8,4 +8,4 @@
     description = "User account management, authentication, and profile handling")
 package de.sample.aiarchitecture.account;
 
-import de.sample.aiarchitecture.sharedkernel.stereotype.BoundedContext;
+import de.sample.aiarchitecture.sharedkernel.marker.strategic.BoundedContext;

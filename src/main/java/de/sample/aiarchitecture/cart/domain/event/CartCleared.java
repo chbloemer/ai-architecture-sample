@@ -1,7 +1,7 @@
 package de.sample.aiarchitecture.cart.domain.event;
 
 import de.sample.aiarchitecture.cart.domain.model.CartId;
-import de.sample.aiarchitecture.sharedkernel.domain.marker.DomainEvent;
+import de.sample.aiarchitecture.sharedkernel.marker.tactical.DomainEvent;
 import java.time.Instant;
 import java.util.UUID;
 import org.jspecify.annotations.NonNull;

@@ -3,8 +3,8 @@ package de.sample.aiarchitecture.account.application.shared;
 import de.sample.aiarchitecture.account.domain.model.Account;
 import de.sample.aiarchitecture.account.domain.model.AccountId;
 import de.sample.aiarchitecture.account.domain.model.Email;
-import de.sample.aiarchitecture.sharedkernel.application.port.Repository;
-import de.sample.aiarchitecture.sharedkernel.domain.common.UserId;
+import de.sample.aiarchitecture.sharedkernel.marker.port.out.Repository;
+import de.sample.aiarchitecture.sharedkernel.domain.model.UserId;
 import java.util.Optional;
 import org.jspecify.annotations.NonNull;
 

@@ -1,14 +1,14 @@
-package de.sample.aiarchitecture.sharedkernel.domain.specificationificationificationificationification;
+package de.sample.aiarchitecture.sharedkernel.domain.specification;
 
-import de.sample.aiarchitecture.sharedkernel.domain.marker.Specification;
+import de.sample.aiarchitecture.sharedkernel.marker.tactical.Specification;
 import org.jspecify.annotations.NonNull;
 
 /**
  * Generic, framework-agnostic Specification interface for domain use.
  *
- * <p>This co-exists with the legacy marker {@code de.sample.aiarchitecture.sharedkernel.domain.marker.Specification}
- * without breaking existing code. Prefer this interface for new, composable specifications that
- * can be translated by adapters (e.g., to JPA predicates).
+ * <p>This extends the marker {@link Specification} interface with composition
+ * and visitor support. Prefer this interface for new, composable specifications
+ * that can be translated by adapters (e.g., to JPA predicates).
  */
 public interface CompositeSpecification<T> extends Specification<T> {
 

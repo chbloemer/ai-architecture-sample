@@ -1,9 +1,8 @@
 package de.sample.aiarchitecture.infrastructure.security.jwt;
 
-import de.sample.aiarchitecture.sharedkernel.application.common.security.Identity;
-import de.sample.aiarchitecture.sharedkernel.application.common.security.IdentityType;
-import de.sample.aiarchitecture.sharedkernel.application.port.security.TokenService;
-import de.sample.aiarchitecture.sharedkernel.domain.common.UserId;
+import de.sample.aiarchitecture.infrastructure.security.JwtIdentity;
+import de.sample.aiarchitecture.sharedkernel.domain.model.UserId;
+import de.sample.aiarchitecture.sharedkernel.marker.port.out.IdentityProvider;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
@@ -46,7 +45,7 @@ import org.springframework.stereotype.Service;
  * </pre>
  */
 @Service
-public class JwtTokenService implements TokenService {
+public class JwtTokenService {
 
   private static final Logger LOG = LoggerFactory.getLogger(JwtTokenService.class);
 
@@ -65,7 +64,12 @@ public class JwtTokenService implements TokenService {
     this.secretKey = Keys.hmacShaKeyFor(properties.secret().getBytes(StandardCharsets.UTF_8));
   }
 
-  @Override
+  /**
+   * Generates an anonymous JWT token for first-time visitors.
+   *
+   * @param userId the user's unique identifier
+   * @return the generated JWT token string
+   */
   @NonNull
   public String generateAnonymousToken(@NonNull final UserId userId) {
     final Date now = new Date();
@@ -81,7 +85,14 @@ public class JwtTokenService implements TokenService {
         .compact();
   }
 
-  @Override
+  /**
+   * Generates a JWT token for registered users.
+   *
+   * @param userId the user's unique identifier
+   * @param email the user's email address
+   * @param roles the user's roles
+   * @return the generated JWT token string
+   */
   @NonNull
   public String generateRegisteredToken(
       @NonNull final UserId userId,
@@ -102,9 +113,14 @@ public class JwtTokenService implements TokenService {
         .compact();
   }
 
-  @Override
+  /**
+   * Validates and parses a JWT token, returning the Identity if valid.
+   *
+   * @param token the JWT token to validate
+   * @return an Optional containing the Identity if valid, empty otherwise
+   */
   @NonNull
-  public Optional<Identity> validateAndParse(@NonNull final String token) {
+  public Optional<IdentityProvider.Identity> validateAndParse(@NonNull final String token) {
     try {
       final Claims claims = Jwts.parser()
           .verifyWith(secretKey)
@@ -127,7 +143,12 @@ public class JwtTokenService implements TokenService {
     }
   }
 
-  @Override
+  /**
+   * Checks if a JWT token is expired.
+   *
+   * @param token the JWT token to check
+   * @return true if the token is expired or invalid, false otherwise
+   */
   public boolean isExpired(@NonNull final String token) {
     try {
       Jwts.parser()
@@ -143,7 +164,7 @@ public class JwtTokenService implements TokenService {
     }
   }
 
-  private Identity buildIdentityFromClaims(final Claims claims) {
+  private IdentityProvider.Identity buildIdentityFromClaims(final Claims claims) {
     final String subject = claims.getSubject();
     final String type = claims.get(CLAIM_TYPE, String.class);
 
@@ -163,10 +184,10 @@ public class JwtTokenService implements TokenService {
         throw new IllegalArgumentException("Registered JWT missing email claim");
       }
 
-      return Identity.registered(userId, email, roles);
+      return JwtIdentity.registered(userId, email, roles);
     }
 
     // Default to anonymous if type is missing or "anonymous"
-    return Identity.anonymous(userId);
+    return JwtIdentity.anonymous(userId);
   }
 }

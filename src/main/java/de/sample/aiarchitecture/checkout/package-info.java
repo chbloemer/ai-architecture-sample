@@ -8,4 +8,4 @@
     description = "Checkout process, order placement, and payment orchestration")
 package de.sample.aiarchitecture.checkout;
 
-import de.sample.aiarchitecture.sharedkernel.stereotype.BoundedContext;
+import de.sample.aiarchitecture.sharedkernel.marker.strategic.BoundedContext;

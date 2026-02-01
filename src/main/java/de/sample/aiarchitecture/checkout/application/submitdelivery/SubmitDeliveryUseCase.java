@@ -5,7 +5,7 @@ import de.sample.aiarchitecture.checkout.domain.model.CheckoutSession;
 import de.sample.aiarchitecture.checkout.domain.model.CheckoutSessionId;
 import de.sample.aiarchitecture.checkout.domain.model.DeliveryAddress;
 import de.sample.aiarchitecture.checkout.domain.model.ShippingOption;
-import de.sample.aiarchitecture.sharedkernel.domain.common.Money;
+import de.sample.aiarchitecture.sharedkernel.domain.model.Money;
 import java.util.Currency;
 import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Service;

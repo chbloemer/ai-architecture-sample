@@ -8,7 +8,7 @@ import de.sample.aiarchitecture.checkout.domain.model.CartId;
 import de.sample.aiarchitecture.checkout.domain.model.CheckoutLineItem;
 import de.sample.aiarchitecture.checkout.domain.model.CheckoutLineItemId;
 import de.sample.aiarchitecture.checkout.domain.model.CheckoutSession;
-import de.sample.aiarchitecture.sharedkernel.domain.common.Money;
+import de.sample.aiarchitecture.sharedkernel.domain.model.Money;
 import java.util.ArrayList;
 import java.util.List;
 import org.jspecify.annotations.NonNull;

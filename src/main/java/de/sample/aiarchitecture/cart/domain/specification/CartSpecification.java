@@ -1,7 +1,7 @@
-package de.sample.aiarchitecture.cart.domain.specificationificationificationificationification;
+package de.sample.aiarchitecture.cart.domain.specification;
 
 import de.sample.aiarchitecture.cart.domain.model.ShoppingCart;
-import de.sample.aiarchitecture.sharedkernel.domain.specificationificationificationificationification.CompositeSpecification;
+import de.sample.aiarchitecture.sharedkernel.domain.specification.CompositeSpecification;
 
 /**
  * Marker interface for cart-related specifications.

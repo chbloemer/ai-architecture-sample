@@ -7,8 +7,7 @@ import de.sample.aiarchitecture.cart.application.mergecarts.CartMergeStrategy;
 import de.sample.aiarchitecture.cart.application.mergecarts.MergeCartsCommand;
 import de.sample.aiarchitecture.cart.application.mergecarts.MergeCartsInputPort;
 import de.sample.aiarchitecture.cart.application.mergecarts.MergeCartsResponse;
-import de.sample.aiarchitecture.sharedkernel.application.common.security.Identity;
-import de.sample.aiarchitecture.sharedkernel.application.port.security.IdentityProvider;
+import de.sample.aiarchitecture.sharedkernel.marker.port.out.IdentityProvider;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -65,7 +64,7 @@ public class CartMergePageController {
       @RequestParam(required = false) final String returnUrl,
       final RedirectAttributes redirectAttributes) {
 
-    final Identity identity = identityProvider.getCurrentIdentity();
+    final IdentityProvider.Identity identity = identityProvider.getCurrentIdentity();
     final String registeredUserId = identity.userId().value();
 
     // Get merge options
@@ -107,7 +106,7 @@ public class CartMergePageController {
       @RequestParam(required = false) final String returnUrl,
       final RedirectAttributes redirectAttributes) {
 
-    final Identity identity = identityProvider.getCurrentIdentity();
+    final IdentityProvider.Identity identity = identityProvider.getCurrentIdentity();
     final String registeredUserId = identity.userId().value();
 
     // Parse strategy

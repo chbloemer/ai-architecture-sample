@@ -1,6 +1,6 @@
 package de.sample.aiarchitecture.infrastructure.config;
 
-import de.sample.aiarchitecture.sharedkernel.common.annotation.AsyncInitialize;
+import de.sample.aiarchitecture.infrastructure.annotation.AsyncInitialize;
 import java.lang.reflect.Method;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

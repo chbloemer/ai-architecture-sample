@@ -1,8 +1,8 @@
-package de.sample.aiarchitecture.cart.domain.specificationificationificationificationification;
+package de.sample.aiarchitecture.cart.domain.specification;
 
 import de.sample.aiarchitecture.cart.domain.model.ShoppingCart;
-import de.sample.aiarchitecture.sharedkernel.domain.specificationificationificationificationification.CompositeSpecification;
-import de.sample.aiarchitecture.sharedkernel.domain.specificationificationificationificationification.SpecificationVisitor;
+import de.sample.aiarchitecture.sharedkernel.domain.specification.CompositeSpecification;
+import de.sample.aiarchitecture.sharedkernel.domain.specification.SpecificationVisitor;
 import java.util.Objects;
 import org.jspecify.annotations.NonNull;
 

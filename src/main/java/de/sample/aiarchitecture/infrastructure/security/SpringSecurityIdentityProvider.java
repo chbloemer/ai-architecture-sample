@@ -1,8 +1,6 @@
 package de.sample.aiarchitecture.infrastructure.security;
 
-import de.sample.aiarchitecture.sharedkernel.application.common.security.Identity;
-import de.sample.aiarchitecture.sharedkernel.application.port.security.IdentityProvider;
-import org.jspecify.annotations.NonNull;
+import de.sample.aiarchitecture.sharedkernel.marker.port.out.IdentityProvider;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
@@ -20,7 +18,7 @@ import org.springframework.stereotype.Component;
  * private IdentityProvider identityProvider;
  *
  * public void someMethod() {
- *     Identity identity = identityProvider.getCurrentIdentity();
+ *     IdentityProvider.Identity identity = identityProvider.getCurrentIdentity();
  *     UserId userId = identity.userId();
  *     // ...
  * }
@@ -34,8 +32,7 @@ import org.springframework.stereotype.Component;
 public class SpringSecurityIdentityProvider implements IdentityProvider {
 
   @Override
-  @NonNull
-  public Identity getCurrentIdentity() {
+  public IdentityProvider.Identity getCurrentIdentity() {
     final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
     if (authentication == null) {
@@ -46,7 +43,7 @@ public class SpringSecurityIdentityProvider implements IdentityProvider {
 
     final Object principal = authentication.getPrincipal();
 
-    if (principal instanceof Identity identity) {
+    if (principal instanceof IdentityProvider.Identity identity) {
       return identity;
     }
 

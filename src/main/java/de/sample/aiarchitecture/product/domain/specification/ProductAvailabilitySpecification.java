@@ -1,7 +1,7 @@
 package de.sample.aiarchitecture.product.domain.specification;
 
 import de.sample.aiarchitecture.product.domain.model.Product;
-import de.sample.aiarchitecture.sharedkernel.domain.marker.Specification;
+import de.sample.aiarchitecture.sharedkernel.marker.tactical.Specification;
 import org.jspecify.annotations.NonNull;
 
 /**

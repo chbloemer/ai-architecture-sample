@@ -2,7 +2,7 @@ package de.sample.aiarchitecture.checkout.domain.service;
 
 import de.sample.aiarchitecture.checkout.domain.model.CheckoutSession;
 import de.sample.aiarchitecture.checkout.domain.model.CheckoutStep;
-import de.sample.aiarchitecture.sharedkernel.domain.marker.DomainService;
+import de.sample.aiarchitecture.sharedkernel.marker.tactical.DomainService;
 import java.util.Optional;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;

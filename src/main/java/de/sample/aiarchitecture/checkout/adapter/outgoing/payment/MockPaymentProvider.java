@@ -3,7 +3,7 @@ package de.sample.aiarchitecture.checkout.adapter.outgoing.payment;
 import de.sample.aiarchitecture.checkout.application.shared.PaymentProvider;
 import de.sample.aiarchitecture.checkout.domain.model.CheckoutSessionId;
 import de.sample.aiarchitecture.checkout.domain.model.PaymentProviderId;
-import de.sample.aiarchitecture.sharedkernel.domain.common.Money;
+import de.sample.aiarchitecture.sharedkernel.domain.model.Money;
 import java.util.UUID;
 import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Component;

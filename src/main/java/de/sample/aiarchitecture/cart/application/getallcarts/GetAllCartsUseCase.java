@@ -3,7 +3,7 @@ package de.sample.aiarchitecture.cart.application.getallcarts;
 import de.sample.aiarchitecture.cart.application.getallcarts.GetAllCartsInputPort;
 import de.sample.aiarchitecture.cart.application.shared.ShoppingCartRepository;
 import de.sample.aiarchitecture.cart.domain.model.ShoppingCart;
-import de.sample.aiarchitecture.sharedkernel.domain.common.Money;
+import de.sample.aiarchitecture.sharedkernel.domain.model.Money;
 import java.util.List;
 import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Service;

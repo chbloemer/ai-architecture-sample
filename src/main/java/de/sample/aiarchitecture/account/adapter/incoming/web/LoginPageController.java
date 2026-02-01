@@ -3,10 +3,10 @@ package de.sample.aiarchitecture.account.adapter.incoming.web;
 import de.sample.aiarchitecture.account.application.authenticateaccount.AuthenticateAccountCommand;
 import de.sample.aiarchitecture.account.application.authenticateaccount.AuthenticateAccountInputPort;
 import de.sample.aiarchitecture.account.application.authenticateaccount.AuthenticateAccountResponse;
-import de.sample.aiarchitecture.sharedkernel.application.port.security.IdentityCookieService;
-import de.sample.aiarchitecture.sharedkernel.application.port.security.IdentityProvider;
-import de.sample.aiarchitecture.sharedkernel.application.port.security.TokenService;
-import de.sample.aiarchitecture.sharedkernel.domain.common.UserId;
+import de.sample.aiarchitecture.infrastructure.security.jwt.JwtAuthenticationFilter;
+import de.sample.aiarchitecture.infrastructure.security.jwt.JwtTokenService;
+import de.sample.aiarchitecture.sharedkernel.domain.model.UserId;
+import de.sample.aiarchitecture.sharedkernel.marker.port.out.IdentityProvider;
 import jakarta.servlet.http.HttpServletResponse;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -35,19 +35,19 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 public class LoginPageController {
 
   private final AuthenticateAccountInputPort authenticateAccountUseCase;
-  private final TokenService tokenService;
+  private final JwtTokenService tokenService;
   private final IdentityProvider identityProvider;
-  private final IdentityCookieService identityCookieService;
+  private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
   public LoginPageController(
       final AuthenticateAccountInputPort authenticateAccountUseCase,
-      final TokenService tokenService,
+      final JwtTokenService tokenService,
       final IdentityProvider identityProvider,
-      final IdentityCookieService identityCookieService) {
+      final JwtAuthenticationFilter jwtAuthenticationFilter) {
     this.authenticateAccountUseCase = authenticateAccountUseCase;
     this.tokenService = tokenService;
     this.identityProvider = identityProvider;
-    this.identityCookieService = identityCookieService;
+    this.jwtAuthenticationFilter = jwtAuthenticationFilter;
   }
 
   /**
@@ -113,7 +113,7 @@ public class LoginPageController {
           result.email(),
           result.roles());
 
-      identityCookieService.setRegisteredUserCookie(response, token);
+      jwtAuthenticationFilter.setRegisteredUserCookie(response, token);
 
       // Always redirect to merge page - let cart context decide if merge is needed
       // This avoids cross-context dependency (account → cart)

@@ -8,4 +8,4 @@
     description = "Web portal, user interface composition, and cross-context views")
 package de.sample.aiarchitecture.portal;
 
-import de.sample.aiarchitecture.sharedkernel.stereotype.BoundedContext;
+import de.sample.aiarchitecture.sharedkernel.marker.strategic.BoundedContext;

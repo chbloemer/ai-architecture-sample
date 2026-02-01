@@ -2,7 +2,7 @@ package de.sample.aiarchitecture.checkout.application.getshippingoptions;
 
 import de.sample.aiarchitecture.checkout.application.getshippingoptions.GetShippingOptionsResponse.ShippingOptionResponse;
 import de.sample.aiarchitecture.checkout.domain.model.ShippingOption;
-import de.sample.aiarchitecture.sharedkernel.domain.common.Money;
+import de.sample.aiarchitecture.sharedkernel.domain.model.Money;
 import java.math.BigDecimal;
 import java.util.Currency;
 import java.util.List;

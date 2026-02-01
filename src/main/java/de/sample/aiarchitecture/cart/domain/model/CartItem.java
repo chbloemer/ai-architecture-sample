@@ -1,8 +1,8 @@
 package de.sample.aiarchitecture.cart.domain.model;
 
-import de.sample.aiarchitecture.sharedkernel.domain.marker.Entity;
-import de.sample.aiarchitecture.sharedkernel.domain.common.Price;
-import de.sample.aiarchitecture.sharedkernel.domain.common.ProductId;
+import de.sample.aiarchitecture.sharedkernel.marker.tactical.Entity;
+import de.sample.aiarchitecture.sharedkernel.domain.model.Price;
+import de.sample.aiarchitecture.sharedkernel.domain.model.ProductId;
 import org.jspecify.annotations.NonNull;
 
 /**

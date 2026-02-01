@@ -8,7 +8,7 @@ import de.sample.aiarchitecture.cart.application.getcartbyid.GetCartByIdResponse
 import de.sample.aiarchitecture.cart.application.removeitemfromcart.RemoveItemFromCartResponse;
 import de.sample.aiarchitecture.cart.domain.model.CartItem;
 import de.sample.aiarchitecture.cart.domain.model.ShoppingCart;
-import de.sample.aiarchitecture.sharedkernel.domain.common.Money;
+import de.sample.aiarchitecture.sharedkernel.domain.model.Money;
 import java.util.List;
 import org.springframework.stereotype.Component;
 

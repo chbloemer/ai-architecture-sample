@@ -1,6 +1,6 @@
 package de.sample.aiarchitecture.cart.domain.model;
 
-import de.sample.aiarchitecture.sharedkernel.domain.marker.Value;
+import de.sample.aiarchitecture.sharedkernel.marker.tactical.Value;
 
 /**
  * Value Object representing the status of a shopping cart.

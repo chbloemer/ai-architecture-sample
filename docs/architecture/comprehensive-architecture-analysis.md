@@ -704,13 +704,13 @@ public record CartItemAddedToCart(
 
 **Event Publishing Infrastructure**:
 ```java
-// infrastructure/api/DomainEventPublisher.java (SPI)
-public interface DomainEventPublisher {
+// sharedkernel/marker/port/out/DomainEventPublisher.java (Output Port)
+public interface DomainEventPublisher extends OutputPort {
   void publish(@NonNull DomainEvent event);
   void publishAndClearEvents(@NonNull AggregateRoot<?, ?> aggregate);
 }
 
-// infrastructure/spring/SpringDomainEventPublisher.java (Implementation)
+// sharedkernel/adapter/outgoing/event/SpringDomainEventPublisher.java (Implementation)
 @Component
 public class SpringDomainEventPublisher implements DomainEventPublisher {
 

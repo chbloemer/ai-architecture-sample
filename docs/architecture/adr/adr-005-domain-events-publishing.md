@@ -127,11 +127,11 @@ public abstract class BaseAggregateRoot<T extends AggregateRoot<T, ID>, ID exten
 }
 ```
 
-### Event Publisher (Infrastructure SPI)
+### Event Publisher (Output Port)
 
 ```java
-// infrastructure/api/DomainEventPublisher.java
-public interface DomainEventPublisher {
+// sharedkernel/marker/port/out/DomainEventPublisher.java
+public interface DomainEventPublisher extends OutputPort {
 
   void publish(@NonNull DomainEvent event);
 
@@ -140,7 +140,7 @@ public interface DomainEventPublisher {
 ```
 
 ```java
-// infrastructure/config/SpringDomainEventPublisher.java
+// sharedkernel/adapter/outgoing/event/SpringDomainEventPublisher.java
 @Component
 public class SpringDomainEventPublisher implements DomainEventPublisher {
 

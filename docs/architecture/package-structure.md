@@ -8,17 +8,27 @@ Package organization of the ai-architecture project.
 de.sample.aiarchitecture
 │
 ├── sharedkernel                    # Shared Kernel (cross-context)
-│   ├── domain
-│   │   ├── marker                 # DDD Marker Interfaces
+│   ├── marker                     # Architectural Markers
+│   │   ├── tactical/              # DDD Tactical Patterns
 │   │   │   ├── AggregateRoot, Entity, Value
-│   │   │   ├── Repository, DomainService
-│   │   │   └── Factory, Specification, DomainEvent
-│   │   └── common                 # Shared Value Objects
-│   │       ├── Money, Price, ProductId
-│   └── application
-│       └── marker                 # Use Case Patterns
-│           ├── InputPort
-│           └── OutputPort
+│   │   │   ├── DomainService, Factory, Specification
+│   │   │   └── DomainEvent, IntegrationEvent
+│   │   ├── strategic/             # DDD Strategic Patterns
+│   │   │   └── BoundedContext, SharedKernel, OpenHostService
+│   │   ├── port/                  # Port Markers
+│   │   │   ├── in/                # Input Ports (InputPort, UseCase)
+│   │   │   └── out/               # Output Ports (OutputPort, Repository, DomainEventPublisher)
+│   │   └── infrastructure/        # Infrastructure Markers
+│   │       └── AsyncInitialize
+│   ├── domain
+│   │   ├── model/                 # Shared Value Objects
+│   │   │   └── Money, Price, ProductId, UserId
+│   │   └── specification/         # Shared Specification Patterns
+│   │       └── CompositeSpecification, AndSpecification, OrSpecification
+│   └── adapter
+│       └── outgoing
+│           └── event/
+│               └── SpringDomainEventPublisher  # Domain event publisher implementation
 │
 ├── product                         # Product Bounded Context
 │   ├── domain
@@ -149,12 +159,16 @@ de.sample.aiarchitecture
 │               └── HomePageController
 │
 └── infrastructure                  # Infrastructure (cross-cutting)
-    ├── api                        # Public SPI (interfaces only)
-    │   └── DomainEventPublisher
-    └── config                     # Spring Configuration
-        ├── SecurityConfiguration
-        ├── TransactionConfiguration
-        └── SpringDomainEventPublisher
+    ├── config/                    # Spring @Configuration classes
+    │   ├── SecurityConfiguration
+    │   ├── TransactionConfiguration
+    │   ├── AsyncConfiguration
+    │   └── DomainConfiguration
+    ├── support/                   # Framework support components
+    │   └── AsyncInitializationProcessor
+    └── security/                  # Security infrastructure
+        └── jwt/
+            └── JwtTokenService, JwtAuthenticationFilter
 ```
 
 ## Bounded Context Organization

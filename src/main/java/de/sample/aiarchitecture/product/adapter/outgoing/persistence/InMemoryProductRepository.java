@@ -95,7 +95,7 @@ public class InMemoryProductRepository implements ProductRepository {
    *
    * @see AsyncInitialize
    * @see de.sample.aiarchitecture.infrastructure.config.AsyncConfiguration
-   * @see de.sample.aiarchitecture.infrastructure.config.AsyncInitializationProcessor
+   * @see de.sample.aiarchitecture.infrastructure.support.AsyncInitializationProcessor
    */
   @Async
   public void asyncInitialize() {

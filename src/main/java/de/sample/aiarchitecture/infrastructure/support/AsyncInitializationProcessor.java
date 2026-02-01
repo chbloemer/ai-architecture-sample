@@ -1,4 +1,4 @@
-package de.sample.aiarchitecture.infrastructure.config;
+package de.sample.aiarchitecture.infrastructure.support;
 
 import de.sample.aiarchitecture.sharedkernel.marker.infrastructure.AsyncInitialize;
 import java.lang.reflect.Method;
@@ -19,7 +19,7 @@ import org.springframework.stereotype.Component;
  * <p><b>Separation of Concerns:</b>
  * <ul>
  *   <li>Annotation definition: {@code sharedkernel.marker.infrastructure} (pure Java)</li>
- *   <li>Annotation processing: {@code infrastructure.config} (Spring-specific)</li>
+ *   <li>Annotation processing: {@code infrastructure.support} (Spring-specific)</li>
  * </ul>
  *
  * <p><b>How it works:</b>
@@ -35,7 +35,7 @@ import org.springframework.stereotype.Component;
  * will execute synchronously during bean post-processing.
  *
  * @see AsyncInitialize
- * @see AsyncConfiguration
+ * @see de.sample.aiarchitecture.infrastructure.config.AsyncConfiguration
  */
 @Component
 public class AsyncInitializationProcessor implements BeanPostProcessor, Ordered {

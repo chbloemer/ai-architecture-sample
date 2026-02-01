@@ -1,4 +1,4 @@
-package de.sample.aiarchitecture.infrastructure.config;
+package de.sample.aiarchitecture.sharedkernel.adapter.outgoing.event;
 
 import de.sample.aiarchitecture.sharedkernel.marker.port.out.DomainEventPublisher;
 import de.sample.aiarchitecture.sharedkernel.marker.tactical.AggregateRoot;
@@ -26,6 +26,10 @@ import org.springframework.stereotype.Component;
  * <p><b>Alternative Implementations:</b> This interface-based design allows for alternative
  * implementations such as message broker integration, in-memory publishing for testing, or custom
  * event buses.
+ *
+ * <p><b>Architectural Location:</b> This class is an outgoing adapter that implements the
+ * {@link DomainEventPublisher} output port. It resides in the shared kernel because event
+ * publishing is a cross-cutting concern used by all bounded contexts.
  */
 @Component
 public class SpringDomainEventPublisher implements DomainEventPublisher {

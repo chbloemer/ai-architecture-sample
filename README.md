@@ -90,18 +90,22 @@ src/main/java/de/sample/aiarchitecture/
 │   │           ├── Repository.java
 │   │           ├── DomainEventPublisher.java
 │   │           └── IdentityProvider.java
-│   └── domain/
-│       ├── model/                        # Shared value objects
-│       │   ├── ProductId.java            # Cross-context ID
-│       │   ├── UserId.java               # Cross-context ID
-│       │   ├── Money.java                # Cross-context value
-│       │   └── Price.java                # Cross-context value
-│       └── specification/                # Composable specification pattern
-│           ├── CompositeSpecification.java
-│           ├── AndSpecification.java
-│           ├── OrSpecification.java
-│           ├── NotSpecification.java
-│           └── SpecificationVisitor.java
+│   ├── domain/
+│   │   ├── model/                        # Shared value objects
+│   │   │   ├── ProductId.java            # Cross-context ID
+│   │   │   ├── UserId.java               # Cross-context ID
+│   │   │   ├── Money.java                # Cross-context value
+│   │   │   └── Price.java                # Cross-context value
+│   │   └── specification/                # Composable specification pattern
+│   │       ├── CompositeSpecification.java
+│   │       ├── AndSpecification.java
+│   │       ├── OrSpecification.java
+│   │       ├── NotSpecification.java
+│   │       └── SpecificationVisitor.java
+│   └── adapter/
+│       └── outgoing/
+│           └── event/
+│               └── SpringDomainEventPublisher.java  # Domain event publishing
 │
 ├── product/                              # Product Catalog bounded context
 │   ├── domain/
@@ -238,12 +242,15 @@ src/main/java/de/sample/aiarchitecture/
 │               └── HomePageController.java
 │
 └── infrastructure/                       # Infrastructure (cross-cutting)
-    └── config/                           # Spring configuration
-        ├── SecurityConfiguration.java
-        ├── TransactionConfiguration.java
-        ├── SpringDomainEventPublisher.java
-        ├── AsyncConfiguration.java
-        └── AsyncInitializationProcessor.java
+    ├── config/                           # Spring @Configuration classes
+    │   ├── SecurityConfiguration.java
+    │   ├── TransactionConfiguration.java
+    │   ├── AsyncConfiguration.java
+    │   └── DomainConfiguration.java
+    ├── support/                          # Framework support components
+    │   └── AsyncInitializationProcessor.java
+    └── security/                         # Security infrastructure
+        └── jwt/                          # JWT authentication
 ```
 
 ## Getting Started
@@ -439,9 +446,12 @@ For comprehensive architecture documentation, see:
 - `sharedkernel.marker.port.out` - Output ports (Repository, DomainEventPublisher, IdentityProvider)
 - `sharedkernel.domain.model` - Shared value objects (Money, Price, ProductId, UserId)
 - `sharedkernel.domain.specification` - Composable specification pattern
+- `sharedkernel.adapter.outgoing.event` - Shared outgoing adapters (SpringDomainEventPublisher)
 
 **Infrastructure Layer** - Cross-cutting concerns
-- `infrastructure.config` - Spring configuration and framework integrations
+- `infrastructure.config` - Spring @Configuration classes
+- `infrastructure.support` - Framework support components (processors, listeners)
+- `infrastructure.security` - Security infrastructure (JWT, authentication)
 
 ## Testing
 

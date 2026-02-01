@@ -234,17 +234,20 @@ If architecture tests fail:
 
 ```
 de.sample.aiarchitecture
-├── domain.model              # Domain layer (core business logic)
-│   ├── ddd                   # DDD marker interfaces
-│   ├── product               # Product bounded context
-│   └── cart                  # Shopping Cart bounded context
-├── application               # Application services (use cases)
-├── infrastructure            # Infrastructure configuration
-│   ├── api                   # Public SPI
-│   └── config                # Spring configuration
-└── portadapter               # Adapters (Hexagonal Architecture)
-    ├── incoming              # Incoming adapters (Primary/Driving: REST, Web, MCP)
-    └── outgoing              # Outgoing adapters (Secondary/Driven: Persistence)
+├── sharedkernel/             # Shared Kernel (cross-context)
+│   ├── marker/               # Architectural markers (tactical, strategic, port)
+│   ├── domain/               # Shared value objects and specifications
+│   └── adapter/outgoing/     # Shared adapters (e.g., SpringDomainEventPublisher)
+├── {boundedcontext}/         # Each bounded context (product, cart, checkout, account)
+│   ├── domain/               # Domain model (aggregates, entities, events)
+│   ├── application/          # Use cases, ports, orchestration
+│   └── adapter/              # Incoming and outgoing adapters
+│       ├── incoming/         # Controllers, event consumers, MCP tools
+│       └── outgoing/         # Repository implementations
+└── infrastructure/           # Global infrastructure (cross-cutting)
+    ├── config/               # @Configuration classes
+    ├── support/              # Framework support (processors)
+    └── security/             # Security infrastructure
 ```
 
 ### Dependency Rules

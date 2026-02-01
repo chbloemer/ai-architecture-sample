@@ -31,11 +31,11 @@ import java.lang.annotation.Target;
  * <p><b>Architecture Pattern:</b>
  * <ul>
  *   <li>Annotation definition: {@code sharedkernel.marker.infrastructure} (pure Java)</li>
- *   <li>Annotation processing: {@code infrastructure.config.AsyncInitializationProcessor} (Spring-specific)</li>
+ *   <li>Annotation processing: {@code infrastructure.support.AsyncInitializationProcessor} (Spring-specific)</li>
  *   <li>Async configuration: {@code infrastructure.config.AsyncConfiguration} (Spring-specific)</li>
  * </ul>
  *
- * @see de.sample.aiarchitecture.infrastructure.config.AsyncInitializationProcessor
+ * @see de.sample.aiarchitecture.infrastructure.support.AsyncInitializationProcessor
  * @see de.sample.aiarchitecture.infrastructure.config.AsyncConfiguration
  */
 @Target(ElementType.TYPE)

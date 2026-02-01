@@ -430,9 +430,9 @@ public class ProductEventListener {
 - Time-travel debugging
 
 **Implementation:**
-- Interface: `de.sample.aiarchitecture.sharedkernel.domain.marker.DomainEvent`
-- Publisher Interface (SPI): `de.sample.aiarchitecture.sharedkernel.application.port.DomainEventPublisher`
-- Publisher Implementation: `de.sample.aiarchitecture.infrastructure.config.SpringDomainEventPublisher`
+- Interface: `de.sample.aiarchitecture.sharedkernel.marker.tactical.DomainEvent`
+- Publisher Interface (SPI): `de.sample.aiarchitecture.sharedkernel.marker.port.out.DomainEventPublisher`
+- Publisher Implementation: `de.sample.aiarchitecture.sharedkernel.adapter.outgoing.event.SpringDomainEventPublisher`
 - Examples: `ProductCreated`, `ProductPriceChanged`, `CartItemAddedToCart`, `CartCheckedOut`
 
 **Event Publishing Infrastructure:**
@@ -440,13 +440,13 @@ public class ProductEventListener {
 The event publishing infrastructure follows the Dependency Inversion Principle to keep the application layer framework-independent:
 
 ```java
-// Interface (outbound port) in sharedkernel.application.port - application layer depends on this
-public interface DomainEventPublisher {
+// Interface (outbound port) in sharedkernel.marker.port.out - application layer depends on this
+public interface DomainEventPublisher extends OutputPort {
     void publish(DomainEvent event);
     void publishAndClearEvents(AggregateRoot<?, ?> aggregate);
 }
 
-// Implementation in infrastructure.config - uses Spring framework
+// Implementation in sharedkernel.adapter.outgoing.event - uses Spring framework
 @Component
 public class SpringDomainEventPublisher implements DomainEventPublisher {
     private final ApplicationEventPublisher eventPublisher;
@@ -468,7 +468,7 @@ public class SpringDomainEventPublisher implements DomainEventPublisher {
 - Application layer remains framework-independent (depends on interface, not Spring)
 - Easy to mock for testing
 - Can swap implementations (e.g., message broker, in-memory for tests)
-- Follows Hexagonal Architecture (port defined in sharedkernel.application.port, adapter in infrastructure.config)
+- Follows Hexagonal Architecture (port defined in sharedkernel.marker.port.out, adapter in sharedkernel.adapter.outgoing.event)
 
 #### Integration Event
 
@@ -717,7 +717,7 @@ public @interface AsyncInitialize {
 **Processor Implementation (Infrastructure):**
 
 ```java
-// infrastructure/config/AsyncInitializationProcessor.java
+// infrastructure/support/AsyncInitializationProcessor.java
 @Component
 public class AsyncInitializationProcessor implements BeanPostProcessor, Ordered {
 
@@ -774,8 +774,8 @@ public class InMemoryShoppingCartRepository implements ShoppingCartRepository {
 ```
 
 **Rules:**
-1. Annotation definition in `sharedkernel.common.annotation` (framework-agnostic)
-2. Processor implementation in `infrastructure.config` (framework-specific)
+1. Annotation definition in `sharedkernel.marker.infrastructure` (framework-agnostic)
+2. Processor implementation in `infrastructure.support` (framework-specific)
 3. Pure Java annotation with no Spring dependencies
 4. Method name convention: `asyncInitialize()` annotated with `@Async`
 5. Priority determines initialization order (lower values first)
@@ -788,8 +788,8 @@ public class InMemoryShoppingCartRepository implements ShoppingCartRepository {
 - Follows Dependency Inversion Principle
 
 **Implementation:**
-- Annotation: `de.sample.aiarchitecture.sharedkernel.common.annotation.AsyncInitialize`
-- Processor: `de.sample.aiarchitecture.infrastructure.config.AsyncInitializationProcessor`
+- Annotation: `de.sample.aiarchitecture.sharedkernel.marker.infrastructure.AsyncInitialize`
+- Processor: `de.sample.aiarchitecture.infrastructure.support.AsyncInitializationProcessor`
 - Configuration: `de.sample.aiarchitecture.infrastructure.config.AsyncConfiguration`
 - Examples: `InMemoryProductRepository`, `InMemoryShoppingCartRepository`
 
@@ -1356,13 +1356,13 @@ Application Layer → sharedkernel.application.port (interface) ← infrastructu
 
 **Example:**
 ```java
-// sharedkernel.application.port.DomainEventPublisher (outbound port)
-public interface DomainEventPublisher {
+// sharedkernel.marker.port.out.DomainEventPublisher (outbound port)
+public interface DomainEventPublisher extends OutputPort {
     void publish(DomainEvent event);
     void publishAndClearEvents(AggregateRoot<?, ?> aggregate);
 }
 
-// infrastructure.config.SpringDomainEventPublisher (adapter implementation)
+// sharedkernel.adapter.outgoing.event.SpringDomainEventPublisher (adapter implementation)
 @Component
 public class SpringDomainEventPublisher implements DomainEventPublisher {
     private final ApplicationEventPublisher eventPublisher;
@@ -1371,10 +1371,10 @@ public class SpringDomainEventPublisher implements DomainEventPublisher {
 ```
 
 **Rules:**
-1. **sharedkernel.application.port must contain ONLY interfaces** (enforced by ArchUnit)
+1. **sharedkernel.marker.port must contain ONLY interfaces** (enforced by ArchUnit)
 2. No concrete classes, no annotations, no framework dependencies
-3. Implementations reside in `infrastructure.config` or adapter packages
-4. Application layer may depend on `sharedkernel.application.port`, never on implementations
+3. Implementations reside in `sharedkernel.adapter` or context adapter packages
+4. Application layer may depend on `sharedkernel.marker.port`, never on implementations
 5. Only ports used by **multiple bounded contexts** belong here (not context-specific ports)
 
 **Benefits:**
@@ -1384,7 +1384,7 @@ public class SpringDomainEventPublisher implements DomainEventPublisher {
 - Supports framework-independent business logic
 - Shared Kernel pattern reduces duplication across bounded contexts
 
-**What Belongs in sharedkernel.application.port:**
+**What Belongs in sharedkernel.marker.port:**
 - ✅ Base Repository interface (used by all aggregate repositories)
 - ✅ Base UseCase interface (input port marker)
 - ✅ DomainEventPublisher (used by all application services)
@@ -1490,12 +1490,15 @@ de.sample.aiarchitecture
 │           ├── CartRepository           # Repository Interface
 │           └── CartTotalCalculator      # Domain Service
 │
-├── infrastructure                       # Infrastructure Configuration
-│   ├── api                              # Public SPI (Service Provider Interface)
-│   │   └── DomainEventPublisher        # Event publisher interface (SPI)
-│   └── config                           # Spring Configuration
-│       ├── SecurityConfiguration
-│       └── SpringDomainEventPublisher  # Event publisher implementation
+├── infrastructure                       # Infrastructure Configuration (cross-cutting)
+│   ├── config                           # Spring @Configuration classes
+│   │   ├── SecurityConfiguration
+│   │   ├── TransactionConfiguration
+│   │   └── AsyncConfiguration
+│   ├── support                          # Framework support components
+│   │   └── AsyncInitializationProcessor
+│   └── security                         # Security infrastructure
+│       └── jwt/                         # JWT authentication
 │
 └── portadapter                          # Adapters (Hexagonal Architecture)
     ├── incoming                         # Incoming Adapters (Primary/Driving)

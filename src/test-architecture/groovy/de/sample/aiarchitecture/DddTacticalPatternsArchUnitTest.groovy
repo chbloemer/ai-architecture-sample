@@ -1,9 +1,9 @@
 package de.sample.aiarchitecture
 
-import de.sample.aiarchitecture.sharedkernel.domain.marker.AggregateRoot
-import de.sample.aiarchitecture.sharedkernel.domain.marker.Entity
-import de.sample.aiarchitecture.sharedkernel.application.port.Repository
-import de.sample.aiarchitecture.sharedkernel.domain.marker.Value
+import de.sample.aiarchitecture.sharedkernel.marker.tactical.AggregateRoot
+import de.sample.aiarchitecture.sharedkernel.marker.tactical.Entity
+import de.sample.aiarchitecture.sharedkernel.marker.port.out.Repository
+import de.sample.aiarchitecture.sharedkernel.marker.tactical.Value
 
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes
 

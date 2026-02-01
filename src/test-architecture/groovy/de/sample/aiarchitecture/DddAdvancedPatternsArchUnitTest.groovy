@@ -1,8 +1,8 @@
 package de.sample.aiarchitecture
 
-import de.sample.aiarchitecture.sharedkernel.domain.marker.DomainEvent
-import de.sample.aiarchitecture.sharedkernel.domain.marker.DomainService
-import de.sample.aiarchitecture.sharedkernel.domain.marker.Factory
+import de.sample.aiarchitecture.sharedkernel.marker.tactical.DomainEvent
+import de.sample.aiarchitecture.sharedkernel.marker.tactical.DomainService
+import de.sample.aiarchitecture.sharedkernel.marker.tactical.Factory
 
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses

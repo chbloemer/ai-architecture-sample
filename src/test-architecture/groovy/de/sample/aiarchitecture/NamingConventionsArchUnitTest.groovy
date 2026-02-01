@@ -2,7 +2,7 @@ package de.sample.aiarchitecture
 
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes
 
-import de.sample.aiarchitecture.sharedkernel.application.port.UseCase
+import de.sample.aiarchitecture.sharedkernel.marker.port.in.UseCase
 import org.springframework.stereotype.Service
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.RestController

@@ -30,12 +30,12 @@ class UseCasePatternsArchUnitTest extends BaseArchUnitTest {
   // USE CASE INTERFACE PATTERN (Base Contract)
   // ============================================================================
 
-  def "Base InputPort interface must be in sharedkernel application package"() {
+  def "Base InputPort interface must be in sharedkernel marker port in package"() {
     expect:
     classes()
       .that().areInterfaces()
       .and().haveSimpleName("InputPort")
-      .should().resideInAPackage(SHAREDKERNEL_APPLICATION_PACKAGE)
+      .should().resideInAPackage(SHAREDKERNEL_MARKER_PORT_IN_PACKAGE)
       .because("Base InputPort interface defines the generic contract for all use cases (Hexagonal Architecture)")
       .allowEmptyShould(true)
       .check(allClasses)

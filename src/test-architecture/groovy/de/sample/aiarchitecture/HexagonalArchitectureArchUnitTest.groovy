@@ -1,7 +1,7 @@
 package de.sample.aiarchitecture
 
 import com.tngtech.archunit.lang.syntax.ArchRuleDefinition
-import de.sample.aiarchitecture.sharedkernel.stereotype.BoundedContext
+import de.sample.aiarchitecture.sharedkernel.marker.strategic.BoundedContext
 
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses
 

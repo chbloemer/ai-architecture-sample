@@ -1,8 +1,8 @@
 package de.sample.aiarchitecture
 
-import de.sample.aiarchitecture.sharedkernel.domain.marker.IntegrationEvent
-import de.sample.aiarchitecture.sharedkernel.stereotype.BoundedContext
-import de.sample.aiarchitecture.sharedkernel.stereotype.OpenHostService
+import de.sample.aiarchitecture.sharedkernel.marker.tactical.IntegrationEvent
+import de.sample.aiarchitecture.sharedkernel.marker.strategic.BoundedContext
+import de.sample.aiarchitecture.sharedkernel.marker.strategic.OpenHostService
 
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses

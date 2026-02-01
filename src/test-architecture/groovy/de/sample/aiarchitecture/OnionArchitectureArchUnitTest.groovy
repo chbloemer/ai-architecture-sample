@@ -46,7 +46,9 @@ class OnionArchitectureArchUnitTest extends BaseArchUnitTest {
       "${BASE_PACKAGE}.cart.domain..",
       "${BASE_PACKAGE}.checkout.domain..",
       "${BASE_PACKAGE}.account.domain..",
-      "${BASE_PACKAGE}.sharedkernel.domain.."
+      "${BASE_PACKAGE}.sharedkernel.domain..",
+      "${BASE_PACKAGE}.sharedkernel.marker.tactical..",   // Allow DDD marker interfaces
+      "${BASE_PACKAGE}.sharedkernel.marker.port.out.."    // Allow output port interfaces (e.g., Repository)
     ] as String[]
 
     final ArchRule domainClassesMustNotDependOnAnyFrameworkOr3rdParty =

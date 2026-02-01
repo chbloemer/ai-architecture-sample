@@ -6,8 +6,8 @@ import com.tngtech.archunit.core.domain.JavaClasses
 import com.tngtech.archunit.core.importer.ClassFileImporter
 import com.tngtech.archunit.core.importer.ImportOption
 import com.tngtech.archunit.core.importer.Location
-import de.sample.aiarchitecture.sharedkernel.stereotype.BoundedContext
-import de.sample.aiarchitecture.sharedkernel.stereotype.SharedKernel
+import de.sample.aiarchitecture.sharedkernel.marker.strategic.BoundedContext
+import de.sample.aiarchitecture.sharedkernel.marker.strategic.SharedKernel
 import spock.lang.Shared
 import spock.lang.Specification
 
@@ -18,11 +18,16 @@ import java.util.regex.Pattern
  */
 abstract class BaseArchUnitTest extends Specification {
 
-  // Predicate for infrastructure implementation classes (concrete implementations in infrastructure.*)
+  // Predicate for infrastructure implementation classes that should NOT be accessed by adapters
+  // Note: infrastructure.security.* is explicitly ALLOWED for adapters (JWT, cookies are adapter concerns)
+  // Note: infrastructure.annotation.* is explicitly ALLOWED for adapters (AsyncInitialize annotation)
   protected static final DescribedPredicate<JavaClass> INFRASTRUCTURE_IMPLEMENTATION =
   DescribedPredicate.describe(
-  "reside in infrastructure implementation", { JavaClass javaClass ->
-    javaClass.getPackageName().startsWith("de.sample.aiarchitecture.infrastructure.")
+  "reside in infrastructure implementation (excluding security and annotation)", { JavaClass javaClass ->
+    String packageName = javaClass.getPackageName()
+    return packageName.startsWith("de.sample.aiarchitecture.infrastructure.") &&
+           !packageName.startsWith("de.sample.aiarchitecture.infrastructure.security") &&
+           !packageName.startsWith("de.sample.aiarchitecture.infrastructure.annotation")
   }
   )
 
@@ -38,10 +43,21 @@ abstract class BaseArchUnitTest extends Specification {
   // Base package for all classes
   protected static final String BASE_PACKAGE = "de.sample.aiarchitecture"
 
-  // Shared Kernel packages
+  // Shared Kernel packages (new structure)
   protected static final String SHAREDKERNEL_PACKAGE = "${BASE_PACKAGE}.sharedkernel.."
   protected static final String SHAREDKERNEL_DOMAIN_PACKAGE = "${BASE_PACKAGE}.sharedkernel.domain.."
+  protected static final String SHAREDKERNEL_DOMAIN_MODEL_PACKAGE = "${BASE_PACKAGE}.sharedkernel.domain.model.."
+  protected static final String SHAREDKERNEL_MARKER_PACKAGE = "${BASE_PACKAGE}.sharedkernel.marker.."
+  protected static final String SHAREDKERNEL_MARKER_TACTICAL_PACKAGE = "${BASE_PACKAGE}.sharedkernel.marker.tactical.."
+  protected static final String SHAREDKERNEL_MARKER_STRATEGIC_PACKAGE = "${BASE_PACKAGE}.sharedkernel.marker.strategic.."
+  protected static final String SHAREDKERNEL_MARKER_PORT_PACKAGE = "${BASE_PACKAGE}.sharedkernel.marker.port.."
+  protected static final String SHAREDKERNEL_MARKER_PORT_IN_PACKAGE = "${BASE_PACKAGE}.sharedkernel.marker.port.in.."
+  protected static final String SHAREDKERNEL_MARKER_PORT_OUT_PACKAGE = "${BASE_PACKAGE}.sharedkernel.marker.port.out.."
+
+  // Legacy package constants (for backward compatibility during migration)
+  @Deprecated
   protected static final String SHAREDKERNEL_APPLICATION_PACKAGE = "${BASE_PACKAGE}.sharedkernel.application.."
+  @Deprecated
   protected static final String SHAREDKERNEL_APPLICATION_PORT_PACKAGE = "${BASE_PACKAGE}.sharedkernel.application.port.."
 
   // Bounded Context packages (Strategic DDD)

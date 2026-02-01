@@ -1,9 +1,13 @@
 package de.sample.aiarchitecture.product.adapter.incoming.openhost;
 
-import de.sample.aiarchitecture.product.application.shared.ProductRepository;
+import de.sample.aiarchitecture.product.application.getproductbyid.GetProductByIdInputPort;
+import de.sample.aiarchitecture.product.application.getproductbyid.GetProductByIdQuery;
+import de.sample.aiarchitecture.product.application.getproductbyid.GetProductByIdResponse;
+import de.sample.aiarchitecture.sharedkernel.domain.common.Money;
 import de.sample.aiarchitecture.sharedkernel.domain.common.Price;
 import de.sample.aiarchitecture.sharedkernel.domain.common.ProductId;
 import de.sample.aiarchitecture.sharedkernel.stereotype.OpenHostService;
+import java.util.Currency;
 import java.util.Optional;
 import org.springframework.stereotype.Service;
 
@@ -11,12 +15,15 @@ import org.springframework.stereotype.Service;
  * Open Host Service for Product Catalog.
  *
  * <p>This is an incoming adapter that exposes Product context capabilities to other
- * bounded contexts. It translates domain objects to DTOs, similar to how REST
- * controllers translate domain objects to JSON.
+ * bounded contexts. It delegates to use cases (input ports) and translates responses
+ * to OHS DTOs, similar to how REST controllers work.
  *
  * <p>Consuming contexts should NOT use this service directly in their use cases -
  * they should define their own output ports and implement adapters that delegate
  * to this service.
+ *
+ * <p><b>Hexagonal Architecture:</b> As an incoming adapter, this service calls
+ * input ports (use cases), NOT output ports (repositories) directly.
  *
  * <p><b>Placement rationale:</b> This is an incoming adapter because other contexts
  * "call into" Product context through this service. It's parallel to REST controllers
@@ -29,10 +36,10 @@ import org.springframework.stereotype.Service;
 @Service
 public class ProductCatalogService {
 
-    private final ProductRepository productRepository;
+    private final GetProductByIdInputPort getProductByIdInputPort;
 
-    public ProductCatalogService(ProductRepository productRepository) {
-        this.productRepository = productRepository;
+    public ProductCatalogService(GetProductByIdInputPort getProductByIdInputPort) {
+        this.getProductByIdInputPort = getProductByIdInputPort;
     }
 
     /**
@@ -52,13 +59,19 @@ public class ProductCatalogService {
      * @return product info if found
      */
     public Optional<ProductInfo> getProductInfo(ProductId productId) {
-        return productRepository.findById(productId)
-            .map(product -> new ProductInfo(
-                productId,
-                product.name().value(),
-                product.price(),
-                product.stock().quantity()
-            ));
+        GetProductByIdResponse response = getProductByIdInputPort.execute(
+            new GetProductByIdQuery(productId.value()));
+
+        if (!response.found()) {
+            return Optional.empty();
+        }
+
+        return Optional.of(new ProductInfo(
+            productId,
+            response.name(),
+            Price.of(Money.of(response.priceAmount(), Currency.getInstance(response.priceCurrency()))),
+            response.stockQuantity()
+        ));
     }
 
     /**
@@ -69,8 +82,9 @@ public class ProductCatalogService {
      * @return true if sufficient stock is available
      */
     public boolean hasStock(ProductId productId, int quantity) {
-        return productRepository.findById(productId)
-            .map(product -> product.hasStockFor(quantity))
-            .orElse(false);
+        GetProductByIdResponse response = getProductByIdInputPort.execute(
+            new GetProductByIdQuery(productId.value()));
+
+        return response.found() && response.stockQuantity() >= quantity;
     }
 }

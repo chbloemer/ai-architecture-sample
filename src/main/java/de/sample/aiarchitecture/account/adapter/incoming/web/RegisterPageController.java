@@ -3,11 +3,10 @@ package de.sample.aiarchitecture.account.adapter.incoming.web;
 import de.sample.aiarchitecture.account.application.registeraccount.RegisterAccountCommand;
 import de.sample.aiarchitecture.account.application.registeraccount.RegisterAccountInputPort;
 import de.sample.aiarchitecture.account.application.registeraccount.RegisterAccountResponse;
-import de.sample.aiarchitecture.infrastructure.security.jwt.JwtAuthenticationFilter;
-import de.sample.aiarchitecture.infrastructure.security.jwt.JwtTokenService;
 import de.sample.aiarchitecture.sharedkernel.domain.model.UserId;
 import de.sample.aiarchitecture.sharedkernel.marker.port.out.IdentityProvider;
-import jakarta.servlet.http.HttpServletResponse;
+import de.sample.aiarchitecture.account.application.shared.IdentitySession;
+import de.sample.aiarchitecture.account.application.shared.TokenService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -28,19 +27,19 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 public class RegisterPageController {
 
   private final RegisterAccountInputPort registerAccountUseCase;
-  private final JwtTokenService tokenService;
+  private final TokenService tokenService;
   private final IdentityProvider identityProvider;
-  private final JwtAuthenticationFilter jwtAuthenticationFilter;
+  private final IdentitySession identitySession;
 
   public RegisterPageController(
       final RegisterAccountInputPort registerAccountUseCase,
-      final JwtTokenService tokenService,
+      final TokenService tokenService,
       final IdentityProvider identityProvider,
-      final JwtAuthenticationFilter jwtAuthenticationFilter) {
+      final IdentitySession identitySession) {
     this.registerAccountUseCase = registerAccountUseCase;
     this.tokenService = tokenService;
     this.identityProvider = identityProvider;
-    this.jwtAuthenticationFilter = jwtAuthenticationFilter;
+    this.identitySession = identitySession;
   }
 
   /**
@@ -67,7 +66,6 @@ public class RegisterPageController {
    * @param password the user's password
    * @param confirmPassword password confirmation
    * @param returnUrl optional URL to redirect to after registration
-   * @param response HTTP response for setting cookies
    * @param redirectAttributes for passing flash messages
    * @param model Spring MVC model
    * @return redirect to home or returnUrl on success, register page on failure
@@ -78,7 +76,6 @@ public class RegisterPageController {
       @RequestParam final String password,
       @RequestParam final String confirmPassword,
       @RequestParam(required = false) final String returnUrl,
-      final HttpServletResponse response,
       final RedirectAttributes redirectAttributes,
       final Model model) {
 
@@ -113,7 +110,7 @@ public class RegisterPageController {
           result.email(),
           result.roles());
 
-      jwtAuthenticationFilter.setRegisteredUserCookie(response, token);
+      identitySession.setRegisteredIdentity(token);
 
       redirectAttributes.addFlashAttribute("message", "Account created successfully! Welcome!");
 

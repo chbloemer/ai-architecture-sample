@@ -3,6 +3,7 @@ package de.sample.aiarchitecture.infrastructure.security.jwt;
 import de.sample.aiarchitecture.infrastructure.security.JwtIdentity;
 import de.sample.aiarchitecture.sharedkernel.domain.model.UserId;
 import de.sample.aiarchitecture.sharedkernel.marker.port.out.IdentityProvider;
+import de.sample.aiarchitecture.account.application.shared.TokenService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
@@ -45,7 +46,7 @@ import org.springframework.stereotype.Service;
  * </pre>
  */
 @Service
-public class JwtTokenService {
+public class JwtTokenService implements TokenService {
 
   private static final Logger LOG = LoggerFactory.getLogger(JwtTokenService.class);
 
@@ -93,6 +94,7 @@ public class JwtTokenService {
    * @param roles the user's roles
    * @return the generated JWT token string
    */
+  @Override
   @NonNull
   public String generateRegisteredToken(
       @NonNull final UserId userId,

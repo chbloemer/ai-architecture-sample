@@ -3,11 +3,10 @@ package de.sample.aiarchitecture.account.adapter.incoming.web;
 import de.sample.aiarchitecture.account.application.authenticateaccount.AuthenticateAccountCommand;
 import de.sample.aiarchitecture.account.application.authenticateaccount.AuthenticateAccountInputPort;
 import de.sample.aiarchitecture.account.application.authenticateaccount.AuthenticateAccountResponse;
-import de.sample.aiarchitecture.infrastructure.security.jwt.JwtAuthenticationFilter;
-import de.sample.aiarchitecture.infrastructure.security.jwt.JwtTokenService;
 import de.sample.aiarchitecture.sharedkernel.domain.model.UserId;
 import de.sample.aiarchitecture.sharedkernel.marker.port.out.IdentityProvider;
-import jakarta.servlet.http.HttpServletResponse;
+import de.sample.aiarchitecture.account.application.shared.IdentitySession;
+import de.sample.aiarchitecture.account.application.shared.TokenService;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import org.springframework.stereotype.Controller;
@@ -35,19 +34,19 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 public class LoginPageController {
 
   private final AuthenticateAccountInputPort authenticateAccountUseCase;
-  private final JwtTokenService tokenService;
+  private final TokenService tokenService;
   private final IdentityProvider identityProvider;
-  private final JwtAuthenticationFilter jwtAuthenticationFilter;
+  private final IdentitySession identitySession;
 
   public LoginPageController(
       final AuthenticateAccountInputPort authenticateAccountUseCase,
-      final JwtTokenService tokenService,
+      final TokenService tokenService,
       final IdentityProvider identityProvider,
-      final JwtAuthenticationFilter jwtAuthenticationFilter) {
+      final IdentitySession identitySession) {
     this.authenticateAccountUseCase = authenticateAccountUseCase;
     this.tokenService = tokenService;
     this.identityProvider = identityProvider;
-    this.jwtAuthenticationFilter = jwtAuthenticationFilter;
+    this.identitySession = identitySession;
   }
 
   /**
@@ -77,7 +76,6 @@ public class LoginPageController {
    * @param email the user's email
    * @param password the user's password
    * @param returnUrl optional URL to redirect to after login
-   * @param response HTTP response for setting cookies
    * @param redirectAttributes for passing flash messages
    * @param model Spring MVC model
    * @return redirect to cart merge page on success, login page on failure
@@ -87,7 +85,6 @@ public class LoginPageController {
       @RequestParam final String email,
       @RequestParam final String password,
       @RequestParam(required = false) final String returnUrl,
-      final HttpServletResponse response,
       final RedirectAttributes redirectAttributes,
       final Model model) {
 
@@ -113,7 +110,7 @@ public class LoginPageController {
           result.email(),
           result.roles());
 
-      jwtAuthenticationFilter.setRegisteredUserCookie(response, token);
+      identitySession.setRegisteredIdentity(token);
 
       // Always redirect to merge page - let cart context decide if merge is needed
       // This avoids cross-context dependency (account → cart)

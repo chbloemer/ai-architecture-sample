@@ -1,4 +1,4 @@
-package de.sample.aiarchitecture.infrastructure.annotation;
+package de.sample.aiarchitecture.sharedkernel.marker.infrastructure;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
@@ -30,7 +30,7 @@ import java.lang.annotation.Target;
  *
  * <p><b>Architecture Pattern:</b>
  * <ul>
- *   <li>Annotation definition: {@code infrastructure.annotation} (pure Java)</li>
+ *   <li>Annotation definition: {@code sharedkernel.marker.infrastructure} (pure Java)</li>
  *   <li>Annotation processing: {@code infrastructure.config.AsyncInitializationProcessor} (Spring-specific)</li>
  *   <li>Async configuration: {@code infrastructure.config.AsyncConfiguration} (Spring-specific)</li>
  * </ul>

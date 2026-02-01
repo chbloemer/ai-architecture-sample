@@ -19,15 +19,12 @@ import java.util.regex.Pattern
 abstract class BaseArchUnitTest extends Specification {
 
   // Predicate for infrastructure implementation classes that should NOT be accessed by adapters
-  // Note: infrastructure.security.* is explicitly ALLOWED for adapters (JWT, cookies are adapter concerns)
-  // Note: infrastructure.annotation.* is explicitly ALLOWED for adapters (AsyncInitialize annotation)
+  // Adapters must use ports (sharedkernel.marker.port.*) instead of infrastructure implementations
   protected static final DescribedPredicate<JavaClass> INFRASTRUCTURE_IMPLEMENTATION =
   DescribedPredicate.describe(
-  "reside in infrastructure implementation (excluding security and annotation)", { JavaClass javaClass ->
+  "reside in infrastructure implementation", { JavaClass javaClass ->
     String packageName = javaClass.getPackageName()
-    return packageName.startsWith("de.sample.aiarchitecture.infrastructure.") &&
-           !packageName.startsWith("de.sample.aiarchitecture.infrastructure.security") &&
-           !packageName.startsWith("de.sample.aiarchitecture.infrastructure.annotation")
+    return packageName.startsWith("de.sample.aiarchitecture.infrastructure.")
   }
   )
 

@@ -5,7 +5,7 @@ import de.sample.aiarchitecture.cart.domain.model.CartId;
 import de.sample.aiarchitecture.cart.domain.model.CustomerId;
 import de.sample.aiarchitecture.cart.domain.model.ShoppingCart;
 import de.sample.aiarchitecture.cart.domain.model.CartStatus;
-import de.sample.aiarchitecture.infrastructure.annotation.AsyncInitialize;
+import de.sample.aiarchitecture.sharedkernel.marker.infrastructure.AsyncInitialize;
 
 import java.util.List;
 import java.util.Optional;

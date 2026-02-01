@@ -6,11 +6,10 @@ import de.sample.aiarchitecture.account.application.authenticateaccount.Authenti
 import de.sample.aiarchitecture.account.application.registeraccount.RegisterAccountCommand;
 import de.sample.aiarchitecture.account.application.registeraccount.RegisterAccountInputPort;
 import de.sample.aiarchitecture.account.application.registeraccount.RegisterAccountResponse;
-import de.sample.aiarchitecture.infrastructure.security.jwt.JwtAuthenticationFilter;
-import de.sample.aiarchitecture.infrastructure.security.jwt.JwtTokenService;
 import de.sample.aiarchitecture.sharedkernel.domain.model.UserId;
 import de.sample.aiarchitecture.sharedkernel.marker.port.out.IdentityProvider;
-import jakarta.servlet.http.HttpServletResponse;
+import de.sample.aiarchitecture.account.application.shared.IdentitySession;
+import de.sample.aiarchitecture.account.application.shared.TokenService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -38,27 +37,26 @@ public class AuthResource {
 
   private final AuthenticateAccountInputPort authenticateAccountUseCase;
   private final RegisterAccountInputPort registerAccountUseCase;
-  private final JwtTokenService tokenService;
+  private final TokenService tokenService;
   private final IdentityProvider identityProvider;
-  private final JwtAuthenticationFilter jwtAuthenticationFilter;
+  private final IdentitySession identitySession;
 
   public AuthResource(
       final AuthenticateAccountInputPort authenticateAccountUseCase,
       final RegisterAccountInputPort registerAccountUseCase,
-      final JwtTokenService tokenService,
+      final TokenService tokenService,
       final IdentityProvider identityProvider,
-      final JwtAuthenticationFilter jwtAuthenticationFilter) {
+      final IdentitySession identitySession) {
     this.authenticateAccountUseCase = authenticateAccountUseCase;
     this.registerAccountUseCase = registerAccountUseCase;
     this.tokenService = tokenService;
     this.identityProvider = identityProvider;
-    this.jwtAuthenticationFilter = jwtAuthenticationFilter;
+    this.identitySession = identitySession;
   }
 
   @PostMapping("/login")
   public ResponseEntity<LoginApiResult> login(
-      @Valid @RequestBody final LoginRequest request,
-      final HttpServletResponse response) {
+      @Valid @RequestBody final LoginRequest request) {
 
     final AuthenticateAccountCommand command = new AuthenticateAccountCommand(
         request.email(),
@@ -76,15 +74,14 @@ public class AuthResource {
         result.email(),
         result.roles());
 
-    jwtAuthenticationFilter.setRegisteredUserCookie(response, token);
+    identitySession.setRegisteredIdentity(token);
 
     return ResponseEntity.ok(LoginApiResult.success(token, result.email()));
   }
 
   @PostMapping("/register")
   public ResponseEntity<RegisterApiResult> register(
-      @Valid @RequestBody final RegisterRequest request,
-      final HttpServletResponse response) {
+      @Valid @RequestBody final RegisterRequest request) {
 
     final String currentUserId = identityProvider.getCurrentIdentity().userId().value();
 
@@ -101,7 +98,7 @@ public class AuthResource {
           result.email(),
           result.roles());
 
-      jwtAuthenticationFilter.setRegisteredUserCookie(response, token);
+      identitySession.setRegisteredIdentity(token);
 
       return ResponseEntity.status(HttpStatus.CREATED)
           .body(RegisterApiResult.success(token, result.email()));
@@ -113,8 +110,8 @@ public class AuthResource {
   }
 
   @PostMapping("/logout")
-  public ResponseEntity<Void> logout(final HttpServletResponse response) {
-    jwtAuthenticationFilter.clearIdentityCookie(response);
+  public ResponseEntity<Void> logout() {
+    identitySession.clearIdentity();
     return ResponseEntity.ok().build();
   }
 }

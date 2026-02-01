@@ -1,6 +1,6 @@
 package de.sample.aiarchitecture.infrastructure.config;
 
-import de.sample.aiarchitecture.infrastructure.annotation.AsyncInitialize;
+import de.sample.aiarchitecture.sharedkernel.marker.infrastructure.AsyncInitialize;
 import java.lang.reflect.Method;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,7 +18,7 @@ import org.springframework.stereotype.Component;
  *
  * <p><b>Separation of Concerns:</b>
  * <ul>
- *   <li>Annotation definition: {@code sharedkernel.common.annotation} (pure Java)</li>
+ *   <li>Annotation definition: {@code sharedkernel.marker.infrastructure} (pure Java)</li>
  *   <li>Annotation processing: {@code infrastructure.config} (Spring-specific)</li>
  * </ul>
  *

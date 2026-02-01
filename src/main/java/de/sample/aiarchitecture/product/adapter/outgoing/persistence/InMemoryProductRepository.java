@@ -4,7 +4,7 @@ import de.sample.aiarchitecture.product.application.shared.ProductRepository;
 import de.sample.aiarchitecture.product.domain.model.Product;
 import de.sample.aiarchitecture.product.domain.model.SKU;
 import de.sample.aiarchitecture.product.domain.model.Category;
-import de.sample.aiarchitecture.infrastructure.annotation.AsyncInitialize;
+import de.sample.aiarchitecture.sharedkernel.marker.infrastructure.AsyncInitialize;
 import de.sample.aiarchitecture.sharedkernel.domain.model.ProductId;
 import java.util.List;
 import java.util.Optional;

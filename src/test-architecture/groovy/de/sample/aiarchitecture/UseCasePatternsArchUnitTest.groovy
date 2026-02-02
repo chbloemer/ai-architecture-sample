@@ -94,30 +94,46 @@ class UseCasePatternsArchUnitTest extends BaseArchUnitTest {
   }
 
   // ============================================================================
-  // USE CASE RESPONSE MODEL PATTERN
+  // USE CASE RESULT MODEL PATTERN (ADR-020)
+  // Application layer uses *Result, Adapter layer uses *Response
   // ============================================================================
 
-  def "Use Case Response Models must end with 'Response' and reside in application package"() {
+  def "Use Case Result Models must end with 'Result' and reside in application package"() {
     expect:
     classes()
-      .that().haveSimpleNameEndingWith("Response")
+      .that().haveSimpleNameEndingWith("Result")
       .and().resideInAnyPackage(BASE_PACKAGE + "..")
-      .and().doNotHaveSimpleName("DomainEventPublisher") // Exclude infrastructure classes
       .should().resideInAnyPackage(PRODUCT_APPLICATION_PACKAGE, CART_APPLICATION_PACKAGE, CHECKOUT_APPLICATION_PACKAGE, ACCOUNT_APPLICATION_PACKAGE)
-      .because("Use case response models should be in application layer (Clean Architecture)")
+      .because("Use case result models should be in application layer (ADR-020: Application layer uses *Result)")
       .allowEmptyShould(true)
       .check(allClasses)
   }
 
-  def "Use Case Response Models should be immutable (final or records)"() {
+  def "Use Case Result Models should be immutable (final or records)"() {
     expect:
     classes()
-      .that().haveSimpleNameEndingWith("Response")
+      .that().haveSimpleNameEndingWith("Result")
       .and().resideInAnyPackage(PRODUCT_APPLICATION_PACKAGE, CART_APPLICATION_PACKAGE, CHECKOUT_APPLICATION_PACKAGE, ACCOUNT_APPLICATION_PACKAGE)
       .and().areNotInterfaces()
       .and().areNotRecords()
       .should().haveModifier(JavaModifier.FINAL)
-      .because("Use case response models should be immutable (value objects)")
+      .because("Use case result models should be immutable (value objects)")
+      .allowEmptyShould(true)
+      .check(allClasses)
+  }
+
+  def "HTTP Response Models must end with 'Response' and reside in adapter incoming package"() {
+    expect:
+    classes()
+      .that().haveSimpleNameEndingWith("Response")
+      .and().resideInAnyPackage(BASE_PACKAGE + "..")
+      .should().resideInAnyPackage(
+        BASE_PACKAGE + ".product.adapter.incoming..",
+        BASE_PACKAGE + ".cart.adapter.incoming..",
+        BASE_PACKAGE + ".checkout.adapter.incoming..",
+        BASE_PACKAGE + ".account.adapter.incoming.."
+      )
+      .because("HTTP response models should be in adapter incoming layer (ADR-020: Adapter layer uses *Response)")
       .allowEmptyShould(true)
       .check(allClasses)
   }

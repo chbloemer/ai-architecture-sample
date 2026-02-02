@@ -14,7 +14,7 @@ import org.jspecify.annotations.NonNull;
  * @see SubmitPaymentUseCase
  */
 public interface SubmitPaymentInputPort
-    extends UseCase<SubmitPaymentCommand, SubmitPaymentResponse> {
+    extends UseCase<SubmitPaymentCommand, SubmitPaymentResult> {
 
   /**
    * Submits payment information for the checkout session.
@@ -35,5 +35,5 @@ public interface SubmitPaymentInputPort
    * @throws IllegalStateException if session is not modifiable or step validation fails
    */
   @Override
-  @NonNull SubmitPaymentResponse execute(@NonNull SubmitPaymentCommand command);
+  @NonNull SubmitPaymentResult execute(@NonNull SubmitPaymentCommand command);
 }

@@ -13,7 +13,7 @@ import org.jspecify.annotations.NonNull;
  *
  * @see de.sample.aiarchitecture.product.application.usecase.getproductbyid.GetProductByIdUseCase
  */
-public interface GetProductByIdInputPort extends UseCase<GetProductByIdQuery, GetProductByIdResponse> {
+public interface GetProductByIdInputPort extends UseCase<GetProductByIdQuery, GetProductByIdResult> {
 
   /**
    * Retrieves a product by its unique identifier.
@@ -22,5 +22,5 @@ public interface GetProductByIdInputPort extends UseCase<GetProductByIdQuery, Ge
    * @return response containing product details or indication that product was not found
    */
   @Override
-  @NonNull GetProductByIdResponse execute(@NonNull GetProductByIdQuery query);
+  @NonNull GetProductByIdResult execute(@NonNull GetProductByIdQuery query);
 }

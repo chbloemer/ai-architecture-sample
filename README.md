@@ -15,7 +15,7 @@ This project showcases best practices for structuring a Spring Boot application 
 
 - **AI-Accessible Product Catalog** via MCP server (Spring AI 1.1.0-M3)
 - **Complete Architecture Testing** with ArchUnit (10 test suites)
-- **16 Architecture Decision Records** documenting design choices
+- **17 Architecture Decision Records** documenting design choices
 - **Shared Kernel** pattern for cross-context value objects
 - **Framework-Independent Domain** layer (no Spring/JPA in core)
 - **Multi-step Checkout Flow** with 5 steps and session management
@@ -45,7 +45,7 @@ This project showcases best practices for structuring a Spring Boot application 
 ### Clean Architecture
 
 - **Use Cases** (Input Ports): Explicit use case interfaces with single responsibility
-- **Input/Output Models**: Commands, Queries, and Response objects decouple layers
+- **Input/Output Models**: Commands, Queries, and Result objects decouple layers
 - **Framework Independence**: Domain layer is framework-agnostic; application layer uses minimal framework annotations pragmatically
 - **Dependency Rule**: Dependencies point inward (Infrastructure → Adapters → Application → Domain)
 - **Use Case Organization**: One use case per operation (CreateProductUseCase, AddItemToCartUseCase, StartCheckoutUseCase, etc.)
@@ -137,27 +137,27 @@ src/main/java/de/sample/aiarchitecture/
 │   │   │   ├── CreateProductInputPort.java
 │   │   │   ├── CreateProductUseCase.java
 │   │   │   ├── CreateProductCommand.java
-│   │   │   └── CreateProductResponse.java
+│   │   │   └── CreateProductResult.java
 │   │   ├── getallproducts/               # Use case: Get All Products
 │   │   │   ├── GetAllProductsInputPort.java
 │   │   │   ├── GetAllProductsUseCase.java
 │   │   │   ├── GetAllProductsQuery.java
-│   │   │   └── GetAllProductsResponse.java
+│   │   │   └── GetAllProductsResult.java
 │   │   ├── getproductbyid/               # Use case: Get Product By ID
 │   │   │   ├── GetProductByIdInputPort.java
 │   │   │   ├── GetProductByIdUseCase.java
 │   │   │   ├── GetProductByIdQuery.java
-│   │   │   └── GetProductByIdResponse.java
+│   │   │   └── GetProductByIdResult.java
 │   │   ├── updateproductprice/           # Use case: Update Product Price
 │   │   │   ├── UpdateProductPriceInputPort.java
 │   │   │   ├── UpdateProductPriceUseCase.java
 │   │   │   ├── UpdateProductPriceCommand.java
-│   │   │   └── UpdateProductPriceResponse.java
+│   │   │   └── UpdateProductPriceResult.java
 │   │   ├── reduceproductstock/           # Use case: Reduce Product Stock
 │   │   │   ├── ReduceProductStockInputPort.java
 │   │   │   ├── ReduceProductStockUseCase.java
 │   │   │   ├── ReduceProductStockCommand.java
-│   │   │   └── ReduceProductStockResponse.java
+│   │   │   └── ReduceProductStockResult.java
 │   │   └── shared/                       # Shared output ports
 │   │       └── ProductRepository.java
 │   └── adapter/                          # Adapters
@@ -215,57 +215,57 @@ src/main/java/de/sample/aiarchitecture/
 │   │   │   ├── CreateCartInputPort.java
 │   │   │   ├── CreateCartUseCase.java
 │   │   │   ├── CreateCartCommand.java
-│   │   │   └── CreateCartResponse.java
+│   │   │   └── CreateCartResult.java
 │   │   ├── additemtocart/                # Use case: Add Item to Cart
 │   │   │   ├── AddItemToCartInputPort.java
 │   │   │   ├── AddItemToCartUseCase.java
 │   │   │   ├── AddItemToCartCommand.java
-│   │   │   └── AddItemToCartResponse.java
+│   │   │   └── AddItemToCartResult.java
 │   │   ├── checkoutcart/                 # Use case: Checkout Cart
 │   │   │   ├── CheckoutCartInputPort.java
 │   │   │   ├── CheckoutCartUseCase.java
 │   │   │   ├── CheckoutCartCommand.java
-│   │   │   └── CheckoutCartResponse.java
+│   │   │   └── CheckoutCartResult.java
 │   │   ├── getallcarts/                  # Use case: Get All Carts
 │   │   │   ├── GetAllCartsInputPort.java
 │   │   │   ├── GetAllCartsUseCase.java
 │   │   │   ├── GetAllCartsQuery.java
-│   │   │   └── GetAllCartsResponse.java
+│   │   │   └── GetAllCartsResult.java
 │   │   ├── getcartbyid/                  # Use case: Get Cart By ID
 │   │   │   ├── GetCartByIdInputPort.java
 │   │   │   ├── GetCartByIdUseCase.java
 │   │   │   ├── GetCartByIdQuery.java
-│   │   │   └── GetCartByIdResponse.java
+│   │   │   └── GetCartByIdResult.java
 │   │   ├── getorcreateactivecart/        # Use case: Get or Create Active Cart
 │   │   │   ├── GetOrCreateActiveCartInputPort.java
 │   │   │   ├── GetOrCreateActiveCartUseCase.java
 │   │   │   ├── GetOrCreateActiveCartCommand.java
-│   │   │   └── GetOrCreateActiveCartResponse.java
+│   │   │   └── GetOrCreateActiveCartResult.java
 │   │   ├── removeitemfromcart/           # Use case: Remove Item from Cart
 │   │   │   ├── RemoveItemFromCartInputPort.java
 │   │   │   ├── RemoveItemFromCartUseCase.java
 │   │   │   ├── RemoveItemFromCartCommand.java
-│   │   │   └── RemoveItemFromCartResponse.java
+│   │   │   └── RemoveItemFromCartResult.java
 │   │   ├── mergecarts/                   # Use case: Merge Carts
 │   │   │   ├── MergeCartsInputPort.java
 │   │   │   ├── MergeCartsUseCase.java
 │   │   │   ├── MergeCartsCommand.java
-│   │   │   └── MergeCartsResponse.java
+│   │   │   └── MergeCartsResult.java
 │   │   ├── getcartmergeoptions/          # Use case: Get Cart Merge Options
 │   │   │   ├── GetCartMergeOptionsInputPort.java
 │   │   │   ├── GetCartMergeOptionsUseCase.java
 │   │   │   ├── GetCartMergeOptionsQuery.java
-│   │   │   └── GetCartMergeOptionsResponse.java
+│   │   │   └── GetCartMergeOptionsResult.java
 │   │   ├── completecart/                 # Use case: Complete Cart (after checkout)
 │   │   │   ├── CompleteCartInputPort.java
 │   │   │   ├── CompleteCartUseCase.java
 │   │   │   ├── CompleteCartCommand.java
-│   │   │   └── CompleteCartResponse.java
+│   │   │   └── CompleteCartResult.java
 │   │   ├── recovercart/                  # Use case: Recover Abandoned Cart
 │   │   │   ├── RecoverCartInputPort.java
 │   │   │   ├── RecoverCartUseCase.java
 │   │   │   ├── RecoverCartCommand.java
-│   │   │   └── RecoverCartResponse.java
+│   │   │   └── RecoverCartOnLoginResult.java
 │   │   └── shared/                       # Shared output ports
 │   │       ├── ShoppingCartRepository.java
 │   │       └── ProductDataPort.java      # Port for product data from other context
@@ -332,57 +332,57 @@ src/main/java/de/sample/aiarchitecture/
 │   │   │   ├── StartCheckoutInputPort.java
 │   │   │   ├── StartCheckoutUseCase.java
 │   │   │   ├── StartCheckoutCommand.java
-│   │   │   └── StartCheckoutResponse.java
+│   │   │   └── StartCheckoutResult.java
 │   │   ├── submitbuyerinfo/              # Use case: Submit Buyer Info
 │   │   │   ├── SubmitBuyerInfoInputPort.java
 │   │   │   ├── SubmitBuyerInfoUseCase.java
 │   │   │   ├── SubmitBuyerInfoCommand.java
-│   │   │   └── SubmitBuyerInfoResponse.java
+│   │   │   └── SubmitBuyerInfoResult.java
 │   │   ├── submitdelivery/               # Use case: Submit Delivery
 │   │   │   ├── SubmitDeliveryInputPort.java
 │   │   │   ├── SubmitDeliveryUseCase.java
 │   │   │   ├── SubmitDeliveryCommand.java
-│   │   │   └── SubmitDeliveryResponse.java
+│   │   │   └── SubmitDeliveryResult.java
 │   │   ├── submitpayment/                # Use case: Submit Payment
 │   │   │   ├── SubmitPaymentInputPort.java
 │   │   │   ├── SubmitPaymentUseCase.java
 │   │   │   ├── SubmitPaymentCommand.java
-│   │   │   └── SubmitPaymentResponse.java
+│   │   │   └── SubmitPaymentResult.java
 │   │   ├── confirmcheckout/              # Use case: Confirm Checkout
 │   │   │   ├── ConfirmCheckoutInputPort.java
 │   │   │   ├── ConfirmCheckoutUseCase.java
 │   │   │   ├── ConfirmCheckoutCommand.java
-│   │   │   └── ConfirmCheckoutResponse.java
+│   │   │   └── ConfirmCheckoutResult.java
 │   │   ├── getcheckoutsession/           # Use case: Get Checkout Session
 │   │   │   ├── GetCheckoutSessionInputPort.java
 │   │   │   ├── GetCheckoutSessionUseCase.java
 │   │   │   ├── GetCheckoutSessionQuery.java
-│   │   │   └── GetCheckoutSessionResponse.java
+│   │   │   └── GetCheckoutSessionResult.java
 │   │   ├── getactivecheckoutsession/     # Use case: Get Active Checkout Session
 │   │   │   ├── GetActiveCheckoutSessionInputPort.java
 │   │   │   ├── GetActiveCheckoutSessionUseCase.java
 │   │   │   ├── GetActiveCheckoutSessionQuery.java
-│   │   │   └── GetActiveCheckoutSessionResponse.java
+│   │   │   └── GetActiveCheckoutSessionResult.java
 │   │   ├── getconfirmedcheckoutsession/  # Use case: Get Confirmed Checkout Session
 │   │   │   ├── GetConfirmedCheckoutSessionInputPort.java
 │   │   │   ├── GetConfirmedCheckoutSessionUseCase.java
 │   │   │   ├── GetConfirmedCheckoutSessionQuery.java
-│   │   │   └── GetConfirmedCheckoutSessionResponse.java
+│   │   │   └── GetConfirmedCheckoutSessionResult.java
 │   │   ├── getshippingoptions/           # Use case: Get Shipping Options
 │   │   │   ├── GetShippingOptionsInputPort.java
 │   │   │   ├── GetShippingOptionsUseCase.java
 │   │   │   ├── GetShippingOptionsQuery.java
-│   │   │   └── GetShippingOptionsResponse.java
+│   │   │   └── GetShippingOptionsResult.java
 │   │   ├── getpaymentproviders/          # Use case: Get Payment Providers
 │   │   │   ├── GetPaymentProvidersInputPort.java
 │   │   │   ├── GetPaymentProvidersUseCase.java
 │   │   │   ├── GetPaymentProvidersQuery.java
-│   │   │   └── GetPaymentProvidersResponse.java
+│   │   │   └── GetPaymentProvidersResult.java
 │   │   ├── synccheckoutwithcart/         # Use case: Sync Checkout with Cart
 │   │   │   ├── SyncCheckoutWithCartInputPort.java
 │   │   │   ├── SyncCheckoutWithCartUseCase.java
 │   │   │   ├── SyncCheckoutWithCartCommand.java
-│   │   │   └── SyncCheckoutWithCartResponse.java
+│   │   │   └── SyncCheckoutWithCartResult.java
 │   │   └── shared/                       # Shared output ports
 │   │       ├── CheckoutSessionRepository.java
 │   │       ├── CartDataPort.java
@@ -430,12 +430,12 @@ src/main/java/de/sample/aiarchitecture/
 │   │   │   ├── RegisterAccountInputPort.java
 │   │   │   ├── RegisterAccountUseCase.java
 │   │   │   ├── RegisterAccountCommand.java
-│   │   │   └── RegisterAccountResponse.java
+│   │   │   └── RegisterAccountResult.java
 │   │   ├── authenticateaccount/          # Use case: Authenticate Account
 │   │   │   ├── AuthenticateAccountInputPort.java
 │   │   │   ├── AuthenticateAccountUseCase.java
 │   │   │   ├── AuthenticateAccountCommand.java
-│   │   │   └── AuthenticateAccountResponse.java
+│   │   │   └── AuthenticateAccountResult.java
 │   │   └── shared/                       # Shared output ports
 │   │       ├── AccountRepository.java
 │   │       ├── RegisteredUserValidator.java
@@ -744,7 +744,7 @@ These tests verify:
 12. **OpenHost Service Pattern**: ProductCatalogService provides cross-context API for checkout
 13. **UserId Continuity on Registration**: When a user registers, their anonymous UserId is preserved
 
-**Architecture Decision Records:** See [docs/architecture/adr/README.md](docs/architecture/adr/README.md) for 16 documented architectural decisions.
+**Architecture Decision Records:** See [docs/architecture/adr/README.md](docs/architecture/adr/README.md) for 17 documented architectural decisions.
 
 ## Business Rules Demonstrated
 

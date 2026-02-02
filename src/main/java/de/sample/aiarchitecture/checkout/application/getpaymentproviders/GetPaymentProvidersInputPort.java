@@ -14,7 +14,7 @@ import org.jspecify.annotations.NonNull;
  * @see GetPaymentProvidersUseCase
  */
 public interface GetPaymentProvidersInputPort
-    extends UseCase<GetPaymentProvidersQuery, GetPaymentProvidersResponse> {
+    extends UseCase<GetPaymentProvidersQuery, GetPaymentProvidersResult> {
 
   /**
    * Retrieves all available payment providers.
@@ -25,5 +25,5 @@ public interface GetPaymentProvidersInputPort
    * @return response containing available payment providers
    */
   @Override
-  @NonNull GetPaymentProvidersResponse execute(@NonNull GetPaymentProvidersQuery query);
+  @NonNull GetPaymentProvidersResult execute(@NonNull GetPaymentProvidersQuery query);
 }

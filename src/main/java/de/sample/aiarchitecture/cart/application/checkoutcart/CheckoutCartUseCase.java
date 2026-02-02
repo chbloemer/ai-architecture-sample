@@ -1,6 +1,5 @@
 package de.sample.aiarchitecture.cart.application.checkoutcart;
 
-import de.sample.aiarchitecture.cart.application.checkoutcart.CheckoutCartInputPort;
 import de.sample.aiarchitecture.cart.domain.model.CartId;
 import de.sample.aiarchitecture.cart.domain.model.ShoppingCart;
 import de.sample.aiarchitecture.cart.application.shared.ShoppingCartRepository;
@@ -41,7 +40,7 @@ public class CheckoutCartUseCase implements CheckoutCartInputPort {
   }
 
   @Override
-  public @NonNull CheckoutCartResponse execute(@NonNull final CheckoutCartCommand input) {
+  public @NonNull CheckoutCartResult execute(@NonNull final CheckoutCartCommand input) {
     final CartId cartId = CartId.of(input.cartId());
 
     // Retrieve cart
@@ -60,8 +59,8 @@ public class CheckoutCartUseCase implements CheckoutCartInputPort {
     eventPublisher.publishAndClearEvents(cart);
 
     // Map to output
-    final List<CheckoutCartResponse.CartItemSummary> items = cart.items().stream()
-        .map(item -> new CheckoutCartResponse.CartItemSummary(
+    final List<CheckoutCartResult.CartItemSummary> items = cart.items().stream()
+        .map(item -> new CheckoutCartResult.CartItemSummary(
             item.id().value().toString(),
             item.productId().value().toString(),
             item.quantity().value(),
@@ -72,7 +71,7 @@ public class CheckoutCartUseCase implements CheckoutCartInputPort {
 
     final Money total = cart.calculateTotal();
 
-    return new CheckoutCartResponse(
+    return new CheckoutCartResult(
         cart.id().value(),
         cart.customerId().value(),
         items,

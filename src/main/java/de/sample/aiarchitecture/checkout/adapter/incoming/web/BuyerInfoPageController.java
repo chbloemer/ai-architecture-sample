@@ -2,10 +2,10 @@ package de.sample.aiarchitecture.checkout.adapter.incoming.web;
 
 import de.sample.aiarchitecture.checkout.application.getactivecheckoutsession.GetActiveCheckoutSessionInputPort;
 import de.sample.aiarchitecture.checkout.application.getactivecheckoutsession.GetActiveCheckoutSessionQuery;
-import de.sample.aiarchitecture.checkout.application.getactivecheckoutsession.GetActiveCheckoutSessionResponse;
+import de.sample.aiarchitecture.checkout.application.getactivecheckoutsession.GetActiveCheckoutSessionResult;
 import de.sample.aiarchitecture.checkout.application.getcheckoutsession.GetCheckoutSessionInputPort;
 import de.sample.aiarchitecture.checkout.application.getcheckoutsession.GetCheckoutSessionQuery;
-import de.sample.aiarchitecture.checkout.application.getcheckoutsession.GetCheckoutSessionResponse;
+import de.sample.aiarchitecture.checkout.application.getcheckoutsession.GetCheckoutSessionResult;
 import de.sample.aiarchitecture.checkout.application.submitbuyerinfo.SubmitBuyerInfoCommand;
 import de.sample.aiarchitecture.checkout.application.submitbuyerinfo.SubmitBuyerInfoInputPort;
 import de.sample.aiarchitecture.checkout.domain.model.CustomerId;
@@ -74,7 +74,7 @@ public class BuyerInfoPageController {
     final CustomerId customerId = CustomerId.of(identity.userId().value());
 
     // Find active checkout session for the user
-    final GetActiveCheckoutSessionResponse activeSession =
+    final GetActiveCheckoutSessionResult activeSession =
         getActiveCheckoutSessionInputPort.execute(
             GetActiveCheckoutSessionQuery.of(customerId.value()));
 
@@ -84,7 +84,7 @@ public class BuyerInfoPageController {
     }
 
     // Get full session details
-    final GetCheckoutSessionResponse session =
+    final GetCheckoutSessionResult session =
         getCheckoutSessionInputPort.execute(
             GetCheckoutSessionQuery.of(activeSession.sessionId()));
 
@@ -126,7 +126,7 @@ public class BuyerInfoPageController {
     final CustomerId customerId = CustomerId.of(identity.userId().value());
 
     // Find active checkout session for the user
-    final GetActiveCheckoutSessionResponse activeSession =
+    final GetActiveCheckoutSessionResult activeSession =
         getActiveCheckoutSessionInputPort.execute(
             GetActiveCheckoutSessionQuery.of(customerId.value()));
 

@@ -8,7 +8,7 @@ import org.jspecify.annotations.NonNull;
  *
  * @param paymentProviders list of available payment providers
  */
-public record GetPaymentProvidersResponse(@NonNull List<PaymentProviderResponse> paymentProviders) {
+public record GetPaymentProvidersResult(@NonNull List<PaymentProviderData> paymentProviders) {
 
   /**
    * Individual payment provider details.
@@ -17,7 +17,7 @@ public record GetPaymentProvidersResponse(@NonNull List<PaymentProviderResponse>
    * @param displayName the human-readable display name
    * @param available whether the provider is currently available
    */
-  public record PaymentProviderResponse(
+  public record PaymentProviderData(
       @NonNull String id,
       @NonNull String displayName,
       boolean available) {}

@@ -8,4 +8,4 @@ import de.sample.aiarchitecture.sharedkernel.marker.port.in.UseCase;
  * <p>This port defines the contract for the "Reduce Product Stock" use case,
  * typically triggered by cross-context events (e.g., when a cart is checked out).
  */
-public interface ReduceProductStockInputPort extends UseCase<ReduceProductStockCommand, ReduceProductStockResponse> {}
+public interface ReduceProductStockInputPort extends UseCase<ReduceProductStockCommand, ReduceProductStockResult> {}

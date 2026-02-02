@@ -9,18 +9,18 @@ import org.jspecify.annotations.NonNull;
  * @param sessionId the checkout session ID if synced, null otherwise
  * @param itemCount the new number of line items after sync
  */
-public record SyncCheckoutWithCartResponse(
+public record SyncCheckoutWithCartResult(
     boolean synced,
     String sessionId,
     int itemCount) {
 
-  public static SyncCheckoutWithCartResponse noActiveSession() {
-    return new SyncCheckoutWithCartResponse(false, null, 0);
+  public static SyncCheckoutWithCartResult noActiveSession() {
+    return new SyncCheckoutWithCartResult(false, null, 0);
   }
 
-  public static SyncCheckoutWithCartResponse synced(
+  public static SyncCheckoutWithCartResult synced(
       @NonNull final String sessionId,
       final int itemCount) {
-    return new SyncCheckoutWithCartResponse(true, sessionId, itemCount);
+    return new SyncCheckoutWithCartResult(true, sessionId, itemCount);
   }
 }

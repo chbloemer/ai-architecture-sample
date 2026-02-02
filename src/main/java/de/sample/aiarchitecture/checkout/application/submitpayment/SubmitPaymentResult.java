@@ -13,7 +13,7 @@ import org.jspecify.annotations.Nullable;
  * @param providerName the payment provider display name
  * @param providerReference optional provider-specific reference
  */
-public record SubmitPaymentResponse(
+public record SubmitPaymentResult(
     @NonNull String sessionId,
     @NonNull String currentStep,
     @NonNull String status,

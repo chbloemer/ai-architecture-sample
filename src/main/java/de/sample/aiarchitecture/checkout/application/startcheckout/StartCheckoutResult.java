@@ -14,17 +14,17 @@ import org.jspecify.annotations.NonNull;
  * @param lineItems the line items in the checkout
  * @param subtotal the subtotal amount as string
  */
-public record StartCheckoutResponse(
+public record StartCheckoutResult(
     @NonNull String sessionId,
     @NonNull String cartId,
     @NonNull String customerId,
     @NonNull String currentStep,
     @NonNull String status,
-    @NonNull List<LineItemResponse> lineItems,
+    @NonNull List<LineItemData> lineItems,
     @NonNull String subtotal) {
 
   /**
-   * Line item details in the response.
+   * Line item details in the result.
    *
    * @param lineItemId the line item ID
    * @param productId the product ID
@@ -33,7 +33,7 @@ public record StartCheckoutResponse(
    * @param quantity the quantity
    * @param lineTotal the line total as string
    */
-  public record LineItemResponse(
+  public record LineItemData(
       @NonNull String lineItemId,
       @NonNull String productId,
       @NonNull String productName,

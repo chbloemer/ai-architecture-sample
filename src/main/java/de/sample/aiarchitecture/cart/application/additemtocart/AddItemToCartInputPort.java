@@ -13,7 +13,7 @@ import org.jspecify.annotations.NonNull;
  *
  * @see de.sample.aiarchitecture.cart.application.usecase.additemtocart.AddItemToCartUseCase
  */
-public interface AddItemToCartInputPort extends UseCase<AddItemToCartCommand, AddItemToCartResponse> {
+public interface AddItemToCartInputPort extends UseCase<AddItemToCartCommand, AddItemToCartResult> {
 
   /**
    * Adds an item to a shopping cart.
@@ -23,5 +23,5 @@ public interface AddItemToCartInputPort extends UseCase<AddItemToCartCommand, Ad
    * @throws IllegalArgumentException if cart not found, product not found, or insufficient stock
    */
   @Override
-  @NonNull AddItemToCartResponse execute(@NonNull AddItemToCartCommand command);
+  @NonNull AddItemToCartResult execute(@NonNull AddItemToCartCommand command);
 }

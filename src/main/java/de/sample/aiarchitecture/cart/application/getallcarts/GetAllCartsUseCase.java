@@ -1,6 +1,5 @@
 package de.sample.aiarchitecture.cart.application.getallcarts;
 
-import de.sample.aiarchitecture.cart.application.getallcarts.GetAllCartsInputPort;
 import de.sample.aiarchitecture.cart.application.shared.ShoppingCartRepository;
 import de.sample.aiarchitecture.cart.domain.model.ShoppingCart;
 import de.sample.aiarchitecture.sharedkernel.domain.model.Money;
@@ -28,13 +27,13 @@ public class GetAllCartsUseCase implements GetAllCartsInputPort {
   }
 
   @Override
-  public @NonNull GetAllCartsResponse execute(@NonNull final GetAllCartsQuery input) {
+  public @NonNull GetAllCartsResult execute(@NonNull final GetAllCartsQuery input) {
     final List<ShoppingCart> carts = shoppingCartRepository.findAll();
 
-    final List<GetAllCartsResponse.CartSummary> cartSummaries = carts.stream()
+    final List<GetAllCartsResult.CartSummary> cartSummaries = carts.stream()
         .map(cart -> {
           final Money total = cart.calculateTotal();
-          return new GetAllCartsResponse.CartSummary(
+          return new GetAllCartsResult.CartSummary(
               cart.id().value(),
               cart.customerId().value(),
               cart.status().name(),
@@ -45,6 +44,6 @@ public class GetAllCartsUseCase implements GetAllCartsInputPort {
         })
         .toList();
 
-    return new GetAllCartsResponse(cartSummaries);
+    return new GetAllCartsResult(cartSummaries);
   }
 }

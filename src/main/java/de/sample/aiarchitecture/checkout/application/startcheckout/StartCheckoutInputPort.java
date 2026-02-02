@@ -13,7 +13,7 @@ import org.jspecify.annotations.NonNull;
  *
  * @see StartCheckoutUseCase
  */
-public interface StartCheckoutInputPort extends UseCase<StartCheckoutCommand, StartCheckoutResponse> {
+public interface StartCheckoutInputPort extends UseCase<StartCheckoutCommand, StartCheckoutResult> {
 
   /**
    * Starts a checkout session from the specified cart.
@@ -31,5 +31,5 @@ public interface StartCheckoutInputPort extends UseCase<StartCheckoutCommand, St
    * @throws IllegalArgumentException if cart is not found or cannot be checked out
    */
   @Override
-  @NonNull StartCheckoutResponse execute(@NonNull StartCheckoutCommand command);
+  @NonNull StartCheckoutResult execute(@NonNull StartCheckoutCommand command);
 }

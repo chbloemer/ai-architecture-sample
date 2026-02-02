@@ -1,12 +1,12 @@
 package de.sample.aiarchitecture.checkout.application.getcheckoutsession;
 
-import de.sample.aiarchitecture.checkout.application.getcheckoutsession.GetCheckoutSessionResponse.AddressResponse;
-import de.sample.aiarchitecture.checkout.application.getcheckoutsession.GetCheckoutSessionResponse.BuyerInfoResponse;
-import de.sample.aiarchitecture.checkout.application.getcheckoutsession.GetCheckoutSessionResponse.DeliveryResponse;
-import de.sample.aiarchitecture.checkout.application.getcheckoutsession.GetCheckoutSessionResponse.LineItemResponse;
-import de.sample.aiarchitecture.checkout.application.getcheckoutsession.GetCheckoutSessionResponse.PaymentResponse;
-import de.sample.aiarchitecture.checkout.application.getcheckoutsession.GetCheckoutSessionResponse.ShippingOptionResponse;
-import de.sample.aiarchitecture.checkout.application.getcheckoutsession.GetCheckoutSessionResponse.TotalsResponse;
+import de.sample.aiarchitecture.checkout.application.getcheckoutsession.GetCheckoutSessionResult.AddressData;
+import de.sample.aiarchitecture.checkout.application.getcheckoutsession.GetCheckoutSessionResult.BuyerInfoData;
+import de.sample.aiarchitecture.checkout.application.getcheckoutsession.GetCheckoutSessionResult.DeliveryData;
+import de.sample.aiarchitecture.checkout.application.getcheckoutsession.GetCheckoutSessionResult.LineItemData;
+import de.sample.aiarchitecture.checkout.application.getcheckoutsession.GetCheckoutSessionResult.PaymentData;
+import de.sample.aiarchitecture.checkout.application.getcheckoutsession.GetCheckoutSessionResult.ShippingOptionData;
+import de.sample.aiarchitecture.checkout.application.getcheckoutsession.GetCheckoutSessionResult.TotalsData;
 import de.sample.aiarchitecture.checkout.application.shared.CheckoutSessionRepository;
 import de.sample.aiarchitecture.checkout.domain.model.BuyerInfo;
 import de.sample.aiarchitecture.checkout.domain.model.CheckoutLineItem;
@@ -40,15 +40,15 @@ public class GetCheckoutSessionUseCase implements GetCheckoutSessionInputPort {
   }
 
   @Override
-  public @NonNull GetCheckoutSessionResponse execute(@NonNull final GetCheckoutSessionQuery query) {
+  public @NonNull GetCheckoutSessionResult execute(@NonNull final GetCheckoutSessionQuery query) {
     return checkoutSessionRepository
         .findById(query.sessionId())
         .map(this::mapToResponse)
-        .orElseGet(GetCheckoutSessionResponse::notFound);
+        .orElseGet(GetCheckoutSessionResult::notFound);
   }
 
-  private GetCheckoutSessionResponse mapToResponse(final CheckoutSession session) {
-    return new GetCheckoutSessionResponse(
+  private GetCheckoutSessionResult mapToResponse(final CheckoutSession session) {
+    return new GetCheckoutSessionResult(
         true,
         session.id().value(),
         session.cartId().value(),
@@ -63,12 +63,12 @@ public class GetCheckoutSessionUseCase implements GetCheckoutSessionInputPort {
         session.orderReference());
   }
 
-  private List<LineItemResponse> mapLineItems(final List<CheckoutLineItem> lineItems) {
+  private List<LineItemData> mapLineItems(final List<CheckoutLineItem> lineItems) {
     return lineItems.stream().map(this::mapLineItem).toList();
   }
 
-  private LineItemResponse mapLineItem(final CheckoutLineItem item) {
-    return new LineItemResponse(
+  private LineItemData mapLineItem(final CheckoutLineItem item) {
+    return new LineItemData(
         item.id().value(),
         item.productId().value(),
         item.productName(),
@@ -78,8 +78,8 @@ public class GetCheckoutSessionUseCase implements GetCheckoutSessionInputPort {
         item.lineTotal().amount());
   }
 
-  private TotalsResponse mapTotals(final CheckoutTotals totals) {
-    return new TotalsResponse(
+  private TotalsData mapTotals(final CheckoutTotals totals) {
+    return new TotalsData(
         totals.subtotal().amount(),
         totals.shipping().amount(),
         totals.tax().amount(),
@@ -87,24 +87,24 @@ public class GetCheckoutSessionUseCase implements GetCheckoutSessionInputPort {
         totals.total().currency().getCurrencyCode());
   }
 
-  private BuyerInfoResponse mapBuyerInfo(final BuyerInfo buyerInfo) {
+  private BuyerInfoData mapBuyerInfo(final BuyerInfo buyerInfo) {
     if (buyerInfo == null) {
       return null;
     }
-    return new BuyerInfoResponse(
+    return new BuyerInfoData(
         buyerInfo.email(), buyerInfo.firstName(), buyerInfo.lastName(), buyerInfo.phone());
   }
 
-  private DeliveryResponse mapDelivery(
+  private DeliveryData mapDelivery(
       final DeliveryAddress address, final ShippingOption shippingOption) {
     if (address == null || shippingOption == null) {
       return null;
     }
-    return new DeliveryResponse(mapAddress(address), mapShippingOption(shippingOption));
+    return new DeliveryData(mapAddress(address), mapShippingOption(shippingOption));
   }
 
-  private AddressResponse mapAddress(final DeliveryAddress address) {
-    return new AddressResponse(
+  private AddressData mapAddress(final DeliveryAddress address) {
+    return new AddressData(
         address.street(),
         address.streetLine2(),
         address.city(),
@@ -113,8 +113,8 @@ public class GetCheckoutSessionUseCase implements GetCheckoutSessionInputPort {
         address.state());
   }
 
-  private ShippingOptionResponse mapShippingOption(final ShippingOption option) {
-    return new ShippingOptionResponse(
+  private ShippingOptionData mapShippingOption(final ShippingOption option) {
+    return new ShippingOptionData(
         option.id(),
         option.name(),
         option.estimatedDelivery(),
@@ -122,10 +122,10 @@ public class GetCheckoutSessionUseCase implements GetCheckoutSessionInputPort {
         option.cost().currency().getCurrencyCode());
   }
 
-  private PaymentResponse mapPayment(final PaymentSelection payment) {
+  private PaymentData mapPayment(final PaymentSelection payment) {
     if (payment == null) {
       return null;
     }
-    return new PaymentResponse(payment.providerId().value(), payment.providerReference());
+    return new PaymentData(payment.providerId().value(), payment.providerReference());
   }
 }

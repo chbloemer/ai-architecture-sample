@@ -2,7 +2,7 @@ package de.sample.aiarchitecture.product.adapter.incoming.openhost;
 
 import de.sample.aiarchitecture.product.application.getproductbyid.GetProductByIdInputPort;
 import de.sample.aiarchitecture.product.application.getproductbyid.GetProductByIdQuery;
-import de.sample.aiarchitecture.product.application.getproductbyid.GetProductByIdResponse;
+import de.sample.aiarchitecture.product.application.getproductbyid.GetProductByIdResult;
 import de.sample.aiarchitecture.sharedkernel.domain.model.Money;
 import de.sample.aiarchitecture.sharedkernel.domain.model.Price;
 import de.sample.aiarchitecture.sharedkernel.domain.model.ProductId;
@@ -59,7 +59,7 @@ public class ProductCatalogService {
      * @return product info if found
      */
     public Optional<ProductInfo> getProductInfo(ProductId productId) {
-        GetProductByIdResponse response = getProductByIdInputPort.execute(
+        GetProductByIdResult response = getProductByIdInputPort.execute(
             new GetProductByIdQuery(productId.value()));
 
         if (!response.found()) {
@@ -82,7 +82,7 @@ public class ProductCatalogService {
      * @return true if sufficient stock is available
      */
     public boolean hasStock(ProductId productId, int quantity) {
-        GetProductByIdResponse response = getProductByIdInputPort.execute(
+        GetProductByIdResult response = getProductByIdInputPort.execute(
             new GetProductByIdQuery(productId.value()));
 
         return response.found() && response.stockQuantity() >= quantity;

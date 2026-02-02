@@ -10,4 +10,4 @@ import de.sample.aiarchitecture.sharedkernel.marker.port.in.UseCase;
  * confirmation/thank you page.
  */
 public interface GetConfirmedCheckoutSessionInputPort
-    extends UseCase<GetConfirmedCheckoutSessionQuery, GetConfirmedCheckoutSessionResponse> {}
+    extends UseCase<GetConfirmedCheckoutSessionQuery, GetConfirmedCheckoutSessionResult> {}

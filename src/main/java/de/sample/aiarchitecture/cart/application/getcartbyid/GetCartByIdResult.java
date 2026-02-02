@@ -19,7 +19,7 @@ import org.jspecify.annotations.Nullable;
  * @param totalAmount the total amount (null if not found)
  * @param totalCurrency the total currency (null if not found)
  */
-public record GetCartByIdResponse(
+public record GetCartByIdResult(
     boolean found,
     @Nullable String cartId,
     @Nullable String customerId,
@@ -32,21 +32,21 @@ public record GetCartByIdResponse(
   /**
    * Creates an output for a cart that was not found.
    */
-  public static GetCartByIdResponse notFound() {
-    return new GetCartByIdResponse(false, null, null, null, null, null, null);
+  public static GetCartByIdResult notFound() {
+    return new GetCartByIdResult(false, null, null, null, null, null, null);
   }
 
   /**
    * Creates an output for a cart that was found.
    */
-  public static GetCartByIdResponse found(
+  public static GetCartByIdResult found(
       String cartId,
       String customerId,
       String status,
       List<CartItemSummary> items,
       BigDecimal totalAmount,
       String totalCurrency) {
-    return new GetCartByIdResponse(true, cartId, customerId, status, items, totalAmount, totalCurrency);
+    return new GetCartByIdResult(true, cartId, customerId, status, items, totalAmount, totalCurrency);
   }
 
   /**

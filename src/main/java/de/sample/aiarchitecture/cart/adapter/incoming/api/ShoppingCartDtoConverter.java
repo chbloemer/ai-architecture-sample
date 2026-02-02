@@ -1,11 +1,11 @@
 package de.sample.aiarchitecture.cart.adapter.incoming.api;
 
-import de.sample.aiarchitecture.cart.application.additemtocart.AddItemToCartResponse;
-import de.sample.aiarchitecture.cart.application.checkoutcart.CheckoutCartResponse;
-import de.sample.aiarchitecture.cart.application.createcart.CreateCartResponse;
-import de.sample.aiarchitecture.cart.application.getallcarts.GetAllCartsResponse;
-import de.sample.aiarchitecture.cart.application.getcartbyid.GetCartByIdResponse;
-import de.sample.aiarchitecture.cart.application.removeitemfromcart.RemoveItemFromCartResponse;
+import de.sample.aiarchitecture.cart.application.additemtocart.AddItemToCartResult;
+import de.sample.aiarchitecture.cart.application.checkoutcart.CheckoutCartResult;
+import de.sample.aiarchitecture.cart.application.createcart.CreateCartResult;
+import de.sample.aiarchitecture.cart.application.getallcarts.GetAllCartsResult;
+import de.sample.aiarchitecture.cart.application.getcartbyid.GetCartByIdResult;
+import de.sample.aiarchitecture.cart.application.removeitemfromcart.RemoveItemFromCartResult;
 import de.sample.aiarchitecture.cart.domain.model.CartItem;
 import de.sample.aiarchitecture.cart.domain.model.ShoppingCart;
 import de.sample.aiarchitecture.sharedkernel.domain.model.Money;
@@ -48,9 +48,9 @@ public final class ShoppingCartDtoConverter {
   }
 
   /**
-   * Converts CreateCartResponse to DTO.
+   * Converts CreateCartResult to DTO.
    */
-  public ShoppingCartDto toDto(final CreateCartResponse output) {
+  public ShoppingCartDto toDto(final CreateCartResult output) {
     return new ShoppingCartDto(
         output.cartId(),
         output.customerId(),
@@ -63,9 +63,9 @@ public final class ShoppingCartDtoConverter {
   }
 
   /**
-   * Converts GetCartByIdResponse to DTO.
+   * Converts GetCartByIdResult to DTO.
    */
-  public ShoppingCartDto toDto(final GetCartByIdResponse output) {
+  public ShoppingCartDto toDto(final GetCartByIdResult output) {
     final List<CartItemDto> items = output.items() != null
         ? output.items().stream().map(this::toItemDto).toList()
         : List.of();
@@ -82,9 +82,9 @@ public final class ShoppingCartDtoConverter {
   }
 
   /**
-   * Converts AddItemToCartResponse to DTO.
+   * Converts AddItemToCartResult to DTO.
    */
-  public ShoppingCartDto toDto(final AddItemToCartResponse output) {
+  public ShoppingCartDto toDto(final AddItemToCartResult output) {
     final List<CartItemDto> items = output.items().stream()
         .map(this::toItemDto)
         .toList();
@@ -101,9 +101,9 @@ public final class ShoppingCartDtoConverter {
   }
 
   /**
-   * Converts RemoveItemFromCartResponse to DTO.
+   * Converts RemoveItemFromCartResult to DTO.
    */
-  public ShoppingCartDto toDto(final RemoveItemFromCartResponse output) {
+  public ShoppingCartDto toDto(final RemoveItemFromCartResult output) {
     final List<CartItemDto> items = output.items().stream()
         .map(this::toItemDto)
         .toList();
@@ -120,9 +120,9 @@ public final class ShoppingCartDtoConverter {
   }
 
   /**
-   * Converts CheckoutCartResponse to DTO.
+   * Converts CheckoutCartResult to DTO.
    */
-  public ShoppingCartDto toDto(final CheckoutCartResponse output) {
+  public ShoppingCartDto toDto(final CheckoutCartResult output) {
     final List<CartItemDto> items = output.items().stream()
         .map(this::toItemDto)
         .toList();
@@ -139,9 +139,9 @@ public final class ShoppingCartDtoConverter {
   }
 
   /**
-   * Converts GetAllCartsResponse to list DTO.
+   * Converts GetAllCartsResult to list DTO.
    */
-  public ShoppingCartListDto toListDto(final GetAllCartsResponse output) {
+  public ShoppingCartListDto toListDto(final GetAllCartsResult output) {
     final List<ShoppingCartListDto.CartSummaryDto> summaries = output.carts().stream()
         .map(cart -> new ShoppingCartListDto.CartSummaryDto(
             cart.cartId(),
@@ -165,7 +165,7 @@ public final class ShoppingCartDtoConverter {
         item.priceAtAddition().value().currency().getCurrencyCode());
   }
 
-  private CartItemDto toItemDto(final GetCartByIdResponse.CartItemSummary item) {
+  private CartItemDto toItemDto(final GetCartByIdResult.CartItemSummary item) {
     return new CartItemDto(
         item.itemId(),
         item.productId(),
@@ -175,7 +175,7 @@ public final class ShoppingCartDtoConverter {
     );
   }
 
-  private CartItemDto toItemDto(final AddItemToCartResponse.CartItemSummary item) {
+  private CartItemDto toItemDto(final AddItemToCartResult.CartItemSummary item) {
     return new CartItemDto(
         item.itemId(),
         item.productId(),
@@ -185,7 +185,7 @@ public final class ShoppingCartDtoConverter {
     );
   }
 
-  private CartItemDto toItemDto(final RemoveItemFromCartResponse.CartItemSummary item) {
+  private CartItemDto toItemDto(final RemoveItemFromCartResult.CartItemSummary item) {
     return new CartItemDto(
         item.itemId(),
         item.productId(),
@@ -195,7 +195,7 @@ public final class ShoppingCartDtoConverter {
     );
   }
 
-  private CartItemDto toItemDto(final CheckoutCartResponse.CartItemSummary item) {
+  private CartItemDto toItemDto(final CheckoutCartResult.CartItemSummary item) {
     return new CartItemDto(
         item.itemId(),
         item.productId(),

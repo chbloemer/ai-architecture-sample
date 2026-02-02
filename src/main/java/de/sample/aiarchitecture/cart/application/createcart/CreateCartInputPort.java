@@ -13,7 +13,7 @@ import org.jspecify.annotations.NonNull;
  *
  * @see de.sample.aiarchitecture.cart.application.usecase.createcart.CreateCartUseCase
  */
-public interface CreateCartInputPort extends UseCase<CreateCartCommand, CreateCartResponse> {
+public interface CreateCartInputPort extends UseCase<CreateCartCommand, CreateCartResult> {
 
   /**
    * Creates a new shopping cart for a customer.
@@ -22,5 +22,5 @@ public interface CreateCartInputPort extends UseCase<CreateCartCommand, CreateCa
    * @return response containing the created cart details
    */
   @Override
-  @NonNull CreateCartResponse execute(@NonNull CreateCartCommand command);
+  @NonNull CreateCartResult execute(@NonNull CreateCartCommand command);
 }

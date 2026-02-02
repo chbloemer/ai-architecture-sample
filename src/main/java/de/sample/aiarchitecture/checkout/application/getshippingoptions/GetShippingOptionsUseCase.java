@@ -1,6 +1,6 @@
 package de.sample.aiarchitecture.checkout.application.getshippingoptions;
 
-import de.sample.aiarchitecture.checkout.application.getshippingoptions.GetShippingOptionsResponse.ShippingOptionResponse;
+import de.sample.aiarchitecture.checkout.application.getshippingoptions.GetShippingOptionsResult.ShippingOptionData;
 import de.sample.aiarchitecture.checkout.domain.model.ShippingOption;
 import de.sample.aiarchitecture.sharedkernel.domain.model.Money;
 import java.math.BigDecimal;
@@ -41,14 +41,14 @@ public class GetShippingOptionsUseCase implements GetShippingOptionsInputPort {
               "free", "Free Shipping", "7-10 business days", Money.zero(EUR)));
 
   @Override
-  public @NonNull GetShippingOptionsResponse execute(@NonNull final GetShippingOptionsQuery query) {
-    final List<ShippingOptionResponse> options =
-        SHIPPING_OPTIONS.stream().map(this::mapToResponse).toList();
-    return new GetShippingOptionsResponse(options);
+  public @NonNull GetShippingOptionsResult execute(@NonNull final GetShippingOptionsQuery query) {
+    final List<ShippingOptionData> options =
+        SHIPPING_OPTIONS.stream().map(this::mapToData).toList();
+    return new GetShippingOptionsResult(options);
   }
 
-  private ShippingOptionResponse mapToResponse(final ShippingOption option) {
-    return new ShippingOptionResponse(
+  private ShippingOptionData mapToData(final ShippingOption option) {
+    return new ShippingOptionData(
         option.id(),
         option.name(),
         option.estimatedDelivery(),

@@ -11,7 +11,7 @@ import org.jspecify.annotations.NonNull;
  * @param email the registered email
  * @param roles the user's roles
  */
-public record RegisterAccountResponse(
+public record RegisterAccountResult(
     @NonNull String accountId,
     @NonNull String userId,
     @NonNull String email,
@@ -26,11 +26,11 @@ public record RegisterAccountResponse(
    * @param roles the roles
    * @return a new response
    */
-  public static RegisterAccountResponse of(
+  public static RegisterAccountResult of(
       final String accountId,
       final String userId,
       final String email,
       final Set<String> roles) {
-    return new RegisterAccountResponse(accountId, userId, email, roles);
+    return new RegisterAccountResult(accountId, userId, email, roles);
   }
 }

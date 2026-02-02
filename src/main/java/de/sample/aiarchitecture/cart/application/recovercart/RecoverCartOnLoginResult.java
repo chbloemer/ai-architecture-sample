@@ -16,7 +16,7 @@ import org.jspecify.annotations.Nullable;
  * @param itemsMerged number of items merged from anonymous cart
  * @param anonymousCartDeleted whether the anonymous cart was deleted
  */
-public record RecoverCartOnLoginResponse(
+public record RecoverCartOnLoginResult(
     @Nullable String cartId,
     @NonNull String customerId,
     @NonNull List<CartItemSummary> items,
@@ -29,8 +29,8 @@ public record RecoverCartOnLoginResponse(
   /**
    * Creates a response when no cart recovery was needed (no anonymous cart existed).
    */
-  public static RecoverCartOnLoginResponse noRecoveryNeeded(String customerId) {
-    return new RecoverCartOnLoginResponse(
+  public static RecoverCartOnLoginResult noRecoveryNeeded(String customerId) {
+    return new RecoverCartOnLoginResult(
         null,
         customerId,
         List.of(),

@@ -9,7 +9,7 @@ import org.jspecify.annotations.NonNull;
  *
  * @param shippingOptions list of available shipping options
  */
-public record GetShippingOptionsResponse(@NonNull List<ShippingOptionResponse> shippingOptions) {
+public record GetShippingOptionsResult(@NonNull List<ShippingOptionData> shippingOptions) {
 
   /**
    * Individual shipping option details.
@@ -20,7 +20,7 @@ public record GetShippingOptionsResponse(@NonNull List<ShippingOptionResponse> s
    * @param cost the shipping cost amount
    * @param currencyCode the currency code (e.g., "EUR")
    */
-  public record ShippingOptionResponse(
+  public record ShippingOptionData(
       @NonNull String id,
       @NonNull String name,
       @NonNull String estimatedDelivery,

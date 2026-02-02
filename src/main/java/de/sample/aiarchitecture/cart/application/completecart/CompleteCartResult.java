@@ -8,7 +8,7 @@ import org.jspecify.annotations.NonNull;
  * @param cartId the cart ID
  * @param status the new cart status (COMPLETED)
  */
-public record CompleteCartResponse(
+public record CompleteCartResult(
     @NonNull String cartId,
     @NonNull String status
 ) {}

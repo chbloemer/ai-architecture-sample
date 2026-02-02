@@ -13,4 +13,4 @@ import de.sample.aiarchitecture.sharedkernel.marker.port.in.UseCase;
  * (e.g., web controllers, event handlers) use to invoke the use case.
  */
 public interface RecoverCartOnLoginInputPort
-    extends UseCase<RecoverCartOnLoginCommand, RecoverCartOnLoginResponse> {}
+    extends UseCase<RecoverCartOnLoginCommand, RecoverCartOnLoginResult> {}

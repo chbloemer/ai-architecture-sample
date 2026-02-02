@@ -15,7 +15,7 @@ import org.jspecify.annotations.NonNull;
  * @param totalCurrency the total currency
  * @param checkedOutAt the checkout timestamp
  */
-public record CheckoutCartResponse(
+public record CheckoutCartResult(
     @NonNull String cartId,
     @NonNull String customerId,
     @NonNull List<CartItemSummary> items,

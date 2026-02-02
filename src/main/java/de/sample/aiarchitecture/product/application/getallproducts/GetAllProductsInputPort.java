@@ -13,7 +13,7 @@ import org.jspecify.annotations.NonNull;
  *
  * @see de.sample.aiarchitecture.product.application.usecase.getallproducts.GetAllProductsUseCase
  */
-public interface GetAllProductsInputPort extends UseCase<GetAllProductsQuery, GetAllProductsResponse> {
+public interface GetAllProductsInputPort extends UseCase<GetAllProductsQuery, GetAllProductsResult> {
 
   /**
    * Retrieves all products from the catalog.
@@ -22,5 +22,5 @@ public interface GetAllProductsInputPort extends UseCase<GetAllProductsQuery, Ge
    * @return response containing all products
    */
   @Override
-  @NonNull GetAllProductsResponse execute(@NonNull GetAllProductsQuery query);
+  @NonNull GetAllProductsResult execute(@NonNull GetAllProductsQuery query);
 }

@@ -35,7 +35,7 @@ package de.sample.aiarchitecture.sharedkernel.marker.port.in;
  * <pre>{@code
  * InputPort (marker)
  *   └── UseCase<INPUT, OUTPUT>
- *         └── CreateProductInputPort extends UseCase<CreateProductCommand, CreateProductResponse>
+ *         └── CreateProductInputPort extends UseCase<CreateProductCommand, CreateProductResult>
  * }</pre>
  *
  * @see UseCase

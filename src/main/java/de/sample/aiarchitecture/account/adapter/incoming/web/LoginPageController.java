@@ -2,7 +2,7 @@ package de.sample.aiarchitecture.account.adapter.incoming.web;
 
 import de.sample.aiarchitecture.account.application.authenticateaccount.AuthenticateAccountCommand;
 import de.sample.aiarchitecture.account.application.authenticateaccount.AuthenticateAccountInputPort;
-import de.sample.aiarchitecture.account.application.authenticateaccount.AuthenticateAccountResponse;
+import de.sample.aiarchitecture.account.application.authenticateaccount.AuthenticateAccountResult;
 import de.sample.aiarchitecture.sharedkernel.domain.model.UserId;
 import de.sample.aiarchitecture.sharedkernel.marker.port.out.IdentityProvider;
 import de.sample.aiarchitecture.account.application.shared.IdentitySession;
@@ -93,7 +93,7 @@ public class LoginPageController {
 
     try {
       final AuthenticateAccountCommand command = new AuthenticateAccountCommand(email, password);
-      final AuthenticateAccountResponse result = authenticateAccountUseCase.execute(command);
+      final AuthenticateAccountResult result = authenticateAccountUseCase.execute(command);
 
       if (!result.success()) {
         model.addAttribute("title", "Login");

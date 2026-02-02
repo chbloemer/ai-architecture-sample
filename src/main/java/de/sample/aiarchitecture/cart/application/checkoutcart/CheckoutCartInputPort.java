@@ -13,7 +13,7 @@ import org.jspecify.annotations.NonNull;
  *
  * @see de.sample.aiarchitecture.cart.application.usecase.checkoutcart.CheckoutCartUseCase
  */
-public interface CheckoutCartInputPort extends UseCase<CheckoutCartCommand, CheckoutCartResponse> {
+public interface CheckoutCartInputPort extends UseCase<CheckoutCartCommand, CheckoutCartResult> {
 
   /**
    * Checks out a shopping cart, finalizing the purchase.
@@ -23,5 +23,5 @@ public interface CheckoutCartInputPort extends UseCase<CheckoutCartCommand, Chec
    * @throws IllegalArgumentException if cart not found, cart is empty, or cart already checked out
    */
   @Override
-  @NonNull CheckoutCartResponse execute(@NonNull CheckoutCartCommand command);
+  @NonNull CheckoutCartResult execute(@NonNull CheckoutCartCommand command);
 }

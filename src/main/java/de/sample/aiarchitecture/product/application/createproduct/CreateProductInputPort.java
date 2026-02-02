@@ -15,7 +15,7 @@ import org.jspecify.annotations.NonNull;
  *
  * @see de.sample.aiarchitecture.product.application.usecase.createproduct.CreateProductUseCase
  */
-public interface CreateProductInputPort extends UseCase<CreateProductCommand, CreateProductResponse> {
+public interface CreateProductInputPort extends UseCase<CreateProductCommand, CreateProductResult> {
 
   /**
    * Creates a new product.
@@ -25,5 +25,5 @@ public interface CreateProductInputPort extends UseCase<CreateProductCommand, Cr
    * @throws IllegalArgumentException if SKU already exists or validation fails
    */
   @Override
-  @NonNull CreateProductResponse execute(@NonNull CreateProductCommand command);
+  @NonNull CreateProductResult execute(@NonNull CreateProductCommand command);
 }

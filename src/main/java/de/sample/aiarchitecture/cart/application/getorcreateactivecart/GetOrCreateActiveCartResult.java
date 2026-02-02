@@ -9,7 +9,7 @@ import org.jspecify.annotations.NonNull;
  * @param customerId the customer ID
  * @param wasCreated whether a new cart was created (true) or existing was found (false)
  */
-public record GetOrCreateActiveCartResponse(
+public record GetOrCreateActiveCartResult(
     @NonNull String cartId,
     @NonNull String customerId,
     boolean wasCreated

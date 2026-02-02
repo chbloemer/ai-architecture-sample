@@ -6,5 +6,5 @@ import de.sample.aiarchitecture.sharedkernel.marker.port.in.UseCase;
  * Input port for the Authenticate Account use case.
  */
 public interface AuthenticateAccountInputPort
-    extends UseCase<AuthenticateAccountCommand, AuthenticateAccountResponse> {
+    extends UseCase<AuthenticateAccountCommand, AuthenticateAccountResult> {
 }

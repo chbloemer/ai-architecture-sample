@@ -1,6 +1,5 @@
 package de.sample.aiarchitecture.product.application.getproductbyid;
 
-import de.sample.aiarchitecture.product.application.getproductbyid.GetProductByIdInputPort;
 import de.sample.aiarchitecture.product.domain.model.Product;
 import de.sample.aiarchitecture.product.application.shared.ProductRepository;
 import de.sample.aiarchitecture.sharedkernel.domain.model.ProductId;
@@ -28,18 +27,18 @@ public class GetProductByIdUseCase implements GetProductByIdInputPort {
   }
 
   @Override
-  public @NonNull GetProductByIdResponse execute(@NonNull final GetProductByIdQuery input) {
+  public @NonNull GetProductByIdResult execute(@NonNull final GetProductByIdQuery input) {
     final ProductId productId = ProductId.of(input.productId());
 
     final Optional<Product> productOpt = productRepository.findById(productId);
 
     if (productOpt.isEmpty()) {
-      return GetProductByIdResponse.notFound();
+      return GetProductByIdResult.notFound();
     }
 
     final Product product = productOpt.get();
 
-    return GetProductByIdResponse.found(
+    return GetProductByIdResult.found(
         product.id().value().toString(),
         product.sku().value(),
         product.name().value(),

@@ -2,7 +2,7 @@ package de.sample.aiarchitecture.account.adapter.incoming.web;
 
 import de.sample.aiarchitecture.account.application.registeraccount.RegisterAccountCommand;
 import de.sample.aiarchitecture.account.application.registeraccount.RegisterAccountInputPort;
-import de.sample.aiarchitecture.account.application.registeraccount.RegisterAccountResponse;
+import de.sample.aiarchitecture.account.application.registeraccount.RegisterAccountResult;
 import de.sample.aiarchitecture.sharedkernel.domain.model.UserId;
 import de.sample.aiarchitecture.sharedkernel.marker.port.out.IdentityProvider;
 import de.sample.aiarchitecture.account.application.shared.IdentitySession;
@@ -103,7 +103,7 @@ public class RegisterPageController {
           password,
           currentUserId);
 
-      final RegisterAccountResponse result = registerAccountUseCase.execute(command);
+      final RegisterAccountResult result = registerAccountUseCase.execute(command);
 
       final String token = tokenService.generateRegisteredToken(
           UserId.of(result.userId()),

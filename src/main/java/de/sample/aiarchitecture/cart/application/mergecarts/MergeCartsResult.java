@@ -1,24 +1,32 @@
-package de.sample.aiarchitecture.cart.application.removeitemfromcart;
+package de.sample.aiarchitecture.cart.application.mergecarts;
 
 import java.math.BigDecimal;
 import java.util.List;
 import org.jspecify.annotations.NonNull;
 
 /**
- * Output model for removing an item from cart.
+ * Response from the cart merge operation.
  *
- * @param cartId the cart ID
- * @param customerId the customer ID
- * @param items the updated list of cart items
+ * @param cartId the resulting cart ID (account cart)
+ * @param customerId the registered user's customer ID
+ * @param items the final list of cart items
  * @param totalAmount the total cart amount
  * @param totalCurrency the total cart currency
+ * @param strategyApplied the strategy that was applied
+ * @param itemsFromAnonymous number of items taken from anonymous cart
+ * @param itemsFromAccount number of items kept from account cart
+ * @param anonymousCartDeleted whether the anonymous cart was deleted
  */
-public record RemoveItemFromCartResponse(
+public record MergeCartsResult(
     @NonNull String cartId,
     @NonNull String customerId,
     @NonNull List<CartItemSummary> items,
     @NonNull BigDecimal totalAmount,
-    @NonNull String totalCurrency
+    @NonNull String totalCurrency,
+    @NonNull CartMergeStrategy strategyApplied,
+    int itemsFromAnonymous,
+    int itemsFromAccount,
+    boolean anonymousCartDeleted
 ) {
 
   /**

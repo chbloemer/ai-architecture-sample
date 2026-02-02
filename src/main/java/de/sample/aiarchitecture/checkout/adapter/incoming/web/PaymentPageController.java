@@ -2,13 +2,13 @@ package de.sample.aiarchitecture.checkout.adapter.incoming.web;
 
 import de.sample.aiarchitecture.checkout.application.getactivecheckoutsession.GetActiveCheckoutSessionInputPort;
 import de.sample.aiarchitecture.checkout.application.getactivecheckoutsession.GetActiveCheckoutSessionQuery;
-import de.sample.aiarchitecture.checkout.application.getactivecheckoutsession.GetActiveCheckoutSessionResponse;
+import de.sample.aiarchitecture.checkout.application.getactivecheckoutsession.GetActiveCheckoutSessionResult;
 import de.sample.aiarchitecture.checkout.application.getcheckoutsession.GetCheckoutSessionInputPort;
 import de.sample.aiarchitecture.checkout.application.getcheckoutsession.GetCheckoutSessionQuery;
-import de.sample.aiarchitecture.checkout.application.getcheckoutsession.GetCheckoutSessionResponse;
+import de.sample.aiarchitecture.checkout.application.getcheckoutsession.GetCheckoutSessionResult;
 import de.sample.aiarchitecture.checkout.application.getpaymentproviders.GetPaymentProvidersInputPort;
 import de.sample.aiarchitecture.checkout.application.getpaymentproviders.GetPaymentProvidersQuery;
-import de.sample.aiarchitecture.checkout.application.getpaymentproviders.GetPaymentProvidersResponse;
+import de.sample.aiarchitecture.checkout.application.getpaymentproviders.GetPaymentProvidersResult;
 import de.sample.aiarchitecture.checkout.application.submitpayment.SubmitPaymentCommand;
 import de.sample.aiarchitecture.checkout.application.submitpayment.SubmitPaymentInputPort;
 import de.sample.aiarchitecture.checkout.domain.model.CustomerId;
@@ -80,7 +80,7 @@ public class PaymentPageController {
     final CustomerId customerId = CustomerId.of(identity.userId().value());
 
     // Find active checkout session for the user
-    final GetActiveCheckoutSessionResponse activeSession =
+    final GetActiveCheckoutSessionResult activeSession =
         getActiveCheckoutSessionInputPort.execute(
             GetActiveCheckoutSessionQuery.of(customerId.value()));
 
@@ -90,7 +90,7 @@ public class PaymentPageController {
     }
 
     // Get full session details
-    final GetCheckoutSessionResponse session =
+    final GetCheckoutSessionResult session =
         getCheckoutSessionInputPort.execute(
             GetCheckoutSessionQuery.of(activeSession.sessionId()));
 
@@ -99,7 +99,7 @@ public class PaymentPageController {
       return "redirect:/cart";
     }
 
-    final GetPaymentProvidersResponse paymentProviders =
+    final GetPaymentProvidersResult paymentProviders =
         getPaymentProvidersInputPort.execute(GetPaymentProvidersQuery.create());
 
     model.addAttribute("session", session);
@@ -131,7 +131,7 @@ public class PaymentPageController {
     final CustomerId customerId = CustomerId.of(identity.userId().value());
 
     // Find active checkout session for the user
-    final GetActiveCheckoutSessionResponse activeSession =
+    final GetActiveCheckoutSessionResult activeSession =
         getActiveCheckoutSessionInputPort.execute(
             GetActiveCheckoutSessionQuery.of(customerId.value()));
 

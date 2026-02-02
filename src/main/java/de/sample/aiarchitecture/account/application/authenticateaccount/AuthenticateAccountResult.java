@@ -12,7 +12,7 @@ import org.jspecify.annotations.NonNull;
  * @param roles the user's roles
  * @param errorMessage error message if authentication failed
  */
-public record AuthenticateAccountResponse(
+public record AuthenticateAccountResult(
     boolean success,
     String userId,
     String email,
@@ -27,11 +27,11 @@ public record AuthenticateAccountResponse(
    * @param roles the roles
    * @return a successful response
    */
-  public static AuthenticateAccountResponse success(
+  public static AuthenticateAccountResult success(
       @NonNull final String userId,
       @NonNull final String email,
       @NonNull final Set<String> roles) {
-    return new AuthenticateAccountResponse(true, userId, email, roles, null);
+    return new AuthenticateAccountResult(true, userId, email, roles, null);
   }
 
   /**
@@ -40,7 +40,7 @@ public record AuthenticateAccountResponse(
    * @param errorMessage the error message
    * @return a failed response
    */
-  public static AuthenticateAccountResponse failure(@NonNull final String errorMessage) {
-    return new AuthenticateAccountResponse(false, null, null, null, errorMessage);
+  public static AuthenticateAccountResult failure(@NonNull final String errorMessage) {
+    return new AuthenticateAccountResult(false, null, null, null, errorMessage);
   }
 }

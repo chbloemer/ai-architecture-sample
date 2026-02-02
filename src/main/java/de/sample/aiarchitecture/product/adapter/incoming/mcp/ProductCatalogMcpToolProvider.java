@@ -3,10 +3,10 @@ package de.sample.aiarchitecture.product.adapter.incoming.mcp;
 import de.sample.aiarchitecture.product.adapter.incoming.api.ProductDto;
 import de.sample.aiarchitecture.product.adapter.incoming.api.ProductDtoConverter;
 import de.sample.aiarchitecture.product.application.getallproducts.GetAllProductsQuery;
-import de.sample.aiarchitecture.product.application.getallproducts.GetAllProductsResponse;
+import de.sample.aiarchitecture.product.application.getallproducts.GetAllProductsResult;
 import de.sample.aiarchitecture.product.application.getallproducts.GetAllProductsUseCase;
 import de.sample.aiarchitecture.product.application.getproductbyid.GetProductByIdQuery;
-import de.sample.aiarchitecture.product.application.getproductbyid.GetProductByIdResponse;
+import de.sample.aiarchitecture.product.application.getproductbyid.GetProductByIdResult;
 import de.sample.aiarchitecture.product.application.getproductbyid.GetProductByIdUseCase;
 import java.util.List;
 import org.jspecify.annotations.NonNull;
@@ -59,7 +59,7 @@ public class ProductCatalogMcpToolProvider {
    */
   @McpTool(name="all-products",description = "Get all products in the catalog. Returns complete product information including SKU, name, price, category, and available stock.")
   public List<ProductDto> getAllProducts() {
-    final GetAllProductsResponse output = getAllProductsUseCase.execute(new GetAllProductsQuery());
+    final GetAllProductsResult output = getAllProductsUseCase.execute(new GetAllProductsQuery());
 
     return output.products().stream()
         .map(productDtoConverter::toDto)
@@ -78,7 +78,7 @@ public class ProductCatalogMcpToolProvider {
    */
   @McpTool(name="product-by-id", description = "Get detailed product information by product ID. Requires the internal product UUID. Returns complete product details including all attributes.")
   public ProductDto getProductById(@NonNull final String id) {
-    final GetProductByIdResponse output = getProductByIdUseCase.execute(new GetProductByIdQuery(id));
+    final GetProductByIdResult output = getProductByIdUseCase.execute(new GetProductByIdQuery(id));
 
     if (!output.found()) {
       return null;

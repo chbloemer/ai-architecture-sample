@@ -58,7 +58,7 @@ public class SyncCheckoutWithCartUseCase implements SyncCheckoutWithCartInputPor
     }
 
     @Override
-    public @NonNull SyncCheckoutWithCartResponse execute(
+    public @NonNull SyncCheckoutWithCartResult execute(
         @NonNull final SyncCheckoutWithCartCommand command) {
 
         final CartId cartId = CartId.of(command.cartId());
@@ -69,7 +69,7 @@ public class SyncCheckoutWithCartUseCase implements SyncCheckoutWithCartInputPor
 
         if (activeSession.isEmpty()) {
             logger.debug("No active checkout session for cart {}, skipping sync", command.cartId());
-            return SyncCheckoutWithCartResponse.noActiveSession();
+            return SyncCheckoutWithCartResult.noActiveSession();
         }
 
         final CheckoutSession session = activeSession.get();
@@ -85,7 +85,7 @@ public class SyncCheckoutWithCartUseCase implements SyncCheckoutWithCartInputPor
         if (cart.items().isEmpty()) {
             logger.warn("Cart {} is empty but has active checkout session {}, skipping sync",
                 command.cartId(), session.id().value());
-            return SyncCheckoutWithCartResponse.noActiveSession();
+            return SyncCheckoutWithCartResult.noActiveSession();
         }
 
         // Build new line items from current cart state
@@ -123,7 +123,7 @@ public class SyncCheckoutWithCartUseCase implements SyncCheckoutWithCartInputPor
         logger.info("Synced checkout session {} with cart {} - {} items, subtotal: {}",
             session.id().value(), command.cartId(), newLineItems.size(), subtotal);
 
-        return SyncCheckoutWithCartResponse.synced(
+        return SyncCheckoutWithCartResult.synced(
             session.id().value().toString(),
             newLineItems.size());
     }

@@ -1,6 +1,5 @@
 package de.sample.aiarchitecture.cart.application.getcartbyid;
 
-import de.sample.aiarchitecture.cart.application.getcartbyid.GetCartByIdInputPort;
 import de.sample.aiarchitecture.cart.domain.model.CartId;
 import de.sample.aiarchitecture.cart.domain.model.ShoppingCart;
 import de.sample.aiarchitecture.cart.application.shared.ShoppingCartRepository;
@@ -30,19 +29,19 @@ public class GetCartByIdUseCase implements GetCartByIdInputPort {
   }
 
   @Override
-  public @NonNull GetCartByIdResponse execute(@NonNull final GetCartByIdQuery input) {
+  public @NonNull GetCartByIdResult execute(@NonNull final GetCartByIdQuery input) {
     final CartId cartId = CartId.of(input.cartId());
 
     final Optional<ShoppingCart> cartOpt = shoppingCartRepository.findById(cartId);
 
     if (cartOpt.isEmpty()) {
-      return GetCartByIdResponse.notFound();
+      return GetCartByIdResult.notFound();
     }
 
     final ShoppingCart cart = cartOpt.get();
 
-    final List<GetCartByIdResponse.CartItemSummary> items = cart.items().stream()
-        .map(item -> new GetCartByIdResponse.CartItemSummary(
+    final List<GetCartByIdResult.CartItemSummary> items = cart.items().stream()
+        .map(item -> new GetCartByIdResult.CartItemSummary(
             item.id().value().toString(),
             item.productId().value().toString(),
             item.quantity().value(),
@@ -53,7 +52,7 @@ public class GetCartByIdUseCase implements GetCartByIdInputPort {
 
     final Money total = cart.calculateTotal();
 
-    return GetCartByIdResponse.found(
+    return GetCartByIdResult.found(
         cart.id().value(),
         cart.customerId().value(),
         cart.status().name(),

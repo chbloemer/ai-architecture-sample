@@ -14,7 +14,7 @@ import org.jspecify.annotations.NonNull;
  * @see GetCheckoutSessionUseCase
  */
 public interface GetCheckoutSessionInputPort
-    extends UseCase<GetCheckoutSessionQuery, GetCheckoutSessionResponse> {
+    extends UseCase<GetCheckoutSessionQuery, GetCheckoutSessionResult> {
 
   /**
    * Retrieves a checkout session by ID.
@@ -25,5 +25,5 @@ public interface GetCheckoutSessionInputPort
    * @return response containing the session data or found=false
    */
   @Override
-  @NonNull GetCheckoutSessionResponse execute(@NonNull GetCheckoutSessionQuery query);
+  @NonNull GetCheckoutSessionResult execute(@NonNull GetCheckoutSessionQuery query);
 }

@@ -27,15 +27,15 @@ public class GetConfirmedCheckoutSessionUseCase implements GetConfirmedCheckoutS
   }
 
   @Override
-  public @NonNull GetConfirmedCheckoutSessionResponse execute(
+  public @NonNull GetConfirmedCheckoutSessionResult execute(
       @NonNull final GetConfirmedCheckoutSessionQuery query) {
     final CustomerId customerId = CustomerId.of(query.customerId());
 
     return checkoutSessionRepository
         .findConfirmedOrCompletedByCustomerId(customerId)
-        .map(session -> GetConfirmedCheckoutSessionResponse.of(
+        .map(session -> GetConfirmedCheckoutSessionResult.of(
             session.id().value(),
             session.customerId().value()))
-        .orElseGet(GetConfirmedCheckoutSessionResponse::notFound);
+        .orElseGet(GetConfirmedCheckoutSessionResult::notFound);
   }
 }

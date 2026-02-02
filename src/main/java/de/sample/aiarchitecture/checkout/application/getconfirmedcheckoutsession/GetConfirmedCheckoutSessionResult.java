@@ -10,7 +10,7 @@ import org.jspecify.annotations.Nullable;
  * @param sessionId the checkout session ID (null if not found)
  * @param customerId the customer ID (null if not found)
  */
-public record GetConfirmedCheckoutSessionResponse(
+public record GetConfirmedCheckoutSessionResult(
     boolean found,
     @Nullable String sessionId,
     @Nullable String customerId) {
@@ -18,15 +18,15 @@ public record GetConfirmedCheckoutSessionResponse(
   /**
    * Creates a response indicating no confirmed/completed session was found.
    */
-  public static GetConfirmedCheckoutSessionResponse notFound() {
-    return new GetConfirmedCheckoutSessionResponse(false, null, null);
+  public static GetConfirmedCheckoutSessionResult notFound() {
+    return new GetConfirmedCheckoutSessionResult(false, null, null);
   }
 
   /**
    * Creates a response with the found session.
    */
-  public static GetConfirmedCheckoutSessionResponse of(
+  public static GetConfirmedCheckoutSessionResult of(
       @NonNull final String sessionId, @NonNull final String customerId) {
-    return new GetConfirmedCheckoutSessionResponse(true, sessionId, customerId);
+    return new GetConfirmedCheckoutSessionResult(true, sessionId, customerId);
   }
 }

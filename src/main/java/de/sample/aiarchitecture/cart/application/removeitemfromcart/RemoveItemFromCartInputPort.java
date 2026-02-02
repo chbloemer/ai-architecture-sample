@@ -10,4 +10,4 @@ import de.sample.aiarchitecture.sharedkernel.marker.port.in.UseCase;
  * between the application core and adapters.
  */
 public interface RemoveItemFromCartInputPort
-    extends UseCase<RemoveItemFromCartCommand, RemoveItemFromCartResponse> {}
+    extends UseCase<RemoveItemFromCartCommand, RemoveItemFromCartResult> {}

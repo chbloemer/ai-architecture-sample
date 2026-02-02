@@ -33,7 +33,7 @@ public class SubmitBuyerInfoUseCase implements SubmitBuyerInfoInputPort {
   }
 
   @Override
-  public @NonNull SubmitBuyerInfoResponse execute(@NonNull final SubmitBuyerInfoCommand command) {
+  public @NonNull SubmitBuyerInfoResult execute(@NonNull final SubmitBuyerInfoCommand command) {
     // Load session
     final CheckoutSessionId sessionId = CheckoutSessionId.of(command.sessionId());
     final CheckoutSession session =
@@ -56,9 +56,9 @@ public class SubmitBuyerInfoUseCase implements SubmitBuyerInfoInputPort {
     return mapToResponse(session);
   }
 
-  private SubmitBuyerInfoResponse mapToResponse(final CheckoutSession session) {
+  private SubmitBuyerInfoResult mapToResponse(final CheckoutSession session) {
     final BuyerInfo buyerInfo = session.buyerInfo();
-    return new SubmitBuyerInfoResponse(
+    return new SubmitBuyerInfoResult(
         session.id().value().toString(),
         session.currentStep().name(),
         session.status().name(),

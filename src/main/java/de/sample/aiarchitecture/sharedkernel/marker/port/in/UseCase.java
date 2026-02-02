@@ -22,13 +22,13 @@ package de.sample.aiarchitecture.sharedkernel.marker.port.in;
  *
  * <p><b>Example:</b>
  * <pre>{@code
- * public interface CreateProductCommandPort extends UseCase<CreateProductCommand, CreateProductResponse> {
- *     CreateProductResponse execute(CreateProductCommand input);
+ * public interface CreateProductCommandPort extends UseCase<CreateProductCommand, CreateProductResult> {
+ *     CreateProductResult execute(CreateProductCommand input);
  * }
  *
  * public class CreateProductUseCase implements CreateProductCommandPort {
  *     @Override
- *     public CreateProductResponse execute(CreateProductCommand input) {
+ *     public CreateProductResult execute(CreateProductCommand input) {
  *         // Use case implementation
  *     }
  * }

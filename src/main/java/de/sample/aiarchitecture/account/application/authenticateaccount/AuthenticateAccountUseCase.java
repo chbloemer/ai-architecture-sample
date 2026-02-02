@@ -57,13 +57,13 @@ public class AuthenticateAccountUseCase implements AuthenticateAccountInputPort 
   @Override
   @Transactional
   @NonNull
-  public AuthenticateAccountResponse execute(@NonNull final AuthenticateAccountCommand command) {
+  public AuthenticateAccountResult execute(@NonNull final AuthenticateAccountCommand command) {
     final Email email;
     try {
       email = Email.of(command.email());
     } catch (IllegalArgumentException e) {
       LOG.debug("Invalid email format during login attempt: {}", command.email());
-      return AuthenticateAccountResponse.failure(GENERIC_ERROR);
+      return AuthenticateAccountResult.failure(GENERIC_ERROR);
     }
 
     // Find account by email
@@ -71,7 +71,7 @@ public class AuthenticateAccountUseCase implements AuthenticateAccountInputPort 
 
     if (accountOpt.isEmpty()) {
       LOG.debug("Login attempt for non-existent email: {}", email.value());
-      return AuthenticateAccountResponse.failure(GENERIC_ERROR);
+      return AuthenticateAccountResult.failure(GENERIC_ERROR);
     }
 
     final Account account = accountOpt.get();
@@ -79,13 +79,13 @@ public class AuthenticateAccountUseCase implements AuthenticateAccountInputPort 
     // Check password using the domain method
     if (!account.checkPassword(command.password(), passwordHasher)) {
       LOG.warn("Failed login attempt for email: {}", email.value());
-      return AuthenticateAccountResponse.failure(GENERIC_ERROR);
+      return AuthenticateAccountResult.failure(GENERIC_ERROR);
     }
 
     // Check account status
     if (!account.status().canLogin()) {
       LOG.warn("Login attempt for {} account: {}", account.status(), email.value());
-      return AuthenticateAccountResponse.failure(
+      return AuthenticateAccountResult.failure(
           "Account is " + account.status().name().toLowerCase());
     }
 
@@ -95,7 +95,7 @@ public class AuthenticateAccountUseCase implements AuthenticateAccountInputPort 
 
     LOG.info("Successful login for user: {}", account.linkedUserId().value());
 
-    return AuthenticateAccountResponse.success(
+    return AuthenticateAccountResult.success(
         account.linkedUserId().value(),
         account.email().value(),
         account.roles());

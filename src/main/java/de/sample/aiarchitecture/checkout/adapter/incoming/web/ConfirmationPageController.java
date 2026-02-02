@@ -4,13 +4,13 @@ import de.sample.aiarchitecture.checkout.application.confirmcheckout.ConfirmChec
 import de.sample.aiarchitecture.checkout.application.confirmcheckout.ConfirmCheckoutInputPort;
 import de.sample.aiarchitecture.checkout.application.getactivecheckoutsession.GetActiveCheckoutSessionInputPort;
 import de.sample.aiarchitecture.checkout.application.getactivecheckoutsession.GetActiveCheckoutSessionQuery;
-import de.sample.aiarchitecture.checkout.application.getactivecheckoutsession.GetActiveCheckoutSessionResponse;
+import de.sample.aiarchitecture.checkout.application.getactivecheckoutsession.GetActiveCheckoutSessionResult;
 import de.sample.aiarchitecture.checkout.application.getcheckoutsession.GetCheckoutSessionInputPort;
 import de.sample.aiarchitecture.checkout.application.getcheckoutsession.GetCheckoutSessionQuery;
-import de.sample.aiarchitecture.checkout.application.getcheckoutsession.GetCheckoutSessionResponse;
+import de.sample.aiarchitecture.checkout.application.getcheckoutsession.GetCheckoutSessionResult;
 import de.sample.aiarchitecture.checkout.application.getconfirmedcheckoutsession.GetConfirmedCheckoutSessionInputPort;
 import de.sample.aiarchitecture.checkout.application.getconfirmedcheckoutsession.GetConfirmedCheckoutSessionQuery;
-import de.sample.aiarchitecture.checkout.application.getconfirmedcheckoutsession.GetConfirmedCheckoutSessionResponse;
+import de.sample.aiarchitecture.checkout.application.getconfirmedcheckoutsession.GetConfirmedCheckoutSessionResult;
 import de.sample.aiarchitecture.checkout.domain.model.CustomerId;
 import de.sample.aiarchitecture.sharedkernel.marker.port.out.IdentityProvider;
 import org.springframework.stereotype.Controller;
@@ -76,7 +76,7 @@ public class ConfirmationPageController {
     final CustomerId customerId = CustomerId.of(identity.userId().value());
 
     // Find active checkout session for the user
-    final GetActiveCheckoutSessionResponse activeSession =
+    final GetActiveCheckoutSessionResult activeSession =
         getActiveCheckoutSessionInputPort.execute(
             GetActiveCheckoutSessionQuery.of(customerId.value()));
 
@@ -118,7 +118,7 @@ public class ConfirmationPageController {
     final CustomerId customerId = CustomerId.of(identity.userId().value());
 
     // Find confirmed or completed checkout session for the user
-    final GetConfirmedCheckoutSessionResponse confirmedSession =
+    final GetConfirmedCheckoutSessionResult confirmedSession =
         getConfirmedCheckoutSessionInputPort.execute(
             GetConfirmedCheckoutSessionQuery.of(customerId.value()));
 
@@ -128,7 +128,7 @@ public class ConfirmationPageController {
     }
 
     // Get full session details
-    final GetCheckoutSessionResponse session =
+    final GetCheckoutSessionResult session =
         getCheckoutSessionInputPort.execute(
             GetCheckoutSessionQuery.of(confirmedSession.sessionId()));
 

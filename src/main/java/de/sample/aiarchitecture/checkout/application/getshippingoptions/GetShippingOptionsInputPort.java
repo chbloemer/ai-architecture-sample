@@ -14,7 +14,7 @@ import org.jspecify.annotations.NonNull;
  * @see GetShippingOptionsUseCase
  */
 public interface GetShippingOptionsInputPort
-    extends UseCase<GetShippingOptionsQuery, GetShippingOptionsResponse> {
+    extends UseCase<GetShippingOptionsQuery, GetShippingOptionsResult> {
 
   /**
    * Retrieves all available shipping options.
@@ -25,5 +25,5 @@ public interface GetShippingOptionsInputPort
    * @return response containing available shipping options
    */
   @Override
-  @NonNull GetShippingOptionsResponse execute(@NonNull GetShippingOptionsQuery query);
+  @NonNull GetShippingOptionsResult execute(@NonNull GetShippingOptionsQuery query);
 }

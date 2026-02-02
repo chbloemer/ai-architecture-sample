@@ -13,7 +13,7 @@ import org.jspecify.annotations.NonNull;
  *
  * @see de.sample.aiarchitecture.cart.application.usecase.getcartbyid.GetCartByIdUseCase
  */
-public interface GetCartByIdInputPort extends UseCase<GetCartByIdQuery, GetCartByIdResponse> {
+public interface GetCartByIdInputPort extends UseCase<GetCartByIdQuery, GetCartByIdResult> {
 
   /**
    * Retrieves a shopping cart by its unique identifier.
@@ -22,5 +22,5 @@ public interface GetCartByIdInputPort extends UseCase<GetCartByIdQuery, GetCartB
    * @return response containing cart details or indication that cart was not found
    */
   @Override
-  @NonNull GetCartByIdResponse execute(@NonNull GetCartByIdQuery query);
+  @NonNull GetCartByIdResult execute(@NonNull GetCartByIdQuery query);
 }

@@ -42,13 +42,13 @@ public class RecoverCartOnLoginUseCase implements RecoverCartOnLoginInputPort {
   }
 
   @Override
-  public @NonNull RecoverCartOnLoginResponse execute(@NonNull final RecoverCartOnLoginCommand input) {
+  public @NonNull RecoverCartOnLoginResult execute(@NonNull final RecoverCartOnLoginCommand input) {
     final CustomerId anonymousCustomerId = CustomerId.of(input.anonymousUserId());
     final CustomerId registeredCustomerId = CustomerId.of(input.registeredUserId());
 
     // If same user ID, no merge needed
     if (anonymousCustomerId.equals(registeredCustomerId)) {
-      return RecoverCartOnLoginResponse.noRecoveryNeeded(registeredCustomerId.value());
+      return RecoverCartOnLoginResult.noRecoveryNeeded(registeredCustomerId.value());
     }
 
     // Find anonymous user's active cart
@@ -57,7 +57,7 @@ public class RecoverCartOnLoginUseCase implements RecoverCartOnLoginInputPort {
 
     // If no anonymous cart exists, no recovery needed
     if (anonymousCart.isEmpty() || anonymousCart.get().isEmpty()) {
-      return RecoverCartOnLoginResponse.noRecoveryNeeded(registeredCustomerId.value());
+      return RecoverCartOnLoginResult.noRecoveryNeeded(registeredCustomerId.value());
     }
 
     // Find or create registered user's active cart
@@ -87,8 +87,8 @@ public class RecoverCartOnLoginUseCase implements RecoverCartOnLoginInputPort {
     shoppingCartRepository.deleteById(anonCart.id());
 
     // Map to output
-    final List<RecoverCartOnLoginResponse.CartItemSummary> items = registeredCart.items().stream()
-        .map(item -> new RecoverCartOnLoginResponse.CartItemSummary(
+    final List<RecoverCartOnLoginResult.CartItemSummary> items = registeredCart.items().stream()
+        .map(item -> new RecoverCartOnLoginResult.CartItemSummary(
             item.id().value(),
             item.productId().value(),
             item.quantity().value(),
@@ -99,7 +99,7 @@ public class RecoverCartOnLoginUseCase implements RecoverCartOnLoginInputPort {
 
     final Money total = registeredCart.calculateTotal();
 
-    return new RecoverCartOnLoginResponse(
+    return new RecoverCartOnLoginResult(
         registeredCart.id().value(),
         registeredCart.customerId().value(),
         items,

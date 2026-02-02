@@ -11,7 +11,7 @@ import org.jspecify.annotations.NonNull;
  *
  * <p><b>Hexagonal Architecture:</b> This is a driving/primary port for write operations.
  */
-public interface CompleteCartInputPort extends UseCase<CompleteCartCommand, CompleteCartResponse> {
+public interface CompleteCartInputPort extends UseCase<CompleteCartCommand, CompleteCartResult> {
 
   /**
    * Completes a shopping cart after checkout confirmation.
@@ -22,5 +22,5 @@ public interface CompleteCartInputPort extends UseCase<CompleteCartCommand, Comp
    * @throws IllegalStateException if cart is not in CHECKED_OUT status
    */
   @Override
-  @NonNull CompleteCartResponse execute(@NonNull CompleteCartCommand command);
+  @NonNull CompleteCartResult execute(@NonNull CompleteCartCommand command);
 }

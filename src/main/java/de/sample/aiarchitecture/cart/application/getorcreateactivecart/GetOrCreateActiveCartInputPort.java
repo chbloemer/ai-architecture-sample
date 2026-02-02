@@ -9,4 +9,4 @@ import de.sample.aiarchitecture.sharedkernel.marker.port.in.UseCase;
  * which retrieves an existing active cart for a customer or creates a new one if none exists.
  */
 public interface GetOrCreateActiveCartInputPort
-    extends UseCase<GetOrCreateActiveCartCommand, GetOrCreateActiveCartResponse> {}
+    extends UseCase<GetOrCreateActiveCartCommand, GetOrCreateActiveCartResult> {}

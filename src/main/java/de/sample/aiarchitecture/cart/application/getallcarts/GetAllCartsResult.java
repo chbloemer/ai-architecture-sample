@@ -9,7 +9,7 @@ import org.jspecify.annotations.NonNull;
  *
  * @param carts the list of cart summaries
  */
-public record GetAllCartsResponse(@NonNull List<CartSummary> carts) {
+public record GetAllCartsResult(@NonNull List<CartSummary> carts) {
 
   /**
    * Summary of a shopping cart.

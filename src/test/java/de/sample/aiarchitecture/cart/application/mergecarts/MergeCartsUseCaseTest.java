@@ -80,7 +80,7 @@ class MergeCartsUseCaseTest {
       );
 
       // Act
-      MergeCartsResponse response = useCase.execute(command);
+      MergeCartsResult response = useCase.execute(command);
 
       // Assert
       assertEquals(CartMergeStrategy.MERGE_BOTH, response.strategyApplied());
@@ -115,7 +115,7 @@ class MergeCartsUseCaseTest {
       );
 
       // Act
-      MergeCartsResponse response = useCase.execute(command);
+      MergeCartsResult response = useCase.execute(command);
 
       // Assert
       assertEquals(1, response.items().size());
@@ -142,7 +142,7 @@ class MergeCartsUseCaseTest {
       );
 
       // Act
-      MergeCartsResponse response = useCase.execute(command);
+      MergeCartsResult response = useCase.execute(command);
 
       // Assert
       assertEquals(1, response.items().size());
@@ -178,7 +178,7 @@ class MergeCartsUseCaseTest {
       );
 
       // Act
-      MergeCartsResponse response = useCase.execute(command);
+      MergeCartsResult response = useCase.execute(command);
 
       // Assert
       assertEquals(CartMergeStrategy.USE_ACCOUNT_CART, response.strategyApplied());
@@ -236,7 +236,7 @@ class MergeCartsUseCaseTest {
       );
 
       // Act
-      MergeCartsResponse response = useCase.execute(command);
+      MergeCartsResult response = useCase.execute(command);
 
       // Assert
       assertEquals(1, response.items().size());
@@ -272,7 +272,7 @@ class MergeCartsUseCaseTest {
       );
 
       // Act
-      MergeCartsResponse response = useCase.execute(command);
+      MergeCartsResult response = useCase.execute(command);
 
       // Assert
       assertEquals(CartMergeStrategy.USE_ANONYMOUS_CART, response.strategyApplied());
@@ -338,7 +338,7 @@ class MergeCartsUseCaseTest {
       );
 
       // Act
-      MergeCartsResponse response = useCase.execute(command);
+      MergeCartsResult response = useCase.execute(command);
 
       // Assert
       assertEquals(1, response.items().size());
@@ -363,7 +363,7 @@ class MergeCartsUseCaseTest {
       );
 
       // Act
-      MergeCartsResponse response = useCase.execute(command);
+      MergeCartsResult response = useCase.execute(command);
 
       // Assert
       assertEquals(0, response.itemsFromAnonymous());
@@ -392,7 +392,7 @@ class MergeCartsUseCaseTest {
       );
 
       // Act
-      MergeCartsResponse response = useCase.execute(command);
+      MergeCartsResult response = useCase.execute(command);
 
       // Assert
       assertNotNull(response.cartId());

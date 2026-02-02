@@ -55,7 +55,7 @@ public class StartCheckoutUseCase implements StartCheckoutInputPort {
     }
 
     @Override
-    public @NonNull StartCheckoutResponse execute(@NonNull final StartCheckoutCommand command) {
+    public @NonNull StartCheckoutResult execute(@NonNull final StartCheckoutCommand command) {
         // Load cart through ACL
         final CartId cartId = CartId.of(command.cartId());
         final CartData cart =
@@ -107,16 +107,16 @@ public class StartCheckoutUseCase implements StartCheckoutInputPort {
         // Cart remains ACTIVE during checkout - user can still modify it
         // Cart only transitions to COMPLETED when checkout is confirmed
 
-        // Map to response
-        return mapToResponse(session);
+        // Map to result
+        return mapToResult(session);
     }
 
-    private StartCheckoutResponse mapToResponse(final CheckoutSession session) {
-        final List<StartCheckoutResponse.LineItemResponse> lineItemResponses =
+    private StartCheckoutResult mapToResult(final CheckoutSession session) {
+        final List<StartCheckoutResult.LineItemData> lineItemData =
             session.lineItems().stream()
                 .map(
                     item ->
-                        new StartCheckoutResponse.LineItemResponse(
+                        new StartCheckoutResult.LineItemData(
                             item.id().value(),
                             item.productId().value().toString(),
                             item.productName(),
@@ -125,13 +125,13 @@ public class StartCheckoutUseCase implements StartCheckoutInputPort {
                             item.lineTotal().toString()))
                 .toList();
 
-        return new StartCheckoutResponse(
+        return new StartCheckoutResult(
             session.id().value().toString(),
             session.cartId().value(),
             session.customerId().value(),
             session.currentStep().name(),
             session.status().name(),
-            lineItemResponses,
+            lineItemData,
             session.totals().subtotal().toString());
     }
 }

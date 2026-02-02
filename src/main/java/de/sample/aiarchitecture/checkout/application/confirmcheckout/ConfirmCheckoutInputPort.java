@@ -14,7 +14,7 @@ import org.jspecify.annotations.NonNull;
  * @see ConfirmCheckoutUseCase
  */
 public interface ConfirmCheckoutInputPort
-    extends UseCase<ConfirmCheckoutCommand, ConfirmCheckoutResponse> {
+    extends UseCase<ConfirmCheckoutCommand, ConfirmCheckoutResult> {
 
   /**
    * Confirms the checkout session after customer review.
@@ -35,5 +35,5 @@ public interface ConfirmCheckoutInputPort
    *         or not at review step
    */
   @Override
-  @NonNull ConfirmCheckoutResponse execute(@NonNull ConfirmCheckoutCommand command);
+  @NonNull ConfirmCheckoutResult execute(@NonNull ConfirmCheckoutCommand command);
 }

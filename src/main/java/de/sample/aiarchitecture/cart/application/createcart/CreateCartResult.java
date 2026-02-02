@@ -9,7 +9,7 @@ import org.jspecify.annotations.NonNull;
  * @param customerId the customer ID
  * @param status the cart status (always "ACTIVE" for new carts)
  */
-public record CreateCartResponse(
+public record CreateCartResult(
     @NonNull String cartId,
     @NonNull String customerId,
     @NonNull String status

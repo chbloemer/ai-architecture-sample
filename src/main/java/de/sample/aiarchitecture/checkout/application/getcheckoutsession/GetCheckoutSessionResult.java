@@ -21,18 +21,18 @@ import org.jspecify.annotations.Nullable;
  * @param payment the payment selection (null if not submitted or not found)
  * @param orderReference the order reference (null if not completed or not found)
  */
-public record GetCheckoutSessionResponse(
+public record GetCheckoutSessionResult(
     boolean found,
     @Nullable String sessionId,
     @Nullable String cartId,
     @Nullable String customerId,
     @Nullable String currentStep,
     @Nullable String status,
-    @NonNull List<LineItemResponse> lineItems,
-    @Nullable TotalsResponse totals,
-    @Nullable BuyerInfoResponse buyerInfo,
-    @Nullable DeliveryResponse delivery,
-    @Nullable PaymentResponse payment,
+    @NonNull List<LineItemData> lineItems,
+    @Nullable TotalsData totals,
+    @Nullable BuyerInfoData buyerInfo,
+    @Nullable DeliveryData delivery,
+    @Nullable PaymentData payment,
     @Nullable String orderReference) {
 
   /**
@@ -40,8 +40,8 @@ public record GetCheckoutSessionResponse(
    *
    * @return a response indicating the session was not found
    */
-  public static GetCheckoutSessionResponse notFound() {
-    return new GetCheckoutSessionResponse(
+  public static GetCheckoutSessionResult notFound() {
+    return new GetCheckoutSessionResult(
         false, null, null, null, null, null, List.of(), null, null, null, null, null);
   }
 
@@ -56,7 +56,7 @@ public record GetCheckoutSessionResponse(
    * @param quantity the quantity
    * @param lineTotal the line total amount
    */
-  public record LineItemResponse(
+  public record LineItemData(
       @NonNull String id,
       @NonNull String productId,
       @NonNull String productName,
@@ -74,7 +74,7 @@ public record GetCheckoutSessionResponse(
    * @param total the total amount
    * @param currencyCode the currency code
    */
-  public record TotalsResponse(
+  public record TotalsData(
       @NonNull BigDecimal subtotal,
       @NonNull BigDecimal shipping,
       @NonNull BigDecimal tax,
@@ -89,7 +89,7 @@ public record GetCheckoutSessionResponse(
    * @param lastName the buyer's last name
    * @param phone the buyer's phone number
    */
-  public record BuyerInfoResponse(
+  public record BuyerInfoData(
       @NonNull String email,
       @NonNull String firstName,
       @NonNull String lastName,
@@ -101,8 +101,8 @@ public record GetCheckoutSessionResponse(
    * @param address the delivery address
    * @param shippingOption the selected shipping option
    */
-  public record DeliveryResponse(
-      @NonNull AddressResponse address, @NonNull ShippingOptionResponse shippingOption) {}
+  public record DeliveryData(
+      @NonNull AddressData address, @NonNull ShippingOptionData shippingOption) {}
 
   /**
    * Delivery address.
@@ -114,7 +114,7 @@ public record GetCheckoutSessionResponse(
    * @param country the country
    * @param state the state (optional)
    */
-  public record AddressResponse(
+  public record AddressData(
       @NonNull String street,
       @Nullable String streetLine2,
       @NonNull String city,
@@ -131,7 +131,7 @@ public record GetCheckoutSessionResponse(
    * @param cost the shipping cost
    * @param currencyCode the currency code
    */
-  public record ShippingOptionResponse(
+  public record ShippingOptionData(
       @NonNull String id,
       @NonNull String name,
       @NonNull String estimatedDelivery,
@@ -144,5 +144,5 @@ public record GetCheckoutSessionResponse(
    * @param providerId the payment provider ID
    * @param providerReference the provider reference (optional)
    */
-  public record PaymentResponse(@NonNull String providerId, @Nullable String providerReference) {}
+  public record PaymentData(@NonNull String providerId, @Nullable String providerReference) {}
 }

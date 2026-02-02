@@ -2,10 +2,10 @@ package de.sample.aiarchitecture.account.adapter.incoming.api;
 
 import de.sample.aiarchitecture.account.application.authenticateaccount.AuthenticateAccountCommand;
 import de.sample.aiarchitecture.account.application.authenticateaccount.AuthenticateAccountInputPort;
-import de.sample.aiarchitecture.account.application.authenticateaccount.AuthenticateAccountResponse;
+import de.sample.aiarchitecture.account.application.authenticateaccount.AuthenticateAccountResult;
 import de.sample.aiarchitecture.account.application.registeraccount.RegisterAccountCommand;
 import de.sample.aiarchitecture.account.application.registeraccount.RegisterAccountInputPort;
-import de.sample.aiarchitecture.account.application.registeraccount.RegisterAccountResponse;
+import de.sample.aiarchitecture.account.application.registeraccount.RegisterAccountResult;
 import de.sample.aiarchitecture.sharedkernel.domain.model.UserId;
 import de.sample.aiarchitecture.sharedkernel.marker.port.out.IdentityProvider;
 import de.sample.aiarchitecture.account.application.shared.IdentitySession;
@@ -55,18 +55,18 @@ public class AuthResource {
   }
 
   @PostMapping("/login")
-  public ResponseEntity<LoginApiResult> login(
+  public ResponseEntity<LoginResponse> login(
       @Valid @RequestBody final LoginRequest request) {
 
     final AuthenticateAccountCommand command = new AuthenticateAccountCommand(
         request.email(),
         request.password());
 
-    final AuthenticateAccountResponse result = authenticateAccountUseCase.execute(command);
+    final AuthenticateAccountResult result = authenticateAccountUseCase.execute(command);
 
     if (!result.success()) {
       return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-          .body(LoginApiResult.failure(result.errorMessage()));
+          .body(LoginResponse.failure(result.errorMessage()));
     }
 
     final String token = tokenService.generateRegisteredToken(
@@ -76,11 +76,11 @@ public class AuthResource {
 
     identitySession.setRegisteredIdentity(token);
 
-    return ResponseEntity.ok(LoginApiResult.success(token, result.email()));
+    return ResponseEntity.ok(LoginResponse.success(token, result.email()));
   }
 
   @PostMapping("/register")
-  public ResponseEntity<RegisterApiResult> register(
+  public ResponseEntity<RegisterResponse> register(
       @Valid @RequestBody final RegisterRequest request) {
 
     final String currentUserId = identityProvider.getCurrentIdentity().userId().value();
@@ -91,7 +91,7 @@ public class AuthResource {
         currentUserId);
 
     try {
-      final RegisterAccountResponse result = registerAccountUseCase.execute(command);
+      final RegisterAccountResult result = registerAccountUseCase.execute(command);
 
       final String token = tokenService.generateRegisteredToken(
           UserId.of(result.userId()),
@@ -101,11 +101,11 @@ public class AuthResource {
       identitySession.setRegisteredIdentity(token);
 
       return ResponseEntity.status(HttpStatus.CREATED)
-          .body(RegisterApiResult.success(token, result.email()));
+          .body(RegisterResponse.success(token, result.email()));
 
     } catch (final IllegalArgumentException e) {
       return ResponseEntity.badRequest()
-          .body(RegisterApiResult.failure(e.getMessage()));
+          .body(RegisterResponse.failure(e.getMessage()));
     }
   }
 

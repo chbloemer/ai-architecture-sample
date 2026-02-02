@@ -42,7 +42,7 @@ public class MergeCartsUseCase implements MergeCartsInputPort {
   }
 
   @Override
-  public @NonNull MergeCartsResponse execute(@NonNull final MergeCartsCommand input) {
+  public @NonNull MergeCartsResult execute(@NonNull final MergeCartsCommand input) {
     final CustomerId anonymousCustomerId = CustomerId.of(input.anonymousUserId());
     final CustomerId registeredCustomerId = CustomerId.of(input.registeredUserId());
 
@@ -67,7 +67,7 @@ public class MergeCartsUseCase implements MergeCartsInputPort {
     };
   }
 
-  private MergeCartsResponse mergeBothCarts(
+  private MergeCartsResult mergeBothCarts(
       final Optional<ShoppingCart> anonymousCartOpt,
       final ShoppingCart accountCart,
       final CartMergeStrategy strategy) {
@@ -97,7 +97,7 @@ public class MergeCartsUseCase implements MergeCartsInputPort {
     return buildResponse(accountCart, strategy, itemsFromAnonymous, itemsFromAccount, true);
   }
 
-  private MergeCartsResponse useAccountCartOnly(
+  private MergeCartsResult useAccountCartOnly(
       final Optional<ShoppingCart> anonymousCartOpt,
       final ShoppingCart accountCart,
       final int originalAccountItems,
@@ -111,7 +111,7 @@ public class MergeCartsUseCase implements MergeCartsInputPort {
     return buildResponse(accountCart, strategy, 0, originalAccountItems, true);
   }
 
-  private MergeCartsResponse useAnonymousCartOnly(
+  private MergeCartsResult useAnonymousCartOnly(
       final Optional<ShoppingCart> anonymousCartOpt,
       final ShoppingCart accountCart,
       final CartMergeStrategy strategy) {
@@ -145,15 +145,15 @@ public class MergeCartsUseCase implements MergeCartsInputPort {
     return buildResponse(accountCart, strategy, itemsFromAnonymous, 0, true);
   }
 
-  private MergeCartsResponse buildResponse(
+  private MergeCartsResult buildResponse(
       final ShoppingCart cart,
       final CartMergeStrategy strategy,
       final int itemsFromAnonymous,
       final int itemsFromAccount,
       final boolean anonymousCartDeleted) {
 
-    final List<MergeCartsResponse.CartItemSummary> items = cart.items().stream()
-        .map(item -> new MergeCartsResponse.CartItemSummary(
+    final List<MergeCartsResult.CartItemSummary> items = cart.items().stream()
+        .map(item -> new MergeCartsResult.CartItemSummary(
             item.id().value(),
             item.productId().value(),
             item.quantity().value(),
@@ -164,7 +164,7 @@ public class MergeCartsUseCase implements MergeCartsInputPort {
 
     final Money total = cart.calculateTotal();
 
-    return new MergeCartsResponse(
+    return new MergeCartsResult(
         cart.id().value(),
         cart.customerId().value(),
         items,

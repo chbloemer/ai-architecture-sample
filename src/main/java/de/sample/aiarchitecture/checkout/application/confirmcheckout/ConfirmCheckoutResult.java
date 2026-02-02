@@ -15,7 +15,7 @@ import org.jspecify.annotations.Nullable;
  * @param currency the currency code
  * @param orderReference optional order reference if available
  */
-public record ConfirmCheckoutResponse(
+public record ConfirmCheckoutResult(
     @NonNull String sessionId,
     @NonNull String currentStep,
     @NonNull String status,

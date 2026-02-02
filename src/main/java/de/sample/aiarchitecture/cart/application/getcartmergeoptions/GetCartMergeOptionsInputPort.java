@@ -13,4 +13,4 @@ import de.sample.aiarchitecture.sharedkernel.marker.port.in.UseCase;
  * (e.g., web controllers) use to invoke the use case.
  */
 public interface GetCartMergeOptionsInputPort
-    extends UseCase<GetCartMergeOptionsQuery, GetCartMergeOptionsResponse> {}
+    extends UseCase<GetCartMergeOptionsQuery, GetCartMergeOptionsResult> {}

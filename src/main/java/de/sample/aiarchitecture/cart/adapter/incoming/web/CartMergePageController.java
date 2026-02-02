@@ -2,11 +2,11 @@ package de.sample.aiarchitecture.cart.adapter.incoming.web;
 
 import de.sample.aiarchitecture.cart.application.getcartmergeoptions.GetCartMergeOptionsInputPort;
 import de.sample.aiarchitecture.cart.application.getcartmergeoptions.GetCartMergeOptionsQuery;
-import de.sample.aiarchitecture.cart.application.getcartmergeoptions.GetCartMergeOptionsResponse;
+import de.sample.aiarchitecture.cart.application.getcartmergeoptions.GetCartMergeOptionsResult;
 import de.sample.aiarchitecture.cart.application.mergecarts.CartMergeStrategy;
 import de.sample.aiarchitecture.cart.application.mergecarts.MergeCartsCommand;
 import de.sample.aiarchitecture.cart.application.mergecarts.MergeCartsInputPort;
-import de.sample.aiarchitecture.cart.application.mergecarts.MergeCartsResponse;
+import de.sample.aiarchitecture.cart.application.mergecarts.MergeCartsResult;
 import de.sample.aiarchitecture.sharedkernel.marker.port.out.IdentityProvider;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -69,7 +69,7 @@ public class CartMergePageController {
 
     // Get merge options
     final GetCartMergeOptionsQuery query = new GetCartMergeOptionsQuery(anonymousUserId, registeredUserId);
-    final GetCartMergeOptionsResponse options = getCartMergeOptionsUseCase.execute(query);
+    final GetCartMergeOptionsResult options = getCartMergeOptionsUseCase.execute(query);
 
     if (!options.mergeRequired()) {
       // No merge needed - redirect with welcome message
@@ -121,7 +121,7 @@ public class CartMergePageController {
 
     // Execute merge
     final MergeCartsCommand command = new MergeCartsCommand(anonymousUserId, registeredUserId, mergeStrategy);
-    final MergeCartsResponse response = mergeCartsUseCase.execute(command);
+    final MergeCartsResult response = mergeCartsUseCase.execute(command);
 
     // Add success message based on strategy
     final String message = switch (mergeStrategy) {

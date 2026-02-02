@@ -12,7 +12,7 @@ import org.jspecify.annotations.NonNull;
  * @param newPriceAmount the new price amount
  * @param newPriceCurrency the new price currency
  */
-public record UpdateProductPriceResponse(
+public record UpdateProductPriceResult(
     @NonNull String productId,
     @NonNull BigDecimal oldPriceAmount,
     @NonNull String oldPriceCurrency,

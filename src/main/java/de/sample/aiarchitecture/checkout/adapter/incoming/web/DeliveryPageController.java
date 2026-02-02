@@ -2,13 +2,13 @@ package de.sample.aiarchitecture.checkout.adapter.incoming.web;
 
 import de.sample.aiarchitecture.checkout.application.getactivecheckoutsession.GetActiveCheckoutSessionInputPort;
 import de.sample.aiarchitecture.checkout.application.getactivecheckoutsession.GetActiveCheckoutSessionQuery;
-import de.sample.aiarchitecture.checkout.application.getactivecheckoutsession.GetActiveCheckoutSessionResponse;
+import de.sample.aiarchitecture.checkout.application.getactivecheckoutsession.GetActiveCheckoutSessionResult;
 import de.sample.aiarchitecture.checkout.application.getcheckoutsession.GetCheckoutSessionInputPort;
 import de.sample.aiarchitecture.checkout.application.getcheckoutsession.GetCheckoutSessionQuery;
-import de.sample.aiarchitecture.checkout.application.getcheckoutsession.GetCheckoutSessionResponse;
+import de.sample.aiarchitecture.checkout.application.getcheckoutsession.GetCheckoutSessionResult;
 import de.sample.aiarchitecture.checkout.application.getshippingoptions.GetShippingOptionsInputPort;
 import de.sample.aiarchitecture.checkout.application.getshippingoptions.GetShippingOptionsQuery;
-import de.sample.aiarchitecture.checkout.application.getshippingoptions.GetShippingOptionsResponse;
+import de.sample.aiarchitecture.checkout.application.getshippingoptions.GetShippingOptionsResult;
 import de.sample.aiarchitecture.checkout.application.submitdelivery.SubmitDeliveryCommand;
 import de.sample.aiarchitecture.checkout.application.submitdelivery.SubmitDeliveryInputPort;
 import de.sample.aiarchitecture.checkout.domain.model.CustomerId;
@@ -81,7 +81,7 @@ public class DeliveryPageController {
     final CustomerId customerId = CustomerId.of(identity.userId().value());
 
     // Find active checkout session for the user
-    final GetActiveCheckoutSessionResponse activeSession =
+    final GetActiveCheckoutSessionResult activeSession =
         getActiveCheckoutSessionInputPort.execute(
             GetActiveCheckoutSessionQuery.of(customerId.value()));
 
@@ -91,7 +91,7 @@ public class DeliveryPageController {
     }
 
     // Get full session details
-    final GetCheckoutSessionResponse session =
+    final GetCheckoutSessionResult session =
         getCheckoutSessionInputPort.execute(
             GetCheckoutSessionQuery.of(activeSession.sessionId()));
 
@@ -100,7 +100,7 @@ public class DeliveryPageController {
       return "redirect:/cart";
     }
 
-    final GetShippingOptionsResponse shippingOptions =
+    final GetShippingOptionsResult shippingOptions =
         getShippingOptionsInputPort.execute(GetShippingOptionsQuery.create());
 
     model.addAttribute("session", session);
@@ -150,7 +150,7 @@ public class DeliveryPageController {
     final CustomerId customerId = CustomerId.of(identity.userId().value());
 
     // Find active checkout session for the user
-    final GetActiveCheckoutSessionResponse activeSession =
+    final GetActiveCheckoutSessionResult activeSession =
         getActiveCheckoutSessionInputPort.execute(
             GetActiveCheckoutSessionQuery.of(customerId.value()));
 

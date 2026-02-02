@@ -1,8 +1,8 @@
 package de.sample.aiarchitecture.product.adapter.incoming.api;
 
-import de.sample.aiarchitecture.product.application.createproduct.CreateProductResponse;
-import de.sample.aiarchitecture.product.application.getallproducts.GetAllProductsResponse;
-import de.sample.aiarchitecture.product.application.getproductbyid.GetProductByIdResponse;
+import de.sample.aiarchitecture.product.application.createproduct.CreateProductResult;
+import de.sample.aiarchitecture.product.application.getallproducts.GetAllProductsResult;
+import de.sample.aiarchitecture.product.application.getproductbyid.GetProductByIdResult;
 import de.sample.aiarchitecture.product.domain.model.Product;
 import org.springframework.stereotype.Component;
 
@@ -26,7 +26,7 @@ public final class ProductDtoConverter {
    *
    * @param product the domain product
    * @return product DTO
-   * @deprecated Use {@link #toDto(CreateProductResponse)} or other use case output converters instead
+   * @deprecated Use {@link #toDto(CreateProductResult)} or other use case output converters instead
    */
   @Deprecated
   public ProductDto toDto(final Product product) {
@@ -42,12 +42,12 @@ public final class ProductDtoConverter {
   }
 
   /**
-   * Converts CreateProductResponse to DTO.
+   * Converts CreateProductResult to DTO.
    *
    * @param output the use case output
    * @return product DTO
    */
-  public ProductDto toDto(final CreateProductResponse output) {
+  public ProductDto toDto(final CreateProductResult output) {
     return new ProductDto(
         output.productId(),
         output.sku(),
@@ -60,12 +60,12 @@ public final class ProductDtoConverter {
   }
 
   /**
-   * Converts GetProductByIdResponse to DTO.
+   * Converts GetProductByIdResult to DTO.
    *
    * @param output the use case output
    * @return product DTO
    */
-  public ProductDto toDto(final GetProductByIdResponse output) {
+  public ProductDto toDto(final GetProductByIdResult output) {
     return new ProductDto(
         output.productId(),
         output.sku(),
@@ -78,12 +78,12 @@ public final class ProductDtoConverter {
   }
 
   /**
-   * Converts ProductSummary (from GetAllProductsResponse) to DTO.
+   * Converts ProductSummary (from GetAllProductsResult) to DTO.
    *
    * @param summary the product summary
    * @return product DTO
    */
-  public ProductDto toDto(final GetAllProductsResponse.ProductSummary summary) {
+  public ProductDto toDto(final GetAllProductsResult.ProductSummary summary) {
     return new ProductDto(
         summary.productId(),
         summary.sku(),

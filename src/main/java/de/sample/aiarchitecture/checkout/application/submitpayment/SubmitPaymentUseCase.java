@@ -41,7 +41,7 @@ public class SubmitPaymentUseCase implements SubmitPaymentInputPort {
   }
 
   @Override
-  public @NonNull SubmitPaymentResponse execute(@NonNull final SubmitPaymentCommand command) {
+  public @NonNull SubmitPaymentResult execute(@NonNull final SubmitPaymentCommand command) {
     // Load session
     final CheckoutSessionId sessionId = CheckoutSessionId.of(command.sessionId());
     final CheckoutSession session =
@@ -72,10 +72,10 @@ public class SubmitPaymentUseCase implements SubmitPaymentInputPort {
     return mapToResponse(session, provider);
   }
 
-  private SubmitPaymentResponse mapToResponse(
+  private SubmitPaymentResult mapToResponse(
       final CheckoutSession session, final PaymentProvider provider) {
     final PaymentSelection payment = session.paymentSelection();
-    return new SubmitPaymentResponse(
+    return new SubmitPaymentResult(
         session.id().value().toString(),
         session.currentStep().name(),
         session.status().name(),

@@ -37,7 +37,7 @@ public class ConfirmCheckoutUseCase implements ConfirmCheckoutInputPort {
   }
 
   @Override
-  public @NonNull ConfirmCheckoutResponse execute(@NonNull final ConfirmCheckoutCommand command) {
+  public @NonNull ConfirmCheckoutResult execute(@NonNull final ConfirmCheckoutCommand command) {
     // Load session
     final CheckoutSessionId sessionId = CheckoutSessionId.of(command.sessionId());
     final CheckoutSession session =
@@ -60,8 +60,8 @@ public class ConfirmCheckoutUseCase implements ConfirmCheckoutInputPort {
     return mapToResponse(session);
   }
 
-  private ConfirmCheckoutResponse mapToResponse(final CheckoutSession session) {
-    return new ConfirmCheckoutResponse(
+  private ConfirmCheckoutResult mapToResponse(final CheckoutSession session) {
+    return new ConfirmCheckoutResult(
         session.id().value().toString(),
         session.currentStep().name(),
         session.status().name(),

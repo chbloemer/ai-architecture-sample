@@ -50,7 +50,7 @@ public class AddItemToCartUseCase implements AddItemToCartInputPort {
     }
 
     @Override
-    public @NonNull AddItemToCartResponse execute(@NonNull final AddItemToCartCommand input) {
+    public @NonNull AddItemToCartResult execute(@NonNull final AddItemToCartCommand input) {
         final CartId cartId = CartId.of(input.cartId());
         final ProductId productId = ProductId.of(input.productId());
         final Quantity quantity = new Quantity(input.quantity());
@@ -82,8 +82,8 @@ public class AddItemToCartUseCase implements AddItemToCartInputPort {
         eventPublisher.publishAndClearEvents(cart);
 
         // Map to output
-        final List<AddItemToCartResponse.CartItemSummary> items = cart.items().stream()
-            .map(item -> new AddItemToCartResponse.CartItemSummary(
+        final List<AddItemToCartResult.CartItemSummary> items = cart.items().stream()
+            .map(item -> new AddItemToCartResult.CartItemSummary(
                 item.id().value().toString(),
                 item.productId().value().toString(),
                 item.quantity().value(),
@@ -94,7 +94,7 @@ public class AddItemToCartUseCase implements AddItemToCartInputPort {
 
         final Money total = cart.calculateTotal();
 
-        return new AddItemToCartResponse(
+        return new AddItemToCartResult(
             cart.id().value(),
             cart.customerId().value(),
             items,

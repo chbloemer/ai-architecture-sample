@@ -26,15 +26,15 @@ public class GetActiveCheckoutSessionUseCase implements GetActiveCheckoutSession
   }
 
   @Override
-  public @NonNull GetActiveCheckoutSessionResponse execute(
+  public @NonNull GetActiveCheckoutSessionResult execute(
       @NonNull final GetActiveCheckoutSessionQuery query) {
     final CustomerId customerId = CustomerId.of(query.customerId());
 
     return checkoutSessionRepository
         .findActiveByCustomerId(customerId)
-        .map(session -> GetActiveCheckoutSessionResponse.of(
+        .map(session -> GetActiveCheckoutSessionResult.of(
             session.id().value(),
             session.customerId().value()))
-        .orElseGet(GetActiveCheckoutSessionResponse::notFound);
+        .orElseGet(GetActiveCheckoutSessionResult::notFound);
   }
 }

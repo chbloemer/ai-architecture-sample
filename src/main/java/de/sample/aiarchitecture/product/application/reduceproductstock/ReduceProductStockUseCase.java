@@ -1,6 +1,5 @@
 package de.sample.aiarchitecture.product.application.reduceproductstock;
 
-import de.sample.aiarchitecture.product.application.reduceproductstock.ReduceProductStockInputPort;
 import de.sample.aiarchitecture.product.application.shared.ProductRepository;
 import de.sample.aiarchitecture.product.domain.model.Product;
 import de.sample.aiarchitecture.sharedkernel.domain.model.ProductId;
@@ -28,7 +27,7 @@ public class ReduceProductStockUseCase implements ReduceProductStockInputPort {
   }
 
   @Override
-  public @NonNull ReduceProductStockResponse execute(@NonNull final ReduceProductStockCommand input) {
+  public @NonNull ReduceProductStockResult execute(@NonNull final ReduceProductStockCommand input) {
     final ProductId productId = ProductId.of(input.productId());
 
     final Product product = productRepository
@@ -44,7 +43,7 @@ public class ReduceProductStockUseCase implements ReduceProductStockInputPort {
 
     final int newStock = product.stock().quantity();
 
-    return new ReduceProductStockResponse(
+    return new ReduceProductStockResult(
         product.id().value().toString(),
         previousStock,
         newStock

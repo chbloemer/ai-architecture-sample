@@ -1,13 +1,13 @@
 package de.sample.aiarchitecture.product.adapter.incoming.api;
 
 import de.sample.aiarchitecture.product.application.createproduct.CreateProductCommand;
-import de.sample.aiarchitecture.product.application.createproduct.CreateProductResponse;
+import de.sample.aiarchitecture.product.application.createproduct.CreateProductResult;
 import de.sample.aiarchitecture.product.application.createproduct.CreateProductUseCase;
 import de.sample.aiarchitecture.product.application.getallproducts.GetAllProductsQuery;
-import de.sample.aiarchitecture.product.application.getallproducts.GetAllProductsResponse;
+import de.sample.aiarchitecture.product.application.getallproducts.GetAllProductsResult;
 import de.sample.aiarchitecture.product.application.getallproducts.GetAllProductsUseCase;
 import de.sample.aiarchitecture.product.application.getproductbyid.GetProductByIdQuery;
-import de.sample.aiarchitecture.product.application.getproductbyid.GetProductByIdResponse;
+import de.sample.aiarchitecture.product.application.getproductbyid.GetProductByIdResult;
 import de.sample.aiarchitecture.product.application.getproductbyid.GetProductByIdUseCase;
 import jakarta.validation.Valid;
 import java.util.List;
@@ -63,7 +63,7 @@ public class ProductResource {
     );
 
     // Execute use case
-    final CreateProductResponse output = createProductUseCase.execute(input);
+    final CreateProductResult output = createProductUseCase.execute(input);
 
     // Convert output to DTO
     return ResponseEntity.status(HttpStatus.CREATED).body(converter.toDto(output));
@@ -71,7 +71,7 @@ public class ProductResource {
 
   @GetMapping
   public ResponseEntity<List<ProductDto>> getAllProducts() {
-    final GetAllProductsResponse output = getAllProductsUseCase.execute(new GetAllProductsQuery());
+    final GetAllProductsResult output = getAllProductsUseCase.execute(new GetAllProductsQuery());
 
     final List<ProductDto> products = output.products().stream()
         .map(converter::toDto)
@@ -82,7 +82,7 @@ public class ProductResource {
 
   @GetMapping("/{id}")
   public ResponseEntity<ProductDto> getProductById(@PathVariable final String id) {
-    final GetProductByIdResponse output = getProductByIdUseCase.execute(new GetProductByIdQuery(id));
+    final GetProductByIdResult output = getProductByIdUseCase.execute(new GetProductByIdQuery(id));
 
     if (!output.found()) {
       return ResponseEntity.notFound().build();

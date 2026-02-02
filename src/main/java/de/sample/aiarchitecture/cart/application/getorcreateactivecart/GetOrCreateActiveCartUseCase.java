@@ -1,6 +1,5 @@
 package de.sample.aiarchitecture.cart.application.getorcreateactivecart;
 
-import de.sample.aiarchitecture.cart.application.getorcreateactivecart.GetOrCreateActiveCartInputPort;
 import de.sample.aiarchitecture.cart.application.shared.ShoppingCartRepository;
 import de.sample.aiarchitecture.cart.domain.model.CartId;
 import de.sample.aiarchitecture.cart.domain.model.CustomerId;
@@ -30,7 +29,7 @@ public class GetOrCreateActiveCartUseCase implements GetOrCreateActiveCartInputP
   }
 
   @Override
-  public @NonNull GetOrCreateActiveCartResponse execute(@NonNull final GetOrCreateActiveCartCommand input) {
+  public @NonNull GetOrCreateActiveCartResult execute(@NonNull final GetOrCreateActiveCartCommand input) {
     final CustomerId customerId = CustomerId.of(input.customerId());
 
     // Try to find existing active cart
@@ -38,7 +37,7 @@ public class GetOrCreateActiveCartUseCase implements GetOrCreateActiveCartInputP
 
     if (existingCart.isPresent()) {
       // Return existing cart
-      return new GetOrCreateActiveCartResponse(
+      return new GetOrCreateActiveCartResult(
           existingCart.get().id().value(),
           customerId.value(),
           false
@@ -50,7 +49,7 @@ public class GetOrCreateActiveCartUseCase implements GetOrCreateActiveCartInputP
     final ShoppingCart newCart = new ShoppingCart(newCartId, customerId);
     shoppingCartRepository.save(newCart);
 
-    return new GetOrCreateActiveCartResponse(
+    return new GetOrCreateActiveCartResult(
         newCartId.value(),
         customerId.value(),
         true

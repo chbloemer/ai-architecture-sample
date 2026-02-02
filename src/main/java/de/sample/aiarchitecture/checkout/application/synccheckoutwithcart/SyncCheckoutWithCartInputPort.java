@@ -13,7 +13,7 @@ import org.jspecify.annotations.NonNull;
  * typically invoked by event consumers when cart events occur.
  */
 public interface SyncCheckoutWithCartInputPort
-    extends UseCase<SyncCheckoutWithCartCommand, SyncCheckoutWithCartResponse> {
+    extends UseCase<SyncCheckoutWithCartCommand, SyncCheckoutWithCartResult> {
 
   /**
    * Synchronizes the active checkout session for a cart with current cart state.
@@ -24,5 +24,5 @@ public interface SyncCheckoutWithCartInputPort
    * @return response indicating if sync occurred and the updated state
    */
   @Override
-  @NonNull SyncCheckoutWithCartResponse execute(@NonNull SyncCheckoutWithCartCommand command);
+  @NonNull SyncCheckoutWithCartResult execute(@NonNull SyncCheckoutWithCartCommand command);
 }

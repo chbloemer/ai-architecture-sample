@@ -22,7 +22,7 @@ import org.jspecify.annotations.NonNull;
  * @param category the product category
  * @param stockQuantity the stock quantity
  */
-public record CreateProductResponse(
+public record CreateProductResult(
     @NonNull String productId,
     @NonNull String sku,
     @NonNull String name,

@@ -1,22 +1,22 @@
 package de.sample.aiarchitecture.cart.adapter.incoming.api;
 
 import de.sample.aiarchitecture.cart.application.additemtocart.AddItemToCartCommand;
-import de.sample.aiarchitecture.cart.application.additemtocart.AddItemToCartResponse;
+import de.sample.aiarchitecture.cart.application.additemtocart.AddItemToCartResult;
 import de.sample.aiarchitecture.cart.application.additemtocart.AddItemToCartUseCase;
 import de.sample.aiarchitecture.cart.application.checkoutcart.CheckoutCartCommand;
-import de.sample.aiarchitecture.cart.application.checkoutcart.CheckoutCartResponse;
+import de.sample.aiarchitecture.cart.application.checkoutcart.CheckoutCartResult;
 import de.sample.aiarchitecture.cart.application.checkoutcart.CheckoutCartUseCase;
 import de.sample.aiarchitecture.cart.application.createcart.CreateCartCommand;
-import de.sample.aiarchitecture.cart.application.createcart.CreateCartResponse;
+import de.sample.aiarchitecture.cart.application.createcart.CreateCartResult;
 import de.sample.aiarchitecture.cart.application.createcart.CreateCartUseCase;
 import de.sample.aiarchitecture.cart.application.getallcarts.GetAllCartsQuery;
-import de.sample.aiarchitecture.cart.application.getallcarts.GetAllCartsResponse;
+import de.sample.aiarchitecture.cart.application.getallcarts.GetAllCartsResult;
 import de.sample.aiarchitecture.cart.application.getallcarts.GetAllCartsUseCase;
 import de.sample.aiarchitecture.cart.application.getcartbyid.GetCartByIdQuery;
-import de.sample.aiarchitecture.cart.application.getcartbyid.GetCartByIdResponse;
+import de.sample.aiarchitecture.cart.application.getcartbyid.GetCartByIdResult;
 import de.sample.aiarchitecture.cart.application.getcartbyid.GetCartByIdUseCase;
 import de.sample.aiarchitecture.cart.application.removeitemfromcart.RemoveItemFromCartCommand;
-import de.sample.aiarchitecture.cart.application.removeitemfromcart.RemoveItemFromCartResponse;
+import de.sample.aiarchitecture.cart.application.removeitemfromcart.RemoveItemFromCartResult;
 import de.sample.aiarchitecture.cart.application.removeitemfromcart.RemoveItemFromCartUseCase;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -66,21 +66,21 @@ public class ShoppingCartResource {
 
   @PostMapping
   public ResponseEntity<ShoppingCartDto> createCart(@RequestParam final String customerId) {
-    final CreateCartResponse output = createCartUseCase.execute(new CreateCartCommand(customerId));
+    final CreateCartResult output = createCartUseCase.execute(new CreateCartCommand(customerId));
 
     return ResponseEntity.status(HttpStatus.CREATED).body(converter.toDto(output));
   }
 
   @GetMapping
   public ResponseEntity<ShoppingCartListDto> getAllCarts() {
-    final GetAllCartsResponse output = getAllCartsUseCase.execute(new GetAllCartsQuery());
+    final GetAllCartsResult output = getAllCartsUseCase.execute(new GetAllCartsQuery());
 
     return ResponseEntity.ok(converter.toListDto(output));
   }
 
   @GetMapping("/{cartId}")
   public ResponseEntity<ShoppingCartDto> getCart(@PathVariable final String cartId) {
-    final GetCartByIdResponse output = getCartByIdUseCase.execute(new GetCartByIdQuery(cartId));
+    final GetCartByIdResult output = getCartByIdUseCase.execute(new GetCartByIdQuery(cartId));
 
     if (!output.found()) {
       return ResponseEntity.notFound().build();
@@ -99,7 +99,7 @@ public class ShoppingCartResource {
         .execute(new de.sample.aiarchitecture.cart.application.getorcreateactivecart.GetOrCreateActiveCartCommand(customerId));
 
     // Fetch full cart projection suited for the existing DTO conversion
-    final GetCartByIdResponse byId = getCartByIdUseCase.execute(new GetCartByIdQuery(response.cartId()));
+    final GetCartByIdResult byId = getCartByIdUseCase.execute(new GetCartByIdQuery(response.cartId()));
     return ResponseEntity.ok(converter.toDto(byId));
   }
 
@@ -114,7 +114,7 @@ public class ShoppingCartResource {
     );
 
     try {
-      final AddItemToCartResponse output = addItemToCartUseCase.execute(input);
+      final AddItemToCartResult output = addItemToCartUseCase.execute(input);
       return ResponseEntity.ok(converter.toDto(output));
     } catch (IllegalArgumentException ex) {
       final String msg = ex.getMessage() != null ? ex.getMessage() : "Invalid request";
@@ -136,14 +136,14 @@ public class ShoppingCartResource {
       @PathVariable final String cartId, @PathVariable final String productId) {
 
     final RemoveItemFromCartCommand input = new RemoveItemFromCartCommand(cartId, productId);
-    final RemoveItemFromCartResponse output = removeItemFromCartUseCase.execute(input);
+    final RemoveItemFromCartResult output = removeItemFromCartUseCase.execute(input);
 
     return ResponseEntity.ok(converter.toDto(output));
   }
 
   @PostMapping("/{cartId}/checkout")
   public ResponseEntity<ShoppingCartDto> checkout(@PathVariable final String cartId) {
-    final CheckoutCartResponse output = checkoutCartUseCase.execute(new CheckoutCartCommand(cartId));
+    final CheckoutCartResult output = checkoutCartUseCase.execute(new CheckoutCartCommand(cartId));
 
     return ResponseEntity.ok(converter.toDto(output));
   }

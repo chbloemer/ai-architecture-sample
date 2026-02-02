@@ -1,6 +1,5 @@
 package de.sample.aiarchitecture.cart.application.removeitemfromcart;
 
-import de.sample.aiarchitecture.cart.application.removeitemfromcart.RemoveItemFromCartInputPort;
 import de.sample.aiarchitecture.cart.application.shared.ShoppingCartRepository;
 import de.sample.aiarchitecture.cart.domain.model.CartId;
 import de.sample.aiarchitecture.cart.domain.model.ShoppingCart;
@@ -41,7 +40,7 @@ public class RemoveItemFromCartUseCase implements RemoveItemFromCartInputPort {
   }
 
   @Override
-  public @NonNull RemoveItemFromCartResponse execute(@NonNull final RemoveItemFromCartCommand input) {
+  public @NonNull RemoveItemFromCartResult execute(@NonNull final RemoveItemFromCartCommand input) {
     final CartId cartId = CartId.of(input.cartId());
     final ProductId productId = ProductId.of(input.productId());
 
@@ -61,8 +60,8 @@ public class RemoveItemFromCartUseCase implements RemoveItemFromCartInputPort {
     eventPublisher.publishAndClearEvents(cart);
 
     // Map to output
-    final List<RemoveItemFromCartResponse.CartItemSummary> items = cart.items().stream()
-        .map(item -> new RemoveItemFromCartResponse.CartItemSummary(
+    final List<RemoveItemFromCartResult.CartItemSummary> items = cart.items().stream()
+        .map(item -> new RemoveItemFromCartResult.CartItemSummary(
             item.id().value().toString(),
             item.productId().value().toString(),
             item.quantity().value(),
@@ -73,7 +72,7 @@ public class RemoveItemFromCartUseCase implements RemoveItemFromCartInputPort {
 
     final Money total = cart.calculateTotal();
 
-    return new RemoveItemFromCartResponse(
+    return new RemoveItemFromCartResult(
         cart.id().value(),
         cart.customerId().value(),
         items,

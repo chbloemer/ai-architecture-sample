@@ -49,7 +49,7 @@ public class RegisterAccountUseCase implements RegisterAccountInputPort {
   @Override
   @Transactional
   @NonNull
-  public RegisterAccountResponse execute(@NonNull final RegisterAccountCommand command) {
+  public RegisterAccountResult execute(@NonNull final RegisterAccountCommand command) {
     final Email email = Email.of(command.email());
 
     // Check if email is already registered
@@ -74,7 +74,7 @@ public class RegisterAccountUseCase implements RegisterAccountInputPort {
     account.domainEvents().forEach(eventPublisher::publish);
     account.clearDomainEvents();
 
-    return RegisterAccountResponse.of(
+    return RegisterAccountResult.of(
         account.id().value(),
         account.linkedUserId().value(),
         account.email().value(),

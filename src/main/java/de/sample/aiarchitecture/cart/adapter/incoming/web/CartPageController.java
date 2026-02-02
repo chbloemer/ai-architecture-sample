@@ -1,13 +1,13 @@
 package de.sample.aiarchitecture.cart.adapter.incoming.web;
 
 import de.sample.aiarchitecture.cart.application.additemtocart.AddItemToCartCommand;
-import de.sample.aiarchitecture.cart.application.additemtocart.AddItemToCartResponse;
+import de.sample.aiarchitecture.cart.application.additemtocart.AddItemToCartResult;
 import de.sample.aiarchitecture.cart.application.additemtocart.AddItemToCartUseCase;
 import de.sample.aiarchitecture.cart.application.getcartbyid.GetCartByIdQuery;
-import de.sample.aiarchitecture.cart.application.getcartbyid.GetCartByIdResponse;
+import de.sample.aiarchitecture.cart.application.getcartbyid.GetCartByIdResult;
 import de.sample.aiarchitecture.cart.application.getcartbyid.GetCartByIdUseCase;
 import de.sample.aiarchitecture.cart.application.getorcreateactivecart.GetOrCreateActiveCartCommand;
-import de.sample.aiarchitecture.cart.application.getorcreateactivecart.GetOrCreateActiveCartResponse;
+import de.sample.aiarchitecture.cart.application.getorcreateactivecart.GetOrCreateActiveCartResult;
 import de.sample.aiarchitecture.cart.application.getorcreateactivecart.GetOrCreateActiveCartUseCase;
 import de.sample.aiarchitecture.cart.domain.model.CustomerId;
 import de.sample.aiarchitecture.sharedkernel.marker.port.out.IdentityProvider;
@@ -70,11 +70,11 @@ public class CartPageController {
     final CustomerId customerId = CustomerId.of(identity.userId().value());
 
     // Get or create active cart for the current user
-    final GetOrCreateActiveCartResponse cartResponse =
+    final GetOrCreateActiveCartResult cartResponse =
         getOrCreateActiveCartUseCase.execute(new GetOrCreateActiveCartCommand(customerId.value()));
 
     // Fetch cart details
-    final GetCartByIdResponse output =
+    final GetCartByIdResult output =
         getCartByIdUseCase.execute(new GetCartByIdQuery(cartResponse.cartId()));
 
     if (!output.found()) {
@@ -118,13 +118,13 @@ public class CartPageController {
     final CustomerId customerId = CustomerId.of(identity.userId().value());
 
     // Get or create active cart
-    final GetOrCreateActiveCartResponse cartResponse =
+    final GetOrCreateActiveCartResult cartResponse =
         getOrCreateActiveCartUseCase.execute(new GetOrCreateActiveCartCommand(customerId.value()));
 
     // Add product to cart
     final AddItemToCartCommand command =
         new AddItemToCartCommand(cartResponse.cartId(), productId, quantity);
-    final AddItemToCartResponse addResponse = addItemToCartUseCase.execute(command);
+    final AddItemToCartResult addResponse = addItemToCartUseCase.execute(command);
 
     // Add success message
     redirectAttributes.addFlashAttribute("message", "Product added to cart!");

@@ -31,13 +31,13 @@ public class GetCartMergeOptionsUseCase implements GetCartMergeOptionsInputPort 
   }
 
   @Override
-  public @NonNull GetCartMergeOptionsResponse execute(@NonNull final GetCartMergeOptionsQuery input) {
+  public @NonNull GetCartMergeOptionsResult execute(@NonNull final GetCartMergeOptionsQuery input) {
     final CustomerId anonymousCustomerId = CustomerId.of(input.anonymousUserId());
     final CustomerId registeredCustomerId = CustomerId.of(input.registeredUserId());
 
     // If same user ID, no merge needed (identity continuity case)
     if (anonymousCustomerId.equals(registeredCustomerId)) {
-      return GetCartMergeOptionsResponse.noMergeRequired();
+      return GetCartMergeOptionsResult.noMergeRequired();
     }
 
     // Find anonymous user's active cart
@@ -54,19 +54,19 @@ public class GetCartMergeOptionsUseCase implements GetCartMergeOptionsInputPort 
 
     if (anonymousHasItems && accountHasItems) {
       // Both carts have items - user must choose
-      return GetCartMergeOptionsResponse.mergeRequired(
+      return GetCartMergeOptionsResult.mergeRequired(
           toCartSummary(anonymousCart.get()),
           toCartSummary(accountCart.get())
       );
     }
 
     // No merge required - either one or both carts are empty
-    return GetCartMergeOptionsResponse.noMergeRequired();
+    return GetCartMergeOptionsResult.noMergeRequired();
   }
 
-  private GetCartMergeOptionsResponse.CartSummary toCartSummary(final ShoppingCart cart) {
+  private GetCartMergeOptionsResult.CartSummary toCartSummary(final ShoppingCart cart) {
     final Money total = cart.calculateTotal();
-    return new GetCartMergeOptionsResponse.CartSummary(
+    return new GetCartMergeOptionsResult.CartSummary(
         cart.id().value(),
         cart.itemCount(),
         cart.totalQuantity(),
@@ -78,8 +78,8 @@ public class GetCartMergeOptionsUseCase implements GetCartMergeOptionsInputPort 
     );
   }
 
-  private GetCartMergeOptionsResponse.CartItemSummary toItemSummary(final CartItem item) {
-    return new GetCartMergeOptionsResponse.CartItemSummary(
+  private GetCartMergeOptionsResult.CartItemSummary toItemSummary(final CartItem item) {
+    return new GetCartMergeOptionsResult.CartItemSummary(
         item.productId().value(),
         item.quantity().value(),
         item.priceAtAddition().value().amount(),

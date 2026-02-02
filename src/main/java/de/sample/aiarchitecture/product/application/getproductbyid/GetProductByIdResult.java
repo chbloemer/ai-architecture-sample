@@ -20,7 +20,7 @@ import org.jspecify.annotations.Nullable;
  * @param stockQuantity the stock quantity (0 if not found)
  * @param isAvailable whether the product is available for purchase (false if not found)
  */
-public record GetProductByIdResponse(
+public record GetProductByIdResult(
     boolean found,
     @Nullable String productId,
     @Nullable String sku,
@@ -36,14 +36,14 @@ public record GetProductByIdResponse(
   /**
    * Creates an output for a product that was not found.
    */
-  public static GetProductByIdResponse notFound() {
-    return new GetProductByIdResponse(false, null, null, null, null, null, null, null, 0, false);
+  public static GetProductByIdResult notFound() {
+    return new GetProductByIdResult(false, null, null, null, null, null, null, null, 0, false);
   }
 
   /**
    * Creates an output for a product that was found.
    */
-  public static GetProductByIdResponse found(
+  public static GetProductByIdResult found(
       String productId,
       String sku,
       String name,
@@ -53,7 +53,7 @@ public record GetProductByIdResponse(
       String category,
       int stockQuantity,
       boolean isAvailable) {
-    return new GetProductByIdResponse(
+    return new GetProductByIdResult(
         true, productId, sku, name, description, priceAmount, priceCurrency, category, stockQuantity, isAvailable);
   }
 }

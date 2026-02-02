@@ -9,4 +9,4 @@ import de.sample.aiarchitecture.sharedkernel.marker.port.in.UseCase;
  * which retrieves the active checkout session for a customer based on their identity.
  */
 public interface GetActiveCheckoutSessionInputPort
-    extends UseCase<GetActiveCheckoutSessionQuery, GetActiveCheckoutSessionResponse> {}
+    extends UseCase<GetActiveCheckoutSessionQuery, GetActiveCheckoutSessionResult> {}

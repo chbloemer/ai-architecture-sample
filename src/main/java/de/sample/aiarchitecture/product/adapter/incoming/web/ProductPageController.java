@@ -1,10 +1,10 @@
 package de.sample.aiarchitecture.product.adapter.incoming.web;
 
 import de.sample.aiarchitecture.product.application.getallproducts.GetAllProductsQuery;
-import de.sample.aiarchitecture.product.application.getallproducts.GetAllProductsResponse;
+import de.sample.aiarchitecture.product.application.getallproducts.GetAllProductsResult;
 import de.sample.aiarchitecture.product.application.getallproducts.GetAllProductsUseCase;
 import de.sample.aiarchitecture.product.application.getproductbyid.GetProductByIdQuery;
-import de.sample.aiarchitecture.product.application.getproductbyid.GetProductByIdResponse;
+import de.sample.aiarchitecture.product.application.getproductbyid.GetProductByIdResult;
 import de.sample.aiarchitecture.product.application.getproductbyid.GetProductByIdUseCase;
 import java.util.List;
 import org.springframework.stereotype.Controller;
@@ -53,9 +53,9 @@ public class ProductPageController {
    */
   @GetMapping
   public String showProductCatalog(final Model model) {
-    final GetAllProductsResponse output = getAllProductsUseCase.execute(new GetAllProductsQuery());
+    final GetAllProductsResult output = getAllProductsUseCase.execute(new GetAllProductsQuery());
 
-    final List<GetAllProductsResponse.ProductSummary> products = output.products();
+    final List<GetAllProductsResult.ProductSummary> products = output.products();
 
     model.addAttribute("products", products);
     model.addAttribute("title", "Product Catalog");
@@ -75,7 +75,7 @@ public class ProductPageController {
    */
   @GetMapping("/{id}")
   public String showProductDetail(@PathVariable final String id, final Model model) {
-    final GetProductByIdResponse output = getProductByIdUseCase.execute(new GetProductByIdQuery(id));
+    final GetProductByIdResult output = getProductByIdUseCase.execute(new GetProductByIdQuery(id));
 
     if (!output.found()) {
       return "error/404";

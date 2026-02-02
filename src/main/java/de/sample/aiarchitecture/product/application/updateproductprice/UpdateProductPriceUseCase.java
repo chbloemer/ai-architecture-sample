@@ -1,6 +1,5 @@
 package de.sample.aiarchitecture.product.application.updateproductprice;
 
-import de.sample.aiarchitecture.product.application.updateproductprice.UpdateProductPriceInputPort;
 import de.sample.aiarchitecture.product.domain.model.Product;
 import de.sample.aiarchitecture.product.application.shared.ProductRepository;
 import de.sample.aiarchitecture.sharedkernel.domain.model.Money;
@@ -41,7 +40,7 @@ public class UpdateProductPriceUseCase implements UpdateProductPriceInputPort {
   }
 
   @Override
-  public @NonNull UpdateProductPriceResponse execute(@NonNull final UpdateProductPriceCommand input) {
+  public @NonNull UpdateProductPriceResult execute(@NonNull final UpdateProductPriceCommand input) {
     final ProductId productId = ProductId.of(input.productId());
 
     final Product product =
@@ -63,7 +62,7 @@ public class UpdateProductPriceUseCase implements UpdateProductPriceInputPort {
     eventPublisher.publishAndClearEvents(product);
 
     // Map to output
-    return new UpdateProductPriceResponse(
+    return new UpdateProductPriceResult(
         product.id().value().toString(),
         oldPrice.value().amount(),
         oldPrice.value().currency().getCurrencyCode(),

@@ -13,7 +13,7 @@ import org.jspecify.annotations.NonNull;
  * @param totalAmount the total cart amount
  * @param totalCurrency the total cart currency
  */
-public record AddItemToCartResponse(
+public record AddItemToCartResult(
     @NonNull String cartId,
     @NonNull String customerId,
     @NonNull List<CartItemSummary> items,

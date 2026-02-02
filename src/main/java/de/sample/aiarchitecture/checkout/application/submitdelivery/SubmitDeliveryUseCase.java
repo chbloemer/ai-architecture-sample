@@ -36,7 +36,7 @@ public class SubmitDeliveryUseCase implements SubmitDeliveryInputPort {
   }
 
   @Override
-  public @NonNull SubmitDeliveryResponse execute(@NonNull final SubmitDeliveryCommand command) {
+  public @NonNull SubmitDeliveryResult execute(@NonNull final SubmitDeliveryCommand command) {
     // Load session
     final CheckoutSessionId sessionId = CheckoutSessionId.of(command.sessionId());
     final CheckoutSession session =
@@ -75,10 +75,10 @@ public class SubmitDeliveryUseCase implements SubmitDeliveryInputPort {
     return mapToResponse(session);
   }
 
-  private SubmitDeliveryResponse mapToResponse(final CheckoutSession session) {
+  private SubmitDeliveryResult mapToResponse(final CheckoutSession session) {
     final DeliveryAddress address = session.deliveryAddress();
     final ShippingOption shipping = session.shippingOption();
-    return new SubmitDeliveryResponse(
+    return new SubmitDeliveryResult(
         session.id().value().toString(),
         session.currentStep().name(),
         session.status().name(),

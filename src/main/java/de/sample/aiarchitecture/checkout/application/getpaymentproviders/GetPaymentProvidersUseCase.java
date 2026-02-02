@@ -1,6 +1,6 @@
 package de.sample.aiarchitecture.checkout.application.getpaymentproviders;
 
-import de.sample.aiarchitecture.checkout.application.getpaymentproviders.GetPaymentProvidersResponse.PaymentProviderResponse;
+import de.sample.aiarchitecture.checkout.application.getpaymentproviders.GetPaymentProvidersResult.PaymentProviderData;
 import de.sample.aiarchitecture.checkout.application.shared.PaymentProvider;
 import de.sample.aiarchitecture.checkout.application.shared.PaymentProviderRegistry;
 import java.util.List;
@@ -28,16 +28,16 @@ public class GetPaymentProvidersUseCase implements GetPaymentProvidersInputPort 
   }
 
   @Override
-  public @NonNull GetPaymentProvidersResponse execute(@NonNull final GetPaymentProvidersQuery query) {
-    final List<PaymentProviderResponse> providers =
+  public @NonNull GetPaymentProvidersResult execute(@NonNull final GetPaymentProvidersQuery query) {
+    final List<PaymentProviderData> providers =
         paymentProviderRegistry.findAll().stream()
-            .map(this::mapToResponse)
+            .map(this::mapToData)
             .toList();
-    return new GetPaymentProvidersResponse(providers);
+    return new GetPaymentProvidersResult(providers);
   }
 
-  private PaymentProviderResponse mapToResponse(final PaymentProvider provider) {
-    return new PaymentProviderResponse(
+  private PaymentProviderData mapToData(final PaymentProvider provider) {
+    return new PaymentProviderData(
         provider.providerId().value(),
         provider.displayName(),
         provider.isAvailable());

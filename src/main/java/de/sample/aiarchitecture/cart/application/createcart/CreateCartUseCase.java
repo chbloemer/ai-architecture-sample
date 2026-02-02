@@ -1,6 +1,5 @@
 package de.sample.aiarchitecture.cart.application.createcart;
 
-import de.sample.aiarchitecture.cart.application.createcart.CreateCartInputPort;
 import de.sample.aiarchitecture.cart.domain.model.CartId;
 import de.sample.aiarchitecture.cart.domain.model.CustomerId;
 import de.sample.aiarchitecture.cart.domain.model.ShoppingCart;
@@ -28,7 +27,7 @@ public class CreateCartUseCase implements CreateCartInputPort {
   }
 
   @Override
-  public @NonNull CreateCartResponse execute(@NonNull final CreateCartCommand input) {
+  public @NonNull CreateCartResult execute(@NonNull final CreateCartCommand input) {
     final CustomerId customerId = new CustomerId(input.customerId());
     final CartId cartId = CartId.generate();
 
@@ -39,7 +38,7 @@ public class CreateCartUseCase implements CreateCartInputPort {
     shoppingCartRepository.save(cart);
 
     // Map to output
-    return new CreateCartResponse(
+    return new CreateCartResult(
         cart.id().value().toString(),
         cart.customerId().value(),
         cart.status().name()

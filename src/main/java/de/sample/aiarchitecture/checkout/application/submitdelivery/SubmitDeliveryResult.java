@@ -22,7 +22,7 @@ import org.jspecify.annotations.Nullable;
  * @param shippingCost the shipping cost
  * @param currencyCode the currency code for shipping cost
  */
-public record SubmitDeliveryResponse(
+public record SubmitDeliveryResult(
     @NonNull String sessionId,
     @NonNull String currentStep,
     @NonNull String status,

@@ -13,7 +13,7 @@ import org.jspecify.annotations.NonNull;
  * @param lastName the submitted last name
  * @param phone the submitted phone number
  */
-public record SubmitBuyerInfoResponse(
+public record SubmitBuyerInfoResult(
     @NonNull String sessionId,
     @NonNull String currentStep,
     @NonNull String status,

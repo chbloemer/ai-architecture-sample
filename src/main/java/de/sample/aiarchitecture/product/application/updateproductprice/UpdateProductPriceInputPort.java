@@ -13,7 +13,7 @@ import org.jspecify.annotations.NonNull;
  *
  * @see de.sample.aiarchitecture.product.application.usecase.updateproductprice.UpdateProductPriceUseCase
  */
-public interface UpdateProductPriceInputPort extends UseCase<UpdateProductPriceCommand, UpdateProductPriceResponse> {
+public interface UpdateProductPriceInputPort extends UseCase<UpdateProductPriceCommand, UpdateProductPriceResult> {
 
   /**
    * Updates the price of an existing product.
@@ -23,5 +23,5 @@ public interface UpdateProductPriceInputPort extends UseCase<UpdateProductPriceC
    * @throws IllegalArgumentException if product not found or price is invalid
    */
   @Override
-  @NonNull UpdateProductPriceResponse execute(@NonNull UpdateProductPriceCommand command);
+  @NonNull UpdateProductPriceResult execute(@NonNull UpdateProductPriceCommand command);
 }

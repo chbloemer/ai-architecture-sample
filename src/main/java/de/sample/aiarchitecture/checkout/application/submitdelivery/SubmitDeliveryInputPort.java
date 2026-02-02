@@ -14,7 +14,7 @@ import org.jspecify.annotations.NonNull;
  * @see SubmitDeliveryUseCase
  */
 public interface SubmitDeliveryInputPort
-    extends UseCase<SubmitDeliveryCommand, SubmitDeliveryResponse> {
+    extends UseCase<SubmitDeliveryCommand, SubmitDeliveryResult> {
 
   /**
    * Submits delivery information for the checkout session.
@@ -36,5 +36,5 @@ public interface SubmitDeliveryInputPort
    *         or buyer info step is not completed
    */
   @Override
-  @NonNull SubmitDeliveryResponse execute(@NonNull SubmitDeliveryCommand command);
+  @NonNull SubmitDeliveryResult execute(@NonNull SubmitDeliveryCommand command);
 }

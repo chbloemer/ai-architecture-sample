@@ -27,7 +27,7 @@ public class CompleteCartUseCase implements CompleteCartInputPort {
   }
 
   @Override
-  public @NonNull CompleteCartResponse execute(@NonNull final CompleteCartCommand input) {
+  public @NonNull CompleteCartResult execute(@NonNull final CompleteCartCommand input) {
     final CartId cartId = CartId.of(input.cartId());
 
     // Retrieve cart
@@ -42,7 +42,7 @@ public class CompleteCartUseCase implements CompleteCartInputPort {
     // Persist
     shoppingCartRepository.save(cart);
 
-    return new CompleteCartResponse(
+    return new CompleteCartResult(
         cart.id().value().toString(),
         cart.status().name()
     );

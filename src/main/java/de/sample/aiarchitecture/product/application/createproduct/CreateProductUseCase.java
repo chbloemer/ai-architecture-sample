@@ -9,7 +9,6 @@ import de.sample.aiarchitecture.product.domain.model.ProductFactory;
 import de.sample.aiarchitecture.product.domain.model.ProductName;
 import de.sample.aiarchitecture.product.domain.model.ProductStock;
 import de.sample.aiarchitecture.product.domain.model.SKU;
-import de.sample.aiarchitecture.product.application.createproduct.CreateProductInputPort;
 import de.sample.aiarchitecture.sharedkernel.domain.model.Money;
 import de.sample.aiarchitecture.sharedkernel.domain.model.Price;
 import java.util.Currency;
@@ -49,7 +48,7 @@ public class CreateProductUseCase implements CreateProductInputPort {
   }
 
   @Override
-  public @NonNull CreateProductResponse execute(@NonNull final CreateProductCommand input) {
+  public @NonNull CreateProductResult execute(@NonNull final CreateProductCommand input) {
     final SKU sku = new SKU(input.sku());
 
     // Business rule: SKU must be unique
@@ -74,7 +73,7 @@ public class CreateProductUseCase implements CreateProductInputPort {
     eventPublisher.publishAndClearEvents(product);
 
     // Map to output
-    return new CreateProductResponse(
+    return new CreateProductResult(
         product.id().value().toString(),
         product.sku().value(),
         product.name().value(),

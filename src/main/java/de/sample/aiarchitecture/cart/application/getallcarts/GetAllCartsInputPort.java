@@ -7,4 +7,4 @@ import de.sample.aiarchitecture.sharedkernel.marker.port.in.UseCase;
  *
  * <p>This port defines the contract for the "Get All Carts" use case.
  */
-public interface GetAllCartsInputPort extends UseCase<GetAllCartsQuery, GetAllCartsResponse> {}
+public interface GetAllCartsInputPort extends UseCase<GetAllCartsQuery, GetAllCartsResult> {}

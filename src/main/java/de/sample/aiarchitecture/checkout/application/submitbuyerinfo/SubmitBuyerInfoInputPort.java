@@ -14,7 +14,7 @@ import org.jspecify.annotations.NonNull;
  * @see SubmitBuyerInfoUseCase
  */
 public interface SubmitBuyerInfoInputPort
-    extends UseCase<SubmitBuyerInfoCommand, SubmitBuyerInfoResponse> {
+    extends UseCase<SubmitBuyerInfoCommand, SubmitBuyerInfoResult> {
 
   /**
    * Submits buyer contact information for the checkout session.
@@ -33,5 +33,5 @@ public interface SubmitBuyerInfoInputPort
    * @throws IllegalStateException if session is not modifiable or step validation fails
    */
   @Override
-  @NonNull SubmitBuyerInfoResponse execute(@NonNull SubmitBuyerInfoCommand command);
+  @NonNull SubmitBuyerInfoResult execute(@NonNull SubmitBuyerInfoCommand command);
 }

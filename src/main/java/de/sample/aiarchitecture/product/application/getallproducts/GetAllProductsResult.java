@@ -9,7 +9,7 @@ import org.jspecify.annotations.NonNull;
  *
  * @param products the list of products
  */
-public record GetAllProductsResponse(@NonNull List<ProductSummary> products) {
+public record GetAllProductsResult(@NonNull List<ProductSummary> products) {
 
   /**
    * Summary of a product (used in lists).

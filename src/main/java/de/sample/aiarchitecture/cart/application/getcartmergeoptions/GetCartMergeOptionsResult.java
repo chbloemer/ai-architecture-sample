@@ -16,7 +16,7 @@ import org.jspecify.annotations.Nullable;
  * @param anonymousCart summary of the anonymous cart (null if empty/not exists)
  * @param accountCart summary of the account cart (null if empty/not exists)
  */
-public record GetCartMergeOptionsResponse(
+public record GetCartMergeOptionsResult(
     boolean mergeRequired,
     @Nullable CartSummary anonymousCart,
     @Nullable CartSummary accountCart
@@ -25,17 +25,17 @@ public record GetCartMergeOptionsResponse(
   /**
    * Creates a response indicating no merge is required.
    */
-  public static GetCartMergeOptionsResponse noMergeRequired() {
-    return new GetCartMergeOptionsResponse(false, null, null);
+  public static GetCartMergeOptionsResult noMergeRequired() {
+    return new GetCartMergeOptionsResult(false, null, null);
   }
 
   /**
    * Creates a response indicating merge options should be presented.
    */
-  public static GetCartMergeOptionsResponse mergeRequired(
+  public static GetCartMergeOptionsResult mergeRequired(
       @NonNull CartSummary anonymousCart,
       @NonNull CartSummary accountCart) {
-    return new GetCartMergeOptionsResponse(true, anonymousCart, accountCart);
+    return new GetCartMergeOptionsResult(true, anonymousCart, accountCart);
   }
 
   /**

@@ -9,7 +9,7 @@ import org.jspecify.annotations.NonNull;
  * @param previousStock the stock quantity before reduction
  * @param newStock the stock quantity after reduction
  */
-public record ReduceProductStockResponse(
+public record ReduceProductStockResult(
     @NonNull String productId,
     int previousStock,
     int newStock

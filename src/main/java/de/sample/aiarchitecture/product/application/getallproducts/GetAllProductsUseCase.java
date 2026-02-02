@@ -1,6 +1,5 @@
 package de.sample.aiarchitecture.product.application.getallproducts;
 
-import de.sample.aiarchitecture.product.application.getallproducts.GetAllProductsInputPort;
 import de.sample.aiarchitecture.product.domain.model.Product;
 import de.sample.aiarchitecture.product.application.shared.ProductRepository;
 import java.util.List;
@@ -27,11 +26,11 @@ public class GetAllProductsUseCase implements GetAllProductsInputPort {
   }
 
   @Override
-  public @NonNull GetAllProductsResponse execute(@NonNull final GetAllProductsQuery input) {
+  public @NonNull GetAllProductsResult execute(@NonNull final GetAllProductsQuery input) {
     final List<Product> products = productRepository.findAll();
 
-    final List<GetAllProductsResponse.ProductSummary> summaries = products.stream()
-        .map(product -> new GetAllProductsResponse.ProductSummary(
+    final List<GetAllProductsResult.ProductSummary> summaries = products.stream()
+        .map(product -> new GetAllProductsResult.ProductSummary(
             product.id().value().toString(),
             product.sku().value(),
             product.name().value(),
@@ -42,6 +41,6 @@ public class GetAllProductsUseCase implements GetAllProductsInputPort {
         ))
         .toList();
 
-    return new GetAllProductsResponse(summaries);
+    return new GetAllProductsResult(summaries);
   }
 }

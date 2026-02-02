@@ -4,9 +4,11 @@ A comprehensive demonstration of **Domain-Driven Design (DDD)**, **Clean Archite
 
 ## Overview
 
-This project showcases best practices for structuring a Spring Boot application with clean architecture principles. It implements three bounded contexts:
+This project showcases best practices for structuring a Spring Boot application with clean architecture principles. It implements five bounded contexts:
 - **Product Catalog** - Product management with pricing and inventory
-- **Shopping Cart** - Customer shopping cart with checkout functionality
+- **Shopping Cart** - Customer shopping cart management
+- **Checkout** - Multi-step checkout flow with session management
+- **Account** - User registration and authentication
 - **Portal** - Application home page and navigation
 
 ### Key Features
@@ -16,40 +18,44 @@ This project showcases best practices for structuring a Spring Boot application 
 - **16 Architecture Decision Records** documenting design choices
 - **Shared Kernel** pattern for cross-context value objects
 - **Framework-Independent Domain** layer (no Spring/JPA in core)
+- **Multi-step Checkout Flow** with 5 steps and session management
+- **Specification Pattern with Visitor** for database-agnostic cart filtering
+- **Multiple Persistence Strategies** (InMemory, JPA, JDBC) for shopping cart
 
 ## Architecture Patterns
 
 ### Domain-Driven Design (DDD)
 
 **Strategic Patterns:**
-- **Bounded Contexts**: Product Catalog, Shopping Cart
-- **Shared Kernel**: Cross-context value objects (Money, Price, ProductId)
-- **Context Mapping**: Contexts communicate via shared kernel
+- **Bounded Contexts**: Product Catalog, Shopping Cart, Checkout, Account, Portal
+- **Shared Kernel**: Cross-context value objects (Money, Price, ProductId, UserId)
+- **Context Mapping**: Contexts communicate via shared kernel and domain events
+- **Open Host Service**: ProductCatalogService provides cross-context API
 
 **Tactical Patterns:**
-- **Aggregates**: Product, ShoppingCart
-- **Entities**: CartItem
-- **Value Objects**: ProductId, SKU, Price, Money, Quantity, Category, etc.
+- **Aggregates**: Product, ShoppingCart, CheckoutSession, Account
+- **Entities**: CartItem, CheckoutLineItem
+- **Value Objects**: ProductId, SKU, Price, Money, Quantity, Category, BuyerInfo, DeliveryAddress, Email, HashedPassword, etc.
 - **Repositories**: Interfaces in application layer, implementations in adapters
-- **Domain Services**: PricingService, CartTotalCalculator
-- **Domain Events**: ProductCreated, ProductPriceChanged, CartCheckedOut, CartItemAddedToCart
+- **Domain Services**: PricingService, CartTotalCalculator, CheckoutStepValidator, PasswordHasher
+- **Domain Events**: ProductCreated, ProductPriceChanged, CartCheckedOut, CartItemAddedToCart, CartItemQuantityChanged, ProductRemovedFromCart, CartCleared, CheckoutSessionStarted, CheckoutConfirmed, AccountRegistered, etc.
 - **Factories**: ProductFactory
-- **Specifications**: ProductAvailabilitySpecification
+- **Specifications**: ProductAvailabilitySpecification, CartSpecification (with Visitor pattern: ActiveCart, HasMinTotal, HasAnyAvailableItem, LastUpdatedBefore, CustomerAllowsMarketing)
 
 ### Clean Architecture
 
 - **Use Cases** (Input Ports): Explicit use case interfaces with single responsibility
 - **Input/Output Models**: Commands, Queries, and Response objects decouple layers
-- **Framework Independence**: Domain and application layers are framework-agnostic
+- **Framework Independence**: Domain layer is framework-agnostic; application layer uses minimal framework annotations pragmatically
 - **Dependency Rule**: Dependencies point inward (Infrastructure → Adapters → Application → Domain)
-- **Use Case Organization**: One use case per operation (CreateProductUseCase, AddItemToCartUseCase, etc.)
+- **Use Case Organization**: One use case per operation (CreateProductUseCase, AddItemToCartUseCase, StartCheckoutUseCase, etc.)
 
 ### Hexagonal Architecture (Ports and Adapters)
 
 - **Input Ports**: Use case interfaces (defined in application layer)
 - **Output Ports**: Repository and service interfaces (defined in sharedkernel.application.port)
-- **Incoming Adapters** (Primary): REST Controllers, MCP Server, Web MVC
-- **Outgoing Adapters** (Secondary): In-memory repository implementations
+- **Incoming Adapters** (Primary): REST Controllers, MCP Server, Web MVC, Event Consumers, Open Host Services
+- **Outgoing Adapters** (Secondary): In-memory, JPA, and JDBC repository implementations
 
 ### Onion Architecture
 
@@ -81,15 +87,17 @@ src/main/java/de/sample/aiarchitecture/
 │   │   │   ├── BoundedContext.java
 │   │   │   ├── SharedKernel.java
 │   │   │   └── OpenHostService.java
-│   │   └── port/                         # Hexagonal Architecture ports
-│   │       ├── in/                       # Input ports (driving)
-│   │       │   ├── InputPort.java
-│   │       │   └── UseCase.java
-│   │       └── out/                      # Output ports (driven)
-│   │           ├── OutputPort.java
-│   │           ├── Repository.java
-│   │           ├── DomainEventPublisher.java
-│   │           └── IdentityProvider.java
+│   │   ├── port/                         # Hexagonal Architecture ports
+│   │   │   ├── in/                       # Input ports (driving)
+│   │   │   │   ├── InputPort.java
+│   │   │   │   └── UseCase.java
+│   │   │   └── out/                      # Output ports (driven)
+│   │   │       ├── OutputPort.java
+│   │   │       ├── Repository.java
+│   │   │       ├── DomainEventPublisher.java
+│   │   │       └── IdentityProvider.java
+│   │   └── infrastructure/               # Framework integration markers
+│   │       └── AsyncInitialize.java
 │   ├── domain/
 │   │   ├── model/                        # Shared value objects
 │   │   │   ├── ProductId.java            # Cross-context ID
@@ -126,8 +134,8 @@ src/main/java/de/sample/aiarchitecture/
 │   │       └── ProductPriceChanged.java
 │   ├── application/                      # Application layer
 │   │   ├── createproduct/                # Use case: Create Product
-│   │   │   ├── CreateProductInputPort.java       # Input port interface
-│   │   │   ├── CreateProductUseCase.java         # Use case implementation
+│   │   │   ├── CreateProductInputPort.java
+│   │   │   ├── CreateProductUseCase.java
 │   │   │   ├── CreateProductCommand.java
 │   │   │   └── CreateProductResponse.java
 │   │   ├── getallproducts/               # Use case: Get All Products
@@ -151,19 +159,25 @@ src/main/java/de/sample/aiarchitecture/
 │   │   │   ├── ReduceProductStockCommand.java
 │   │   │   └── ReduceProductStockResponse.java
 │   │   └── shared/                       # Shared output ports
-│   │       └── ProductRepository.java    # Repository interface
+│   │       └── ProductRepository.java
 │   └── adapter/                          # Adapters
 │       ├── incoming/                     # Incoming adapters (primary)
 │       │   ├── api/
-│       │   │   ├── ProductResource.java  # REST API
+│       │   │   ├── ProductResource.java
 │       │   │   ├── CreateProductRequest.java
-│       │   │   └── ProductDto.java
+│       │   │   ├── ProductDto.java
+│       │   │   └── ProductDtoConverter.java
 │       │   ├── mcp/
 │       │   │   └── ProductCatalogMcpToolProvider.java
 │       │   ├── web/
 │       │   │   └── ProductPageController.java
+│       │   ├── openhost/
+│       │   │   └── ProductCatalogService.java    # Open Host Service
 │       │   └── event/
-│       │       └── ProductEventConsumer.java
+│       │       ├── ProductEventConsumer.java
+│       │       ├── CheckoutConfirmedEventListener.java
+│       │       └── acl/
+│       │           └── CheckoutEventTranslator.java  # Anti-corruption layer
 │       └── outgoing/                     # Outgoing adapters (secondary)
 │           └── persistence/
 │               ├── InMemoryProductRepository.java
@@ -179,11 +193,23 @@ src/main/java/de/sample/aiarchitecture/
 │   │   │   ├── CustomerId.java
 │   │   │   ├── Quantity.java
 │   │   │   └── CartStatus.java
+│   │   ├── specification/                # Cart specifications (Visitor pattern)
+│   │   │   ├── CartSpecification.java    # Base specification interface
+│   │   │   ├── CartSpecificationVisitor.java  # Visitor for database-agnostic filtering
+│   │   │   ├── ComposedCartSpecification.java
+│   │   │   ├── ActiveCart.java
+│   │   │   ├── HasMinTotal.java
+│   │   │   ├── HasAnyAvailableItem.java
+│   │   │   ├── LastUpdatedBefore.java
+│   │   │   └── CustomerAllowsMarketing.java
 │   │   ├── service/                      # Domain services
 │   │   │   └── CartTotalCalculator.java
 │   │   └── event/                        # Domain events
 │   │       ├── CartCheckedOut.java
-│   │       └── CartItemAddedToCart.java
+│   │       ├── CartItemAddedToCart.java
+│   │       ├── CartItemQuantityChanged.java
+│   │       ├── ProductRemovedFromCart.java
+│   │       └── CartCleared.java
 │   ├── application/                      # Application layer
 │   │   ├── createcart/                   # Use case: Create Cart
 │   │   │   ├── CreateCartInputPort.java
@@ -220,20 +246,218 @@ src/main/java/de/sample/aiarchitecture/
 │   │   │   ├── RemoveItemFromCartUseCase.java
 │   │   │   ├── RemoveItemFromCartCommand.java
 │   │   │   └── RemoveItemFromCartResponse.java
+│   │   ├── mergecarts/                   # Use case: Merge Carts
+│   │   │   ├── MergeCartsInputPort.java
+│   │   │   ├── MergeCartsUseCase.java
+│   │   │   ├── MergeCartsCommand.java
+│   │   │   └── MergeCartsResponse.java
+│   │   ├── getcartmergeoptions/          # Use case: Get Cart Merge Options
+│   │   │   ├── GetCartMergeOptionsInputPort.java
+│   │   │   ├── GetCartMergeOptionsUseCase.java
+│   │   │   ├── GetCartMergeOptionsQuery.java
+│   │   │   └── GetCartMergeOptionsResponse.java
+│   │   ├── completecart/                 # Use case: Complete Cart (after checkout)
+│   │   │   ├── CompleteCartInputPort.java
+│   │   │   ├── CompleteCartUseCase.java
+│   │   │   ├── CompleteCartCommand.java
+│   │   │   └── CompleteCartResponse.java
+│   │   ├── recovercart/                  # Use case: Recover Abandoned Cart
+│   │   │   ├── RecoverCartInputPort.java
+│   │   │   ├── RecoverCartUseCase.java
+│   │   │   ├── RecoverCartCommand.java
+│   │   │   └── RecoverCartResponse.java
 │   │   └── shared/                       # Shared output ports
-│   │       └── ShoppingCartRepository.java
+│   │       ├── ShoppingCartRepository.java
+│   │       └── ProductDataPort.java      # Port for product data from other context
 │   └── adapter/                          # Adapters
 │       ├── incoming/                     # Incoming adapters
 │       │   ├── api/
 │       │   │   ├── ShoppingCartResource.java
 │       │   │   ├── AddToCartRequest.java
 │       │   │   ├── ShoppingCartDto.java
+│       │   │   ├── ShoppingCartListDto.java
+│       │   │   ├── CartItemDto.java
 │       │   │   └── ShoppingCartDtoConverter.java
+│       │   ├── web/
+│       │   │   ├── CartPageController.java
+│       │   │   └── CartMergePageController.java
 │       │   └── event/
-│       │       └── CartEventConsumer.java
+│       │       ├── CartEventConsumer.java
+│       │       └── CheckoutEventConsumer.java
 │       └── outgoing/                     # Outgoing adapters
+│           ├── product/
+│           │   └── ProductDataAdapter.java   # Adapter for product context
 │           └── persistence/
-│               └── InMemoryShoppingCartRepository.java
+│               ├── InMemoryShoppingCartRepository.java
+│               ├── JdbcShoppingCartRepository.java
+│               └── jpa/                  # JPA persistence alternative
+│                   ├── JpaShoppingCartRepository.java
+│                   ├── CartJpaRepository.java
+│                   ├── CartEntity.java
+│                   ├── CartItemEntity.java
+│                   └── CartSpecToJpa.java    # Specification visitor for JPA
+│               └── jdbc/
+│                   └── CartSpecToJdbc.java   # Specification visitor for JDBC
+│
+├── checkout/                             # Checkout bounded context
+│   ├── domain/
+│   │   ├── model/                        # Domain model
+│   │   │   ├── CheckoutSession.java      # Aggregate Root
+│   │   │   ├── CheckoutLineItem.java     # Entity
+│   │   │   ├── CheckoutSessionId.java    # Value Objects
+│   │   │   ├── CheckoutLineItemId.java
+│   │   │   ├── CheckoutStep.java         # Enum: BUYER_INFO, DELIVERY, PAYMENT, REVIEW, CONFIRMATION
+│   │   │   ├── CheckoutSessionStatus.java
+│   │   │   ├── CheckoutTotals.java
+│   │   │   ├── BuyerInfo.java
+│   │   │   ├── DeliveryAddress.java
+│   │   │   ├── ShippingOption.java
+│   │   │   ├── PaymentSelection.java
+│   │   │   ├── PaymentProviderId.java
+│   │   │   ├── CustomerId.java
+│   │   │   └── CartId.java
+│   │   ├── service/                      # Domain services
+│   │   │   └── CheckoutStepValidator.java
+│   │   └── event/                        # Domain events
+│   │       ├── CheckoutSessionStarted.java
+│   │       ├── BuyerInfoSubmitted.java
+│   │       ├── DeliverySubmitted.java
+│   │       ├── PaymentSubmitted.java
+│   │       ├── CheckoutConfirmed.java
+│   │       ├── CheckoutCompleted.java
+│   │       ├── CheckoutAbandoned.java
+│   │       └── CheckoutExpired.java
+│   ├── application/                      # Application layer
+│   │   ├── startcheckout/                # Use case: Start Checkout
+│   │   │   ├── StartCheckoutInputPort.java
+│   │   │   ├── StartCheckoutUseCase.java
+│   │   │   ├── StartCheckoutCommand.java
+│   │   │   └── StartCheckoutResponse.java
+│   │   ├── submitbuyerinfo/              # Use case: Submit Buyer Info
+│   │   │   ├── SubmitBuyerInfoInputPort.java
+│   │   │   ├── SubmitBuyerInfoUseCase.java
+│   │   │   ├── SubmitBuyerInfoCommand.java
+│   │   │   └── SubmitBuyerInfoResponse.java
+│   │   ├── submitdelivery/               # Use case: Submit Delivery
+│   │   │   ├── SubmitDeliveryInputPort.java
+│   │   │   ├── SubmitDeliveryUseCase.java
+│   │   │   ├── SubmitDeliveryCommand.java
+│   │   │   └── SubmitDeliveryResponse.java
+│   │   ├── submitpayment/                # Use case: Submit Payment
+│   │   │   ├── SubmitPaymentInputPort.java
+│   │   │   ├── SubmitPaymentUseCase.java
+│   │   │   ├── SubmitPaymentCommand.java
+│   │   │   └── SubmitPaymentResponse.java
+│   │   ├── confirmcheckout/              # Use case: Confirm Checkout
+│   │   │   ├── ConfirmCheckoutInputPort.java
+│   │   │   ├── ConfirmCheckoutUseCase.java
+│   │   │   ├── ConfirmCheckoutCommand.java
+│   │   │   └── ConfirmCheckoutResponse.java
+│   │   ├── getcheckoutsession/           # Use case: Get Checkout Session
+│   │   │   ├── GetCheckoutSessionInputPort.java
+│   │   │   ├── GetCheckoutSessionUseCase.java
+│   │   │   ├── GetCheckoutSessionQuery.java
+│   │   │   └── GetCheckoutSessionResponse.java
+│   │   ├── getactivecheckoutsession/     # Use case: Get Active Checkout Session
+│   │   │   ├── GetActiveCheckoutSessionInputPort.java
+│   │   │   ├── GetActiveCheckoutSessionUseCase.java
+│   │   │   ├── GetActiveCheckoutSessionQuery.java
+│   │   │   └── GetActiveCheckoutSessionResponse.java
+│   │   ├── getconfirmedcheckoutsession/  # Use case: Get Confirmed Checkout Session
+│   │   │   ├── GetConfirmedCheckoutSessionInputPort.java
+│   │   │   ├── GetConfirmedCheckoutSessionUseCase.java
+│   │   │   ├── GetConfirmedCheckoutSessionQuery.java
+│   │   │   └── GetConfirmedCheckoutSessionResponse.java
+│   │   ├── getshippingoptions/           # Use case: Get Shipping Options
+│   │   │   ├── GetShippingOptionsInputPort.java
+│   │   │   ├── GetShippingOptionsUseCase.java
+│   │   │   ├── GetShippingOptionsQuery.java
+│   │   │   └── GetShippingOptionsResponse.java
+│   │   ├── getpaymentproviders/          # Use case: Get Payment Providers
+│   │   │   ├── GetPaymentProvidersInputPort.java
+│   │   │   ├── GetPaymentProvidersUseCase.java
+│   │   │   ├── GetPaymentProvidersQuery.java
+│   │   │   └── GetPaymentProvidersResponse.java
+│   │   ├── synccheckoutwithcart/         # Use case: Sync Checkout with Cart
+│   │   │   ├── SyncCheckoutWithCartInputPort.java
+│   │   │   ├── SyncCheckoutWithCartUseCase.java
+│   │   │   ├── SyncCheckoutWithCartCommand.java
+│   │   │   └── SyncCheckoutWithCartResponse.java
+│   │   └── shared/                       # Shared output ports
+│   │       ├── CheckoutSessionRepository.java
+│   │       ├── CartDataPort.java
+│   │       ├── CartData.java
+│   │       ├── ProductInfoPort.java
+│   │       ├── PaymentProvider.java
+│   │       └── PaymentProviderRegistry.java
+│   └── adapter/                          # Adapters
+│       ├── incoming/                     # Incoming adapters
+│       │   ├── web/
+│       │   │   ├── StartCheckoutPageController.java
+│       │   │   ├── BuyerInfoPageController.java
+│       │   │   ├── DeliveryPageController.java
+│       │   │   ├── PaymentPageController.java
+│       │   │   ├── ReviewPageController.java
+│       │   │   └── ConfirmationPageController.java
+│       │   └── event/
+│       │       └── CartChangeEventConsumer.java
+│       └── outgoing/                     # Outgoing adapters
+│           ├── persistence/
+│           │   └── InMemoryCheckoutSessionRepository.java
+│           ├── cart/
+│           │   └── CartDataAdapter.java
+│           ├── product/
+│           │   └── ProductInfoAdapter.java
+│           └── payment/
+│               ├── MockPaymentProvider.java
+│               └── InMemoryPaymentProviderRegistry.java
+│
+├── account/                              # Account bounded context
+│   ├── domain/
+│   │   ├── model/                        # Domain model
+│   │   │   ├── Account.java              # Aggregate Root
+│   │   │   ├── AccountId.java            # Value Objects
+│   │   │   ├── Email.java
+│   │   │   ├── HashedPassword.java
+│   │   │   └── AccountStatus.java
+│   │   ├── service/                      # Domain services
+│   │   │   └── PasswordHasher.java       # Interface for password hashing
+│   │   └── event/                        # Domain events
+│   │       ├── AccountRegistered.java
+│   │       └── AccountLinkedToIdentity.java
+│   ├── application/                      # Application layer
+│   │   ├── registeraccount/              # Use case: Register Account
+│   │   │   ├── RegisterAccountInputPort.java
+│   │   │   ├── RegisterAccountUseCase.java
+│   │   │   ├── RegisterAccountCommand.java
+│   │   │   └── RegisterAccountResponse.java
+│   │   ├── authenticateaccount/          # Use case: Authenticate Account
+│   │   │   ├── AuthenticateAccountInputPort.java
+│   │   │   ├── AuthenticateAccountUseCase.java
+│   │   │   ├── AuthenticateAccountCommand.java
+│   │   │   └── AuthenticateAccountResponse.java
+│   │   └── shared/                       # Shared output ports
+│   │       ├── AccountRepository.java
+│   │       ├── RegisteredUserValidator.java
+│   │       ├── TokenService.java
+│   │       └── IdentitySession.java
+│   └── adapter/                          # Adapters
+│       ├── incoming/                     # Incoming adapters
+│       │   ├── api/
+│       │   │   ├── AuthResource.java
+│       │   │   ├── LoginRequest.java
+│       │   │   ├── LoginApiResult.java
+│       │   │   ├── RegisterRequest.java
+│       │   │   └── RegisterApiResult.java
+│       │   └── web/
+│       │       ├── LoginPageController.java
+│       │       └── RegisterPageController.java
+│       └── outgoing/                     # Outgoing adapters
+│           ├── persistence/
+│           │   └── InMemoryAccountRepository.java
+│           └── security/
+│               ├── SpringSecurityPasswordHasher.java
+│               └── AccountBasedRegisteredUserValidator.java
 │
 ├── portal/                               # Portal bounded context
 │   └── adapter/                          # Adapters
@@ -246,11 +470,19 @@ src/main/java/de/sample/aiarchitecture/
     │   ├── SecurityConfiguration.java
     │   ├── TransactionConfiguration.java
     │   ├── AsyncConfiguration.java
-    │   └── DomainConfiguration.java
+    │   ├── DomainConfiguration.java
+    │   └── Pug4jConfiguration.java
     ├── support/                          # Framework support components
     │   └── AsyncInitializationProcessor.java
     └── security/                         # Security infrastructure
+        ├── SpringSecurityIdentityProvider.java
+        ├── JwtIdentity.java
+        ├── JwtIdentityType.java
         └── jwt/                          # JWT authentication
+            ├── JwtTokenService.java
+            ├── JwtIdentitySession.java
+            ├── JwtProperties.java
+            └── JwtAuthenticationFilter.java
 ```
 
 ## Getting Started
@@ -420,7 +652,7 @@ For comprehensive architecture documentation, see:
 **Domain Layer** (per bounded context) - Framework-independent business logic
 - No Spring/JPA annotations in domain models
 - All business rules in domain objects
-- Organized into: domain.model, domain.service, domain.event
+- Organized into: domain.model, domain.service, domain.event, domain.specification
 - Dependencies point inward toward domain
 
 **Application Layer** (per bounded context) - Use case orchestration
@@ -434,16 +666,23 @@ For comprehensive architecture documentation, see:
   - `adapter.incoming.api` - REST APIs (@RestController) returning JSON
   - `adapter.incoming.web` - Web MVC (@Controller) returning HTML
   - `adapter.incoming.mcp` - MCP Server for AI assistants
+  - `adapter.incoming.openhost` - Open Host Services for cross-context APIs
+  - `adapter.incoming.event` - Domain event consumers
+  - `adapter.incoming.event.acl` - Anti-corruption layer event translators
 - Outgoing Adapters (Secondary):
-  - `adapter.outgoing.persistence` - Repository implementations
+  - `adapter.outgoing.persistence` - Repository implementations (InMemory, JPA, JDBC)
+  - `adapter.outgoing.cart`, `adapter.outgoing.product` - Cross-context data adapters
+  - `adapter.outgoing.payment` - Payment provider adapters
+  - `adapter.outgoing.security` - Security-related adapters
 - DTO conversion happens here
 - Adapters don't communicate directly
 
 **Shared Kernel** - Cross-context shared concepts
 - `sharedkernel.marker.tactical` - DDD tactical patterns (Entity, Value, AggregateRoot, DomainEvent, etc.)
-- `sharedkernel.marker.strategic` - DDD strategic patterns (BoundedContext, SharedKernel)
+- `sharedkernel.marker.strategic` - DDD strategic patterns (BoundedContext, SharedKernel, OpenHostService)
 - `sharedkernel.marker.port.in` - Input ports (UseCase, InputPort)
 - `sharedkernel.marker.port.out` - Output ports (Repository, DomainEventPublisher, IdentityProvider)
+- `sharedkernel.marker.infrastructure` - Framework integration markers (AsyncInitialize)
 - `sharedkernel.domain.model` - Shared value objects (Money, Price, ProductId, UserId)
 - `sharedkernel.domain.specification` - Composable specification pattern
 - `sharedkernel.adapter.outgoing.event` - Shared outgoing adapters (SpringDomainEventPublisher)
@@ -451,7 +690,7 @@ For comprehensive architecture documentation, see:
 **Infrastructure Layer** - Cross-cutting concerns
 - `infrastructure.config` - Spring @Configuration classes
 - `infrastructure.support` - Framework support components (processors, listeners)
-- `infrastructure.security` - Security infrastructure (JWT, authentication)
+- `infrastructure.security` - Security infrastructure (JWT, authentication, identity)
 
 ## Testing
 
@@ -499,6 +738,11 @@ These tests verify:
 6. **MCP as Primary Adapter**: MCP server implemented as incoming adapter, maintaining clean architecture
 7. **Read-Only MCP Tools**: AI access limited to queries for safety
 8. **Shared Kernel**: Cross-context value objects shared between bounded contexts
+9. **Multi-step Checkout Flow**: 5 steps (Buyer Info → Delivery → Payment → Review → Confirmation) with session management
+10. **Specification Pattern with Visitor**: Database-agnostic filtering via CartSpecification and CartSpecificationVisitor
+11. **Multiple Persistence Strategies**: InMemory (default), JPA, and JDBC implementations for shopping cart
+12. **OpenHost Service Pattern**: ProductCatalogService provides cross-context API for checkout
+13. **UserId Continuity on Registration**: When a user registers, their anonymous UserId is preserved
 
 **Architecture Decision Records:** See [docs/architecture/adr/README.md](docs/architecture/adr/README.md) for 16 documented architectural decisions.
 
@@ -510,10 +754,21 @@ These tests verify:
 - SKU must be unique
 
 ### Shopping Cart Aggregate
-- Cannot modify checked-out cart
+- Cannot modify checked-out or completed cart
 - Cannot checkout empty cart
 - Each product appears once (quantities combined)
 - Cart stores price snapshot at time of addition
+
+### Checkout Session Aggregate
+- Cannot skip steps - must complete in order (Buyer Info → Delivery → Payment → Review → Confirmation)
+- Can go back to modify previous steps (before confirmation)
+- Cannot modify confirmed, completed, or expired sessions
+- Must have at least one line item to start checkout
+
+### Account Aggregate
+- Email must be unique across all accounts
+- Password is hashed before storage (never stored in plain text)
+- Account status transitions: PENDING → ACTIVE → SUSPENDED/DELETED
 
 ## Further Reading
 

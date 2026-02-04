@@ -3,7 +3,12 @@
 # RALPH Loop - Autonomous AI Agent for PRD Implementation
 # Runs Claude Code repeatedly until all PRD stories pass
 #
-# Usage: ./ralph.sh [max_iterations] [--verbose|-v]
+# Usage: ./ralph.sh [max_iterations] [--verbose|-v] [--epic <epic-name>]
+#
+# Options:
+#   --epic <name>    Only work on stories from specified epic
+#   --verbose, -v    Show detailed debug output
+#   [number]         Maximum iterations (default: 10)
 #
 
 set -e
@@ -21,13 +26,23 @@ TIMEOUT_WARNING=300    # warn after 5 minutes of no output
 # Parse arguments
 MAX_ITERATIONS=10
 VERBOSE=false
-for arg in "$@"; do
-    case $arg in
+EPIC_FILTER=""
+while [[ $# -gt 0 ]]; do
+    case $1 in
         -v|--verbose)
             VERBOSE=true
+            shift
+            ;;
+        --epic)
+            EPIC_FILTER="$2"
+            shift 2
             ;;
         [0-9]*)
-            MAX_ITERATIONS=$arg
+            MAX_ITERATIONS=$1
+            shift
+            ;;
+        *)
+            shift
             ;;
     esac
 done
@@ -131,9 +146,156 @@ check_prerequisites() {
     fi
 }
 
-# Get next incomplete story
+# Check if all dependencies of a story are satisfied (passed)
+check_dependencies_satisfied() {
+    local story_id="$1"
+
+    # Get the depends_on array for this story
+    local deps=$(jq -r --arg id "$story_id" '.stories[] | select(.id == $id) | .depends_on // [] | .[]' "$PRD_FILE" 2>/dev/null)
+
+    # If no dependencies, return success
+    if [ -z "$deps" ]; then
+        return 0
+    fi
+
+    # Check each dependency
+    for dep in $deps; do
+        local dep_passed=$(jq -r --arg id "$dep" '.stories[] | select(.id == $id) | .passes' "$PRD_FILE" 2>/dev/null)
+        if [ "$dep_passed" != "true" ]; then
+            return 1  # Dependency not satisfied
+        fi
+    done
+
+    return 0  # All dependencies satisfied
+}
+
+# Get story epic
+get_story_epic() {
+    local story_id="$1"
+    jq -r --arg id "$story_id" '.stories[] | select(.id == $id) | .epic // "default"' "$PRD_FILE"
+}
+
+# Check if story matches epic filter (if set)
+matches_epic_filter() {
+    local story_id="$1"
+
+    # If no filter set, all stories match
+    if [ -z "$EPIC_FILTER" ]; then
+        return 0
+    fi
+
+    local story_epic=$(get_story_epic "$story_id")
+    [ "$story_epic" = "$EPIC_FILTER" ]
+}
+
+# Get next incomplete story with satisfied dependencies (filtered by epic if set)
 get_next_story() {
-    jq -r '.stories[] | select(.passes == false) | .id' "$PRD_FILE" | head -1
+    # Get all incomplete stories
+    local incomplete_stories=$(jq -r '.stories[] | select(.passes == false) | .id' "$PRD_FILE")
+
+    # Find first one with all dependencies satisfied and matching epic filter
+    for story_id in $incomplete_stories; do
+        if matches_epic_filter "$story_id" && check_dependencies_satisfied "$story_id"; then
+            echo "$story_id"
+            return 0
+        fi
+    done
+
+    # No ready stories found
+    return 1
+}
+
+# Get count of stories ready to work on (incomplete with satisfied deps, filtered by epic)
+count_ready() {
+    local count=0
+    local incomplete_stories=$(jq -r '.stories[] | select(.passes == false) | .id' "$PRD_FILE")
+
+    for story_id in $incomplete_stories; do
+        if matches_epic_filter "$story_id" && check_dependencies_satisfied "$story_id"; then
+            count=$((count + 1))
+        fi
+    done
+
+    echo "$count"
+}
+
+# Get count of stories blocked by dependencies (filtered by epic)
+count_blocked() {
+    local count=0
+    local incomplete_stories=$(jq -r '.stories[] | select(.passes == false) | .id' "$PRD_FILE")
+
+    for story_id in $incomplete_stories; do
+        if matches_epic_filter "$story_id" && ! check_dependencies_satisfied "$story_id"; then
+            count=$((count + 1))
+        fi
+    done
+
+    echo "$count"
+}
+
+# Count completed stories (filtered by epic)
+count_completed_filtered() {
+    if [ -z "$EPIC_FILTER" ]; then
+        jq '[.stories[] | select(.passes == true)] | length' "$PRD_FILE"
+    else
+        jq --arg epic "$EPIC_FILTER" '[.stories[] | select(.passes == true and (.epic // "default") == $epic)] | length' "$PRD_FILE"
+    fi
+}
+
+# Count total stories (filtered by epic)
+count_total_filtered() {
+    if [ -z "$EPIC_FILTER" ]; then
+        jq '.stories | length' "$PRD_FILE"
+    else
+        jq --arg epic "$EPIC_FILTER" '[.stories[] | select((.epic // "default") == $epic)] | length' "$PRD_FILE"
+    fi
+}
+
+# Check if all stories are complete (filtered by epic)
+all_complete_filtered() {
+    if [ -z "$EPIC_FILTER" ]; then
+        local incomplete=$(jq '[.stories[] | select(.passes == false)] | length' "$PRD_FILE")
+    else
+        local incomplete=$(jq --arg epic "$EPIC_FILTER" '[.stories[] | select(.passes == false and (.epic // "default") == $epic)] | length' "$PRD_FILE")
+    fi
+    [ "$incomplete" -eq 0 ]
+}
+
+# List unique epics with their status
+show_epic_status() {
+    echo ""
+    log_info "Epic Status:"
+    log_info "──────────────────────────────────────────────────────────"
+    printf "  %-25s %8s %8s %8s %8s\n" "EPIC" "PASSED" "READY" "BLOCKED" "TOTAL"
+    log_info "──────────────────────────────────────────────────────────"
+
+    local epics=$(jq -r '[.stories[] | .epic // "default"] | unique | .[]' "$PRD_FILE")
+
+    for epic in $epics; do
+        local epic_total=$(jq --arg e "$epic" '[.stories[] | select((.epic // "default") == $e)] | length' "$PRD_FILE")
+        local epic_passed=$(jq --arg e "$epic" '[.stories[] | select((.epic // "default") == $e and .passes == true)] | length' "$PRD_FILE")
+
+        # Count ready and blocked for this epic
+        local epic_ready=0
+        local epic_blocked=0
+        local epic_stories=$(jq -r --arg e "$epic" '.stories[] | select((.epic // "default") == $e and .passes == false) | .id' "$PRD_FILE")
+        for sid in $epic_stories; do
+            if check_dependencies_satisfied "$sid"; then
+                epic_ready=$((epic_ready + 1))
+            else
+                epic_blocked=$((epic_blocked + 1))
+            fi
+        done
+
+        # Highlight current epic filter
+        local prefix="  "
+        if [ "$epic" = "$EPIC_FILTER" ]; then
+            prefix="▶ "
+        fi
+
+        printf "${prefix}%-25s %8d %8d %8d %8d\n" "$epic" "$epic_passed" "$epic_ready" "$epic_blocked" "$epic_total"
+    done
+    log_info "──────────────────────────────────────────────────────────"
 }
 
 # Get story title
@@ -252,11 +414,13 @@ run_iteration() {
 
     local story_title=$(get_story_title "$story_id")
     local story_desc=$(get_story_description "$story_id")
+    local story_epic=$(get_story_epic "$story_id")
 
     echo ""
     log_info "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     log_info "Iteration $iteration: $story_id"
     log_info "Title: $story_title"
+    log_info "Epic: $story_epic"
     log_info "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 
     # Build prompt
@@ -346,9 +510,13 @@ main() {
     log_info "PRD: $PRD_FILE"
     log_info "Max iterations: $MAX_ITERATIONS"
     log_info "Verbose mode: $VERBOSE"
+    if [ -n "$EPIC_FILTER" ]; then
+        log_info "Epic filter: $EPIC_FILTER"
+    else
+        log_info "Epic filter: (none - all epics)"
+    fi
     log_info "Log directory: $LOG_DIR"
     log_info "Heartbeat interval: ${HEARTBEAT_INTERVAL}s"
-    echo ""
 
     check_prerequisites
 
@@ -359,15 +527,34 @@ main() {
         echo "" >> "$PROGRESS_FILE"
     fi
 
-    local completed=$(count_completed)
-    local total=$(count_total)
-    log_info "Progress: $completed / $total stories complete"
+    # Show epic status overview
+    show_epic_status
+
+    # Show filtered progress
+    local completed=$(count_completed_filtered)
+    local total=$(count_total_filtered)
+    local ready=$(count_ready)
+    local blocked=$(count_blocked)
+    echo ""
+    if [ -n "$EPIC_FILTER" ]; then
+        log_info "Epic '$EPIC_FILTER' Progress: $completed / $total stories complete"
+    else
+        log_info "Overall Progress: $completed / $total stories complete"
+    fi
+    log_info "Ready: $ready | Blocked: $blocked"
 
     # Show next story
     local next_story=$(get_next_story)
     if [ -n "$next_story" ]; then
         local next_title=$(get_story_title "$next_story")
-        log_info "Next story: $next_story - $next_title"
+        local next_epic=$(get_story_epic "$next_story")
+        log_info "Next story: $next_story - $next_title (epic: $next_epic)"
+    else
+        if [ -n "$EPIC_FILTER" ]; then
+            log_warn "No ready stories in epic '$EPIC_FILTER'"
+        else
+            log_warn "No ready stories found"
+        fi
     fi
 
     echo ""
@@ -375,9 +562,13 @@ main() {
     log_info "   tail -f $LOG_DIR/*.log"
     echo ""
 
-    # Check if already complete
-    if all_complete; then
-        log_success "All stories already complete!"
+    # Check if already complete (filtered)
+    if all_complete_filtered; then
+        if [ -n "$EPIC_FILTER" ]; then
+            log_success "All stories in epic '$EPIC_FILTER' already complete!"
+        else
+            log_success "All stories already complete!"
+        fi
         echo "<promise>COMPLETE</promise>"
         exit 0
     fi
@@ -388,9 +579,13 @@ main() {
             break
         fi
 
-        # Check if all complete
-        if all_complete; then
-            log_success "All stories complete after $i iterations!"
+        # Check if all complete (filtered by epic if set)
+        if all_complete_filtered; then
+            if [ -n "$EPIC_FILTER" ]; then
+                log_success "All stories in epic '$EPIC_FILTER' complete after $i iterations!"
+            else
+                log_success "All stories complete after $i iterations!"
+            fi
             echo "<promise>COMPLETE</promise>"
             exit 0
         fi
@@ -399,10 +594,11 @@ main() {
         sleep 2
     done
 
-    completed=$(count_completed)
+    completed=$(count_completed_filtered)
+    total=$(count_total_filtered)
     log_info "Loop finished. Progress: $completed / $total stories complete"
 
-    if all_complete; then
+    if all_complete_filtered; then
         echo "<promise>COMPLETE</promise>"
     else
         log_warn "Max iterations reached. Run again to continue."

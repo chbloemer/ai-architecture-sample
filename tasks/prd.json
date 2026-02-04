@@ -1380,7 +1380,7 @@
           "In-Memory Repository"
         ]
       },
-      "passes": false
+      "passes": true
     },
     {
       "id": "US-66",

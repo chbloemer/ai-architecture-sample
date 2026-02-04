@@ -266,10 +266,12 @@ public final class ShoppingCart extends BaseAggregateRoot<ShoppingCart, CartId> 
   }
 
   /**
-   * Calculates the total value of all items in the cart.
+   * Calculates the total value of all items in the cart using stored prices.
    *
    * @return the total money value
+   * @deprecated Use {@link #calculateTotal(ArticlePriceResolver)} for fresh pricing data
    */
+  @Deprecated
   public Money calculateTotal() {
     if (items.isEmpty()) {
       return Money.euro(0.0);
@@ -282,6 +284,68 @@ public final class ShoppingCart extends BaseAggregateRoot<ShoppingCart, CartId> 
       total = total.add(itemTotal);
     }
     return total;
+  }
+
+  /**
+   * Calculates the total value of all items in the cart using fresh pricing from the resolver.
+   *
+   * <p>This method iterates through all cart items and uses the resolver to fetch
+   * current pricing for each product, ensuring accurate totals at checkout time.
+   *
+   * @param priceResolver the resolver to fetch current pricing
+   * @return the total money value based on current prices
+   */
+  public Money calculateTotal(@NonNull final ArticlePriceResolver priceResolver) {
+    if (priceResolver == null) {
+      throw new IllegalArgumentException("Price resolver cannot be null");
+    }
+    if (items.isEmpty()) {
+      return Money.euro(0.0);
+    }
+
+    Money total = Money.euro(0.0);
+    for (final CartItem item : items) {
+      final ArticlePrice articlePrice = priceResolver.resolve(item.productId());
+      final Money itemTotal = articlePrice.price().multiply(item.quantity().value());
+      total = total.add(itemTotal);
+    }
+    return total;
+  }
+
+  /**
+   * Validates the cart for checkout using fresh pricing and availability data.
+   *
+   * <p>This method checks each item in the cart against current availability
+   * and stock levels to ensure the cart can proceed to checkout.
+   *
+   * @param priceResolver the resolver to fetch current pricing and availability
+   * @return a CartValidationOutcome containing any validation errors
+   */
+  public CartValidationOutcome validateForCheckout(@NonNull final ArticlePriceResolver priceResolver) {
+    if (priceResolver == null) {
+      throw new IllegalArgumentException("Price resolver cannot be null");
+    }
+    if (items.isEmpty()) {
+      return CartValidationOutcome.valid();
+    }
+
+    final List<CartValidationOutcome.ValidationError> errors = new ArrayList<>();
+    for (final CartItem item : items) {
+      final ArticlePrice articlePrice = priceResolver.resolve(item.productId());
+
+      if (!articlePrice.isAvailable()) {
+        errors.add(CartValidationOutcome.ValidationError.productUnavailable(item.productId()));
+      } else if (articlePrice.availableStock() < item.quantity().value()) {
+        errors.add(CartValidationOutcome.ValidationError.insufficientStock(
+            item.productId(),
+            item.quantity().value(),
+            articlePrice.availableStock()));
+      }
+    }
+
+    return errors.isEmpty()
+        ? CartValidationOutcome.valid()
+        : CartValidationOutcome.withErrors(errors);
   }
 
   /**

@@ -1,5 +1,7 @@
 package de.sample.aiarchitecture.product.adapter.incoming.openhost;
 
+import de.sample.aiarchitecture.product.application.getallproducts.GetAllProductsInputPort;
+import de.sample.aiarchitecture.product.application.getallproducts.GetAllProductsQuery;
 import de.sample.aiarchitecture.product.application.getproductbyid.GetProductByIdInputPort;
 import de.sample.aiarchitecture.product.application.getproductbyid.GetProductByIdQuery;
 import de.sample.aiarchitecture.product.application.getproductbyid.GetProductByIdResult;
@@ -8,6 +10,7 @@ import de.sample.aiarchitecture.sharedkernel.domain.model.Price;
 import de.sample.aiarchitecture.sharedkernel.domain.model.ProductId;
 import de.sample.aiarchitecture.sharedkernel.marker.strategic.OpenHostService;
 import java.util.Currency;
+import java.util.List;
 import java.util.Optional;
 import org.springframework.stereotype.Service;
 
@@ -37,9 +40,13 @@ import org.springframework.stereotype.Service;
 public class ProductCatalogService {
 
     private final GetProductByIdInputPort getProductByIdInputPort;
+    private final GetAllProductsInputPort getAllProductsInputPort;
 
-    public ProductCatalogService(GetProductByIdInputPort getProductByIdInputPort) {
+    public ProductCatalogService(
+            GetProductByIdInputPort getProductByIdInputPort,
+            GetAllProductsInputPort getAllProductsInputPort) {
         this.getProductByIdInputPort = getProductByIdInputPort;
+        this.getAllProductsInputPort = getAllProductsInputPort;
     }
 
     /**
@@ -86,5 +93,23 @@ public class ProductCatalogService {
             new GetProductByIdQuery(productId.value()));
 
         return response.found() && response.stockQuantity() >= quantity;
+    }
+
+    /**
+     * Retrieves all products in the catalog.
+     *
+     * @return list of all products with their information
+     */
+    public List<ProductInfo> getAllProducts() {
+        var result = getAllProductsInputPort.execute(new GetAllProductsQuery());
+
+        return result.products().stream()
+            .map(summary -> new ProductInfo(
+                ProductId.of(summary.productId()),
+                summary.name(),
+                Price.of(Money.of(summary.priceAmount(), Currency.getInstance(summary.priceCurrency()))),
+                summary.stockQuantity()
+            ))
+            .toList();
     }
 }

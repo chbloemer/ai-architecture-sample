@@ -1,7 +1,6 @@
 package de.sample.aiarchitecture.cart.application.additemtocart;
 
 import de.sample.aiarchitecture.cart.application.shared.ArticleDataPort;
-import de.sample.aiarchitecture.cart.application.shared.ProductDataPort;
 import de.sample.aiarchitecture.cart.application.shared.ShoppingCartRepository;
 import de.sample.aiarchitecture.cart.domain.model.CartId;
 import de.sample.aiarchitecture.cart.domain.model.Quantity;
@@ -20,8 +19,8 @@ import org.springframework.transaction.annotation.Transactional;
  *
  * <p>This use case orchestrates adding an item to the cart by:
  * <ol>
- *   <li>Retrieving the cart and product data</li>
- *   <li>Validating business rules (stock availability)</li>
+ *   <li>Retrieving the cart and article data</li>
+ *   <li>Validating business rules (product existence, stock availability)</li>
  *   <li>Adding the item to cart (business logic in aggregate)</li>
  *   <li>Persisting the updated cart</li>
  *   <li>Publishing domain events</li>
@@ -30,10 +29,11 @@ import org.springframework.transaction.annotation.Transactional;
  * <p><b>Hexagonal Architecture:</b> This class implements the {@link AddItemToCartInputPort}
  * interface, which is a primary/driving port in the application layer.
  *
- * <p><b>Bounded Context Isolation:</b> This use case accesses product data through output ports:
+ * <p><b>Bounded Context Isolation:</b> This use case accesses article data through a single
+ * output port that aggregates data from multiple contexts:
  * <ul>
- *   <li>{@link ProductDataPort} - for product existence and stock validation (Product context)</li>
- *   <li>{@link ArticleDataPort} - for pricing information (Pricing context)</li>
+ *   <li>{@link ArticleDataPort} - provides name (from Product), price (from Pricing),
+ *       and stock (from Inventory) information
  * </ul>
  */
 @Service
@@ -41,17 +41,14 @@ import org.springframework.transaction.annotation.Transactional;
 public class AddItemToCartUseCase implements AddItemToCartInputPort {
 
     private final ShoppingCartRepository shoppingCartRepository;
-    private final ProductDataPort productDataPort;
     private final ArticleDataPort articleDataPort;
     private final DomainEventPublisher eventPublisher;
 
     public AddItemToCartUseCase(
         final ShoppingCartRepository shoppingCartRepository,
-        final ProductDataPort productDataPort,
         final ArticleDataPort articleDataPort,
         final DomainEventPublisher eventPublisher) {
         this.shoppingCartRepository = shoppingCartRepository;
-        this.productDataPort = productDataPort;
         this.articleDataPort = articleDataPort;
         this.eventPublisher = eventPublisher;
     }
@@ -68,22 +65,16 @@ public class AddItemToCartUseCase implements AddItemToCartInputPort {
                 .findById(cartId)
                 .orElseThrow(() -> new IllegalArgumentException("Cart not found: " + input.cartId()));
 
-        // Retrieve product data through output port (for existence and stock validation)
-        final ProductDataPort.ProductData productData =
-            productDataPort
-                .getProductData(productId, quantity.value())
-                .orElseThrow(() -> new IllegalArgumentException("Product not found: " + input.productId()));
-
-        // Business rule: Check if product has sufficient stock
-        if (!productData.hasStock()) {
-            throw new IllegalArgumentException("Insufficient stock for product: " + input.productId());
-        }
-
-        // Retrieve pricing through ArticleDataPort (from Pricing context)
+        // Retrieve article data through output port (includes product existence, pricing, and stock)
         final ArticleDataPort.ArticleData articleData =
             articleDataPort
                 .getArticleData(productId)
-                .orElseThrow(() -> new IllegalArgumentException("Pricing data not found for product: " + input.productId()));
+                .orElseThrow(() -> new IllegalArgumentException("Product not found: " + input.productId()));
+
+        // Business rule: Check if product has sufficient stock
+        if (articleData.availableStock() < quantity.value()) {
+            throw new IllegalArgumentException("Insufficient stock for product: " + input.productId());
+        }
 
         final Price priceAtAddition = Price.of(articleData.currentPrice());
 

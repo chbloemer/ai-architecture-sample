@@ -2,7 +2,6 @@ package de.sample.aiarchitecture.infrastructure.config;
 
 import de.sample.aiarchitecture.cart.domain.service.CartTotalCalculator;
 import de.sample.aiarchitecture.product.domain.service.PricingService;
-import de.sample.aiarchitecture.product.domain.specification.ProductAvailabilitySpecification;
 import de.sample.aiarchitecture.product.domain.model.ProductFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -29,10 +28,5 @@ public class DomainConfiguration {
   @Bean
   public CartTotalCalculator cartTotalCalculator() {
     return new CartTotalCalculator();
-  }
-
-  @Bean
-  public ProductAvailabilitySpecification productAvailabilitySpecification() {
-    return new ProductAvailabilitySpecification();
   }
 }

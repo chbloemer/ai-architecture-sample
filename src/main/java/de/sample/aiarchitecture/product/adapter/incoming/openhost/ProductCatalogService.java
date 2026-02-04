@@ -28,10 +28,13 @@ import org.springframework.stereotype.Service;
  * <p><b>Placement rationale:</b> This is an incoming adapter because other contexts
  * "call into" Product context through this service. It's parallel to REST controllers
  * which also reside in adapter/incoming/.
+ *
+ * <p><b>Note:</b> Product context owns identity (productId, sku) and description (name).
+ * Pricing is provided by PricingService. Stock/availability is provided by InventoryService.
  */
 @OpenHostService(
     context = "Product Catalog",
-    description = "Provides product information (name, SKU, stock) for other bounded contexts. Pricing is provided by PricingService."
+    description = "Provides product identity and description (name, SKU) for other bounded contexts. Pricing is provided by PricingService. Stock is provided by InventoryService."
 )
 @Service
 public class ProductCatalogService {
@@ -49,14 +52,14 @@ public class ProductCatalogService {
     /**
      * Product information DTO for cross-context communication.
      *
-     * <p>Note: Price is no longer provided by this service (separation of concerns).
-     * Use PricingService to get current prices.
+     * <p>Contains only identity and description data owned by Product context.
+     *
+     * <p>Note: Price is provided by PricingService. Stock is provided by InventoryService.
      */
     public record ProductInfo(
         ProductId productId,
         String name,
-        String sku,
-        int availableStock
+        String sku
     ) {}
 
     /**
@@ -76,23 +79,8 @@ public class ProductCatalogService {
         return Optional.of(new ProductInfo(
             productId,
             response.name(),
-            response.sku(),
-            response.stockQuantity()
+            response.sku()
         ));
-    }
-
-    /**
-     * Checks if sufficient stock is available.
-     *
-     * @param productId the product ID
-     * @param quantity the requested quantity
-     * @return true if sufficient stock is available
-     */
-    public boolean hasStock(ProductId productId, int quantity) {
-        GetProductByIdResult response = getProductByIdInputPort.execute(
-            new GetProductByIdQuery(productId.value()));
-
-        return response.found() && response.stockQuantity() >= quantity;
     }
 
     /**
@@ -107,8 +95,7 @@ public class ProductCatalogService {
             .map(summary -> new ProductInfo(
                 ProductId.of(summary.productId()),
                 summary.name(),
-                summary.sku(),
-                summary.stockQuantity()
+                summary.sku()
             ))
             .toList();
     }

@@ -13,6 +13,9 @@ import org.jspecify.annotations.NonNull;
  * Output models decouple the use case from domain entities and prevent
  * leaking domain complexity to outer layers.
  *
+ * <p><b>Note:</b> Stock information is not included as stock is managed by the
+ * Inventory bounded context. Use InventoryService to get stock information.
+ *
  * @param productId the generated product ID
  * @param sku the product SKU
  * @param name the product name
@@ -20,7 +23,6 @@ import org.jspecify.annotations.NonNull;
  * @param priceAmount the price amount
  * @param priceCurrency the price currency
  * @param category the product category
- * @param stockQuantity the stock quantity
  */
 public record CreateProductResult(
     @NonNull String productId,
@@ -29,6 +31,5 @@ public record CreateProductResult(
     @NonNull String description,
     @NonNull BigDecimal priceAmount,
     @NonNull String priceCurrency,
-    @NonNull String category,
-    int stockQuantity
+    @NonNull String category
 ) {}

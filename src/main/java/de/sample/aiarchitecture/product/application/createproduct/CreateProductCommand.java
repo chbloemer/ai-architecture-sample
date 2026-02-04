@@ -13,13 +13,16 @@ import org.jspecify.annotations.NonNull;
  * Input models are part of the application layer and define the contract for use cases.
  * They prevent the domain layer from depending on external frameworks or DTOs.
  *
+ * <p><b>Note:</b> The stockQuantity is passed via the ProductCreated event to the
+ * Inventory bounded context for initialization. Product context does not store stock.
+ *
  * @param sku the unique stock keeping unit
  * @param name the product name
  * @param description the product description
- * @param priceAmount the price amount (will be converted to Price value object)
+ * @param priceAmount the price amount (for Pricing context)
  * @param priceCurrency the price currency (e.g., "USD", "EUR")
  * @param category the product category
- * @param stockQuantity the initial stock quantity
+ * @param stockQuantity the initial stock quantity (for Inventory context, defaults to 0)
  */
 public record CreateProductCommand(
     @NonNull String sku,
@@ -30,6 +33,19 @@ public record CreateProductCommand(
     @NonNull String category,
     int stockQuantity
 ) {
+
+  /**
+   * Creates a command without specifying initial stock (defaults to 0).
+   */
+  public CreateProductCommand(
+      String sku,
+      String name,
+      String description,
+      BigDecimal priceAmount,
+      String priceCurrency,
+      String category) {
+    this(sku, name, description, priceAmount, priceCurrency, category, 0);
+  }
 
   /**
    * Compact constructor with validation.

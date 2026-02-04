@@ -11,9 +11,10 @@ import org.jspecify.annotations.NonNull;
  * This is the root of the Product aggregate, and all modifications to the product
  * must go through this aggregate root to maintain invariants.
  *
+ * <p>Product context owns identity (productId, sku) and description (name, description, category).
+ *
  * <p><b>Business Rules:</b>
  * <ul>
- *   <li>Stock cannot be negative
  *   <li>SKU must be unique across all products
  * </ul>
  *
@@ -23,7 +24,8 @@ import org.jspecify.annotations.NonNull;
  * </ul>
  *
  * <p><b>Note:</b> Pricing is managed by the Pricing bounded context. Use PricingService
- * to get current prices for products.
+ * to get current prices for products. Stock/availability is managed by the Inventory
+ * bounded context. Use InventoryService to get stock information.
  */
 public final class Product extends BaseAggregateRoot<Product, ProductId> {
 
@@ -32,21 +34,18 @@ public final class Product extends BaseAggregateRoot<Product, ProductId> {
   private ProductName name;
   private ProductDescription description;
   private Category category;
-  private ProductStock stock;
 
   public Product(
       @NonNull final ProductId id,
       @NonNull final SKU sku,
       @NonNull final ProductName name,
       @NonNull final ProductDescription description,
-      @NonNull final Category category,
-      @NonNull final ProductStock stock) {
+      @NonNull final Category category) {
     this.id = id;
     this.sku = sku;
     this.name = name;
     this.description = description;
     this.category = category;
-    this.stock = stock;
   }
 
   @Override
@@ -68,43 +67,6 @@ public final class Product extends BaseAggregateRoot<Product, ProductId> {
 
   public Category category() {
     return category;
-  }
-
-  public ProductStock stock() {
-    return stock;
-  }
-
-  /**
-   * Updates the stock quantity for this product.
-   *
-   * @param newStock the new stock quantity
-   * @throws IllegalArgumentException if stock is null
-   */
-  public void updateStock(@NonNull final ProductStock newStock) {
-    if (newStock == null) {
-      throw new IllegalArgumentException("New stock cannot be null");
-    }
-    this.stock = newStock;
-  }
-
-  /**
-   * Increases the stock by the specified amount.
-   *
-   * @param amount the amount to add to stock
-   * @throws IllegalArgumentException if amount is negative
-   */
-  public void increaseStock(final int amount) {
-    this.stock = this.stock.add(amount);
-  }
-
-  /**
-   * Decreases the stock by the specified amount.
-   *
-   * @param amount the amount to subtract from stock
-   * @throws IllegalArgumentException if amount is negative or exceeds current stock
-   */
-  public void decreaseStock(final int amount) {
-    this.stock = this.stock.subtract(amount);
   }
 
   /**
@@ -141,24 +103,5 @@ public final class Product extends BaseAggregateRoot<Product, ProductId> {
       throw new IllegalArgumentException("New category cannot be null");
     }
     this.category = newCategory;
-  }
-
-  /**
-   * Checks if the product is available for purchase.
-   *
-   * @return true if the product has stock available
-   */
-  public boolean isAvailable() {
-    return stock.isAvailable();
-  }
-
-  /**
-   * Checks if the product has sufficient stock for the requested quantity.
-   *
-   * @param requestedQuantity the quantity to check
-   * @return true if sufficient stock is available
-   */
-  public boolean hasStockFor(final int requestedQuantity) {
-    return stock.hasStock(requestedQuantity);
   }
 }

@@ -20,7 +20,7 @@ import org.springframework.stereotype.Component;
  *
  * <p>This adapter implements Checkout's CheckoutArticleDataPort by delegating to three OHS:
  * <ul>
- *   <li>ProductCatalogService - for product names</li>
+ *   <li>ProductCatalogService - for product names (identity/description)</li>
  *   <li>PricingService - for current prices</li>
  *   <li>InventoryService - for stock availability</li>
  * </ul>
@@ -87,8 +87,6 @@ public class CompositeCheckoutArticleDataAdapter implements CheckoutArticleDataP
 
     /**
      * Combines data from multiple sources into a single ArticleData record.
-     *
-     * <p>Handles missing inventory data gracefully by falling back to ProductCatalogService stock.
      */
     private ArticleData combineData(
             ProductId productId,
@@ -99,14 +97,9 @@ public class CompositeCheckoutArticleDataAdapter implements CheckoutArticleDataP
         String name = productInfo.name();
         Money currentPrice = priceInfo.currentPrice();
 
-        // Use dedicated inventory if available, fall back to product catalog stock
-        int availableStock = stockInfo != null
-            ? stockInfo.availableStock()
-            : productInfo.availableStock();
-
-        boolean isAvailable = stockInfo != null
-            ? stockInfo.isAvailable()
-            : availableStock > 0;
+        // Use Inventory context as the single source of truth for stock
+        int availableStock = stockInfo != null ? stockInfo.availableStock() : 0;
+        boolean isAvailable = stockInfo != null && stockInfo.isAvailable();
 
         return new ArticleData(productId, name, currentPrice, availableStock, isAvailable);
     }

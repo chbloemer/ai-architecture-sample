@@ -940,6 +940,48 @@ Reference implementation demonstrating Domain-Centric Architecture with DDD, Hex
 
 ---
 
+### US-89: Remove Stock Responsibility from Product Context
+**Epic:** data-migration
+**Depends on:** US-85, US-74, US-81
+
+**As a** developer
+**I want** stock/availability responsibility removed from Product context
+**So that** Inventory is the single source of truth for stock data
+
+**Acceptance Criteria:**
+- Remove ProductStock value object from Product domain
+- Remove stock field from Product aggregate
+- Remove stockQuantity from ProductCatalogService.ProductInfo DTO
+- Remove hasStock() method from ProductCatalogService
+- Remove ProductDataPort from Cart context (no longer needed)
+- Remove ProductDataAdapter from Cart context
+- Update AddItemToCartUseCase to use only ArticleDataPort for validation
+- CompositeArticleDataAdapter uses InventoryService for stock (not ProductCatalogService)
+- Update CreateProductCommand to not require stockQuantity
+- Update CreateProductUseCase to not set stock
+- All tests pass: `./gradlew build`, `./gradlew test-architecture`
+
+**Architectural Guidance:**
+- **Affected Layers:** Domain, Application, Adapter
+- **Locations:**
+  - `product/domain/model/ProductStock.java` (DELETE)
+  - `product/domain/model/Product.java` (remove stock field)
+  - `product/adapter/incoming/openhost/ProductCatalogService.java`
+  - `cart/application/shared/ProductDataPort.java` (DELETE)
+  - `cart/adapter/outgoing/product/ProductDataAdapter.java` (DELETE)
+  - `cart/application/additemtocart/AddItemToCartUseCase.java`
+  - `cart/adapter/outgoing/product/CompositeArticleDataAdapter.java`
+  - `product/application/createproduct/CreateProductCommand.java`
+  - `product/application/createproduct/CreateProductUseCase.java`
+- **Patterns:** Bounded Context Separation, Single Source of Truth
+- **Constraints:**
+  - Inventory context is the single source of truth for stock
+  - Product context owns only identity and descriptive information
+  - No stock-related methods or fields in Product context after completion
+  - Run `./gradlew test-architecture` to verify
+
+---
+
 ## Goals
 - 5-step checkout flow (Buyer Info -> Delivery -> Payment -> Review -> Confirmation)
 - Guest checkout (no account required)

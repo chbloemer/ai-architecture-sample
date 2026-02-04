@@ -2039,6 +2039,59 @@
         ]
       },
       "passes": true
+    },
+    {
+      "id": "US-89",
+      "epic": "data-migration",
+      "title": "Remove Stock Responsibility from Product Context",
+      "description": "Remove stock/availability responsibility from Product context since Inventory is the proper owner. Product context should only own identity (productId, sku) and description (name, description, category). This eliminates the duplicated stock data between Product.stock and Inventory.stockLevel.",
+      "depends_on": [
+        "US-85",
+        "US-74",
+        "US-81"
+      ],
+      "acceptance_criteria": [
+        "Remove ProductStock value object from Product domain",
+        "Remove stock field from Product aggregate",
+        "Remove stockQuantity from ProductCatalogService.ProductInfo DTO",
+        "Remove hasStock() method from ProductCatalogService",
+        "Remove ProductDataPort from Cart context (no longer needed)",
+        "Remove ProductDataAdapter from Cart context",
+        "Update AddItemToCartUseCase to use only ArticleDataPort for validation",
+        "CompositeArticleDataAdapter uses InventoryService for stock (not ProductCatalogService)",
+        "Update CreateProductCommand to not require stockQuantity",
+        "Update CreateProductUseCase to not set stock",
+        "All tests pass: ./gradlew build, ./gradlew test-architecture"
+      ],
+      "architectural_guidance": {
+        "affected_layers": [
+          "domain",
+          "application",
+          "adapter"
+        ],
+        "locations": [
+          "product/domain/model/ProductStock.java (DELETE)",
+          "product/domain/model/Product.java (remove stock field)",
+          "product/adapter/incoming/openhost/ProductCatalogService.java",
+          "cart/application/shared/ProductDataPort.java (DELETE)",
+          "cart/adapter/outgoing/product/ProductDataAdapter.java (DELETE)",
+          "cart/application/additemtocart/AddItemToCartUseCase.java",
+          "cart/adapter/outgoing/product/CompositeArticleDataAdapter.java",
+          "product/application/createproduct/CreateProductCommand.java",
+          "product/application/createproduct/CreateProductUseCase.java"
+        ],
+        "patterns": [
+          "Bounded Context Separation",
+          "Single Source of Truth"
+        ],
+        "constraints": [
+          "Inventory context is the single source of truth for stock",
+          "Product context owns only identity and descriptive information",
+          "No stock-related methods or fields in Product context after completion",
+          "Run ./gradlew test-architecture to verify"
+        ]
+      },
+      "passes": true
     }
   ]
 }

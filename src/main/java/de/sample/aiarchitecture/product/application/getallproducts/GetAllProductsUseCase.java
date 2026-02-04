@@ -18,6 +18,9 @@ import org.springframework.transaction.annotation.Transactional;
  * <p>This is a query use case that retrieves all products without modifying state.
  * Pricing data is fetched from the Pricing bounded context via the PricingDataPort.
  *
+ * <p><b>Note:</b> Stock information is not included - use the Inventory bounded context
+ * via InventoryService to get stock information.
+ *
  * <p><b>Hexagonal Architecture:</b> This class implements the {@link GetAllProductsInputPort}
  * interface, which is a primary/driving port in the application layer.
  */
@@ -57,8 +60,7 @@ public class GetAllProductsUseCase implements GetAllProductsInputPort {
                 product.name().value(),
                 priceAmount,
                 priceCurrency,
-                product.category().name(),
-                product.stock().quantity()
+                product.category().name()
             );
         })
         .toList();

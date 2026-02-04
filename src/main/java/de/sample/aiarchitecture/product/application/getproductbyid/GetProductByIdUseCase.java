@@ -17,6 +17,9 @@ import org.springframework.transaction.annotation.Transactional;
  * <p>This is a query use case that retrieves product details without modifying state.
  * Pricing data is fetched from the Pricing bounded context via the PricingDataPort.
  *
+ * <p><b>Note:</b> Stock information is not included - use the Inventory bounded context
+ * via InventoryService to get stock information.
+ *
  * <p><b>Hexagonal Architecture:</b> This class implements the {@link GetProductByIdInputPort}
  * interface, which is a primary/driving port in the application layer.
  */
@@ -58,9 +61,7 @@ public class GetProductByIdUseCase implements GetProductByIdInputPort {
         product.description().value(),
         priceAmount,
         priceCurrency,
-        product.category().name(),
-        product.stock().quantity(),
-        product.isAvailable()
+        product.category().name()
     );
   }
 }

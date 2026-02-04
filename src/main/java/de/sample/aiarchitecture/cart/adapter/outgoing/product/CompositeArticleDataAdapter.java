@@ -20,7 +20,7 @@ import org.springframework.stereotype.Component;
  *
  * <p>This adapter implements Cart's ArticleDataPort by delegating to three OHS:
  * <ul>
- *   <li>ProductCatalogService - for product names</li>
+ *   <li>ProductCatalogService - for product names (identity/description)</li>
  *   <li>PricingService - for current prices</li>
  *   <li>InventoryService - for stock availability</li>
  * </ul>
@@ -106,21 +106,24 @@ public class CompositeArticleDataAdapter implements ArticleDataPort {
                 ". Ensure price is set in Pricing context.");
         }
 
-        // Fetch inventory (optional - handle gracefully if missing)
+        // Fetch inventory (required - Inventory is the owner of stock data)
         Optional<StockInfo> stockInfo = inventoryService.getStock(productId);
+        if (stockInfo.isEmpty()) {
+            throw new IllegalStateException(
+                "Inventory data not available for product: " + productId.value() +
+                ". Ensure stock level is set in Inventory context.");
+        }
 
         return Optional.of(combineData(
             productId,
             productInfo.get(),
             priceInfo.get(),
-            stockInfo.orElse(null)
+            stockInfo.get()
         ));
     }
 
     /**
      * Combines data from multiple sources into a single ArticleData record.
-     *
-     * <p>Handles missing inventory data gracefully by falling back to ProductCatalogService stock.
      */
     private ArticleData combineData(
             ProductId productId,
@@ -131,14 +134,9 @@ public class CompositeArticleDataAdapter implements ArticleDataPort {
         String name = productInfo.name();
         Money currentPrice = priceInfo.currentPrice();
 
-        // Use dedicated inventory if available, fall back to product catalog stock
-        int availableStock = stockInfo != null
-            ? stockInfo.availableStock()
-            : productInfo.availableStock();
-
-        boolean isAvailable = stockInfo != null
-            ? stockInfo.isAvailable()
-            : availableStock > 0;
+        // Use Inventory context as the single source of truth for stock
+        int availableStock = stockInfo != null ? stockInfo.availableStock() : 0;
+        boolean isAvailable = stockInfo != null && stockInfo.isAvailable();
 
         return new ArticleData(productId, name, currentPrice, availableStock, isAvailable);
     }

@@ -15,6 +15,7 @@ import org.jspecify.annotations.NonNull;
  *
  * <p><b>Note:</b> Pricing is managed by the Pricing bounded context. The initial price
  * is included in the ProductCreated event for cross-context synchronization.
+ * Stock/availability is managed by the Inventory bounded context.
  */
 public final class ProductFactory implements Factory {
 
@@ -22,14 +23,14 @@ public final class ProductFactory implements Factory {
    * Creates a new product with generated ID.
    *
    * <p>Raises a {@link ProductCreated} domain event with the initial price for
-   * synchronization with the Pricing bounded context.
+   * synchronization with the Pricing bounded context (and stock for Inventory context).
    *
    * @param sku the SKU
    * @param name the product name
    * @param description the product description
    * @param category the product category
-   * @param stock the initial stock
    * @param initialPrice the initial price (for Pricing context synchronization)
+   * @param initialStock the initial stock quantity (for Inventory context synchronization)
    * @return a new Product aggregate
    */
   public Product createProduct(
@@ -37,15 +38,15 @@ public final class ProductFactory implements Factory {
       @NonNull final ProductName name,
       @NonNull final ProductDescription description,
       @NonNull final Category category,
-      @NonNull final ProductStock stock,
-      @NonNull final Money initialPrice) {
+      @NonNull final Money initialPrice,
+      final int initialStock) {
 
     final ProductId id = ProductId.generate();
 
-    final Product product = new Product(id, sku, name, description, category, stock);
+    final Product product = new Product(id, sku, name, description, category);
 
-    // Raise domain event with initial price for Pricing context
-    product.registerEvent(ProductCreated.now(id, sku, name, initialPrice));
+    // Raise domain event with initial price for Pricing context and stock for Inventory context
+    product.registerEvent(ProductCreated.now(id, sku, name, initialPrice, initialStock));
 
     return product;
   }
@@ -61,7 +62,6 @@ public final class ProductFactory implements Factory {
    * @param name the product name
    * @param description the product description
    * @param category the product category
-   * @param stock the initial stock
    * @return a new Product aggregate
    */
   public Product createProductWithId(
@@ -69,10 +69,9 @@ public final class ProductFactory implements Factory {
       @NonNull final SKU sku,
       @NonNull final ProductName name,
       @NonNull final ProductDescription description,
-      @NonNull final Category category,
-      @NonNull final ProductStock stock) {
+      @NonNull final Category category) {
 
-    return new Product(id, sku, name, description, category, stock);
+    return new Product(id, sku, name, description, category);
   }
 
   /**
@@ -81,17 +80,17 @@ public final class ProductFactory implements Factory {
    * @param sku the SKU
    * @param name the product name
    * @param category the product category
-   * @param stock the initial stock
    * @param initialPrice the initial price (for Pricing context synchronization)
+   * @param initialStock the initial stock quantity (for Inventory context synchronization)
    * @return a new Product aggregate
    */
   public Product createBasicProduct(
       @NonNull final SKU sku,
       @NonNull final ProductName name,
       @NonNull final Category category,
-      @NonNull final ProductStock stock,
-      @NonNull final Money initialPrice) {
+      @NonNull final Money initialPrice,
+      final int initialStock) {
 
-    return createProduct(sku, name, ProductDescription.empty(), category, stock, initialPrice);
+    return createProduct(sku, name, ProductDescription.empty(), category, initialPrice, initialStock);
   }
 }

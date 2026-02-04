@@ -1,5 +1,7 @@
 package de.sample.aiarchitecture.infrastructure.init;
 
+import de.sample.aiarchitecture.inventory.application.shared.StockLevelRepository;
+import de.sample.aiarchitecture.inventory.domain.model.StockLevel;
 import de.sample.aiarchitecture.pricing.application.shared.ProductPriceRepository;
 import de.sample.aiarchitecture.pricing.domain.model.ProductPrice;
 import de.sample.aiarchitecture.product.application.shared.ProductRepository;
@@ -8,7 +10,6 @@ import de.sample.aiarchitecture.product.domain.model.Product;
 import de.sample.aiarchitecture.product.domain.model.ProductDescription;
 import de.sample.aiarchitecture.product.domain.model.ProductFactory;
 import de.sample.aiarchitecture.product.domain.model.ProductName;
-import de.sample.aiarchitecture.product.domain.model.ProductStock;
 import de.sample.aiarchitecture.product.domain.model.SKU;
 import de.sample.aiarchitecture.sharedkernel.domain.model.Money;
 import jakarta.annotation.PostConstruct;
@@ -17,12 +18,12 @@ import org.springframework.stereotype.Component;
 /**
  * Initializes sample product data for demonstration purposes.
  *
- * <p>This component loads sample products into the repository on application startup.
- * It also directly creates price entries in the Pricing context since @PostConstruct
+ * <p>This component loads sample products into repositories on application startup.
+ * It directly creates entries in all related bounded contexts since @PostConstruct
  * does not run within a transaction (so TransactionalEventListener won't fire).
  *
  * <p><b>Infrastructure Layer:</b> This component lives in the infrastructure layer because
- * it needs to coordinate across multiple bounded contexts (Product and Pricing) for
+ * it needs to coordinate across multiple bounded contexts (Product, Pricing, Inventory) for
  * sample data initialization. This is acceptable for demo/test data setup.
  */
 @Component
@@ -31,14 +32,17 @@ public class SampleDataInitializer {
   private final ProductRepository productRepository;
   private final ProductFactory productFactory;
   private final ProductPriceRepository productPriceRepository;
+  private final StockLevelRepository stockLevelRepository;
 
   public SampleDataInitializer(
       final ProductRepository productRepository,
       final ProductFactory productFactory,
-      final ProductPriceRepository productPriceRepository) {
+      final ProductPriceRepository productPriceRepository,
+      final StockLevelRepository stockLevelRepository) {
     this.productRepository = productRepository;
     this.productFactory = productFactory;
     this.productPriceRepository = productPriceRepository;
+    this.stockLevelRepository = stockLevelRepository;
   }
 
   @PostConstruct
@@ -149,19 +153,19 @@ public class SampleDataInitializer {
       final String description,
       final double price,
       final Category category,
-      final int stock) {
+      final int initialStock) {
 
     final Money initialPrice = Money.euro(price);
 
-    // Create product (without storing price in Product aggregate)
+    // Create product (stock is not stored in Product - managed by Inventory context)
     final Product product =
         productFactory.createProduct(
             SKU.of(sku),
             ProductName.of(name),
             ProductDescription.of(description),
             category,
-            ProductStock.of(stock),
-            initialPrice);
+            initialPrice,
+            initialStock);
 
     productRepository.save(product);
 
@@ -170,5 +174,10 @@ public class SampleDataInitializer {
     // so @TransactionalEventListener won't fire for the ProductCreated event)
     ProductPrice productPrice = ProductPrice.create(product.id(), initialPrice);
     productPriceRepository.save(productPrice);
+
+    // Directly create stock level entry in Inventory context
+    // (We do this directly because @PostConstruct doesn't run in a transaction)
+    StockLevel stockLevel = StockLevel.create(product.id(), initialStock);
+    stockLevelRepository.save(stockLevel);
   }
 }

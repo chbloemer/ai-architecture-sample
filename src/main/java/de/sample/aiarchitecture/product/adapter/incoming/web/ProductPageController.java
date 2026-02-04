@@ -83,7 +83,7 @@ public class ProductPageController {
 
     model.addAttribute("product", output);
     model.addAttribute("title", output.name());
-    model.addAttribute("isAvailable", output.isAvailable());
+    // Note: isAvailable should be obtained from Inventory context
 
     return "product/detail";
   }

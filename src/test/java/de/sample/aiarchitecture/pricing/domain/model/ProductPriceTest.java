@@ -3,6 +3,7 @@ package de.sample.aiarchitecture.pricing.domain.model;
 import static org.junit.jupiter.api.Assertions.*;
 
 import de.sample.aiarchitecture.pricing.domain.event.PriceChanged;
+import de.sample.aiarchitecture.pricing.domain.event.PriceCreated;
 import de.sample.aiarchitecture.sharedkernel.domain.model.Money;
 import de.sample.aiarchitecture.sharedkernel.domain.model.ProductId;
 import java.math.BigDecimal;
@@ -63,6 +64,24 @@ class ProductPriceTest {
       // Money itself rejects negative values
       assertThrows(
           IllegalArgumentException.class, () -> Money.of(BigDecimal.valueOf(-10.00), EUR));
+    }
+
+    @Test
+    @DisplayName("raises PriceCreated event on creation")
+    void raisesPriceCreatedEventOnCreation() {
+      ProductId productId = ProductId.generate();
+      Money price = Money.of(BigDecimal.valueOf(19.99), EUR);
+
+      ProductPrice productPrice = ProductPrice.create(productId, price);
+
+      assertEquals(1, productPrice.domainEvents().size());
+      assertInstanceOf(PriceCreated.class, productPrice.domainEvents().get(0));
+
+      PriceCreated event = (PriceCreated) productPrice.domainEvents().get(0);
+      assertEquals(productPrice.id(), event.priceId());
+      assertEquals(productId, event.productId());
+      assertEquals(price, event.price());
+      assertEquals(productPrice.effectiveFrom(), event.effectiveFrom());
     }
   }
 

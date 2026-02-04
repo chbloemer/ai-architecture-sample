@@ -207,6 +207,31 @@ get_ready_beads() {
     bd_cmd ready --type task 2>/dev/null | grep -oE "${BEAD_PREFIX}-[a-z0-9]+" | grep -v "^${BEAD_PREFIX}-rig" || true
 }
 
+# Get all pending beads for specific epics - returns bead IDs (regardless of ready status)
+get_all_beads_for_epics() {
+    local epics=("$@")
+
+    for epic in "${epics[@]}"; do
+        # Get story IDs for this epic
+        local story_ids=$(jq -r --arg epic "$epic" \
+            '.stories[] | select(.passes == false and .epic == $epic) | .id' "$PRD_FILE")
+
+        # Get corresponding bead IDs
+        for sid in $story_ids; do
+            local bid=$(jq -r --arg id "$sid" '.[$id] // empty' "$BEAD_MAP_FILE")
+            [ -n "$bid" ] && echo "$bid"
+        done
+    done
+}
+
+# Get all pending beads (all epics) - returns bead IDs (regardless of ready status)
+get_all_beads() {
+    local epics=$(jq -r '[.stories[] | select(.passes == false and .epic != null) | .epic] | unique | .[]' "$PRD_FILE")
+    for epic in $epics; do
+        get_all_beads_for_epics "$epic"
+    done
+}
+
 # Get ready beads for specific epics - returns just bead IDs
 get_ready_beads_for_epics() {
     local epics=("$@")
@@ -230,6 +255,40 @@ get_ready_beads_for_epics() {
     # Filter to only ready beads (extract IDs and filter)
     if [ -n "$all_bead_ids" ]; then
         bd_cmd ready --type task 2>/dev/null | grep -oE "${BEAD_PREFIX}-[a-z0-9]+" | grep -v "^${BEAD_PREFIX}-rig" | grep -E "($all_bead_ids)" || true
+    fi
+}
+
+# Get beads in dependency order (ready first, then next-in-line based on dep tree)
+# Uses topological sort based on blocked_by relationships
+get_beads_in_dependency_order() {
+    local epics=("$@")
+    local all_beads
+    local ready_beads
+
+    if [ ${#epics[@]} -gt 0 ]; then
+        all_beads=$(get_all_beads_for_epics "${epics[@]}")
+        ready_beads=$(get_ready_beads_for_epics "${epics[@]}")
+    else
+        all_beads=$(get_all_beads)
+        ready_beads=$(get_ready_beads)
+    fi
+
+    # Output ready beads first
+    echo "$ready_beads"
+
+    # Then output remaining beads in dependency order
+    # We use bd to get dependency info and sort topologically
+    local remaining_beads=$(echo "$all_beads" | grep -v -F "$(echo "$ready_beads")" 2>/dev/null || echo "$all_beads")
+
+    if [ -n "$remaining_beads" ]; then
+        # For each remaining bead, count how many of its blockers are still open
+        # Sort by fewest open blockers (next in line)
+        for bead in $remaining_beads; do
+            if [ -n "$bead" ]; then
+                local open_blockers=$(bd_cmd show "$bead" 2>/dev/null | grep -A100 "DEPENDS ON" | grep "○" | wc -l | tr -d ' ')
+                echo "$open_blockers $bead"
+            fi
+        done | sort -n | cut -d' ' -f2
     fi
 }
 
@@ -298,10 +357,10 @@ show_status() {
     fi
 }
 
-# Sling ready beads
+# Sling beads
 sling_ready() {
     local convoy_filters=()
-    local max_parallel=3
+    local max_parallel=""
     local sling_all=false
 
     # Parse arguments
@@ -325,32 +384,54 @@ sling_ready() {
         esac
     done
 
-    local ready_beads
-    if [ ${#convoy_filters[@]} -gt 0 ]; then
-        # Get ready beads from specified convoy(s)
-        ready_beads=$(get_ready_beads_for_epics "${convoy_filters[@]}")
-        log_info "Filtering by convoys: ${convoy_filters[*]}"
+    local beads_to_sling
+
+    # Determine if we should sling all beads:
+    # - --all flag explicitly set, OR
+    # - No convoy filter AND no --parallel limit (default behavior: sling all)
+    local sling_all_beads=false
+    if [ "$sling_all" = true ]; then
+        sling_all_beads=true
+    elif [ ${#convoy_filters[@]} -eq 0 ] && [ -z "$max_parallel" ]; then
+        sling_all_beads=true
+    fi
+
+    if [ "$sling_all_beads" = true ]; then
+        # Get ALL beads (let Gastown handle dependency ordering)
+        if [ ${#convoy_filters[@]} -gt 0 ]; then
+            beads_to_sling=$(get_all_beads_for_epics "${convoy_filters[@]}")
+            log_info "Slinging ALL beads from convoys: ${convoy_filters[*]} (Gastown handles deps)"
+        else
+            beads_to_sling=$(get_all_beads)
+            log_info "Slinging ALL pending beads (Gastown handles deps)"
+        fi
     else
-        # Get ready beads from all epics
-        ready_beads=$(get_ready_beads)
+        # Get beads in dependency order, take first N
+        # (ready beads first, then next-in-line based on dep tree)
+        local limit=${max_parallel:-3}
+        if [ ${#convoy_filters[@]} -gt 0 ]; then
+            beads_to_sling=$(get_beads_in_dependency_order "${convoy_filters[@]}" | head -n "$limit")
+            log_info "Filtering by convoys: ${convoy_filters[*]}"
+        else
+            beads_to_sling=$(get_beads_in_dependency_order | head -n "$limit")
+        fi
+        log_info "Taking up to $limit beads (ready first, then next-in-line)"
     fi
 
-    # Apply limit unless --all specified
-    if [ "$sling_all" = false ]; then
-        ready_beads=$(echo "$ready_beads" | head -n "$max_parallel")
-    fi
+    # Remove empty lines
+    beads_to_sling=$(echo "$beads_to_sling" | grep -v '^$' || true)
 
-    if [ -z "$ready_beads" ]; then
-        log_warn "No beads ready to sling"
+    if [ -z "$beads_to_sling" ]; then
+        log_warn "No beads to sling"
         [ ${#convoy_filters[@]} -gt 0 ] && echo "(filtered by convoys: ${convoy_filters[*]})"
         return 0
     fi
 
-    local bead_count=$(echo "$ready_beads" | grep -c . 2>/dev/null || echo "0")
+    local bead_count=$(echo "$beads_to_sling" | grep -c . 2>/dev/null || echo "0")
     log_info "Slinging $bead_count bead(s) to polecats..."
 
     # Convert newlines to spaces for gt_cmd sling
-    local bead_list=$(echo "$ready_beads" | tr '\n' ' ')
+    local bead_list=$(echo "$beads_to_sling" | tr '\n' ' ')
 
     gt_cmd sling $bead_list "$RIG_NAME"
     log_success "Slung beads: $bead_list"
@@ -434,28 +515,33 @@ Usage: ./gastown.sh <command> [options]
 Commands:
   init                  Create beads and convoys from prd.json
   status                Show epic/convoy progress table and ready beads
-  sling [options]       Assign ready beads to polecats
+  sling [options]       Assign beads to polecats (Gastown handles dependencies)
   sync                  Sync bead status back to prd.json
   reset                 Clear all beads and start fresh
 
 Sling Options:
-  --parallel <n>        Max number of beads to sling (default: 3)
-  --all                 Sling ALL ready beads (no limit)
+  --parallel <n>        Limit to N beads (ready first, then next-in-line by deps)
   --convoy <name>       Filter to specific epic/convoy (can be repeated)
+  --all                 With --convoy: sling all beads in that convoy
+
+Sling Behavior:
+  - No options:         Sling ALL pending beads (Gastown handles dep ordering)
+  - --parallel N:       Sling N beads (ready first, then next-in-line)
+  - --convoy X:         Sling ALL beads from convoy X
+  - --convoy X -p N:    Sling N beads from convoy X (ready first, then next)
+  - --convoy X --all:   Same as --convoy X (explicit all)
 
 Examples:
-  ./gastown.sh init
-  ./gastown.sh status
-  ./gastown.sh sling --parallel 4                                    # 4 beads from all epics
-  ./gastown.sh sling --all                                           # ALL ready beads
-  ./gastown.sh sling --convoy pricing-context                        # One epic
-  ./gastown.sh sling --convoy pricing-context --convoy inventory-context  # Multiple epics
-  ./gastown.sh sling --convoy pricing-context --all                  # ALL ready in epic
+  ./gastown.sh sling                                                 # ALL pending beads
+  ./gastown.sh sling --parallel 4                                    # 4 beads (dep order)
+  ./gastown.sh sling --convoy pricing-context                        # All from one epic
+  ./gastown.sh sling --convoy pricing-context --parallel 2           # 2 from one epic
+  ./gastown.sh sling --convoy pricing-context --convoy inventory-context  # All from 2 epics
 
 Workflow:
   1. ./gastown.sh init      # Create beads from prd.json
-  2. ./gastown.sh status    # See what's ready
-  3. ./gastown.sh sling     # Assign to polecats
+  2. ./gastown.sh status    # See progress
+  3. ./gastown.sh sling     # Assign ALL to polecats (Gastown handles deps)
   4. [polecats work]
   5. ./gastown.sh sync      # Update prd.json with completions
   6. Repeat 2-5

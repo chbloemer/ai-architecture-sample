@@ -1055,7 +1055,7 @@
           "Aggregate Root"
         ]
       },
-      "passes": false
+      "passes": true
     },
     {
       "id": "US-54",
@@ -1082,7 +1082,7 @@
           "Domain Event as immutable record"
         ]
       },
-      "passes": false
+      "passes": true
     },
     {
       "id": "US-55",
@@ -1108,7 +1108,7 @@
           "Repository Interface"
         ]
       },
-      "passes": false
+      "passes": true
     },
     {
       "id": "US-56",
@@ -1135,7 +1135,7 @@
           "In-Memory Repository"
         ]
       },
-      "passes": false
+      "passes": true
     },
     {
       "id": "US-57",
@@ -1162,7 +1162,7 @@
           "Use Case with Query/Result"
         ]
       },
-      "passes": false
+      "passes": true
     },
     {
       "id": "US-58",
@@ -1190,7 +1190,7 @@
           "Open Host Service"
         ]
       },
-      "passes": false
+      "passes": true
     },
     {
       "id": "US-59",
@@ -1218,7 +1218,7 @@
           "Use Case with Command/Result"
         ]
       },
-      "passes": false
+      "passes": true
     },
     {
       "id": "US-60",
@@ -1300,7 +1300,7 @@
           "Aggregate Root"
         ]
       },
-      "passes": false
+      "passes": true
     },
     {
       "id": "US-63",
@@ -1573,7 +1573,7 @@
           "Aggregate method with injected dependency"
         ]
       },
-      "passes": false
+      "passes": true
     },
     {
       "id": "US-73",

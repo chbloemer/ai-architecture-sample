@@ -1,0 +1,28 @@
+All tests pass. Let me verify the acceptance criteria are met by reviewing the implementation:
+
+## US-79 Acceptance Criteria Verification
+
+| Criteria | Status | Location |
+|----------|--------|----------|
+| `calculateOrderTotal(CheckoutArticlePriceResolver)` returns `Money` | ✅ Met | `CheckoutSession.java:287-296` |
+| `validateItems(CheckoutArticlePriceResolver)` returns `CheckoutValidationResult` | ✅ Met | `CheckoutSession.java:310-326` |
+| Update `confirm()` to accept resolver and validate before confirming | ✅ Met | `CheckoutSession.java:340-360` |
+
+The implementation:
+
+1. **`calculateOrderTotal(CheckoutArticlePriceResolver)`** - Iterates through line items, resolves current prices from the resolver, and calculates the sum of (price × quantity) for each item.
+
+2. **`validateItems(CheckoutArticlePriceResolver)`** - Validates each line item by checking:
+   - Product availability (`isAvailable`)
+   - Sufficient stock (`availableStock >= quantity`)
+   - Returns `CheckoutValidationResult` with any errors found
+
+3. **`confirm(CheckoutArticlePriceResolver)`** - Updated to:
+   - Accept the resolver parameter
+   - Call `validateItems(resolver)` before confirming
+   - Throw `IllegalStateException` if validation fails
+   - Only confirm if validation passes
+
+The deprecated parameterless `confirm()` method is preserved for backwards compatibility but marked as `@Deprecated`.
+
+<promise>STORY_COMPLETE</promise>

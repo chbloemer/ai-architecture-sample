@@ -1769,7 +1769,7 @@
           "Aggregate method with injected dependency"
         ]
       },
-      "passes": false
+      "passes": true
     },
     {
       "id": "US-80",

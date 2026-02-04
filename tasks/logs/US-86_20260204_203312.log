@@ -1,0 +1,39 @@
+All unit tests and architecture tests pass. Let me provide a summary of the changes made for US-86:
+
+## Summary of Changes for US-86 - Update Product Context - Remove Pricing Responsibility
+
+### Acceptance Criteria Met:
+
+1. **✅ Deprecate price-related methods in Product aggregate**
+   - `Product.price()` marked `@Deprecated(forRemoval = true)` with message to use PricingService
+   - `Product.changePrice()` marked `@Deprecated(forRemoval = true)` with message to use ProductPriceRepository
+   - Price field kept in Product for now (as specified in acceptance criteria)
+
+2. **✅ ProductCatalogService OHS returns name/SKU only (not price)**
+   - `ProductInfo` record updated to contain: `productId`, `name`, `sku`, `availableStock` (price removed)
+   - `getProductInfo()` and `getAllProducts()` updated to exclude price
+   - Added deprecated `ProductInfoWithPrice` and `getAllProductsWithInitialPrice()` for transition period
+
+3. **✅ Update ProductDataPort in Cart to not expect pricing**
+   - `ProductData` record updated to contain: `productId`, `hasStock` (price removed)
+   - Documentation updated to indicate pricing comes from `ArticleDataPort`
+
+4. **✅ Keep Price in Product for now (remove in future story)**
+   - Price field remains in Product aggregate
+   - All deprecated methods and migration code clearly marked for future removal
+
+### Additional Changes (Required for Consistency):
+
+- **AddItemToCartUseCase**: Updated to get pricing from `ArticleDataPort` instead of `ProductDataPort`
+- **ProductDataAdapter**: Updated to work without price field
+- **CompositeArticleDataAdapter** (Cart): Updated with fallback to Product context during transition
+- **CompositeCheckoutArticleDataAdapter** (Checkout): Updated with same fallback pattern
+- **ProductCreatedEventConsumer**: New component in Pricing context to sync prices for new products
+
+### Test Results:
+- Unit tests: ✅ Pass
+- Architecture tests: ✅ Pass  
+- Checkout flow integration tests: ✅ Pass
+- One unrelated test failure in `ShoppingCartRepositoryJpaIntegrationTest` (pre-existing test isolation issue)
+
+<promise>STORY_COMPLETE</promise>

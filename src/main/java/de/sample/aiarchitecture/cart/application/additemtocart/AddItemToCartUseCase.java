@@ -1,5 +1,6 @@
 package de.sample.aiarchitecture.cart.application.additemtocart;
 
+import de.sample.aiarchitecture.cart.application.shared.ArticleDataPort;
 import de.sample.aiarchitecture.cart.application.shared.ProductDataPort;
 import de.sample.aiarchitecture.cart.application.shared.ShoppingCartRepository;
 import de.sample.aiarchitecture.cart.domain.model.CartId;
@@ -7,6 +8,7 @@ import de.sample.aiarchitecture.cart.domain.model.Quantity;
 import de.sample.aiarchitecture.cart.domain.model.ShoppingCart;
 import de.sample.aiarchitecture.sharedkernel.marker.port.out.DomainEventPublisher;
 import de.sample.aiarchitecture.sharedkernel.domain.model.Money;
+import de.sample.aiarchitecture.sharedkernel.domain.model.Price;
 import de.sample.aiarchitecture.sharedkernel.domain.model.ProductId;
 import java.util.List;
 import org.jspecify.annotations.NonNull;
@@ -28,9 +30,11 @@ import org.springframework.transaction.annotation.Transactional;
  * <p><b>Hexagonal Architecture:</b> This class implements the {@link AddItemToCartInputPort}
  * interface, which is a primary/driving port in the application layer.
  *
- * <p><b>Bounded Context Isolation:</b> This use case accesses product data through the
- * {@link ProductDataPort} output port, isolating the Cart context from direct coupling
- * to the Product context's domain model.
+ * <p><b>Bounded Context Isolation:</b> This use case accesses product data through output ports:
+ * <ul>
+ *   <li>{@link ProductDataPort} - for product existence and stock validation (Product context)</li>
+ *   <li>{@link ArticleDataPort} - for pricing information (Pricing context)</li>
+ * </ul>
  */
 @Service
 @Transactional
@@ -38,14 +42,17 @@ public class AddItemToCartUseCase implements AddItemToCartInputPort {
 
     private final ShoppingCartRepository shoppingCartRepository;
     private final ProductDataPort productDataPort;
+    private final ArticleDataPort articleDataPort;
     private final DomainEventPublisher eventPublisher;
 
     public AddItemToCartUseCase(
         final ShoppingCartRepository shoppingCartRepository,
         final ProductDataPort productDataPort,
+        final ArticleDataPort articleDataPort,
         final DomainEventPublisher eventPublisher) {
         this.shoppingCartRepository = shoppingCartRepository;
         this.productDataPort = productDataPort;
+        this.articleDataPort = articleDataPort;
         this.eventPublisher = eventPublisher;
     }
 
@@ -61,7 +68,7 @@ public class AddItemToCartUseCase implements AddItemToCartInputPort {
                 .findById(cartId)
                 .orElseThrow(() -> new IllegalArgumentException("Cart not found: " + input.cartId()));
 
-        // Retrieve product data through output port
+        // Retrieve product data through output port (for existence and stock validation)
         final ProductDataPort.ProductData productData =
             productDataPort
                 .getProductData(productId, quantity.value())
@@ -72,8 +79,16 @@ public class AddItemToCartUseCase implements AddItemToCartInputPort {
             throw new IllegalArgumentException("Insufficient stock for product: " + input.productId());
         }
 
+        // Retrieve pricing through ArticleDataPort (from Pricing context)
+        final ArticleDataPort.ArticleData articleData =
+            articleDataPort
+                .getArticleData(productId)
+                .orElseThrow(() -> new IllegalArgumentException("Pricing data not found for product: " + input.productId()));
+
+        final Price priceAtAddition = Price.of(articleData.currentPrice());
+
         // Add item to cart (business logic in aggregate)
-        cart.addItem(productId, quantity, productData.price());
+        cart.addItem(productId, quantity, priceAtAddition);
 
         // Persist
         shoppingCartRepository.save(cart);

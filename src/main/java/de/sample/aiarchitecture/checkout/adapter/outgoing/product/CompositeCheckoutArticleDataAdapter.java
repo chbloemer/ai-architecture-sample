@@ -7,12 +7,15 @@ import de.sample.aiarchitecture.pricing.adapter.incoming.openhost.PricingService
 import de.sample.aiarchitecture.pricing.adapter.incoming.openhost.PricingService.PriceInfo;
 import de.sample.aiarchitecture.product.adapter.incoming.openhost.ProductCatalogService;
 import de.sample.aiarchitecture.product.adapter.incoming.openhost.ProductCatalogService.ProductInfo;
+import de.sample.aiarchitecture.product.adapter.incoming.openhost.ProductCatalogService.ProductInfoWithPrice;
 import de.sample.aiarchitecture.sharedkernel.domain.model.Money;
 import de.sample.aiarchitecture.sharedkernel.domain.model.ProductId;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 /**
@@ -25,6 +28,12 @@ import org.springframework.stereotype.Component;
  *   <li>InventoryService - for stock availability</li>
  * </ul>
  *
+ * <p><b>Transition Period:</b> During the migration from Product-managed pricing to
+ * Pricing-context-managed pricing, this adapter provides a fallback mechanism. If
+ * pricing data is not yet available in the Pricing context (e.g., for newly created
+ * products), the adapter falls back to fetching initial price from the Product context
+ * using the deprecated migration method.
+ *
  * <p>This adapter is the ONLY place in Checkout context that imports from Product,
  * Pricing, and Inventory contexts, isolating cross-context coupling to the adapter layer.
  *
@@ -33,6 +42,8 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class CompositeCheckoutArticleDataAdapter implements CheckoutArticleDataPort {
+
+    private static final Logger log = LoggerFactory.getLogger(CompositeCheckoutArticleDataAdapter.class);
 
     private final ProductCatalogService productCatalogService;
     private final PricingService pricingService;
@@ -83,10 +94,12 @@ public class CompositeCheckoutArticleDataAdapter implements CheckoutArticleDataP
      *
      * <p>Handles missing data gracefully:
      * <ul>
-     *   <li>If pricing data is missing, uses price from ProductCatalogService</li>
+     *   <li>Pricing data should come from PricingService. If not available (transition period),
+     *       falls back to initial price from Product context.</li>
      *   <li>If inventory data is missing, uses stock from ProductCatalogService</li>
      * </ul>
      */
+    @SuppressWarnings("deprecation") // Using deprecated migration method during transition period
     private ArticleData combineData(
             ProductId productId,
             ProductInfo productInfo,
@@ -95,10 +108,20 @@ public class CompositeCheckoutArticleDataAdapter implements CheckoutArticleDataP
 
         String name = productInfo.name();
 
-        // Use dedicated pricing if available, fall back to product catalog price
-        Money currentPrice = priceInfo != null
-            ? priceInfo.currentPrice()
-            : productInfo.price().value();
+        // Get pricing: prefer PricingService, fall back to Product context during transition
+        Money currentPrice;
+        if (priceInfo != null) {
+            currentPrice = priceInfo.currentPrice();
+        } else {
+            // Transition fallback: get initial price from Product context
+            log.debug("Pricing data not in PricingService for product: {}, using fallback", productId.value());
+            currentPrice = getInitialPriceFromProductContext(productId);
+            if (currentPrice == null) {
+                throw new IllegalStateException(
+                    "Pricing data not available for product: " + productId.value() +
+                    ". Neither PricingService nor Product context have price information.");
+            }
+        }
 
         // Use dedicated inventory if available, fall back to product catalog stock
         int availableStock = stockInfo != null
@@ -110,5 +133,24 @@ public class CompositeCheckoutArticleDataAdapter implements CheckoutArticleDataP
             : availableStock > 0;
 
         return new ArticleData(productId, name, currentPrice, availableStock, isAvailable);
+    }
+
+    /**
+     * Gets initial price from Product context using deprecated migration method.
+     *
+     * <p>This is a transition fallback for products that haven't had their pricing
+     * synchronized to the Pricing context yet.
+     *
+     * @deprecated This method uses deprecated APIs and will be removed once pricing
+     *     is fully managed by the Pricing context.
+     */
+    @Deprecated(forRemoval = true)
+    @SuppressWarnings("deprecation")
+    private Money getInitialPriceFromProductContext(ProductId productId) {
+        return productCatalogService.getAllProductsWithInitialPrice().stream()
+            .filter(p -> p.productId().equals(productId))
+            .map(ProductInfoWithPrice::initialPrice)
+            .findFirst()
+            .orElse(null);
     }
 }

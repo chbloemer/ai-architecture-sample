@@ -100,6 +100,7 @@ public class InMemoryProductPriceRepository implements ProductPriceRepository {
    * @see de.sample.aiarchitecture.infrastructure.config.AsyncConfiguration
    * @see de.sample.aiarchitecture.infrastructure.support.AsyncInitializationProcessor
    */
+  @SuppressWarnings("deprecation") // Using deprecated migration method for initialization
   @Async
   public void asyncInitialize() {
     logger.info("Starting async initialization of ProductPriceRepository from products...");
@@ -108,7 +109,8 @@ public class InMemoryProductPriceRepository implements ProductPriceRepository {
       // Wait for product repository to complete initialization first
       Thread.sleep(3000);
 
-      final var products = productCatalogService.getAllProducts();
+      // Use the deprecated migration method to get initial prices
+      final var products = productCatalogService.getAllProductsWithInitialPrice();
       int initializedCount = 0;
 
       for (final var productInfo : products) {
@@ -117,10 +119,10 @@ public class InMemoryProductPriceRepository implements ProductPriceRepository {
           continue;
         }
 
-        // Create ProductPrice from Product's price via Open Host Service
+        // Create ProductPrice from Product's initial price via Open Host Service
         final var productPrice = ProductPrice.create(
             productInfo.productId(),
-            productInfo.price().value()
+            productInfo.initialPrice()
         );
 
         // Save without triggering domain events (internal initialization)

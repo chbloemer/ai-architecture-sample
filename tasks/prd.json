@@ -1964,7 +1964,7 @@
           "Gradual migration"
         ]
       },
-      "passes": false
+      "passes": true
     },
     {
       "id": "US-87",

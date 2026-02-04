@@ -10,7 +10,11 @@ import org.springframework.stereotype.Component;
  * Adapter that implements Cart's ProductDataPort by delegating to
  * Product context's Open Host Service.
  *
- * <p>This adapter is the ONLY place in Cart context that imports from
+ * <p>This adapter provides product existence and stock validation only.
+ * Pricing information is handled by CompositeArticleDataAdapter which
+ * delegates to the dedicated Pricing bounded context.
+ *
+ * <p>This adapter is one place in Cart context that imports from
  * Product context, isolating cross-context coupling to the adapter layer.
  */
 @Component
@@ -27,7 +31,6 @@ public class ProductDataAdapter implements ProductDataPort {
         return productCatalogService.getProductInfo(productId)
             .map(info -> new ProductData(
                 productId,
-                info.price(),
                 info.availableStock() >= requestedQuantity
             ));
     }

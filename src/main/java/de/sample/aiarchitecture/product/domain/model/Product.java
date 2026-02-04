@@ -71,6 +71,14 @@ public final class Product extends BaseAggregateRoot<Product, ProductId> {
     return description;
   }
 
+  /**
+   * Returns the price of this product.
+   *
+   * @return the product price
+   * @deprecated Pricing is now managed by the Pricing bounded context.
+   *     Use PricingService to get current prices. This method will be removed in a future version.
+   */
+  @Deprecated(forRemoval = true)
   public Price price() {
     return price;
   }
@@ -90,7 +98,10 @@ public final class Product extends BaseAggregateRoot<Product, ProductId> {
    *
    * @param newPrice the new price (must be positive)
    * @throws IllegalArgumentException if price is null
+   * @deprecated Pricing is now managed by the Pricing bounded context.
+   *     Use ProductPriceRepository to manage prices. This method will be removed in a future version.
    */
+  @Deprecated(forRemoval = true)
   public void changePrice(@NonNull final Price newPrice) {
     if (newPrice == null) {
       throw new IllegalArgumentException("New price cannot be null");

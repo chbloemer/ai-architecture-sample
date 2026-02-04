@@ -1634,7 +1634,7 @@
           "Never import domain objects from other contexts"
         ]
       },
-      "passes": false
+      "passes": true
     },
     {
       "id": "US-75",

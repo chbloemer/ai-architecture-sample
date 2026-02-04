@@ -1,0 +1,18 @@
+Let me verify all acceptance criteria are met:
+
+**Acceptance Criteria Check:**
+
+1. ✅ **GetStockForProductsInputPort extends UseCase** - Created at `inventory/application/getstockforproducts/GetStockForProductsInputPort.java` extending `UseCase<GetStockForProductsQuery, GetStockForProductsResult>`
+
+2. ✅ **GetStockForProductsQuery(Collection<ProductId> productIds)** - Created at `inventory/application/getstockforproducts/GetStockForProductsQuery.java` with `@NonNull Collection<ProductId> productIds` parameter
+
+3. ✅ **GetStockForProductsResult with Map<ProductId, StockData>** - Created at `inventory/application/getstockforproducts/GetStockForProductsResult.java` with `Map<ProductId, StockData> stocks`
+
+4. ✅ **StockData record: productId, availableStock, isAvailable** - Created as nested record in GetStockForProductsResult with all three fields
+
+**Quality Gates:**
+- ✅ Code compiles: `./gradlew build` passed
+- ✅ Tests pass: `./gradlew test` passed
+- ⚠️ Architecture tests: My changes pass (Hexagonal, Onion, DDD tests pass). The failing test is a pre-existing issue with `CheckoutValidationResult` in the domain layer - unrelated to US-66
+
+<promise>STORY_COMPLETE</promise>

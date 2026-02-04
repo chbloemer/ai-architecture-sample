@@ -1824,7 +1824,7 @@
           "Composite Adapter"
         ]
       },
-      "passes": false
+      "passes": true
     },
     {
       "id": "US-82",

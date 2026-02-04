@@ -1,0 +1,42 @@
+I have successfully implemented US-87 - Integration Tests for Article Data Flow. Here's a summary of what was created:
+
+## Summary
+
+Created `ArticleDataFlowIntegrationTest.java` in `src/test-integration/java/de/sample/aiarchitecture/` with comprehensive tests covering all acceptance criteria:
+
+### Test Coverage
+
+1. **CompositeArticleDataAdapter Tests** (5 tests)
+   - Verifies aggregation of data from all three OHS services (ProductCatalogService, PricingService, InventoryService)
+   - Tests bulk fetch of article data for multiple products
+   - Tests edge cases (empty input, unknown product)
+   - Verifies proper adapter wiring
+
+2. **StartCheckoutUseCase with Resolver Tests** (2 tests)
+   - Verifies fresh pricing from CheckoutArticleDataPort when starting checkout
+   - Verifies product name from ProductCatalogService in line items
+
+3. **ConfirmCheckoutUseCase with Resolver Tests** (2 tests)
+   - Validates pricing with resolver during confirmation
+   - Verifies resolver fetches fresh pricing during confirmation
+
+4. **GetCartByIdUseCase Enrichment Tests** (2 tests)
+   - Verifies cart items are enriched with fresh pricing data
+   - Verifies both price at addition and current price are included
+
+5. **Price Change Detection Tests** (3 tests)
+   - Detects when price has not changed
+   - Detects when price has changed (using SetProductPriceInputPort)
+   - Verifies price change detection works for multiple items
+
+6. **End-to-End Article Data Flow Tests** (2 tests)
+   - Complete flow: Cart → Checkout → Confirm with fresh pricing at each step
+   - Verifies all three OHS services are accessible
+
+### Build Status
+- All 17 new integration tests pass
+- Unit tests pass
+- Architecture tests pass
+- Note: There is one pre-existing failing test (`ShoppingCartRepositoryJpaIntegrationTest.findBy_spec_withMinTotal_andActive_paginatesAndFilters`) that was already failing before these changes
+
+<promise>STORY_COMPLETE</promise>

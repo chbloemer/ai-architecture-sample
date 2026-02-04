@@ -19,14 +19,16 @@ BEAD_MAP_FILE="$PROJECT_ROOT/tasks/.bead-map.json"
 RIG_NAME="ai_architecture_sample"
 BEAD_PREFIX="aas"
 GT_DIR="$HOME/gt"
+RIG_DIR="$GT_DIR/$RIG_NAME"
 
-# Run gt/bd commands from gastown directory
+# Run gt commands from gastown directory
 gt_cmd() {
     (cd "$GT_DIR" && gt "$@")
 }
 
+# Run bd commands from rig directory (where rig's .beads db lives)
 bd_cmd() {
-    (cd "$GT_DIR" && bd "$@")
+    (cd "$RIG_DIR" && bd "$@")
 }
 
 # Colors for output
@@ -200,12 +202,12 @@ create_convoys() {
     done
 }
 
-# Get ready beads (all epics)
+# Get ready beads (all epics) - returns just bead IDs
 get_ready_beads() {
-    bd_cmd ready --rig "$RIG_NAME" 2>/dev/null || true
+    bd_cmd ready --type task 2>/dev/null | grep -oE "${BEAD_PREFIX}-[a-z0-9]+" | grep -v "^${BEAD_PREFIX}-rig" || true
 }
 
-# Get ready beads for specific epics
+# Get ready beads for specific epics - returns just bead IDs
 get_ready_beads_for_epics() {
     local epics=("$@")
     local all_bead_ids=""
@@ -225,9 +227,9 @@ get_ready_beads_for_epics() {
     # Remove leading pipe
     all_bead_ids="${all_bead_ids#|}"
 
-    # Filter to only ready beads
+    # Filter to only ready beads (extract IDs and filter)
     if [ -n "$all_bead_ids" ]; then
-        bd_cmd ready --rig "$RIG_NAME" 2>/dev/null | grep -E "($all_bead_ids)" || true
+        bd_cmd ready --type task 2>/dev/null | grep -oE "${BEAD_PREFIX}-[a-z0-9]+" | grep -v "^${BEAD_PREFIX}-rig" | grep -E "($all_bead_ids)" || true
     fi
 }
 
@@ -366,7 +368,7 @@ sync_status() {
     bd_cmd sync 2>/dev/null || true
 
     # Get closed beads
-    local closed=$(bd_cmd list --status closed --rig "$RIG_NAME" 2>/dev/null | grep -oE "${BEAD_PREFIX}-[a-z0-9]+" || true)
+    local closed=$(bd_cmd list --status closed --type task 2>/dev/null | grep -oE "${BEAD_PREFIX}-[a-z0-9]+" || true)
 
     local count=0
     for bead_id in $closed; do
@@ -404,7 +406,7 @@ reset_beads() {
     log_info "Deleting beads..."
 
     # Delete all beads for this rig
-    bd_cmd list --rig "$RIG_NAME" 2>/dev/null | grep -oE "${BEAD_PREFIX}-[a-z0-9]+" | while read -r bead_id; do
+    bd_cmd list --type task 2>/dev/null | grep -oE "${BEAD_PREFIX}-[a-z0-9]+" | while read -r bead_id; do
         bd_cmd delete "$bead_id" 2>/dev/null || true
         log_info "Deleted $bead_id"
     done

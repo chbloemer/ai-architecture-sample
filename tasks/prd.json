@@ -1353,7 +1353,7 @@
           "Repository Interface"
         ]
       },
-      "passes": false
+      "passes": true
     },
     {
       "id": "US-65",

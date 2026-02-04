@@ -1004,6 +1004,690 @@
         ]
       },
       "passes": true
+    },
+    {
+      "id": "US-52",
+      "epic": "pricing-context",
+      "title": "Pricing Domain Value Objects",
+      "description": "Create pricing domain value objects (PriceId) for the new Pricing bounded context.",
+      "depends_on": [],
+      "acceptance_criteria": [
+        "PriceId value object with generate() and of() methods",
+        "Implements Value interface with proper validation",
+        "All in pricing/domain/model/ package"
+      ],
+      "architectural_guidance": {
+        "affected_layers": ["domain"],
+        "locations": ["pricing.domain.model.PriceId"],
+        "patterns": ["Value Object as Java record"]
+      },
+      "passes": false
+    },
+    {
+      "id": "US-53",
+      "epic": "pricing-context",
+      "title": "ProductPrice Aggregate",
+      "description": "Create ProductPrice aggregate root for managing product prices with proper invariants.",
+      "depends_on": ["US-52"],
+      "acceptance_criteria": [
+        "Extends BaseAggregateRoot<ProductPrice, PriceId>",
+        "Fields: id, productId, currentPrice (Money), effectiveFrom (Instant)",
+        "Factory method: create(productId, price)",
+        "Method: updatePrice(newPrice) raises PriceChanged event",
+        "Validates price > 0"
+      ],
+      "architectural_guidance": {
+        "affected_layers": ["domain"],
+        "locations": ["pricing.domain.model.ProductPrice"],
+        "patterns": ["Aggregate Root"]
+      },
+      "passes": false
+    },
+    {
+      "id": "US-54",
+      "epic": "pricing-context",
+      "title": "Pricing Domain Events",
+      "description": "Create pricing domain events for price changes.",
+      "depends_on": ["US-53"],
+      "acceptance_criteria": [
+        "PriceCreated event (priceId, productId, price, effectiveFrom)",
+        "PriceChanged event (priceId, productId, oldPrice, newPrice, effectiveFrom)",
+        "All implement DomainEvent interface with eventId, occurredOn, version"
+      ],
+      "architectural_guidance": {
+        "affected_layers": ["domain"],
+        "locations": ["pricing.domain.event.PriceCreated", "pricing.domain.event.PriceChanged"],
+        "patterns": ["Domain Event as immutable record"]
+      },
+      "passes": false
+    },
+    {
+      "id": "US-55",
+      "epic": "pricing-context",
+      "title": "ProductPriceRepository Interface",
+      "description": "Create repository interface for persisting and retrieving product prices.",
+      "depends_on": ["US-53"],
+      "acceptance_criteria": [
+        "Extends Repository<ProductPrice, PriceId>",
+        "Methods: findByProductId(ProductId), findByProductIds(Collection<ProductId>)",
+        "Interface in application/shared"
+      ],
+      "architectural_guidance": {
+        "affected_layers": ["application"],
+        "locations": ["pricing.application.shared.ProductPriceRepository"],
+        "patterns": ["Repository Interface"]
+      },
+      "passes": false
+    },
+    {
+      "id": "US-56",
+      "epic": "pricing-context",
+      "title": "InMemoryProductPriceRepository",
+      "description": "Implement in-memory repository for pricing context.",
+      "depends_on": ["US-55"],
+      "acceptance_criteria": [
+        "Implements ProductPriceRepository",
+        "ConcurrentHashMap-based storage",
+        "Secondary index on ProductId for efficient lookups",
+        "Thread-safe operations"
+      ],
+      "architectural_guidance": {
+        "affected_layers": ["adapter"],
+        "locations": ["pricing.adapter.outgoing.persistence.InMemoryProductPriceRepository"],
+        "patterns": ["In-Memory Repository"]
+      },
+      "passes": false
+    },
+    {
+      "id": "US-57",
+      "epic": "pricing-context",
+      "title": "GetPricesForProducts Use Case",
+      "description": "Create bulk price lookup use case for Cart/Checkout to fetch prices efficiently.",
+      "depends_on": ["US-55"],
+      "acceptance_criteria": [
+        "GetPricesForProductsInputPort extends UseCase",
+        "GetPricesForProductsQuery(Collection<ProductId> productIds)",
+        "GetPricesForProductsResult with Map<ProductId, PriceData>",
+        "PriceData record: productId, currentPrice, effectiveFrom"
+      ],
+      "architectural_guidance": {
+        "affected_layers": ["application"],
+        "locations": ["pricing.application.getpricesforproducts"],
+        "patterns": ["Use Case with Query/Result"]
+      },
+      "passes": false
+    },
+    {
+      "id": "US-58",
+      "epic": "pricing-context",
+      "title": "PricingService Open Host Service",
+      "description": "Create PricingService OHS for other contexts to access pricing through a stable API.",
+      "depends_on": ["US-57"],
+      "acceptance_criteria": [
+        "@OpenHostService annotation",
+        "record PriceInfo(ProductId, Money currentPrice, Instant effectiveFrom)",
+        "getPrices(Collection<ProductId>) returns Map<ProductId, PriceInfo>",
+        "getPrice(ProductId) returns Optional<PriceInfo>",
+        "Delegates to GetPricesForProductsUseCase"
+      ],
+      "architectural_guidance": {
+        "affected_layers": ["adapter"],
+        "locations": ["pricing.adapter.incoming.openhost.PricingService"],
+        "patterns": ["Open Host Service"]
+      },
+      "passes": false
+    },
+    {
+      "id": "US-59",
+      "epic": "pricing-context",
+      "title": "SetProductPrice Use Case",
+      "description": "Create use case to set/update product prices.",
+      "depends_on": ["US-55", "US-54"],
+      "acceptance_criteria": [
+        "SetProductPriceInputPort extends UseCase",
+        "SetProductPriceCommand(productId, priceAmount, priceCurrency)",
+        "Creates new ProductPrice if not exists, updates if exists",
+        "Publishes domain events"
+      ],
+      "architectural_guidance": {
+        "affected_layers": ["application"],
+        "locations": ["pricing.application.setproductprice"],
+        "patterns": ["Use Case with Command/Result"]
+      },
+      "passes": false
+    },
+    {
+      "id": "US-60",
+      "epic": "pricing-context",
+      "title": "Pricing Context ArchUnit Rules",
+      "description": "Verify architecture tests cover new pricing context.",
+      "depends_on": ["US-58", "US-59"],
+      "acceptance_criteria": [
+        "Domain has no Spring annotations",
+        "Repository interface in application/shared",
+        "OHS in adapter/incoming/openhost",
+        "All ArchUnit tests pass"
+      ],
+      "architectural_guidance": {
+        "affected_layers": ["test-architecture"],
+        "locations": ["Existing ArchUnit tests"],
+        "patterns": ["Architecture Testing"]
+      },
+      "passes": false
+    },
+    {
+      "id": "US-61",
+      "epic": "inventory-context",
+      "title": "Inventory Domain Value Objects",
+      "description": "Create inventory domain value objects for the new Inventory bounded context.",
+      "depends_on": [],
+      "acceptance_criteria": [
+        "StockLevelId value object with generate() and of()",
+        "StockQuantity value object (int value, cannot be negative)",
+        "Implements Value interface"
+      ],
+      "architectural_guidance": {
+        "affected_layers": ["domain"],
+        "locations": ["inventory.domain.model.StockLevelId", "inventory.domain.model.StockQuantity"],
+        "patterns": ["Value Object as Java record"]
+      },
+      "passes": false
+    },
+    {
+      "id": "US-62",
+      "epic": "inventory-context",
+      "title": "StockLevel Aggregate",
+      "description": "Create StockLevel aggregate root for managing product inventory with proper invariants.",
+      "depends_on": ["US-61"],
+      "acceptance_criteria": [
+        "Extends BaseAggregateRoot<StockLevel, StockLevelId>",
+        "Fields: id, productId, availableQuantity (StockQuantity), reservedQuantity",
+        "Factory method: create(productId, initialQuantity)",
+        "Methods: increaseStock(int), decreaseStock(int), reserve(int), release(int)",
+        "isAvailable() returns availableQuantity > reservedQuantity",
+        "Raises StockChanged events"
+      ],
+      "architectural_guidance": {
+        "affected_layers": ["domain"],
+        "locations": ["inventory.domain.model.StockLevel"],
+        "patterns": ["Aggregate Root"]
+      },
+      "passes": false
+    },
+    {
+      "id": "US-63",
+      "epic": "inventory-context",
+      "title": "Inventory Domain Events",
+      "description": "Create inventory domain events for stock changes.",
+      "depends_on": ["US-62"],
+      "acceptance_criteria": [
+        "StockLevelCreated event (stockLevelId, productId, quantity)",
+        "StockIncreased event (stockLevelId, productId, addedQuantity, newQuantity)",
+        "StockDecreased event (stockLevelId, productId, removedQuantity, newQuantity)",
+        "StockReserved event (stockLevelId, productId, reservedQuantity)"
+      ],
+      "architectural_guidance": {
+        "affected_layers": ["domain"],
+        "locations": ["inventory.domain.event"],
+        "patterns": ["Domain Event as immutable record"]
+      },
+      "passes": false
+    },
+    {
+      "id": "US-64",
+      "epic": "inventory-context",
+      "title": "StockLevelRepository Interface",
+      "description": "Create repository interface for persisting and retrieving stock levels.",
+      "depends_on": ["US-62"],
+      "acceptance_criteria": [
+        "Extends Repository<StockLevel, StockLevelId>",
+        "Methods: findByProductId(ProductId), findByProductIds(Collection<ProductId>)",
+        "Interface in application/shared"
+      ],
+      "architectural_guidance": {
+        "affected_layers": ["application"],
+        "locations": ["inventory.application.shared.StockLevelRepository"],
+        "patterns": ["Repository Interface"]
+      },
+      "passes": false
+    },
+    {
+      "id": "US-65",
+      "epic": "inventory-context",
+      "title": "InMemoryStockLevelRepository",
+      "description": "Implement in-memory repository for inventory context.",
+      "depends_on": ["US-64"],
+      "acceptance_criteria": [
+        "Implements StockLevelRepository",
+        "ConcurrentHashMap-based storage",
+        "Secondary index on ProductId",
+        "Thread-safe operations"
+      ],
+      "architectural_guidance": {
+        "affected_layers": ["adapter"],
+        "locations": ["inventory.adapter.outgoing.persistence.InMemoryStockLevelRepository"],
+        "patterns": ["In-Memory Repository"]
+      },
+      "passes": false
+    },
+    {
+      "id": "US-66",
+      "epic": "inventory-context",
+      "title": "GetStockForProducts Use Case",
+      "description": "Create bulk stock lookup use case for Cart/Checkout to check availability efficiently.",
+      "depends_on": ["US-64"],
+      "acceptance_criteria": [
+        "GetStockForProductsInputPort extends UseCase",
+        "GetStockForProductsQuery(Collection<ProductId> productIds)",
+        "GetStockForProductsResult with Map<ProductId, StockData>",
+        "StockData record: productId, availableStock, isAvailable"
+      ],
+      "architectural_guidance": {
+        "affected_layers": ["application"],
+        "locations": ["inventory.application.getstockforproducts"],
+        "patterns": ["Use Case with Query/Result"]
+      },
+      "passes": false
+    },
+    {
+      "id": "US-67",
+      "epic": "inventory-context",
+      "title": "InventoryService Open Host Service",
+      "description": "Create InventoryService OHS for other contexts to access stock through a stable API.",
+      "depends_on": ["US-66"],
+      "acceptance_criteria": [
+        "@OpenHostService annotation",
+        "record StockInfo(ProductId, int availableStock, boolean isAvailable)",
+        "getStock(Collection<ProductId>) returns Map<ProductId, StockInfo>",
+        "hasStock(ProductId, int quantity) returns boolean",
+        "Delegates to GetStockForProductsUseCase"
+      ],
+      "architectural_guidance": {
+        "affected_layers": ["adapter"],
+        "locations": ["inventory.adapter.incoming.openhost.InventoryService"],
+        "patterns": ["Open Host Service"]
+      },
+      "passes": false
+    },
+    {
+      "id": "US-68",
+      "epic": "inventory-context",
+      "title": "SetStockLevel Use Case",
+      "description": "Create use case to set/update stock levels.",
+      "depends_on": ["US-64", "US-63"],
+      "acceptance_criteria": [
+        "SetStockLevelInputPort extends UseCase",
+        "SetStockLevelCommand(productId, quantity)",
+        "Creates new StockLevel if not exists, updates if exists",
+        "Publishes domain events"
+      ],
+      "architectural_guidance": {
+        "affected_layers": ["application"],
+        "locations": ["inventory.application.setstocklevel"],
+        "patterns": ["Use Case with Command/Result"]
+      },
+      "passes": false
+    },
+    {
+      "id": "US-69",
+      "epic": "inventory-context",
+      "title": "Inventory Context ArchUnit Rules",
+      "description": "Verify architecture tests cover new inventory context.",
+      "depends_on": ["US-67", "US-68"],
+      "acceptance_criteria": [
+        "Domain has no Spring annotations",
+        "Repository interface in application/shared",
+        "OHS in adapter/incoming/openhost",
+        "All ArchUnit tests pass"
+      ],
+      "architectural_guidance": {
+        "affected_layers": ["test-architecture"],
+        "locations": ["Existing ArchUnit tests"],
+        "patterns": ["Architecture Testing"]
+      },
+      "passes": false
+    },
+    {
+      "id": "US-70",
+      "epic": "cart-resolver",
+      "title": "ArticlePriceResolver Interface",
+      "description": "Create functional interface for cart domain to receive fresh pricing without external dependencies.",
+      "depends_on": [],
+      "acceptance_criteria": [
+        "@FunctionalInterface annotation",
+        "ArticlePrice resolve(ProductId productId) method",
+        "record ArticlePrice(Money price, boolean isAvailable, int availableStock) implements Value",
+        "In cart domain package"
+      ],
+      "architectural_guidance": {
+        "affected_layers": ["domain"],
+        "locations": ["cart.domain.model.ArticlePriceResolver"],
+        "patterns": ["Functional Interface", "Value Object"]
+      },
+      "passes": false
+    },
+    {
+      "id": "US-71",
+      "epic": "cart-resolver",
+      "title": "CartValidationResult Value Object",
+      "description": "Create value object for collecting and returning validation errors.",
+      "depends_on": ["US-70"],
+      "acceptance_criteria": [
+        "record CartValidationResult(List<ValidationError> errors)",
+        "isValid() returns errors.isEmpty()",
+        "record ValidationError(ProductId productId, String message, ErrorType type)",
+        "enum ErrorType { PRODUCT_UNAVAILABLE, INSUFFICIENT_STOCK }",
+        "Static factory methods for each error type"
+      ],
+      "architectural_guidance": {
+        "affected_layers": ["domain"],
+        "locations": ["cart.domain.model.CartValidationResult"],
+        "patterns": ["Value Object"]
+      },
+      "passes": false
+    },
+    {
+      "id": "US-72",
+      "epic": "cart-resolver",
+      "title": "ShoppingCart Resolver Methods",
+      "description": "Add resolver-based methods on ShoppingCart aggregate for calculations using fresh pricing data.",
+      "depends_on": ["US-70", "US-71"],
+      "acceptance_criteria": [
+        "calculateTotal(ArticlePriceResolver) returns Money",
+        "validateForCheckout(ArticlePriceResolver) returns CartValidationResult",
+        "Keep existing calculateTotal() as @Deprecated for migration",
+        "Both methods iterate items and use resolver for pricing"
+      ],
+      "architectural_guidance": {
+        "affected_layers": ["domain"],
+        "locations": ["cart.domain.model.ShoppingCart"],
+        "patterns": ["Aggregate method with injected dependency"]
+      },
+      "passes": false
+    },
+    {
+      "id": "US-73",
+      "epic": "cart-resolver",
+      "title": "ArticleDataPort Output Port",
+      "description": "Create output port for cart use cases to fetch article data.",
+      "depends_on": ["US-58", "US-67"],
+      "acceptance_criteria": [
+        "Extends OutputPort interface",
+        "record ArticleData(ProductId, String name, Money currentPrice, int availableStock, boolean isAvailable)",
+        "getArticleData(Collection<ProductId>) returns Map<ProductId, ArticleData>",
+        "getArticleData(ProductId) returns Optional<ArticleData>"
+      ],
+      "architectural_guidance": {
+        "affected_layers": ["application"],
+        "locations": ["cart.application.shared.ArticleDataPort"],
+        "patterns": ["Output Port"]
+      },
+      "passes": false
+    },
+    {
+      "id": "US-74",
+      "epic": "cart-resolver",
+      "title": "CompositeArticleDataAdapter",
+      "description": "Create composite adapter that aggregates data from multiple Open Host Services.",
+      "depends_on": ["US-73", "US-58", "US-67"],
+      "acceptance_criteria": [
+        "Implements ArticleDataPort",
+        "Injects: ProductCatalogService, PricingService, InventoryService",
+        "Fetches from all three, combines into ArticleData",
+        "Handles missing data gracefully"
+      ],
+      "architectural_guidance": {
+        "affected_layers": ["adapter"],
+        "locations": ["cart.adapter.outgoing.article.CompositeArticleDataAdapter"],
+        "patterns": ["Composite Adapter"],
+        "constraints": [
+          "Only import @OpenHostService classes from other contexts",
+          "Never import domain objects from other contexts"
+        ]
+      },
+      "passes": false
+    },
+    {
+      "id": "US-75",
+      "epic": "cart-resolver",
+      "title": "Update CheckoutCartUseCase with Resolver",
+      "description": "Update CheckoutCartUseCase to use resolver pattern for checkout validation with fresh data.",
+      "depends_on": ["US-72", "US-74"],
+      "acceptance_criteria": [
+        "Inject ArticleDataPort",
+        "Fetch article data for all cart items",
+        "Build resolver from fetched data",
+        "Call cart.checkout(resolver) instead of cart.checkout()",
+        "Handle validation errors appropriately"
+      ],
+      "architectural_guidance": {
+        "affected_layers": ["application"],
+        "locations": ["cart.application.checkoutcart.CheckoutCartUseCase"],
+        "patterns": ["Use Case orchestration"]
+      },
+      "passes": false
+    },
+    {
+      "id": "US-76",
+      "epic": "cart-resolver",
+      "title": "Update GetCartByIdUseCase with Fresh Data",
+      "description": "Update GetCartByIdUseCase to enrich results with fresh pricing.",
+      "depends_on": ["US-73", "US-74"],
+      "acceptance_criteria": [
+        "Inject ArticleDataPort",
+        "Fetch article data for all cart items",
+        "Include currentPrice and availability in result",
+        "Add priceChanged flag if currentPrice != priceAtAddition"
+      ],
+      "architectural_guidance": {
+        "affected_layers": ["application"],
+        "locations": ["cart.application.getcartbyid.GetCartByIdUseCase"],
+        "patterns": ["Query enrichment"]
+      },
+      "passes": false
+    },
+    {
+      "id": "US-77",
+      "epic": "checkout-resolver",
+      "title": "CheckoutArticlePriceResolver Interface",
+      "description": "Create functional interface for checkout domain to receive fresh pricing.",
+      "depends_on": [],
+      "acceptance_criteria": [
+        "@FunctionalInterface annotation",
+        "ArticlePrice resolve(ProductId productId) method",
+        "record ArticlePrice(Money price, boolean isAvailable, int availableStock) implements Value",
+        "In checkout domain package"
+      ],
+      "architectural_guidance": {
+        "affected_layers": ["domain"],
+        "locations": ["checkout.domain.model.CheckoutArticlePriceResolver"],
+        "patterns": ["Functional Interface"]
+      },
+      "passes": false
+    },
+    {
+      "id": "US-78",
+      "epic": "checkout-resolver",
+      "title": "CheckoutValidationResult Value Object",
+      "description": "Create value object for collecting checkout validation errors.",
+      "depends_on": ["US-77"],
+      "acceptance_criteria": [
+        "record CheckoutValidationResult(List<ValidationError> errors)",
+        "isValid() returns errors.isEmpty()",
+        "Similar structure to CartValidationResult"
+      ],
+      "architectural_guidance": {
+        "affected_layers": ["domain"],
+        "locations": ["checkout.domain.model.CheckoutValidationResult"],
+        "patterns": ["Value Object"]
+      },
+      "passes": false
+    },
+    {
+      "id": "US-79",
+      "epic": "checkout-resolver",
+      "title": "CheckoutSession Resolver Methods",
+      "description": "Add resolver-based methods on CheckoutSession aggregate for order totals using fresh pricing.",
+      "depends_on": ["US-77", "US-78"],
+      "acceptance_criteria": [
+        "calculateOrderTotal(CheckoutArticlePriceResolver) returns Money",
+        "validateItems(CheckoutArticlePriceResolver) returns CheckoutValidationResult",
+        "Update confirm() to accept resolver and validate before confirming"
+      ],
+      "architectural_guidance": {
+        "affected_layers": ["domain"],
+        "locations": ["checkout.domain.model.CheckoutSession"],
+        "patterns": ["Aggregate method with injected dependency"]
+      },
+      "passes": false
+    },
+    {
+      "id": "US-80",
+      "epic": "checkout-resolver",
+      "title": "CheckoutArticleDataPort Output Port",
+      "description": "Create output port for checkout use cases to fetch article data.",
+      "depends_on": ["US-58", "US-67"],
+      "acceptance_criteria": [
+        "Extends OutputPort interface",
+        "record ArticleData(ProductId, String name, Money currentPrice, int availableStock, boolean isAvailable)",
+        "getArticleData(Collection<ProductId>) returns Map<ProductId, ArticleData>"
+      ],
+      "architectural_guidance": {
+        "affected_layers": ["application"],
+        "locations": ["checkout.application.shared.CheckoutArticleDataPort"],
+        "patterns": ["Output Port"]
+      },
+      "passes": false
+    },
+    {
+      "id": "US-81",
+      "epic": "checkout-resolver",
+      "title": "CompositeCheckoutArticleDataAdapter",
+      "description": "Create composite adapter for checkout to get article data from the right sources.",
+      "depends_on": ["US-80", "US-58", "US-67"],
+      "acceptance_criteria": [
+        "Implements CheckoutArticleDataPort",
+        "Injects: ProductCatalogService, PricingService, InventoryService",
+        "Same pattern as Cart's CompositeArticleDataAdapter"
+      ],
+      "architectural_guidance": {
+        "affected_layers": ["adapter"],
+        "locations": ["checkout.adapter.outgoing.article.CompositeCheckoutArticleDataAdapter"],
+        "patterns": ["Composite Adapter"]
+      },
+      "passes": false
+    },
+    {
+      "id": "US-82",
+      "epic": "checkout-resolver",
+      "title": "Update StartCheckoutUseCase with Resolver",
+      "description": "Update StartCheckoutUseCase to use resolver pattern for checkout with fresh pricing.",
+      "depends_on": ["US-79", "US-81"],
+      "acceptance_criteria": [
+        "Inject CheckoutArticleDataPort",
+        "Fetch article data for all line items",
+        "Build resolver from fetched data",
+        "Pass resolver to CheckoutSession methods"
+      ],
+      "architectural_guidance": {
+        "affected_layers": ["application"],
+        "locations": ["checkout.application.startcheckout.StartCheckoutUseCase"],
+        "patterns": ["Use Case orchestration"]
+      },
+      "passes": false
+    },
+    {
+      "id": "US-83",
+      "epic": "checkout-resolver",
+      "title": "Update ConfirmCheckoutUseCase with Resolver",
+      "description": "Update ConfirmCheckoutUseCase to validate with fresh data before final confirmation.",
+      "depends_on": ["US-79", "US-81"],
+      "acceptance_criteria": [
+        "Inject CheckoutArticleDataPort",
+        "Fetch fresh article data before confirmation",
+        "Build resolver and call session.confirm(resolver)",
+        "Handle validation errors"
+      ],
+      "architectural_guidance": {
+        "affected_layers": ["application"],
+        "locations": ["checkout.application.confirmcheckout.ConfirmCheckoutUseCase"],
+        "patterns": ["Use Case orchestration"]
+      },
+      "passes": false
+    },
+    {
+      "id": "US-84",
+      "epic": "data-migration",
+      "title": "Initialize Pricing Data from Products",
+      "description": "Initialize pricing data from existing products on startup.",
+      "depends_on": ["US-56"],
+      "acceptance_criteria": [
+        "AsyncInitialize method in InMemoryProductPriceRepository",
+        "Load all products and create ProductPrice for each",
+        "Copy price from Product to Pricing context"
+      ],
+      "architectural_guidance": {
+        "affected_layers": ["adapter"],
+        "locations": ["pricing.adapter.outgoing.persistence.InMemoryProductPriceRepository"],
+        "patterns": ["Data initialization"]
+      },
+      "passes": false
+    },
+    {
+      "id": "US-85",
+      "epic": "data-migration",
+      "title": "Initialize Inventory Data from Products",
+      "description": "Initialize inventory data from existing products on startup.",
+      "depends_on": ["US-65"],
+      "acceptance_criteria": [
+        "AsyncInitialize method in InMemoryStockLevelRepository",
+        "Load all products and create StockLevel for each",
+        "Copy stock quantity from Product to Inventory context"
+      ],
+      "architectural_guidance": {
+        "affected_layers": ["adapter"],
+        "locations": ["inventory.adapter.outgoing.persistence.InMemoryStockLevelRepository"],
+        "patterns": ["Data initialization"]
+      },
+      "passes": false
+    },
+    {
+      "id": "US-86",
+      "epic": "data-migration",
+      "title": "Update Product Context - Remove Pricing Responsibility",
+      "description": "Update Product context to no longer manage pricing (separation of concerns).",
+      "depends_on": ["US-75", "US-76", "US-82", "US-83"],
+      "acceptance_criteria": [
+        "Deprecate price-related methods in Product aggregate",
+        "ProductCatalogService OHS returns name/SKU only (not price)",
+        "Update ProductDataPort in Cart to not expect pricing",
+        "Keep Price in Product for now (remove in future story)"
+      ],
+      "architectural_guidance": {
+        "affected_layers": ["domain", "adapter"],
+        "locations": ["product.domain.model.Product", "product.adapter.incoming.openhost.ProductCatalogService"],
+        "patterns": ["Gradual migration"]
+      },
+      "passes": false
+    },
+    {
+      "id": "US-87",
+      "epic": "data-migration",
+      "title": "Integration Tests for Article Data Flow",
+      "description": "Create integration tests for the full article data flow to verify resolver pattern works correctly.",
+      "depends_on": ["US-74", "US-81", "US-84", "US-85"],
+      "acceptance_criteria": [
+        "Test CompositeArticleDataAdapter with all three OHS",
+        "Test CheckoutCartUseCase with resolver",
+        "Test GetCartByIdUseCase enrichment",
+        "Test price change detection"
+      ],
+      "architectural_guidance": {
+        "affected_layers": ["test"],
+        "locations": ["src/test/java/.../cart/application/"],
+        "patterns": ["Integration Testing"]
+      },
+      "passes": false
     }
   ]
 }

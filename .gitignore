@@ -21,3 +21,6 @@ bin
 .claude/
 .beads/
 .logs/
+
+# Gastown PRD Integration
+tasks/.bead-map.json

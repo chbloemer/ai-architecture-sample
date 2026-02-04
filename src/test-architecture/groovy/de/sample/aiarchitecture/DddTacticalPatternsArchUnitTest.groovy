@@ -32,7 +32,7 @@ class DddTacticalPatternsArchUnitTest extends BaseArchUnitTest {
   def "Aggregate Roots must implement AggregateRoot<T, ID>"() {
     expect:
     classes()
-      .that().resideInAnyPackage(PRODUCT_DOMAIN_MODEL_PACKAGE, CART_DOMAIN_MODEL_PACKAGE, CHECKOUT_DOMAIN_MODEL_PACKAGE, ACCOUNT_DOMAIN_MODEL_PACKAGE, SHAREDKERNEL_DOMAIN_PACKAGE)
+      .that().resideInAnyPackage(PRODUCT_DOMAIN_MODEL_PACKAGE, CART_DOMAIN_MODEL_PACKAGE, CHECKOUT_DOMAIN_MODEL_PACKAGE, ACCOUNT_DOMAIN_MODEL_PACKAGE, INVENTORY_DOMAIN_MODEL_PACKAGE, PRICING_DOMAIN_MODEL_PACKAGE, SHAREDKERNEL_DOMAIN_PACKAGE)
       .and().haveSimpleNameEndingWith("AggregateRoot")
       .and().areNotInterfaces()
       .and().doNotHaveSimpleName("AggregateRoot") // Exclude the marker interface itself
@@ -255,7 +255,7 @@ class DddTacticalPatternsArchUnitTest extends BaseArchUnitTest {
   def "Value Object classes should be final (immutability)"() {
     expect:
     classes()
-      .that().resideInAnyPackage(PRODUCT_DOMAIN_MODEL_PACKAGE, CART_DOMAIN_MODEL_PACKAGE, CHECKOUT_DOMAIN_MODEL_PACKAGE, ACCOUNT_DOMAIN_MODEL_PACKAGE, SHAREDKERNEL_DOMAIN_PACKAGE)
+      .that().resideInAnyPackage(PRODUCT_DOMAIN_MODEL_PACKAGE, CART_DOMAIN_MODEL_PACKAGE, CHECKOUT_DOMAIN_MODEL_PACKAGE, ACCOUNT_DOMAIN_MODEL_PACKAGE, INVENTORY_DOMAIN_MODEL_PACKAGE, PRICING_DOMAIN_MODEL_PACKAGE, SHAREDKERNEL_DOMAIN_PACKAGE)
       .and().implement(Value.class)
       .and().areNotInterfaces()
       .and().areNotRecords()
@@ -333,9 +333,9 @@ class DddTacticalPatternsArchUnitTest extends BaseArchUnitTest {
   def "Records for Value Objects are allowed (preferred pattern for simple Value Objects)"() {
     expect:
     classes()
-      .that().resideInAnyPackage(PRODUCT_DOMAIN_MODEL_PACKAGE, CART_DOMAIN_MODEL_PACKAGE, CHECKOUT_DOMAIN_MODEL_PACKAGE, ACCOUNT_DOMAIN_MODEL_PACKAGE, SHAREDKERNEL_DOMAIN_PACKAGE)
+      .that().resideInAnyPackage(PRODUCT_DOMAIN_MODEL_PACKAGE, CART_DOMAIN_MODEL_PACKAGE, CHECKOUT_DOMAIN_MODEL_PACKAGE, ACCOUNT_DOMAIN_MODEL_PACKAGE, INVENTORY_DOMAIN_MODEL_PACKAGE, PRICING_DOMAIN_MODEL_PACKAGE, SHAREDKERNEL_DOMAIN_PACKAGE)
       .and().areRecords()
-      .should().resideInAnyPackage(PRODUCT_DOMAIN_MODEL_PACKAGE, CART_DOMAIN_MODEL_PACKAGE, CHECKOUT_DOMAIN_MODEL_PACKAGE, ACCOUNT_DOMAIN_MODEL_PACKAGE, SHAREDKERNEL_DOMAIN_PACKAGE)
+      .should().resideInAnyPackage(PRODUCT_DOMAIN_MODEL_PACKAGE, CART_DOMAIN_MODEL_PACKAGE, CHECKOUT_DOMAIN_MODEL_PACKAGE, ACCOUNT_DOMAIN_MODEL_PACKAGE, INVENTORY_DOMAIN_MODEL_PACKAGE, PRICING_DOMAIN_MODEL_PACKAGE, SHAREDKERNEL_DOMAIN_PACKAGE)
       .because("Records are a valid pattern for immutable value objects (Java 14+)")
       .allowEmptyShould(true)
       .check(allClasses)
@@ -348,7 +348,7 @@ class DddTacticalPatternsArchUnitTest extends BaseArchUnitTest {
   def "Repository Interfaces should extend Repository Marker Interface"() {
     expect:
     classes()
-      .that().resideInAnyPackage(PRODUCT_APPLICATION_PACKAGE, CART_APPLICATION_PACKAGE, CHECKOUT_APPLICATION_PACKAGE, ACCOUNT_APPLICATION_PACKAGE)
+      .that().resideInAnyPackage(PRODUCT_APPLICATION_PACKAGE, CART_APPLICATION_PACKAGE, CHECKOUT_APPLICATION_PACKAGE, ACCOUNT_APPLICATION_PACKAGE, INVENTORY_APPLICATION_PACKAGE, PRICING_APPLICATION_PACKAGE)
       .and().areInterfaces()
       .and().haveSimpleNameEndingWith("Repository")
       .and().doNotHaveSimpleName("Repository")
@@ -363,7 +363,7 @@ class DddTacticalPatternsArchUnitTest extends BaseArchUnitTest {
     classes()
       .that().implement(Repository.class)
       .and().areInterfaces()
-      .should().resideInAnyPackage(PRODUCT_APPLICATION_PACKAGE, CART_APPLICATION_PACKAGE, CHECKOUT_APPLICATION_PACKAGE, ACCOUNT_APPLICATION_PACKAGE)
+      .should().resideInAnyPackage(PRODUCT_APPLICATION_PACKAGE, CART_APPLICATION_PACKAGE, CHECKOUT_APPLICATION_PACKAGE, ACCOUNT_APPLICATION_PACKAGE, INVENTORY_APPLICATION_PACKAGE, PRICING_APPLICATION_PACKAGE)
       .because("Repository interfaces are output ports in the application layer (Hexagonal Architecture)")
       .allowEmptyShould(true)
       .check(allClasses)
@@ -374,7 +374,7 @@ class DddTacticalPatternsArchUnitTest extends BaseArchUnitTest {
     classes()
       .that().implement(Repository.class)
       .and().areNotInterfaces()
-      .should().resideInAnyPackage(PRODUCT_ADAPTER_PACKAGE, CART_ADAPTER_PACKAGE, CHECKOUT_ADAPTER_PACKAGE, ACCOUNT_ADAPTER_PACKAGE)
+      .should().resideInAnyPackage(PRODUCT_ADAPTER_PACKAGE, CART_ADAPTER_PACKAGE, CHECKOUT_ADAPTER_PACKAGE, ACCOUNT_ADAPTER_PACKAGE, INVENTORY_ADAPTER_PACKAGE, PRICING_ADAPTER_PACKAGE)
       .because("Repository implementations are outgoing adapters in bounded contexts")
       .allowEmptyShould(true)
       .check(allClasses)

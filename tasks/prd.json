@@ -1246,7 +1246,7 @@
           "Architecture Testing"
         ]
       },
-      "passes": false
+      "passes": true
     },
     {
       "id": "US-61",

@@ -30,7 +30,7 @@ import org.springframework.stereotype.Service;
 @OpenHostService(
     context = "Pricing",
     description = "Provides pricing information for other bounded contexts")
-@Service
+@Service("pricingContextOhs")
 public class PricingService {
 
   private final GetPricesForProductsInputPort getPricesForProductsInputPort;

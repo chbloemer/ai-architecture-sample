@@ -1327,7 +1327,7 @@
           "Domain Event as immutable record"
         ]
       },
-      "passes": false
+      "passes": true
     },
     {
       "id": "US-64",

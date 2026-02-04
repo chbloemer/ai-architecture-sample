@@ -2,27 +2,30 @@ package de.sample.aiarchitecture.cart.domain.model;
 
 import de.sample.aiarchitecture.sharedkernel.domain.model.ProductId;
 import de.sample.aiarchitecture.sharedkernel.marker.tactical.Value;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import org.jspecify.annotations.NonNull;
 
 /**
- * Value Object representing the result of validating a cart for checkout.
+ * Value Object representing the result of cart validation for checkout.
  *
- * <p>Collects validation errors that prevent a cart from being checked out, such as unavailable
- * products or insufficient stock.
- *
- * @param errors the list of validation errors, empty if validation passed
+ * <p>Collects validation errors that prevent a cart from being checked out,
+ * such as unavailable products or insufficient stock.
  */
 public record CartValidationResult(@NonNull List<ValidationError> errors) implements Value {
 
   public CartValidationResult {
-    errors = List.copyOf(errors);
+    if (errors == null) {
+      throw new IllegalArgumentException("Errors list cannot be null");
+    }
+    errors = Collections.unmodifiableList(new ArrayList<>(errors));
   }
 
   /**
-   * Returns whether the validation passed with no errors.
+   * Returns true if the cart is valid for checkout (no errors).
    *
-   * @return true if there are no validation errors
+   * @return true if no validation errors exist
    */
   public boolean isValid() {
     return errors.isEmpty();
@@ -41,60 +44,57 @@ public record CartValidationResult(@NonNull List<ValidationError> errors) implem
    * Creates a result with the specified errors.
    *
    * @param errors the validation errors
-   * @return a CartValidationResult containing the errors
+   * @return a CartValidationResult with the given errors
    */
-  public static CartValidationResult withErrors(@NonNull List<ValidationError> errors) {
+  public static CartValidationResult withErrors(@NonNull final List<ValidationError> errors) {
     return new CartValidationResult(errors);
   }
 
   /**
-   * Creates a result with a single error.
-   *
-   * @param error the validation error
-   * @return a CartValidationResult containing the single error
-   */
-  public static CartValidationResult withError(@NonNull ValidationError error) {
-    return new CartValidationResult(List.of(error));
-  }
-
-  /**
-   * Value Object representing a single validation error for a product in the cart.
-   *
-   * @param productId the product that failed validation
-   * @param message a human-readable error message
-   * @param type the type of validation error
+   * Represents a single validation error for a product in the cart.
    */
   public record ValidationError(
-      @NonNull ProductId productId, @NonNull String message, @NonNull ErrorType type)
-      implements Value {
+      @NonNull ProductId productId,
+      @NonNull String message,
+      @NonNull ErrorType type) implements Value {
 
     public ValidationError {
+      if (productId == null) {
+        throw new IllegalArgumentException("ProductId cannot be null");
+      }
       if (message == null || message.isBlank()) {
-        throw new IllegalArgumentException("Error message cannot be null or blank");
+        throw new IllegalArgumentException("Message cannot be null or blank");
+      }
+      if (type == null) {
+        throw new IllegalArgumentException("ErrorType cannot be null");
       }
     }
 
     /**
-     * Creates an error for an unavailable product.
+     * Creates a validation error for an unavailable product.
      *
-     * @param productId the unavailable product
-     * @return a ValidationError with PRODUCT_UNAVAILABLE type
+     * @param productId the unavailable product ID
+     * @return a ValidationError of type PRODUCT_UNAVAILABLE
      */
-    public static ValidationError productUnavailable(@NonNull ProductId productId) {
+    public static ValidationError productUnavailable(@NonNull final ProductId productId) {
       return new ValidationError(
-          productId, "Product is not available: " + productId.value(), ErrorType.PRODUCT_UNAVAILABLE);
+          productId,
+          "Product is not available: " + productId.value(),
+          ErrorType.PRODUCT_UNAVAILABLE);
     }
 
     /**
-     * Creates an error for insufficient stock.
+     * Creates a validation error for insufficient stock.
      *
-     * @param productId the product with insufficient stock
+     * @param productId the product ID
      * @param requested the requested quantity
-     * @param available the available quantity
-     * @return a ValidationError with INSUFFICIENT_STOCK type
+     * @param available the available stock
+     * @return a ValidationError of type INSUFFICIENT_STOCK
      */
     public static ValidationError insufficientStock(
-        @NonNull ProductId productId, int requested, int available) {
+        @NonNull final ProductId productId,
+        final int requested,
+        final int available) {
       return new ValidationError(
           productId,
           String.format(
@@ -104,11 +104,13 @@ public record CartValidationResult(@NonNull List<ValidationError> errors) implem
     }
   }
 
-  /** Types of validation errors that can occur during cart validation. */
+  /**
+   * The type of validation error.
+   */
   public enum ErrorType {
     /** The product is not available for purchase. */
     PRODUCT_UNAVAILABLE,
-    /** The requested quantity exceeds available stock. */
+    /** There is not enough stock to fulfill the requested quantity. */
     INSUFFICIENT_STOCK
   }
 }

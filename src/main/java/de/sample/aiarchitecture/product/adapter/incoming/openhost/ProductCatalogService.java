@@ -5,10 +5,8 @@ import de.sample.aiarchitecture.product.application.getallproducts.GetAllProduct
 import de.sample.aiarchitecture.product.application.getproductbyid.GetProductByIdInputPort;
 import de.sample.aiarchitecture.product.application.getproductbyid.GetProductByIdQuery;
 import de.sample.aiarchitecture.product.application.getproductbyid.GetProductByIdResult;
-import de.sample.aiarchitecture.sharedkernel.domain.model.Money;
 import de.sample.aiarchitecture.sharedkernel.domain.model.ProductId;
 import de.sample.aiarchitecture.sharedkernel.marker.strategic.OpenHostService;
-import java.util.Currency;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.stereotype.Service;
@@ -111,45 +109,6 @@ public class ProductCatalogService {
                 summary.name(),
                 summary.sku(),
                 summary.stockQuantity()
-            ))
-            .toList();
-    }
-
-    // ==================== Deprecated Pricing Initialization Methods ====================
-    // These methods are for transitional pricing initialization only.
-    // Once pricing is fully managed by the Pricing context, these will be removed.
-
-    /**
-     * Product information with initial price for pricing context initialization.
-     *
-     * @deprecated This is a temporary migration DTO. Pricing will be fully managed
-     *     by the Pricing bounded context in the future.
-     */
-    @Deprecated(forRemoval = true)
-    public record ProductInfoWithPrice(
-        ProductId productId,
-        Money initialPrice
-    ) {}
-
-    /**
-     * Retrieves all products with their initial prices for pricing initialization.
-     *
-     * <p>This method is used ONLY for initializing the Pricing context's data from
-     * existing Product data during the migration period. It should NOT be used for
-     * ongoing price retrieval - use PricingService for that.
-     *
-     * @return list of all products with their initial prices
-     * @deprecated This is a temporary migration method. Once pricing is fully managed
-     *     by the Pricing context, this method will be removed.
-     */
-    @Deprecated(forRemoval = true)
-    public List<ProductInfoWithPrice> getAllProductsWithInitialPrice() {
-        var result = getAllProductsInputPort.execute(new GetAllProductsQuery());
-
-        return result.products().stream()
-            .map(summary -> new ProductInfoWithPrice(
-                ProductId.of(summary.productId()),
-                Money.of(summary.priceAmount(), Currency.getInstance(summary.priceCurrency()))
             ))
             .toList();
     }

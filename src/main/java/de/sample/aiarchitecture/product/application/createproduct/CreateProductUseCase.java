@@ -10,7 +10,6 @@ import de.sample.aiarchitecture.product.domain.model.ProductName;
 import de.sample.aiarchitecture.product.domain.model.ProductStock;
 import de.sample.aiarchitecture.product.domain.model.SKU;
 import de.sample.aiarchitecture.sharedkernel.domain.model.Money;
-import de.sample.aiarchitecture.sharedkernel.domain.model.Price;
 import java.util.Currency;
 import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Service;
@@ -24,8 +23,11 @@ import org.springframework.transaction.annotation.Transactional;
  *   <li>Validating business rules (SKU uniqueness)</li>
  *   <li>Creating the product aggregate using the factory</li>
  *   <li>Persisting the product via repository</li>
- *   <li>Publishing domain events</li>
+ *   <li>Publishing domain events (including initial price for Pricing context)</li>
  * </ol>
+ *
+ * <p><b>Note:</b> The product aggregate no longer stores price. The initial price is
+ * included in the ProductCreated event for synchronization with the Pricing bounded context.
  *
  * <p><b>Hexagonal Architecture:</b> This class implements the {@link CreateProductInputPort}
  * interface, which is a primary/driving port in the application layer.
@@ -59,27 +61,27 @@ public class CreateProductUseCase implements CreateProductInputPort {
     // Convert input to domain value objects
     final ProductName name = new ProductName(input.name());
     final ProductDescription description = new ProductDescription(input.description());
-    final Price price = new Price(new Money(input.priceAmount(), Currency.getInstance(input.priceCurrency())));
+    final Money initialPrice = Money.of(input.priceAmount(), Currency.getInstance(input.priceCurrency()));
     final Category category = new Category(input.category());
     final ProductStock stock = new ProductStock(input.stockQuantity());
 
-    // Create product aggregate
-    final Product product = productFactory.createProduct(sku, name, description, price, category, stock);
+    // Create product aggregate (initial price included in ProductCreated event for Pricing context)
+    final Product product = productFactory.createProduct(sku, name, description, category, stock, initialPrice);
 
     // Persist
     productRepository.save(product);
 
-    // Publish domain events
+    // Publish domain events (ProductCreated event will trigger Pricing context to create price)
     eventPublisher.publishAndClearEvents(product);
 
-    // Map to output
+    // Map to output (price comes from input since it's not stored in Product)
     return new CreateProductResult(
         product.id().value().toString(),
         product.sku().value(),
         product.name().value(),
         product.description().value(),
-        product.price().value().amount(),
-        product.price().value().currency().getCurrencyCode(),
+        input.priceAmount(),
+        input.priceCurrency(),
         product.category().name(),
         product.stock().quantity()
     );

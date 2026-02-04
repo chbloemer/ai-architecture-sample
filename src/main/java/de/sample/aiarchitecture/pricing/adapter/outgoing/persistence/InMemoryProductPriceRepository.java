@@ -3,7 +3,6 @@ package de.sample.aiarchitecture.pricing.adapter.outgoing.persistence;
 import de.sample.aiarchitecture.pricing.application.shared.ProductPriceRepository;
 import de.sample.aiarchitecture.pricing.domain.model.PriceId;
 import de.sample.aiarchitecture.pricing.domain.model.ProductPrice;
-import de.sample.aiarchitecture.product.adapter.incoming.openhost.ProductCatalogService;
 import de.sample.aiarchitecture.sharedkernel.domain.model.ProductId;
 import de.sample.aiarchitecture.sharedkernel.marker.infrastructure.AsyncInitialize;
 import java.util.Collection;
@@ -22,27 +21,26 @@ import org.springframework.stereotype.Repository;
  * <p>This secondary adapter provides a thread-safe in-memory storage for product prices using
  * ConcurrentHashMap. A secondary index on ProductId enables efficient lookups by product.
  *
- * <p><b>Async Initialization:</b> This repository uses {@link AsyncInitialize} to load pricing
- * data from existing products on startup. The {@code asyncInitialize()} method is invoked
- * asynchronously after bean initialization to copy prices from the Product context.
+ * <p><b>Initialization:</b> Pricing data is initialized via two mechanisms:
+ * <ul>
+ *   <li>ProductCreatedEventConsumer - creates prices when products are created</li>
+ *   <li>SampleDataInitializer - triggers ProductCreated events with initial prices</li>
+ * </ul>
  *
  * <p>In a production system, this would be replaced with a database implementation.
  *
  * @see AsyncInitialize
  */
 @Repository
-@AsyncInitialize(priority = 60, description = "Initialize pricing data from products")
+@AsyncInitialize(priority = 60, description = "Initialize pricing data repository")
 public class InMemoryProductPriceRepository implements ProductPriceRepository {
 
   private static final Logger logger = LoggerFactory.getLogger(InMemoryProductPriceRepository.class);
 
-  private final ProductCatalogService productCatalogService;
-
   private final ConcurrentHashMap<PriceId, ProductPrice> prices = new ConcurrentHashMap<>();
   private final ConcurrentHashMap<ProductId, PriceId> productIdIndex = new ConcurrentHashMap<>();
 
-  public InMemoryProductPriceRepository(final ProductCatalogService productCatalogService) {
-    this.productCatalogService = productCatalogService;
+  public InMemoryProductPriceRepository() {
   }
 
   @Override
@@ -87,53 +85,25 @@ public class InMemoryProductPriceRepository implements ProductPriceRepository {
   /**
    * Asynchronous initialization method triggered by {@link AsyncInitialize}.
    *
-   * <p>This method loads all products from the Product context via the Open Host Service and
-   * creates a corresponding ProductPrice entry in the Pricing context for each product. This
-   * ensures pricing data is available immediately after startup without manual intervention.
-   *
-   * <p><b>Pattern:</b> This demonstrates cross-context data synchronization during startup,
-   * where the Pricing context initializes its data from the Product context using the
-   * Open Host Service pattern for proper bounded context isolation.
+   * <p>This method performs cache warmup and logs initialization status. Actual pricing
+   * data is populated via ProductCreatedEventConsumer when products are created.
    *
    * @see AsyncInitialize
-   * @see ProductCatalogService
+   * @see de.sample.aiarchitecture.pricing.adapter.incoming.event.ProductCreatedEventConsumer
    * @see de.sample.aiarchitecture.infrastructure.config.AsyncConfiguration
    * @see de.sample.aiarchitecture.infrastructure.support.AsyncInitializationProcessor
    */
-  @SuppressWarnings("deprecation") // Using deprecated migration method for initialization
   @Async
   public void asyncInitialize() {
-    logger.info("Starting async initialization of ProductPriceRepository from products...");
+    logger.info("Starting async initialization of ProductPriceRepository...");
 
     try {
-      // Wait for product repository to complete initialization first
+      // Wait for product events to be processed
       Thread.sleep(3000);
 
-      // Use the deprecated migration method to get initial prices
-      final var products = productCatalogService.getAllProductsWithInitialPrice();
-      int initializedCount = 0;
-
-      for (final var productInfo : products) {
-        // Skip if price already exists for this product
-        if (productIdIndex.containsKey(productInfo.productId())) {
-          continue;
-        }
-
-        // Create ProductPrice from Product's initial price via Open Host Service
-        final var productPrice = ProductPrice.create(
-            productInfo.productId(),
-            productInfo.initialPrice()
-        );
-
-        // Save without triggering domain events (internal initialization)
-        prices.put(productPrice.id(), productPrice);
-        productIdIndex.put(productPrice.productId(), productPrice.id());
-        initializedCount++;
-      }
-
       logger.info(
-          "ProductPriceRepository initialization completed. Created {} price entries from {} products.",
-          initializedCount, products.size());
+          "ProductPriceRepository initialization completed. {} price entries available.",
+          prices.size());
 
     } catch (InterruptedException e) {
       Thread.currentThread().interrupt();

@@ -1995,6 +1995,50 @@
         ]
       },
       "passes": true
+    },
+    {
+      "id": "US-88",
+      "epic": "data-migration",
+      "title": "Remove Deprecated Price from Product Context",
+      "description": "Complete the pricing migration by removing all deprecated price-related code from the Product context.",
+      "depends_on": [
+        "US-86",
+        "US-87"
+      ],
+      "acceptance_criteria": [
+        "Remove price field from Product aggregate",
+        "Remove deprecated price() method from Product",
+        "Remove deprecated changePrice() method from Product",
+        "Remove ProductPriceChanged domain event from Product context",
+        "Remove deprecated ProductInfoWithPrice record from ProductCatalogService",
+        "Remove deprecated getAllProductsWithInitialPrice() method from ProductCatalogService",
+        "Remove transition fallbacks from CompositeArticleDataAdapter",
+        "Remove transition fallbacks from CompositeCheckoutArticleDataAdapter",
+        "Update CreateProductUseCase to not set price",
+        "Update UpdateProductPriceUseCase to use Pricing context or remove",
+        "All tests pass after removal"
+      ],
+      "architectural_guidance": {
+        "affected_layers": [
+          "domain",
+          "application",
+          "adapter"
+        ],
+        "locations": [
+          "product/domain/model/Product.java",
+          "product/domain/event/ProductPriceChanged.java",
+          "product/adapter/incoming/openhost/ProductCatalogService.java",
+          "product/application/createproduct/CreateProductUseCase.java",
+          "product/application/updateproductprice/",
+          "cart/adapter/outgoing/product/CompositeArticleDataAdapter.java",
+          "checkout/adapter/outgoing/product/CompositeCheckoutArticleDataAdapter.java"
+        ],
+        "patterns": [
+          "Migration cleanup",
+          "Bounded context separation"
+        ]
+      },
+      "passes": true
     }
   ]
 }

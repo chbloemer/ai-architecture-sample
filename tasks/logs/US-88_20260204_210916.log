@@ -1,0 +1,22 @@
+**US-88 Implementation Complete**
+
+All acceptance criteria have been fulfilled:
+
+1. ✅ Removed `price` field from `Product` aggregate
+2. ✅ Removed deprecated `price()` method from `Product`
+3. ✅ Removed deprecated `changePrice()` method from `Product`
+4. ✅ Removed `ProductPriceChanged` domain event from Product context
+5. ✅ Removed deprecated `ProductInfoWithPrice` record from `ProductCatalogService`
+6. ✅ Removed deprecated `getAllProductsWithInitialPrice()` method from `ProductCatalogService`
+7. ✅ Removed transition fallbacks from `CompositeArticleDataAdapter`
+8. ✅ Removed transition fallbacks from `CompositeCheckoutArticleDataAdapter`
+9. ✅ Updated `CreateProductUseCase` to not store price in Product (passes price in event)
+10. ✅ Deleted `UpdateProductPriceUseCase` and related files (pricing is now via Pricing context's `SetProductPriceUseCase`)
+11. ✅ All tests pass (unit, integration, and architecture)
+
+**Key Changes Summary:**
+- **Product aggregate** no longer holds price - it's fully managed by the Pricing bounded context
+- **ProductCreated event** carries the initial price for the Pricing context to pick up
+- **GetAllProductsUseCase** and **GetProductByIdUseCase** now fetch prices via `PricingDataPort`
+- **SampleDataInitializer** moved to `infrastructure.init` package to allow cross-context data initialization
+- The pricing migration from US-83 through US-88 is now complete

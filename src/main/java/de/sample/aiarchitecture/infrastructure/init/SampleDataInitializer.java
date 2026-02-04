@@ -1,5 +1,7 @@
-package de.sample.aiarchitecture.product.adapter.outgoing.persistence;
+package de.sample.aiarchitecture.infrastructure.init;
 
+import de.sample.aiarchitecture.pricing.application.shared.ProductPriceRepository;
+import de.sample.aiarchitecture.pricing.domain.model.ProductPrice;
 import de.sample.aiarchitecture.product.application.shared.ProductRepository;
 import de.sample.aiarchitecture.product.domain.model.Category;
 import de.sample.aiarchitecture.product.domain.model.Product;
@@ -9,7 +11,6 @@ import de.sample.aiarchitecture.product.domain.model.ProductName;
 import de.sample.aiarchitecture.product.domain.model.ProductStock;
 import de.sample.aiarchitecture.product.domain.model.SKU;
 import de.sample.aiarchitecture.sharedkernel.domain.model.Money;
-import de.sample.aiarchitecture.sharedkernel.domain.model.Price;
 import jakarta.annotation.PostConstruct;
 import org.springframework.stereotype.Component;
 
@@ -17,17 +18,27 @@ import org.springframework.stereotype.Component;
  * Initializes sample product data for demonstration purposes.
  *
  * <p>This component loads sample products into the repository on application startup.
+ * It also directly creates price entries in the Pricing context since @PostConstruct
+ * does not run within a transaction (so TransactionalEventListener won't fire).
+ *
+ * <p><b>Infrastructure Layer:</b> This component lives in the infrastructure layer because
+ * it needs to coordinate across multiple bounded contexts (Product and Pricing) for
+ * sample data initialization. This is acceptable for demo/test data setup.
  */
 @Component
 public class SampleDataInitializer {
 
   private final ProductRepository productRepository;
   private final ProductFactory productFactory;
+  private final ProductPriceRepository productPriceRepository;
 
   public SampleDataInitializer(
-      final ProductRepository productRepository, final ProductFactory productFactory) {
+      final ProductRepository productRepository,
+      final ProductFactory productFactory,
+      final ProductPriceRepository productPriceRepository) {
     this.productRepository = productRepository;
     this.productFactory = productFactory;
+    this.productPriceRepository = productPriceRepository;
   }
 
   @PostConstruct
@@ -140,15 +151,24 @@ public class SampleDataInitializer {
       final Category category,
       final int stock) {
 
+    final Money initialPrice = Money.euro(price);
+
+    // Create product (without storing price in Product aggregate)
     final Product product =
         productFactory.createProduct(
             SKU.of(sku),
             ProductName.of(name),
             ProductDescription.of(description),
-            Price.of(Money.euro(price)),
             category,
-            ProductStock.of(stock));
+            ProductStock.of(stock),
+            initialPrice);
 
     productRepository.save(product);
+
+    // Directly create price entry in Pricing context
+    // (We do this directly because @PostConstruct doesn't run in a transaction,
+    // so @TransactionalEventListener won't fire for the ProductCreated event)
+    ProductPrice productPrice = ProductPrice.create(product.id(), initialPrice);
+    productPriceRepository.save(productPrice);
   }
 }

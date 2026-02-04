@@ -1,9 +1,6 @@
 package de.sample.aiarchitecture.product.domain.model;
 
-import de.sample.aiarchitecture.product.domain.event.ProductPriceChanged;
-
 import de.sample.aiarchitecture.sharedkernel.marker.tactical.BaseAggregateRoot;
-import de.sample.aiarchitecture.sharedkernel.domain.model.Price;
 import de.sample.aiarchitecture.sharedkernel.domain.model.ProductId;
 import org.jspecify.annotations.NonNull;
 
@@ -16,7 +13,6 @@ import org.jspecify.annotations.NonNull;
  *
  * <p><b>Business Rules:</b>
  * <ul>
- *   <li>Price must always be positive
  *   <li>Stock cannot be negative
  *   <li>SKU must be unique across all products
  * </ul>
@@ -24,8 +20,10 @@ import org.jspecify.annotations.NonNull;
  * <p><b>Domain Events:</b>
  * <ul>
  *   <li>{@link ProductCreated} - when a new product is created
- *   <li>{@link ProductPriceChanged} - when the product price changes
  * </ul>
+ *
+ * <p><b>Note:</b> Pricing is managed by the Pricing bounded context. Use PricingService
+ * to get current prices for products.
  */
 public final class Product extends BaseAggregateRoot<Product, ProductId> {
 
@@ -33,7 +31,6 @@ public final class Product extends BaseAggregateRoot<Product, ProductId> {
   private final SKU sku;
   private ProductName name;
   private ProductDescription description;
-  private Price price;
   private Category category;
   private ProductStock stock;
 
@@ -42,14 +39,12 @@ public final class Product extends BaseAggregateRoot<Product, ProductId> {
       @NonNull final SKU sku,
       @NonNull final ProductName name,
       @NonNull final ProductDescription description,
-      @NonNull final Price price,
       @NonNull final Category category,
       @NonNull final ProductStock stock) {
     this.id = id;
     this.sku = sku;
     this.name = name;
     this.description = description;
-    this.price = price;
     this.category = category;
     this.stock = stock;
   }
@@ -71,47 +66,12 @@ public final class Product extends BaseAggregateRoot<Product, ProductId> {
     return description;
   }
 
-  /**
-   * Returns the price of this product.
-   *
-   * @return the product price
-   * @deprecated Pricing is now managed by the Pricing bounded context.
-   *     Use PricingService to get current prices. This method will be removed in a future version.
-   */
-  @Deprecated(forRemoval = true)
-  public Price price() {
-    return price;
-  }
-
   public Category category() {
     return category;
   }
 
   public ProductStock stock() {
     return stock;
-  }
-
-  /**
-   * Changes the price of this product.
-   *
-   * <p>Raises a {@link ProductPriceChanged} domain event.
-   *
-   * @param newPrice the new price (must be positive)
-   * @throws IllegalArgumentException if price is null
-   * @deprecated Pricing is now managed by the Pricing bounded context.
-   *     Use ProductPriceRepository to manage prices. This method will be removed in a future version.
-   */
-  @Deprecated(forRemoval = true)
-  public void changePrice(@NonNull final Price newPrice) {
-    if (newPrice == null) {
-      throw new IllegalArgumentException("New price cannot be null");
-    }
-
-    final Price oldPrice = this.price;
-    this.price = newPrice;
-
-    // Raise domain event
-    registerEvent(ProductPriceChanged.now(this.id, oldPrice, newPrice));
   }
 
   /**

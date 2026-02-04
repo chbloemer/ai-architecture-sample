@@ -1,7 +1,6 @@
 package de.sample.aiarchitecture.product.adapter.incoming.event;
 
 import de.sample.aiarchitecture.product.domain.event.ProductCreated;
-import de.sample.aiarchitecture.product.domain.event.ProductPriceChanged;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -36,6 +35,10 @@ import org.springframework.transaction.event.TransactionalEventListener;
  *
  * <p><b>Note:</b> In a production system, you might want to use {@code @Async} to handle
  * events asynchronously and avoid blocking the main transaction.
+ *
+ * <p><b>Note:</b> Price change events are now handled by the Pricing bounded context.
+ * See {@code de.sample.aiarchitecture.pricing.adapter.incoming.event} for pricing-related
+ * event consumers.
  */
 @Component
 public class ProductEventConsumer {
@@ -75,40 +78,5 @@ public class ProductEventConsumer {
 
     // Example: Publish to message queue for other microservices
     // messagePublisher.publish("product.created", event);
-  }
-
-  /**
-   * Handles ProductPriceChanged events after transaction commit.
-   *
-   * <p>This handler only executes after the transaction commits successfully, ensuring the
-   * price change was actually persisted before processing the event.
-   *
-   * <p>This is where you might:
-   * <ul>
-   *   <li>Notify pricing team of price changes
-   *   <li>Update price history for analytics
-   *   <li>Trigger repricing of active shopping carts
-   *   <li>Send price alert to customers watching this product
-   * </ul>
-   *
-   * @param event the product price changed event
-   */
-  @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-  public void onProductPriceChanged(final ProductPriceChanged event) {
-    log.info(
-        "Product price changed: {} from {} to {} at {}",
-        event.productId().value(),
-        event.oldPrice().value(),
-        event.newPrice().value(),
-        event.occurredOn());
-
-    // Example: Store price history
-    // priceHistoryService.recordPriceChange(event);
-
-    // Example: Notify customers
-    // customerNotificationService.sendPriceChangeAlert(event.productId(), event.newPrice());
-
-    // Example: Update analytics
-    // analyticsService.trackPriceChange(event);
   }
 }

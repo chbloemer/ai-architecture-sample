@@ -625,6 +625,30 @@ Separate pricing and inventory concerns from Product context into dedicated boun
 
 ---
 
+### US-88: Remove Deprecated Price from Product Context
+**As a** developer
+**I want** to remove all deprecated price-related code from Product context
+**So that** the bounded context separation is complete and clean
+
+**Acceptance Criteria:**
+- Remove price field from Product aggregate
+- Remove deprecated price() method from Product
+- Remove deprecated changePrice() method from Product
+- Remove ProductPriceChanged domain event from Product context
+- Remove deprecated ProductInfoWithPrice record from ProductCatalogService
+- Remove deprecated getAllProductsWithInitialPrice() method from ProductCatalogService
+- Remove transition fallbacks from CompositeArticleDataAdapter
+- Remove transition fallbacks from CompositeCheckoutArticleDataAdapter
+- Update CreateProductUseCase to not set price
+- Update UpdateProductPriceUseCase to use Pricing context or remove
+- All tests pass after removal
+
+**Architectural Guidance:**
+- **Location:** `product/domain/model/Product.java`, `product/adapter/incoming/openhost/ProductCatalogService.java`, `cart/adapter/outgoing/product/CompositeArticleDataAdapter.java`, `checkout/adapter/outgoing/product/CompositeCheckoutArticleDataAdapter.java`
+- **Pattern:** Migration cleanup, Bounded context separation
+
+---
+
 ## Goals
 - Fresh pricing/availability for all cart/checkout calculations
 - Proper bounded context separation (Pricing, Inventory)

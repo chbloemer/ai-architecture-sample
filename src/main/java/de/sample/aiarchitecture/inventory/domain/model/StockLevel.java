@@ -1,5 +1,6 @@
 package de.sample.aiarchitecture.inventory.domain.model;
 
+import de.sample.aiarchitecture.inventory.domain.event.StockChanged;
 import de.sample.aiarchitecture.inventory.domain.event.StockDecreased;
 import de.sample.aiarchitecture.inventory.domain.event.StockIncreased;
 import de.sample.aiarchitecture.inventory.domain.event.StockLevelCreated;
@@ -194,6 +195,39 @@ public final class StockLevel extends BaseAggregateRoot<StockLevel, StockLevelId
     }
 
     this.reservedQuantity = StockQuantity.of(this.reservedQuantity.value() - amount);
+  }
+
+  /**
+   * Sets the available stock quantity to a specific value.
+   *
+   * <p>Use this for inventory reconciliation or manual stock level adjustments.
+   * If the new quantity is lower than the reserved quantity, reserved stock is adjusted accordingly.
+   *
+   * @param quantity the new available quantity
+   * @throws IllegalArgumentException if quantity is negative
+   */
+  public void setAvailableQuantity(final int quantity) {
+    if (quantity < 0) {
+      throw new IllegalArgumentException("Quantity cannot be negative");
+    }
+
+    final StockQuantity previousAvailableQuantity = this.availableQuantity;
+    final StockQuantity previousReservedQuantity = this.reservedQuantity;
+
+    this.availableQuantity = StockQuantity.of(quantity);
+
+    // If reserved quantity now exceeds available, adjust it
+    if (this.reservedQuantity.value() > this.availableQuantity.value()) {
+      this.reservedQuantity = this.availableQuantity;
+    }
+
+    registerEvent(StockChanged.now(
+        this.id,
+        this.productId,
+        previousAvailableQuantity,
+        this.availableQuantity,
+        previousReservedQuantity,
+        this.reservedQuantity));
   }
 
   /**

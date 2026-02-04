@@ -1463,7 +1463,7 @@
           "Use Case with Command/Result"
         ]
       },
-      "passes": false
+      "passes": true
     },
     {
       "id": "US-69",

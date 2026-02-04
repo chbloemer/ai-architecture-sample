@@ -1,11 +1,17 @@
 package de.sample.aiarchitecture.cart.application.getcartbyid;
 
+import de.sample.aiarchitecture.cart.application.shared.ArticleDataPort;
+import de.sample.aiarchitecture.cart.application.shared.ArticleDataPort.ArticleData;
+import de.sample.aiarchitecture.cart.application.shared.ShoppingCartRepository;
 import de.sample.aiarchitecture.cart.domain.model.CartId;
 import de.sample.aiarchitecture.cart.domain.model.ShoppingCart;
-import de.sample.aiarchitecture.cart.application.shared.ShoppingCartRepository;
 import de.sample.aiarchitecture.sharedkernel.domain.model.Money;
+import de.sample.aiarchitecture.sharedkernel.domain.model.ProductId;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,9 +29,13 @@ import org.springframework.transaction.annotation.Transactional;
 public class GetCartByIdUseCase implements GetCartByIdInputPort {
 
   private final ShoppingCartRepository shoppingCartRepository;
+  private final ArticleDataPort articleDataPort;
 
-  public GetCartByIdUseCase(final ShoppingCartRepository shoppingCartRepository) {
+  public GetCartByIdUseCase(
+      final ShoppingCartRepository shoppingCartRepository,
+      final ArticleDataPort articleDataPort) {
     this.shoppingCartRepository = shoppingCartRepository;
+    this.articleDataPort = articleDataPort;
   }
 
   @Override
@@ -40,14 +50,49 @@ public class GetCartByIdUseCase implements GetCartByIdInputPort {
 
     final ShoppingCart cart = cartOpt.get();
 
+    // Fetch fresh article data for all cart items
+    final Set<ProductId> productIds = cart.items().stream()
+        .map(item -> item.productId())
+        .collect(Collectors.toSet());
+
+    final Map<ProductId, ArticleData> articleDataMap = articleDataPort.getArticleData(productIds);
+
+    // Map cart items with fresh pricing and availability data
     final List<GetCartByIdResult.CartItemSummary> items = cart.items().stream()
-        .map(item -> new GetCartByIdResult.CartItemSummary(
-            item.id().value().toString(),
-            item.productId().value().toString(),
-            item.quantity().value(),
-            item.priceAtAddition().value().amount(),
-            item.priceAtAddition().value().currency().getCurrencyCode()
-        ))
+        .map(item -> {
+          final ArticleData articleData = articleDataMap.get(item.productId());
+          final Money priceAtAddition = item.priceAtAddition().value();
+
+          if (articleData != null) {
+            final Money currentPrice = articleData.currentPrice();
+            final boolean priceChanged = !currentPrice.equals(priceAtAddition);
+
+            return new GetCartByIdResult.CartItemSummary(
+                item.id().value().toString(),
+                item.productId().value().toString(),
+                item.quantity().value(),
+                priceAtAddition.amount(),
+                priceAtAddition.currency().getCurrencyCode(),
+                currentPrice.amount(),
+                currentPrice.currency().getCurrencyCode(),
+                articleData.isAvailable(),
+                priceChanged
+            );
+          } else {
+            // Article data not available - return item with null current price
+            return new GetCartByIdResult.CartItemSummary(
+                item.id().value().toString(),
+                item.productId().value().toString(),
+                item.quantity().value(),
+                priceAtAddition.amount(),
+                priceAtAddition.currency().getCurrencyCode(),
+                null,
+                null,
+                false,
+                false
+            );
+          }
+        })
         .toList();
 
     final Money total = cart.calculateTotal();

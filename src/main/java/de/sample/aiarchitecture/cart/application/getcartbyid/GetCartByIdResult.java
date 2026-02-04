@@ -50,19 +50,27 @@ public record GetCartByIdResult(
   }
 
   /**
-   * Summary of a cart item.
+   * Summary of a cart item with fresh pricing and availability data.
    *
    * @param itemId the cart item ID
    * @param productId the product ID
    * @param quantity the quantity
-   * @param unitPriceAmount the unit price amount
+   * @param unitPriceAmount the unit price amount (price at addition)
    * @param unitPriceCurrency the unit price currency
+   * @param currentPriceAmount the current price amount (fresh from pricing service)
+   * @param currentPriceCurrency the current price currency
+   * @param isAvailable whether the product is currently available
+   * @param priceChanged true if currentPrice differs from priceAtAddition
    */
   public record CartItemSummary(
       @NonNull String itemId,
       @NonNull String productId,
       int quantity,
       @NonNull BigDecimal unitPriceAmount,
-      @NonNull String unitPriceCurrency
+      @NonNull String unitPriceCurrency,
+      @Nullable BigDecimal currentPriceAmount,
+      @Nullable String currentPriceCurrency,
+      boolean isAvailable,
+      boolean priceChanged
   ) {}
 }

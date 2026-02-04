@@ -1,0 +1,34 @@
+## Summary
+
+I've successfully implemented **US-76: Update GetCartByIdUseCase with Fresh Data**.
+
+### Changes Made:
+
+1. **GetCartByIdResult.java** (`cart/application/getcartbyid/GetCartByIdResult.java:52-76`)
+   - Extended `CartItemSummary` record with:
+     - `currentPriceAmount` - fresh price from pricing service
+     - `currentPriceCurrency` - currency of current price
+     - `isAvailable` - product availability from inventory
+     - `priceChanged` - flag indicating if currentPrice != priceAtAddition
+
+2. **GetCartByIdUseCase.java** (`cart/application/getcartbyid/GetCartByIdUseCase.java`)
+   - Injected `ArticleDataPort` via constructor
+   - Added logic to fetch article data for all cart items
+   - Enriched each `CartItemSummary` with:
+     - Current price from `ArticleData`
+     - Availability status
+     - `priceChanged` flag computed by comparing `currentPrice` with `priceAtAddition`
+   - Gracefully handles missing article data (returns null for current price fields)
+
+### Acceptance Criteria Met:
+- ✅ Inject ArticleDataPort
+- ✅ Fetch article data for all cart items
+- ✅ Include currentPrice and availability in result
+- ✅ Add priceChanged flag if currentPrice != priceAtAddition
+
+### Quality Gates:
+- ✅ Code compiles: `./gradlew build -x test` - passed
+- ✅ Tests pass: `./gradlew build` - BUILD SUCCESSFUL
+- ✅ Architecture tests pass: `./gradlew test-architecture` - BUILD SUCCESSFUL
+
+<promise>STORY_COMPLETE</promise>

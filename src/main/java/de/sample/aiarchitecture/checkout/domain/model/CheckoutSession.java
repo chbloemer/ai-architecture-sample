@@ -10,9 +10,9 @@ import de.sample.aiarchitecture.checkout.domain.event.DeliverySubmitted;
 import de.sample.aiarchitecture.checkout.domain.event.PaymentSubmitted;
 import de.sample.aiarchitecture.sharedkernel.domain.model.Money;
 import de.sample.aiarchitecture.sharedkernel.marker.tactical.BaseAggregateRoot;
+import de.sample.aiarchitecture.checkout.domain.model.CheckoutValidationResult.ValidationError;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Currency;
 import java.util.List;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
@@ -276,12 +276,99 @@ public final class CheckoutSession extends BaseAggregateRoot<CheckoutSession, Ch
   }
 
   /**
+   * Calculates the order total using fresh pricing data from the resolver.
+   *
+   * <p>Iterates through all line items and resolves current prices to compute
+   * the sum of (current price × quantity) for each item.
+   *
+   * @param resolver the resolver providing current pricing information
+   * @return the calculated order total
+   */
+  public Money calculateOrderTotal(@NonNull final CheckoutArticlePriceResolver resolver) {
+    Money total = Money.zero(totals.subtotal().currency());
+    for (final CheckoutLineItem item : lineItems) {
+      final CheckoutArticlePriceResolver.ArticlePrice articlePrice =
+          resolver.resolve(item.productId());
+      final Money itemTotal = articlePrice.price().multiply(item.quantity());
+      total = total.add(itemTotal);
+    }
+    return total;
+  }
+
+  /**
+   * Validates checkout items against current pricing and availability data.
+   *
+   * <p>Checks each line item for:
+   * <ul>
+   *   <li>Product availability</li>
+   *   <li>Sufficient stock for the requested quantity</li>
+   * </ul>
+   *
+   * @param resolver the resolver providing current pricing and availability information
+   * @return a validation result containing any errors found
+   */
+  public CheckoutValidationResult validateItems(
+      @NonNull final CheckoutArticlePriceResolver resolver) {
+    final List<ValidationError> errors = new ArrayList<>();
+    for (final CheckoutLineItem item : lineItems) {
+      final CheckoutArticlePriceResolver.ArticlePrice articlePrice =
+          resolver.resolve(item.productId());
+      if (!articlePrice.isAvailable()) {
+        errors.add(ValidationError.productUnavailable(item.productId()));
+      } else if (articlePrice.availableStock() < item.quantity()) {
+        errors.add(ValidationError.insufficientStock(
+            item.productId(), item.quantity(), articlePrice.availableStock()));
+      }
+    }
+    return errors.isEmpty()
+        ? CheckoutValidationResult.valid()
+        : CheckoutValidationResult.withErrors(errors);
+  }
+
+  /**
+   * Confirms the checkout order after validating items with fresh pricing data.
+   *
+   * <p>Validates all items using the resolver before confirming. If validation fails,
+   * an exception is thrown with details about the validation errors.
+   *
+   * <p>Raises a {@link CheckoutConfirmed} domain event on success.
+   *
+   * @param resolver the resolver for validating current pricing and availability
+   * @throws IllegalStateException if session is not confirmable, steps are incomplete,
+   *         or validation fails
+   */
+  public void confirm(@NonNull final CheckoutArticlePriceResolver resolver) {
+    ensureModifiable();
+    ensureAllStepsCompleted();
+
+    if (currentStep != CheckoutStep.REVIEW) {
+      throw new IllegalStateException("Can only confirm from review step");
+    }
+
+    final CheckoutValidationResult validationResult = validateItems(resolver);
+    if (!validationResult.isValid()) {
+      throw new IllegalStateException(
+          "Cannot confirm checkout: validation failed with " + validationResult.errors().size()
+              + " error(s)");
+    }
+
+    this.status = CheckoutSessionStatus.CONFIRMED;
+    this.currentStep = CheckoutStep.CONFIRMATION;
+
+    registerEvent(CheckoutConfirmed.now(
+        this.id, this.cartId, this.customerId, this.totals.total(), this.lineItems));
+  }
+
+  /**
    * Confirms the checkout order after review.
    *
    * <p>Raises a {@link CheckoutConfirmed} domain event.
    *
    * @throws IllegalStateException if session is not confirmable or steps are incomplete
+   * @deprecated Use {@link #confirm(CheckoutArticlePriceResolver)} instead to validate items
+   *             against current pricing before confirmation
    */
+  @Deprecated
   public void confirm() {
     ensureModifiable();
     ensureAllStepsCompleted();

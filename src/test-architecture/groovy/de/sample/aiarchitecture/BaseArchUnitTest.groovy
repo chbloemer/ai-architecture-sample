@@ -88,6 +88,18 @@ abstract class BaseArchUnitTest extends Specification {
   protected static final String PORTAL_APPLICATION_PACKAGE = "${BASE_PACKAGE}.portal.application.."
   protected static final String PORTAL_ADAPTER_PACKAGE = "${BASE_PACKAGE}.portal.adapter.."
 
+  protected static final String INVENTORY_CONTEXT_PACKAGE = "${BASE_PACKAGE}.inventory.."
+  protected static final String INVENTORY_DOMAIN_PACKAGE = "${BASE_PACKAGE}.inventory.domain.."
+  protected static final String INVENTORY_DOMAIN_MODEL_PACKAGE = "${BASE_PACKAGE}.inventory.domain.model.."
+  protected static final String INVENTORY_APPLICATION_PACKAGE = "${BASE_PACKAGE}.inventory.application.."
+  protected static final String INVENTORY_ADAPTER_PACKAGE = "${BASE_PACKAGE}.inventory.adapter.."
+
+  protected static final String PRICING_CONTEXT_PACKAGE = "${BASE_PACKAGE}.pricing.."
+  protected static final String PRICING_DOMAIN_PACKAGE = "${BASE_PACKAGE}.pricing.domain.."
+  protected static final String PRICING_DOMAIN_MODEL_PACKAGE = "${BASE_PACKAGE}.pricing.domain.model.."
+  protected static final String PRICING_APPLICATION_PACKAGE = "${BASE_PACKAGE}.pricing.application.."
+  protected static final String PRICING_ADAPTER_PACKAGE = "${BASE_PACKAGE}.pricing.adapter.."
+
   // Generic patterns (matching all bounded contexts)
   protected static final String DOMAIN_PACKAGE = "${BASE_PACKAGE}.*.domain.."
   protected static final String DOMAIN_MODEL_PACKAGE = "${BASE_PACKAGE}.*.domain.model.."

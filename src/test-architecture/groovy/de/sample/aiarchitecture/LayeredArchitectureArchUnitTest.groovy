@@ -42,7 +42,7 @@ class LayeredArchitectureArchUnitTest extends BaseArchUnitTest {
   def "Domain must not have dependencies on Infrastructure"() {
     expect:
     noClasses()
-      .that().resideInAnyPackage(PRODUCT_DOMAIN_PACKAGE, CART_DOMAIN_PACKAGE, CHECKOUT_DOMAIN_PACKAGE, ACCOUNT_DOMAIN_PACKAGE, SHAREDKERNEL_DOMAIN_PACKAGE)
+      .that().resideInAnyPackage(PRODUCT_DOMAIN_PACKAGE, CART_DOMAIN_PACKAGE, CHECKOUT_DOMAIN_PACKAGE, ACCOUNT_DOMAIN_PACKAGE, INVENTORY_DOMAIN_PACKAGE, PRICING_DOMAIN_PACKAGE, SHAREDKERNEL_DOMAIN_PACKAGE)
       .should().dependOnClassesThat().resideInAPackage(INFRASTRUCTURE_PACKAGE)
       .because("Domain should not depend on infrastructure concerns (Dependency Inversion Principle)")
       .check(allClasses)
@@ -51,7 +51,7 @@ class LayeredArchitectureArchUnitTest extends BaseArchUnitTest {
   def "Application Services must only use outbound ports (not infrastructure implementations)"() {
     expect:
     noClasses()
-      .that().resideInAnyPackage(PRODUCT_APPLICATION_PACKAGE, CART_APPLICATION_PACKAGE, CHECKOUT_APPLICATION_PACKAGE, ACCOUNT_APPLICATION_PACKAGE)
+      .that().resideInAnyPackage(PRODUCT_APPLICATION_PACKAGE, CART_APPLICATION_PACKAGE, CHECKOUT_APPLICATION_PACKAGE, ACCOUNT_APPLICATION_PACKAGE, INVENTORY_APPLICATION_PACKAGE, PRICING_APPLICATION_PACKAGE)
       .should().dependOnClassesThat(INFRASTRUCTURE_IMPLEMENTATION)
       .because("Application services should only use outbound ports from sharedkernel.application.port, not infrastructure implementation details")
       .check(allClasses)

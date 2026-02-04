@@ -1,0 +1,13 @@
+The implementation is complete. Let me verify all acceptance criteria are met:
+
+**US-83: Update ConfirmCheckoutUseCase with Resolver**
+
+✅ **Inject CheckoutArticleDataPort** - Line 41: `private final CheckoutArticleDataPort checkoutArticleDataPort;` and constructor injection at line 46.
+
+✅ **Fetch fresh article data before confirmation** - Lines 63-70: Collects product IDs from line items and fetches fresh article data via `checkoutArticleDataPort.getArticleData(productIds)`.
+
+✅ **Build resolver and call session.confirm(resolver)** - Lines 72-84: Builds a `CheckoutArticlePriceResolver` lambda that maps from the fetched article data, then calls `session.confirm(resolver)`.
+
+✅ **Handle validation errors** - The domain's `confirm(resolver)` method (lines 340-360 in `CheckoutSession.java`) validates items using the resolver and throws `IllegalStateException` with validation error details if validation fails.
+
+<promise>STORY_COMPLETE</promise>

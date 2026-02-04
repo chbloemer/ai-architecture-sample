@@ -2,15 +2,19 @@ package de.sample.aiarchitecture.checkout.application.startcheckout;
 
 import de.sample.aiarchitecture.checkout.application.shared.CartData;
 import de.sample.aiarchitecture.checkout.application.shared.CartDataPort;
+import de.sample.aiarchitecture.checkout.application.shared.CheckoutArticleDataPort;
+import de.sample.aiarchitecture.checkout.application.shared.CheckoutArticleDataPort.ArticleData;
 import de.sample.aiarchitecture.checkout.application.shared.CheckoutSessionRepository;
-import de.sample.aiarchitecture.checkout.application.shared.ProductInfoPort;
 import de.sample.aiarchitecture.checkout.domain.model.CartId;
+import de.sample.aiarchitecture.checkout.domain.model.CheckoutArticlePriceResolver;
 import de.sample.aiarchitecture.checkout.domain.model.CheckoutLineItem;
 import de.sample.aiarchitecture.checkout.domain.model.CheckoutLineItemId;
 import de.sample.aiarchitecture.checkout.domain.model.CheckoutSession;
 import de.sample.aiarchitecture.sharedkernel.domain.model.Money;
+import de.sample.aiarchitecture.sharedkernel.domain.model.ProductId;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,10 +25,10 @@ import org.springframework.transaction.annotation.Transactional;
  * <p>This use case creates a new checkout session by:
  * <ul>
  *   <li>Loading the cart data through the Anti-Corruption Layer</li>
- *   <li>Loading product names through the ProductInfoPort</li>
- *   <li>Creating checkout line items with product details</li>
+ *   <li>Fetching article data (name, price, availability) via CheckoutArticleDataPort</li>
+ *   <li>Building a resolver for fresh pricing data</li>
+ *   <li>Creating checkout line items with current product details</li>
  *   <li>Creating and persisting the checkout session</li>
- *   <li>Marking the cart as checked out</li>
  * </ul>
  *
  * <p><b>Hexagonal Architecture:</b> This class implements the {@link StartCheckoutInputPort}
@@ -33,7 +37,7 @@ import org.springframework.transaction.annotation.Transactional;
  * <p><b>Bounded Context Isolation:</b> This use case accesses:
  * <ul>
  *   <li>Cart data through {@link CartDataPort} output port</li>
- *   <li>Product names through {@link ProductInfoPort} output port</li>
+ *   <li>Article data (name, price, availability) through {@link CheckoutArticleDataPort} output port</li>
  * </ul>
  * This isolates the Checkout context from direct coupling to other contexts' domain models.
  */
@@ -42,15 +46,15 @@ import org.springframework.transaction.annotation.Transactional;
 public class StartCheckoutUseCase implements StartCheckoutInputPort {
 
     private final CartDataPort cartDataPort;
-    private final ProductInfoPort productInfoPort;
+    private final CheckoutArticleDataPort checkoutArticleDataPort;
     private final CheckoutSessionRepository checkoutSessionRepository;
 
     public StartCheckoutUseCase(
         final CartDataPort cartDataPort,
-        final ProductInfoPort productInfoPort,
+        final CheckoutArticleDataPort checkoutArticleDataPort,
         final CheckoutSessionRepository checkoutSessionRepository) {
         this.cartDataPort = cartDataPort;
-        this.productInfoPort = productInfoPort;
+        this.checkoutArticleDataPort = checkoutArticleDataPort;
         this.checkoutSessionRepository = checkoutSessionRepository;
     }
 
@@ -71,26 +75,42 @@ public class StartCheckoutUseCase implements StartCheckoutInputPort {
             throw new IllegalArgumentException("Cannot checkout empty cart: " + command.cartId());
         }
 
-        // Create checkout line items from cart items
+        // Collect product IDs from cart items
+        final List<ProductId> productIds = cart.items().stream()
+            .map(CartData.CartItemData::productId)
+            .toList();
+
+        // Fetch article data (name, current price, availability) for all line items
+        final Map<ProductId, ArticleData> articleDataMap =
+            checkoutArticleDataPort.getArticleData(productIds);
+
+        // Build resolver from fetched data
+        final CheckoutArticlePriceResolver resolver = productId -> {
+            final ArticleData data = articleDataMap.get(productId);
+            if (data == null) {
+                throw new IllegalArgumentException("Article data not found for: " + productId.value());
+            }
+            return new CheckoutArticlePriceResolver.ArticlePrice(
+                data.currentPrice(), data.isAvailable(), data.availableStock());
+        };
+
+        // Create checkout line items from cart items with fresh pricing
         final List<CheckoutLineItem> lineItems = new ArrayList<>();
         Money subtotal = Money.euro(0.0);
 
         for (final CartData.CartItemData cartItem : cart.items()) {
-            // Load product name through output port
-            final String productName =
-                productInfoPort
-                    .getProductName(cartItem.productId())
-                    .orElseThrow(
-                        () ->
-                            new IllegalArgumentException(
-                                "Product not found: " + cartItem.productId().value()));
+            final ArticleData articleData = articleDataMap.get(cartItem.productId());
+            if (articleData == null) {
+                throw new IllegalArgumentException(
+                    "Product not found: " + cartItem.productId().value());
+            }
 
             final CheckoutLineItem lineItem =
                 CheckoutLineItem.of(
                     CheckoutLineItemId.generate(),
                     cartItem.productId(),
-                    productName,
-                    cartItem.priceAtAddition().value(),
+                    articleData.name(),
+                    articleData.currentPrice(),
                     cartItem.quantity());
 
             lineItems.add(lineItem);

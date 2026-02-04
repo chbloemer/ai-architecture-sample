@@ -1,6 +1,7 @@
 package de.sample.aiarchitecture.pricing.domain.model;
 
 import de.sample.aiarchitecture.pricing.domain.event.PriceChanged;
+import de.sample.aiarchitecture.pricing.domain.event.PriceCreated;
 import de.sample.aiarchitecture.sharedkernel.domain.model.Money;
 import de.sample.aiarchitecture.sharedkernel.domain.model.ProductId;
 import de.sample.aiarchitecture.sharedkernel.marker.tactical.BaseAggregateRoot;
@@ -24,6 +25,7 @@ import org.jspecify.annotations.NonNull;
  * <p><b>Domain Events:</b>
  *
  * <ul>
+ *   <li>{@link PriceCreated} - when a new price is created
  *   <li>{@link PriceChanged} - when the price is updated
  * </ul>
  */
@@ -48,6 +50,8 @@ public final class ProductPrice extends BaseAggregateRoot<ProductPrice, PriceId>
   /**
    * Creates a new ProductPrice aggregate.
    *
+   * <p>Raises a {@link PriceCreated} domain event.
+   *
    * @param productId the product ID
    * @param price the initial price (must be greater than zero)
    * @return the new ProductPrice aggregate
@@ -56,7 +60,11 @@ public final class ProductPrice extends BaseAggregateRoot<ProductPrice, PriceId>
   public static ProductPrice create(
       @NonNull final ProductId productId, @NonNull final Money price) {
     validatePriceGreaterThanZero(price);
-    return new ProductPrice(PriceId.generate(), productId, price, Instant.now());
+    final PriceId priceId = PriceId.generate();
+    final Instant effectiveFrom = Instant.now();
+    final ProductPrice productPrice = new ProductPrice(priceId, productId, price, effectiveFrom);
+    productPrice.registerEvent(PriceCreated.now(priceId, productId, price, effectiveFrom));
+    return productPrice;
   }
 
   @Override

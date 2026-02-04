@@ -97,7 +97,7 @@ class ShoppingCartResolverTest {
     @Test
     @DisplayName("returns valid for empty cart")
     void returnsValidForEmptyCart() {
-      CartValidationOutcome outcome = cart.validateForCheckout(priceResolver);
+      CartValidationResult outcome = cart.validateForCheckout(priceResolver);
 
       assertTrue(outcome.isValid());
       assertTrue(outcome.errors().isEmpty());
@@ -116,7 +116,7 @@ class ShoppingCartResolverTest {
       priceResolver.setPrice(product1, Money.of(BigDecimal.valueOf(10.00), EUR), true, 10);
       priceResolver.setPrice(product2, Money.of(BigDecimal.valueOf(10.00), EUR), true, 10);
 
-      CartValidationOutcome outcome = cart.validateForCheckout(priceResolver);
+      CartValidationResult outcome = cart.validateForCheckout(priceResolver);
 
       assertTrue(outcome.isValid());
     }
@@ -130,11 +130,11 @@ class ShoppingCartResolverTest {
       cart.addItem(productId, Quantity.of(1), price);
       priceResolver.setPrice(productId, Money.of(BigDecimal.valueOf(10.00), EUR), false, 0);
 
-      CartValidationOutcome outcome = cart.validateForCheckout(priceResolver);
+      CartValidationResult outcome = cart.validateForCheckout(priceResolver);
 
       assertFalse(outcome.isValid());
       assertEquals(1, outcome.errors().size());
-      assertEquals(CartValidationOutcome.ErrorType.PRODUCT_UNAVAILABLE, outcome.errors().get(0).type());
+      assertEquals(CartValidationResult.ErrorType.PRODUCT_UNAVAILABLE, outcome.errors().get(0).type());
       assertEquals(productId, outcome.errors().get(0).productId());
     }
 
@@ -147,11 +147,11 @@ class ShoppingCartResolverTest {
       cart.addItem(productId, Quantity.of(5), price);
       priceResolver.setPrice(productId, Money.of(BigDecimal.valueOf(10.00), EUR), true, 3);
 
-      CartValidationOutcome outcome = cart.validateForCheckout(priceResolver);
+      CartValidationResult outcome = cart.validateForCheckout(priceResolver);
 
       assertFalse(outcome.isValid());
       assertEquals(1, outcome.errors().size());
-      assertEquals(CartValidationOutcome.ErrorType.INSUFFICIENT_STOCK, outcome.errors().get(0).type());
+      assertEquals(CartValidationResult.ErrorType.INSUFFICIENT_STOCK, outcome.errors().get(0).type());
       assertEquals(productId, outcome.errors().get(0).productId());
     }
 
@@ -168,7 +168,7 @@ class ShoppingCartResolverTest {
       priceResolver.setPrice(unavailableProduct, Money.of(BigDecimal.valueOf(10.00), EUR), false, 0);
       priceResolver.setPrice(lowStockProduct, Money.of(BigDecimal.valueOf(10.00), EUR), true, 5);
 
-      CartValidationOutcome outcome = cart.validateForCheckout(priceResolver);
+      CartValidationResult outcome = cart.validateForCheckout(priceResolver);
 
       assertFalse(outcome.isValid());
       assertEquals(2, outcome.errors().size());
@@ -189,20 +189,20 @@ class ShoppingCartResolverTest {
       cart.addItem(productId, Quantity.of(5), price);
       priceResolver.setPrice(productId, Money.of(BigDecimal.valueOf(10.00), EUR), true, 5);
 
-      CartValidationOutcome outcome = cart.validateForCheckout(priceResolver);
+      CartValidationResult outcome = cart.validateForCheckout(priceResolver);
 
       assertTrue(outcome.isValid());
     }
   }
 
   @Nested
-  @DisplayName("CartValidationOutcome")
-  class CartValidationOutcomeTests {
+  @DisplayName("CartValidationResult")
+  class CartValidationResultTests {
 
     @Test
     @DisplayName("valid() creates outcome with no errors")
     void validCreatesOutcomeWithNoErrors() {
-      CartValidationOutcome outcome = CartValidationOutcome.valid();
+      CartValidationResult outcome = CartValidationResult.valid();
 
       assertTrue(outcome.isValid());
       assertTrue(outcome.errors().isEmpty());
@@ -212,9 +212,9 @@ class ShoppingCartResolverTest {
     @DisplayName("errors list is immutable")
     void errorsListIsImmutable() {
       ProductId productId = ProductId.generate();
-      CartValidationOutcome.ValidationError error =
-          CartValidationOutcome.ValidationError.productUnavailable(productId);
-      CartValidationOutcome outcome = CartValidationOutcome.withErrors(java.util.List.of(error));
+      CartValidationResult.ValidationError error =
+          CartValidationResult.ValidationError.productUnavailable(productId);
+      CartValidationResult outcome = CartValidationResult.withErrors(java.util.List.of(error));
 
       assertThrows(UnsupportedOperationException.class, () -> outcome.errors().clear());
     }

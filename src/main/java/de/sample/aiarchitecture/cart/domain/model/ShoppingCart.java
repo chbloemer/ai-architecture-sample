@@ -319,24 +319,24 @@ public final class ShoppingCart extends BaseAggregateRoot<ShoppingCart, CartId> 
    * and stock levels to ensure the cart can proceed to checkout.
    *
    * @param priceResolver the resolver to fetch current pricing and availability
-   * @return a CartValidationOutcome containing any validation errors
+   * @return a CartValidationResult containing any validation errors
    */
-  public CartValidationOutcome validateForCheckout(@NonNull final ArticlePriceResolver priceResolver) {
+  public CartValidationResult validateForCheckout(@NonNull final ArticlePriceResolver priceResolver) {
     if (priceResolver == null) {
       throw new IllegalArgumentException("Price resolver cannot be null");
     }
     if (items.isEmpty()) {
-      return CartValidationOutcome.valid();
+      return CartValidationResult.valid();
     }
 
-    final List<CartValidationOutcome.ValidationError> errors = new ArrayList<>();
+    final List<CartValidationResult.ValidationError> errors = new ArrayList<>();
     for (final CartItem item : items) {
       final ArticlePrice articlePrice = priceResolver.resolve(item.productId());
 
       if (!articlePrice.isAvailable()) {
-        errors.add(CartValidationOutcome.ValidationError.productUnavailable(item.productId()));
+        errors.add(CartValidationResult.ValidationError.productUnavailable(item.productId()));
       } else if (articlePrice.availableStock() < item.quantity().value()) {
-        errors.add(CartValidationOutcome.ValidationError.insufficientStock(
+        errors.add(CartValidationResult.ValidationError.insufficientStock(
             item.productId(),
             item.quantity().value(),
             articlePrice.availableStock()));
@@ -344,8 +344,8 @@ public final class ShoppingCart extends BaseAggregateRoot<ShoppingCart, CartId> 
     }
 
     return errors.isEmpty()
-        ? CartValidationOutcome.valid()
-        : CartValidationOutcome.withErrors(errors);
+        ? CartValidationResult.valid()
+        : CartValidationResult.withErrors(errors);
   }
 
   /**

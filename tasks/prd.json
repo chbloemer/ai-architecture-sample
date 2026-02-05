@@ -2857,7 +2857,7 @@
           "No Spring annotations in domain layer"
         ]
       },
-      "passes": false
+      "passes": true
     },
     {
       "id": "US-110",

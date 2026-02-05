@@ -81,11 +81,12 @@ public class CartMergePageController {
       return "redirect:/cart";
     }
 
+    // Convert to page-specific ViewModel
+    final CartMergePageViewModel viewModel =
+        CartMergePageViewModel.fromResult(options, anonymousUserId, returnUrl);
+
+    model.addAttribute("cartMerge", viewModel);
     model.addAttribute("title", "Cart Merge Options");
-    model.addAttribute("anonymousCart", options.anonymousCart());
-    model.addAttribute("accountCart", options.accountCart());
-    model.addAttribute("anonymousUserId", anonymousUserId);
-    model.addAttribute("returnUrl", returnUrl);
 
     return "cart/merge-options";
   }

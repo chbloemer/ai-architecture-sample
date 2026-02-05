@@ -1,18 +1,19 @@
 package de.sample.aiarchitecture.product.adapter.incoming.api;
 
 import de.sample.aiarchitecture.product.application.createproduct.CreateProductResult;
-import de.sample.aiarchitecture.product.application.getallproducts.GetAllProductsResult;
 import de.sample.aiarchitecture.product.application.getproductbyid.GetProductByIdResult;
+import de.sample.aiarchitecture.product.domain.model.EnrichedProduct;
 import org.springframework.stereotype.Component;
 
 /**
  * Converter for transforming between use case models and DTOs.
  *
  * <p><b>Adapter Pattern:</b> This class belongs to the adapter layer and handles
- * the translation between application layer models and REST API DTOs.
+ * the translation between application layer models (which wrap domain read models)
+ * and REST API DTOs.
  *
- * <p>Stock information is fetched from the Inventory bounded context via the
- * use case output ports.
+ * <p>Use cases return Results containing EnrichedProduct domain read models.
+ * This converter maps those to flat DTOs suitable for JSON serialization.
  */
 @Component
 public final class ProductDtoConverter {
@@ -41,38 +42,35 @@ public final class ProductDtoConverter {
   /**
    * Converts GetProductByIdResult to DTO.
    *
-   * @param output the use case output
+   * <p>Extracts the EnrichedProduct domain read model from the result and maps to DTO.
+   *
+   * @param result the use case result containing an EnrichedProduct
    * @return product DTO
+   * @throws IllegalArgumentException if the result indicates product was not found
    */
-  public ProductDto toDto(final GetProductByIdResult output) {
-    return new ProductDto(
-        output.productId(),
-        output.sku(),
-        output.name(),
-        output.description(),
-        output.priceAmount(),
-        output.priceCurrency(),
-        output.category(),
-        output.stockQuantity(),
-        output.isAvailable());
+  public ProductDto toDto(final GetProductByIdResult result) {
+    if (!result.found() || result.product() == null) {
+      throw new IllegalArgumentException("Cannot convert not-found result to DTO");
+    }
+    return toDto(result.product());
   }
 
   /**
-   * Converts ProductSummary (from GetAllProductsResult) to DTO.
+   * Converts EnrichedProduct domain read model to DTO.
    *
-   * @param summary the product summary
+   * @param product the enriched product
    * @return product DTO
    */
-  public ProductDto toDto(final GetAllProductsResult.ProductSummary summary) {
+  public ProductDto toDto(final EnrichedProduct product) {
     return new ProductDto(
-        summary.productId(),
-        summary.sku(),
-        summary.name(),
-        null, // Summary doesn't include description
-        summary.priceAmount(),
-        summary.priceCurrency(),
-        summary.category(),
-        summary.stockQuantity(),
-        summary.stockQuantity() > 0);
+        product.productId().value().toString(),
+        product.sku(),
+        product.name(),
+        product.description(),
+        product.currentPrice().amount(),
+        product.currentPrice().currency().getCurrencyCode(),
+        product.category(),
+        product.stockQuantity(),
+        product.isAvailable());
   }
 }

@@ -1,36 +1,26 @@
 package de.sample.aiarchitecture.product.application.getallproducts;
 
-import java.math.BigDecimal;
+import de.sample.aiarchitecture.product.domain.model.EnrichedProduct;
 import java.util.List;
 
 /**
  * Output model for retrieving all products.
  *
- * <p>Stock information is fetched from the Inventory bounded context via the
- * ProductStockDataPort output port.
+ * <p>This result wraps a list of {@link EnrichedProduct} domain read models that combine
+ * product state from the Product aggregate with external data from the Pricing and
+ * Inventory bounded contexts.
  *
- * @param products the list of products
+ * <p><b>Pattern:</b> Use Case → Result(EnrichedProduct list) → Controller → ViewModel → Template
+ *
+ * @param products the list of enriched products
  */
-public record GetAllProductsResult(List<ProductSummary> products) {
+public record GetAllProductsResult(List<EnrichedProduct> products) {
 
-  /**
-   * Summary of a product (used in lists).
-   *
-   * @param productId the product ID
-   * @param sku the product SKU
-   * @param name the product name
-   * @param priceAmount the price amount
-   * @param priceCurrency the price currency
-   * @param category the product category
-   * @param stockQuantity the available stock quantity
-   */
-  public record ProductSummary(
-      String productId,
-      String sku,
-      String name,
-      BigDecimal priceAmount,
-      String priceCurrency,
-      String category,
-      int stockQuantity
-  ) {}
+  public GetAllProductsResult {
+    if (products == null) {
+      throw new IllegalArgumentException("Products list cannot be null");
+    }
+    // Make defensive copy
+    products = List.copyOf(products);
+  }
 }

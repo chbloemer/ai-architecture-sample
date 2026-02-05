@@ -3,40 +3,40 @@ extends ../layout
 block content
   h2 Product Catalog
 
-  p Total Products: #{totalProducts}
+  p Total Products: #{productCatalog.totalProducts()}
 
-  if totalProducts > 0
+  if productCatalog.totalProducts() > 0
     .product-grid
-      each product in products
+      each product in productCatalog.products()
         .product-card(data-test="product-card")
-          h3= product.name
-          //- description not available in ProductSummary DTO; omitted
+          h3= product.name()
+          //- description not available in ProductSummary; omitted
 
           .product-info
             .info-row
               span.label SKU:
-              span.value= product.sku
+              span.value= product.sku()
 
             .info-row
               span.label Category:
-              span.value= product.category
+              span.value= product.category()
 
             .info-row
               span.label Price:
-              span.value= product.priceAmount + " " + product.priceCurrency
+              span.value= product.priceAmount() + " " + product.priceCurrency()
 
             .info-row
               span.label Stock:
-              span.value= product.stockQuantity
+              span.value= product.stockQuantity()
 
             .info-row
               span.label Status:
-              if product.stockQuantity > 0
+              if product.isInStock()
                 span.badge.badge-success Available
               else
                 span.badge.badge-danger Out of Stock
 
-          a.btn(href='/products/' + product.productId data-test="product-view-details-link") View Details
+          a.btn(href='/products/' + product.productId() data-test="product-view-details-link") View Details
   else
     .empty-state
       p No products available.

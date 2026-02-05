@@ -84,16 +84,19 @@ public class BuyerInfoPageController {
     }
 
     // Get full session details
-    final GetCheckoutSessionResult session =
+    final GetCheckoutSessionResult result =
         getCheckoutSessionInputPort.execute(
             GetCheckoutSessionQuery.of(activeSession.sessionId()));
 
-    if (!session.found()) {
+    if (!result.found()) {
       redirectAttributes.addFlashAttribute("error", "Checkout session not found");
       return "redirect:/cart";
     }
 
-    model.addAttribute("session", session);
+    // Convert to page-specific ViewModel
+    final BuyerInfoPageViewModel viewModel = BuyerInfoPageViewModel.fromSnapshot(result.session());
+
+    model.addAttribute("buyerInfoPage", viewModel);
     model.addAttribute("identity", identity);
     model.addAttribute("title", "Buyer Information - Checkout");
 

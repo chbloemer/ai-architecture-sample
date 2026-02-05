@@ -663,8 +663,8 @@ For comprehensive architecture documentation, see:
 
 **Adapter Layer** (per bounded context) - External interfaces
 - Incoming Adapters (Primary):
-  - `adapter.incoming.api` - REST APIs (@RestController) returning JSON
-  - `adapter.incoming.web` - Web MVC (@Controller) returning HTML
+  - `adapter.incoming.api` - REST APIs (@RestController) returning JSON via DTOs
+  - `adapter.incoming.web` - Web MVC (@Controller) returning HTML via page-specific ViewModels
   - `adapter.incoming.mcp` - MCP Server for AI assistants
   - `adapter.incoming.openhost` - Open Host Services for cross-context APIs
   - `adapter.incoming.event` - Domain event consumers
@@ -674,7 +674,8 @@ For comprehensive architecture documentation, see:
   - `adapter.outgoing.cart`, `adapter.outgoing.product` - Cross-context data adapters
   - `adapter.outgoing.payment` - Payment provider adapters
   - `adapter.outgoing.security` - Security-related adapters
-- DTO conversion happens here
+- DTO/ViewModel conversion happens in adapters (not application layer)
+- ViewModels use primitives only, created from domain read models
 - Adapters don't communicate directly
 
 **Shared Kernel** - Cross-context shared concepts

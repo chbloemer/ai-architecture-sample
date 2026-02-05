@@ -2,8 +2,6 @@ package de.sample.aiarchitecture.cart.application.checkoutcart;
 
 import de.sample.aiarchitecture.cart.application.shared.ArticleDataPort;
 import de.sample.aiarchitecture.cart.application.shared.ShoppingCartRepository;
-import de.sample.aiarchitecture.cart.domain.model.ArticleInfo;
-import de.sample.aiarchitecture.cart.domain.model.ArticleInfoResolver;
 import de.sample.aiarchitecture.cart.domain.model.ArticlePrice;
 import de.sample.aiarchitecture.cart.domain.model.ArticlePriceResolver;
 import de.sample.aiarchitecture.cart.domain.model.CartArticle;
@@ -65,22 +63,17 @@ public class CheckoutCartUseCase implements CheckoutCartInputPort {
             .findById(cartId)
             .orElseThrow(() -> new IllegalArgumentException("Cart not found: " + input.cartId()));
 
-    // Create a caching resolver that lazily fetches article data
-    final Map<ProductId, CartArticle> articleCache = new HashMap<>();
-    final ArticleInfoResolver resolver = productId -> {
-      final CartArticle article = articleCache.computeIfAbsent(productId,
-          id -> articleDataPort.getArticleData(id).orElseThrow(
-              () -> new IllegalStateException("Article data not found for product: " + id.value())));
-      return new ArticleInfo(article.name(), article.currentPrice());
-    };
-
     // Use builder pattern with Interest Interface
     final EnrichedCartBuilder builder = new EnrichedCartBuilder();
-    cart.provideStateTo(builder, resolver);
+    cart.provideStateTo(builder);
 
-    // Push current article data for each product
+    // Fetch and push current article data for each product (also cache for validation)
+    final Map<ProductId, CartArticle> articleCache = new HashMap<>();
     for (final ProductId productId : builder.getCollectedProductIds()) {
-      final CartArticle article = articleCache.get(productId);
+      final CartArticle article = articleDataPort.getArticleData(productId)
+          .orElseThrow(() -> new IllegalStateException(
+              "Article data not found for product: " + productId.value()));
+      articleCache.put(productId, article);
       builder.receiveCurrentArticleData(productId, article);
     }
 

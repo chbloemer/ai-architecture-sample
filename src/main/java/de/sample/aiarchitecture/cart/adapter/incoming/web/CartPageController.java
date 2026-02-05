@@ -74,20 +74,18 @@ public class CartPageController {
         getOrCreateActiveCartUseCase.execute(new GetOrCreateActiveCartCommand(customerId.value()));
 
     // Fetch cart details
-    final GetCartByIdResult output =
+    final GetCartByIdResult result =
         getCartByIdUseCase.execute(new GetCartByIdQuery(cartResponse.cartId()));
 
-    if (!output.found()) {
+    if (!result.found()) {
       return "error/404";
     }
 
-    model.addAttribute("cart", output);
+    // Convert to page-specific ViewModel
+    final CartPageViewModel viewModel = CartPageViewModel.fromEnrichedCart(result.cart());
+
+    model.addAttribute("shoppingCart", viewModel);
     model.addAttribute("title", "Shopping Cart");
-    model.addAttribute("cartId", cartResponse.cartId());
-    model.addAttribute("itemCount", output.items().size());
-    model.addAttribute("totalQuantity", output.items().stream()
-        .mapToInt(item -> item.quantity())
-        .sum());
 
     return "cart/view";
   }

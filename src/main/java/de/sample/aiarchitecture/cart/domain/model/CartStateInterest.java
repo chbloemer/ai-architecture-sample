@@ -41,18 +41,18 @@ public interface CartStateInterest extends StateInterest {
    * Receives a line item from the cart.
    *
    * <p>This method is called once for each line item in the shopping cart.
+   * The product name is not included here as the aggregate only stores the productId.
+   * Use {@link EnrichedCartStateInterest#receiveCurrentArticleData} to receive product names.
    *
    * @param lineItemId the unique identifier for this line item
    * @param productId the product identifier
-   * @param name the product name
-   * @param price the unit price
+   * @param priceAtAddition the unit price when the item was added to cart
    * @param quantity the quantity in cart
    */
   void receiveLineItem(
       CartItemId lineItemId,
       ProductId productId,
-      String name,
-      Money price,
+      Money priceAtAddition,
       int quantity);
 
   /**

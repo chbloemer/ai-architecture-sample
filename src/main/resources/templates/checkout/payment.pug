@@ -13,8 +13,7 @@ block content
     span.step Confirmation
 
   .session-summary
-    p Session ID: #{session.sessionId()}
-    p Status: #{session.status()}
+    p Session ID: #{paymentPage.sessionId()}
 
   form(method="post" action="/checkout/payment" data-test="payment-form")
     h3 Select Payment Method
@@ -22,7 +21,7 @@ block content
     .payment-options(data-test="payment-options")
       each provider in paymentProviders
         if provider.available()
-          - var isSelected = session.payment() && session.payment().providerId() === provider.id()
+          - var isSelected = paymentPage.existingPaymentProviderId() && paymentPage.existingPaymentProviderId() === provider.id()
           label.payment-option(class=isSelected ? 'selected' : '' data-test="payment-provider-option")
             input(type="radio" name="providerId" value=provider.id() required checked=isSelected data-test="payment-provider-radio")
             .option-details
@@ -32,32 +31,32 @@ block content
 
     .form-group
       label(for="providerReference") Payment Reference (Optional)
-      input#providerReference(type="text" name="providerReference" placeholder="e.g., Payment Intent ID" value=(session.payment() ? session.payment().providerReference() : ''))
+      input#providerReference(type="text" name="providerReference" placeholder="e.g., Payment Intent ID" value='')
 
     .form-actions
       a.btn.btn-secondary(href="/checkout/delivery" data-test="payment-back-link") Back
       button.btn.btn-primary(type="submit" data-test="payment-continue-button") Continue to Review
 
-  if session.lineItems() && session.lineItems().size() > 0
+  if paymentPage.lineItems() && paymentPage.lineItems().size() > 0
     .order-summary
       h3 Order Summary
-      each item in session.lineItems()
+      each item in paymentPage.lineItems()
         .summary-item
           span.item-name #{item.productName()}
           span.item-qty x#{item.quantity()}
           span.item-price #{item.lineTotal()} #{item.currencyCode()}
 
-      if session.totals()
+      if paymentPage.totals()
         .summary-total
           span.label Subtotal:
-          span.value #{session.totals().subtotal()} #{session.totals().currencyCode()}
-        if session.totals().shippingCost()
+          span.value #{paymentPage.totals().subtotal()} #{paymentPage.totals().currencyCode()}
+        if paymentPage.totals().shipping()
           .summary-shipping
             span.label Shipping:
-            span.value #{session.totals().shippingCost()} #{session.totals().currencyCode()}
+            span.value #{paymentPage.totals().shipping()} #{paymentPage.totals().currencyCode()}
         .summary-grand-total
           span.label Total:
-          span.value #{session.totals().total()} #{session.totals().currencyCode()}
+          span.value #{paymentPage.totals().total()} #{paymentPage.totals().currencyCode()}
 
   script.
     document.querySelectorAll('.payment-option input[type="radio"]').forEach(function(radio) {

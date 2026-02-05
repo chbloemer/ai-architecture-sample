@@ -4,9 +4,10 @@ import de.sample.aiarchitecture.cart.application.additemtocart.AddItemToCartResu
 import de.sample.aiarchitecture.cart.application.checkoutcart.CheckoutCartResult;
 import de.sample.aiarchitecture.cart.application.createcart.CreateCartResult;
 import de.sample.aiarchitecture.cart.application.getallcarts.GetAllCartsResult;
-import de.sample.aiarchitecture.cart.application.getcartbyid.GetCartByIdResult;
 import de.sample.aiarchitecture.cart.application.removeitemfromcart.RemoveItemFromCartResult;
 import de.sample.aiarchitecture.cart.domain.model.CartItem;
+import de.sample.aiarchitecture.cart.domain.model.EnrichedCart;
+import de.sample.aiarchitecture.cart.domain.model.EnrichedCartItem;
 import de.sample.aiarchitecture.cart.domain.model.ShoppingCart;
 import de.sample.aiarchitecture.sharedkernel.domain.model.Money;
 import java.util.List;
@@ -63,20 +64,22 @@ public final class ShoppingCartDtoConverter {
   }
 
   /**
-   * Converts GetCartByIdResult to DTO.
+   * Converts EnrichedCart read model to DTO.
    */
-  public ShoppingCartDto toDto(final GetCartByIdResult output) {
-    final List<CartItemDto> items = output.items() != null
-        ? output.items().stream().map(this::toItemDto).toList()
-        : List.of();
+  public ShoppingCartDto toDto(final EnrichedCart cart) {
+    final List<CartItemDto> items = cart.items().stream()
+        .map(this::toItemDto)
+        .toList();
+
+    final Money total = cart.calculateCurrentSubtotal();
 
     return new ShoppingCartDto(
-        output.cartId(),
-        output.customerId(),
+        cart.cartId().value(),
+        cart.customerId().value(),
         items,
-        output.status(),
-        output.totalAmount(),
-        output.totalCurrency(),
+        cart.status().name(),
+        total.amount(),
+        total.currency().getCurrencyCode(),
         items.size()
     );
   }
@@ -165,14 +168,15 @@ public final class ShoppingCartDtoConverter {
         item.priceAtAddition().value().currency().getCurrencyCode());
   }
 
-  private CartItemDto toItemDto(final GetCartByIdResult.CartItemSummary item) {
+  private CartItemDto toItemDto(final EnrichedCartItem item) {
+    // Use current price from article data
+    final Money currentPrice = item.currentArticle().currentPrice();
     return new CartItemDto(
-        item.itemId(),
-        item.productId(),
-        item.quantity(),
-        item.unitPriceAmount(),
-        item.unitPriceCurrency()
-    );
+        item.cartItemId().value(),
+        item.productId().value(),
+        item.quantity().value(),
+        currentPrice.amount(),
+        currentPrice.currency().getCurrencyCode());
   }
 
   private CartItemDto toItemDto(final AddItemToCartResult.CartItemSummary item) {

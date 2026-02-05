@@ -13,69 +13,69 @@ block content
     .success-icon
       | &#10003;
     h3(data-test="confirmation-title") Your order has been placed successfully
-    p Order Reference: #{session.sessionId()}
+    p Order Reference: #{orderConfirmation.sessionId()}
 
   .order-details
     h3 Order Summary
 
-    if session.buyerInfo()
+    if orderConfirmation.buyerInfo()
       .detail-section
         h4 Contact Information
-        p #{session.buyerInfo().firstName()} #{session.buyerInfo().lastName()}
-        p #{session.buyerInfo().email()}
-        if session.buyerInfo().phone()
-          p #{session.buyerInfo().phone()}
+        p #{orderConfirmation.buyerInfo().firstName()} #{orderConfirmation.buyerInfo().lastName()}
+        p #{orderConfirmation.buyerInfo().email()}
+        if orderConfirmation.buyerInfo().phone()
+          p #{orderConfirmation.buyerInfo().phone()}
 
-    if session.delivery()
+    if orderConfirmation.delivery()
       .detail-section
         h4 Delivery Address
-        p #{session.delivery().address().street()}
-        if session.delivery().address().streetLine2()
-          p #{session.delivery().address().streetLine2()}
-        p #{session.delivery().address().city()}, #{session.delivery().address().postalCode()}
-        if session.delivery().address().state()
-          p #{session.delivery().address().state()}, #{session.delivery().address().country()}
+        p #{orderConfirmation.delivery().address().street()}
+        if orderConfirmation.delivery().address().streetLine2()
+          p #{orderConfirmation.delivery().address().streetLine2()}
+        p #{orderConfirmation.delivery().address().city()}, #{orderConfirmation.delivery().address().postalCode()}
+        if orderConfirmation.delivery().address().state()
+          p #{orderConfirmation.delivery().address().state()}, #{orderConfirmation.delivery().address().country()}
         else
-          p #{session.delivery().address().country()}
+          p #{orderConfirmation.delivery().address().country()}
 
         h4 Shipping Method
-        p #{session.delivery().shippingOption().name()}
-        p Estimated Delivery: #{session.delivery().shippingOption().estimatedDelivery()}
+        p #{orderConfirmation.delivery().shippingOption().name()}
+        p Estimated Delivery: #{orderConfirmation.delivery().shippingOption().estimatedDelivery()}
 
-    if session.payment()
+    if orderConfirmation.payment()
       .detail-section
         h4 Payment Method
-        p #{session.payment().providerId()}
+        p #{orderConfirmation.payment().providerId()}
 
-    if session.lineItems() && session.lineItems().size() > 0
+    if orderConfirmation.lineItems() && orderConfirmation.lineItems().size() > 0
       .detail-section
         h4 Items Ordered
         .order-items
-          each item in session.lineItems()
+          each item in orderConfirmation.lineItems()
             .order-item
               span.item-name #{item.productName()}
               span.item-qty x#{item.quantity()}
               span.item-price #{item.lineTotal()} #{item.currencyCode()}
 
-    if session.totals()
+    if orderConfirmation.totals()
       .totals-section
         .total-line
           span.label Subtotal:
-          span.value #{session.totals().subtotal()} #{session.totals().currencyCode()}
-        if session.totals().shipping()
+          span.value #{orderConfirmation.totals().subtotal()} #{orderConfirmation.totals().currencyCode()}
+        if orderConfirmation.totals().shipping()
           .total-line
             span.label Shipping:
-            span.value #{session.totals().shipping()} #{session.totals().currencyCode()}
-        if session.totals().tax()
+            span.value #{orderConfirmation.totals().shipping()} #{orderConfirmation.totals().currencyCode()}
+        if orderConfirmation.totals().tax()
           .total-line
             span.label Tax:
-            span.value #{session.totals().tax()} #{session.totals().currencyCode()}
+            span.value #{orderConfirmation.totals().tax()} #{orderConfirmation.totals().currencyCode()}
         .grand-total
           span.label Total Paid:
-          span.value #{session.totals().total()} #{session.totals().currencyCode()}
+          span.value #{orderConfirmation.totals().total()} #{orderConfirmation.totals().currencyCode()}
 
   .next-steps
-    p We've sent a confirmation email to #{session.buyerInfo() ? session.buyerInfo().email() : 'your email address'}.
+    p We've sent a confirmation email to #{orderConfirmation.buyerInfo() ? orderConfirmation.buyerInfo().email() : 'your email address'}.
     p You can track your order status using your order reference.
 
   .form-actions

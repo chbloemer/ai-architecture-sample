@@ -91,19 +91,22 @@ public class DeliveryPageController {
     }
 
     // Get full session details
-    final GetCheckoutSessionResult session =
+    final GetCheckoutSessionResult result =
         getCheckoutSessionInputPort.execute(
             GetCheckoutSessionQuery.of(activeSession.sessionId()));
 
-    if (!session.found()) {
+    if (!result.found()) {
       redirectAttributes.addFlashAttribute("error", "Checkout session not found");
       return "redirect:/cart";
     }
 
+    // Convert to page-specific ViewModel
+    final DeliveryPageViewModel viewModel = DeliveryPageViewModel.fromSnapshot(result.session());
+
     final GetShippingOptionsResult shippingOptions =
         getShippingOptionsInputPort.execute(GetShippingOptionsQuery.create());
 
-    model.addAttribute("session", session);
+    model.addAttribute("deliveryPage", viewModel);
     model.addAttribute("shippingOptions", shippingOptions.shippingOptions());
     model.addAttribute("title", "Delivery - Checkout");
 

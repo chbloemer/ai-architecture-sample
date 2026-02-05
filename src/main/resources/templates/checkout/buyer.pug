@@ -24,43 +24,42 @@ block content
       p Logged in as #{identity.email().orElse('')}
 
   .session-summary
-    p Session ID: #{session.sessionId()}
-    p Status: #{session.status()}
+    p Session ID: #{buyerInfoPage.sessionId()}
 
   form(method="post" action="/checkout/buyer" data-test="buyer-form")
     .form-group
       label(for="email") Email Address
-      - var emailValue = session.buyerInfo() ? session.buyerInfo().email() : (identity.isRegistered() ? identity.email().orElse('') : '')
+      - var emailValue = buyerInfoPage.existingBuyerInfo() ? buyerInfoPage.existingBuyerInfo().email() : (identity.isRegistered() ? identity.email().orElse('') : '')
       input#email(type="email" name="email" required placeholder="your@email.com" value=emailValue data-test="buyer-email-input")
 
     .form-group
       label(for="firstName") First Name
-      input#firstName(type="text" name="firstName" required placeholder="First Name" value=(session.buyerInfo() ? session.buyerInfo().firstName() : '') data-test="buyer-firstname-input")
+      input#firstName(type="text" name="firstName" required placeholder="First Name" value=(buyerInfoPage.existingBuyerInfo() ? buyerInfoPage.existingBuyerInfo().firstName() : '') data-test="buyer-firstname-input")
 
     .form-group
       label(for="lastName") Last Name
-      input#lastName(type="text" name="lastName" required placeholder="Last Name" value=(session.buyerInfo() ? session.buyerInfo().lastName() : '') data-test="buyer-lastname-input")
+      input#lastName(type="text" name="lastName" required placeholder="Last Name" value=(buyerInfoPage.existingBuyerInfo() ? buyerInfoPage.existingBuyerInfo().lastName() : '') data-test="buyer-lastname-input")
 
     .form-group
       label(for="phone") Phone Number
-      input#phone(type="tel" name="phone" required placeholder="+1 (555) 123-4567" value=(session.buyerInfo() ? session.buyerInfo().phone() : '') data-test="buyer-phone-input")
+      input#phone(type="tel" name="phone" required placeholder="+1 (555) 123-4567" value=(buyerInfoPage.existingBuyerInfo() ? buyerInfoPage.existingBuyerInfo().phone() : '') data-test="buyer-phone-input")
 
     .form-actions
       button.btn.btn-primary(type="submit" data-test="buyer-continue-button") Continue to Delivery
 
-  if session.lineItems() && session.lineItems().size() > 0
+  if buyerInfoPage.lineItems() && buyerInfoPage.lineItems().size() > 0
     .order-summary
       h3 Order Summary
-      each item in session.lineItems()
+      each item in buyerInfoPage.lineItems()
         .summary-item
           span.item-name #{item.productName()}
           span.item-qty x#{item.quantity()}
           span.item-price #{item.lineTotal()} #{item.currencyCode()}
 
-      if session.totals()
+      if buyerInfoPage.totals()
         .summary-total
           span.label Subtotal:
-          span.value #{session.totals().subtotal()} #{session.totals().currencyCode()}
+          span.value #{buyerInfoPage.totals().subtotal()} #{buyerInfoPage.totals().currencyCode()}
 
   style.
     .checkout-progress {

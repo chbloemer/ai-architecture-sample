@@ -128,28 +128,28 @@ public class ConfirmationPageController {
     }
 
     // Get full session details
-    final GetCheckoutSessionResult session =
+    final GetCheckoutSessionResult result =
         getCheckoutSessionInputPort.execute(
             GetCheckoutSessionQuery.of(confirmedSession.sessionId()));
 
-    if (!session.found()) {
+    if (!result.found()) {
       redirectAttributes.addFlashAttribute("error", "Checkout session not found");
       return "redirect:/cart";
     }
 
     // Only allow access to confirmation page if the session is confirmed or completed
-    if (!isConfirmedOrCompleted(session.status())) {
+    final var snapshot = result.session();
+    if (!snapshot.isConfirmed() && !snapshot.isCompleted()) {
       redirectAttributes.addFlashAttribute("error", "Order has not been confirmed yet");
       return "redirect:/checkout/review";
     }
 
-    model.addAttribute("session", session);
+    // Convert to page-specific ViewModel
+    final ConfirmationPageViewModel viewModel = ConfirmationPageViewModel.fromSnapshot(snapshot);
+
+    model.addAttribute("orderConfirmation", viewModel);
     model.addAttribute("title", "Order Confirmed - Thank You!");
 
     return "checkout/confirmation";
-  }
-
-  private boolean isConfirmedOrCompleted(final String status) {
-    return "CONFIRMED".equals(status) || "COMPLETED".equals(status);
   }
 }

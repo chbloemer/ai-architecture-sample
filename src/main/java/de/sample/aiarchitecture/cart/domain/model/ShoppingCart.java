@@ -5,10 +5,10 @@ import de.sample.aiarchitecture.cart.domain.event.CartCleared;
 import de.sample.aiarchitecture.cart.domain.event.CartItemAddedToCart;
 import de.sample.aiarchitecture.cart.domain.event.CartItemQuantityChanged;
 import de.sample.aiarchitecture.cart.domain.event.ProductRemovedFromCart;
-import de.sample.aiarchitecture.sharedkernel.marker.tactical.BaseAggregateRoot;
 import de.sample.aiarchitecture.sharedkernel.domain.model.Money;
 import de.sample.aiarchitecture.sharedkernel.domain.model.Price;
 import de.sample.aiarchitecture.sharedkernel.domain.model.ProductId;
+import de.sample.aiarchitecture.sharedkernel.marker.tactical.BaseAggregateRoot;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -444,35 +444,29 @@ public final class ShoppingCart extends BaseAggregateRoot<ShoppingCart, CartId> 
    * following the "Tell, Don't Ask" principle. The aggregate pushes its state to
    * the interest, rather than exposing internal structure through getters.
    *
-   * <p>The resolver is used to fetch current product information (name and price)
-   * since CartItem only stores the productId and price at the time of addition.
+   * <p>Note: Product names are not included in line items since the aggregate only
+   * stores productId. Use {@link de.sample.aiarchitecture.cart.domain.readmodel.EnrichedCartStateInterest#receiveCurrentArticleData}
+   * to provide product names from external services.
    *
    * @param interest the interest to receive the cart state
-   * @param resolver the resolver to fetch current product information
-   * @throws IllegalArgumentException if interest or resolver is null
+   * @throws IllegalArgumentException if interest is null
    * @see CartStateInterest
-   * @see ArticleInfoResolver
    */
-  public void provideStateTo(final CartStateInterest interest, final ArticleInfoResolver resolver) {
+  public void provideStateTo(final CartStateInterest interest) {
     if (interest == null) {
       throw new IllegalArgumentException("Interest cannot be null");
-    }
-    if (resolver == null) {
-      throw new IllegalArgumentException("Resolver cannot be null");
     }
 
     // Push identifiers
     interest.receiveCartId(this.id);
     interest.receiveCustomerId(this.customerId);
 
-    // Push all line items with resolved product name but original price
+    // Push all line items (without product name - aggregate doesn't know it)
     for (final CartItem item : this.items) {
-      final ArticleInfo articleInfo = resolver.resolve(item.productId());
       interest.receiveLineItem(
           item.id(),
           item.productId(),
-          articleInfo.name(),
-          item.priceAtAddition().value(),  // Use the price at addition, not current price
+          item.priceAtAddition().value(),  // Price when item was added (for change detection)
           item.quantity().value());
     }
 

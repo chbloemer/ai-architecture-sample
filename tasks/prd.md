@@ -2144,3 +2144,232 @@ Before starting, check tasks/logs/ folder for US-94 and US-99 results to see the
 - External pricing/inventory service integration
 - Price history tracking
 - Production-ready deployment configuration
+
+### US-116: ProductStateInterest Interface
+**Epic:** interest-interface-pattern
+**Depends on:** US-106
+
+**Description:** Create the Interest interface for Product aggregate. This interface defines receive*() methods for all state that can be exposed from the product aggregate.
+
+**Acceptance Criteria:**
+- ProductStateInterest interface in product/domain/model/
+- Interface implements StateInterest marker
+- receiveProductId(ProductId) method
+- receiveSku(String) method
+- receiveName(String) method
+- receiveDescription(String) method
+- receiveCategory(String) method
+- Architecture tests pass: ./gradlew test-architecture
+
+**Architectural Guidance:**
+- **Affected Layers:** domain
+- **Locations:**
+  - `product/domain/model/ProductStateInterest.java`
+- **Patterns:** Interest Interface Pattern, Double Dispatch
+- **Constraints:**
+  - No Spring annotations in domain layer
+  - Use domain types (ProductId) in method signatures where appropriate
+  - Methods return void - push model, not pull
+
+---
+
+### US-117: Product provideStateTo Method
+**Epic:** interest-interface-pattern
+**Depends on:** US-116
+
+**Description:** Add provideStateTo(ProductStateInterest) method to Product aggregate. The aggregate pushes its state to interested parties through this method, keeping control over what is exposed.
+
+**Acceptance Criteria:**
+- provideStateTo(ProductStateInterest interest) method added to Product
+- Method calls all appropriate receive*() methods on the interest
+- ProductId, SKU, name, description, and category are pushed
+- Existing getters can remain temporarily
+- Architecture tests pass: ./gradlew test-architecture
+
+**Architectural Guidance:**
+- **Affected Layers:** domain
+- **Locations:**
+  - `product/domain/model/Product.java`
+- **Patterns:** Interest Interface Pattern, Tell Don't Ask
+- **Constraints:**
+  - Aggregate controls what state is exposed
+  - No new getters should be added
+  - Method must be comprehensive - push all relevant state
+
+---
+
+### US-118: ProductArticle and EnrichedProduct Read Models
+**Epic:** interest-interface-pattern
+**Depends on:** US-117
+
+**Description:** Create ProductArticle value object for external pricing/stock data and EnrichedProduct domain read model that combines aggregate state with external article data.
+
+**Acceptance Criteria:**
+- ProductArticle record in product/domain/model/ with Money currentPrice, int stockQuantity, boolean isAvailable
+- EnrichedProduct record in product/domain/model/ combining aggregate fields and article data
+- EnrichedProduct implements Value marker
+- EnrichedProduct has isInStock() convenience method
+- Architecture tests pass: ./gradlew test-architecture
+
+**Architectural Guidance:**
+- **Affected Layers:** domain
+- **Locations:**
+  - `product/domain/model/ProductArticle.java`
+  - `product/domain/model/EnrichedProduct.java`
+- **Patterns:** Enriched Read Model, Value Object
+- **Constraints:**
+  - Both must be immutable (use records)
+  - No Spring annotations in domain layer
+  - EnrichedProduct combines snapshot (from aggregate) + current (from external sources)
+
+---
+
+### US-119: EnrichedProductBuilder
+**Epic:** interest-interface-pattern
+**Depends on:** US-118
+
+**Description:** Create EnrichedProductBuilder that implements ProductStateInterest to build enriched product read models. The builder combines state from the aggregate with current pricing/stock data from external services.
+
+**Acceptance Criteria:**
+- Create product/domain/readmodel/ package
+- EnrichedProductStateInterest extends ProductStateInterest with receiveArticleData(ProductArticle)
+- EnrichedProductBuilder class in product/domain/readmodel/
+- Builder implements EnrichedProductStateInterest
+- Builder implements ReadModelBuilder marker
+- All receive*() methods store state internally
+- build() method returns immutable EnrichedProduct
+- reset() method for builder reuse
+- Architecture tests pass: ./gradlew test-architecture
+
+**Architectural Guidance:**
+- **Affected Layers:** domain
+- **Locations:**
+  - `product/domain/readmodel/EnrichedProductStateInterest.java`
+  - `product/domain/readmodel/EnrichedProductBuilder.java`
+- **Patterns:** Interest Interface Pattern, Builder Pattern, Enriched Read Model
+- **Constraints:**
+  - Builder is in domain layer (not application)
+  - EnrichedProduct must be immutable
+  - No Spring annotations in domain layer
+
+---
+
+### US-120: Refactor Product Use Cases
+**Epic:** interest-interface-pattern
+**Depends on:** US-119
+
+**Description:** Refactor product use cases (GetProductByIdUseCase, GetAllProductsUseCase) to use the builder pattern with ProductStateInterest instead of directly accessing aggregate getters.
+
+**Acceptance Criteria:**
+- GetProductByIdUseCase uses EnrichedProductBuilder
+- GetAllProductsUseCase uses EnrichedProductBuilder
+- Aggregate provideStateTo() is called with builder
+- External article data (pricing, stock) pushed via receiveArticleData()
+- GetProductByIdResult wraps EnrichedProduct (not ProductSummary)
+- GetAllProductsResult wraps List<EnrichedProduct>
+- No direct getter calls on Product (except getId())
+- Existing tests continue to pass
+- Architecture tests pass: ./gradlew test-architecture
+
+**Architectural Guidance:**
+- **Affected Layers:** application
+- **Locations:**
+  - `product/application/getproductbyid/GetProductByIdUseCase.java`
+  - `product/application/getproductbyid/GetProductByIdResult.java`
+  - `product/application/getallproducts/GetAllProductsUseCase.java`
+  - `product/application/getallproducts/GetAllProductsResult.java`
+- **Patterns:** Interest Interface Pattern, Use Case Pattern, Enriched Read Model
+- **Constraints:**
+  - Use case orchestrates: load aggregate, provide state to builder, enrich, return result
+  - No direct aggregate state access except ID
+
+---
+
+### US-121: Update Product Context ViewModels
+**Epic:** interest-interface-pattern
+**Depends on:** US-120
+
+**Description:** Update product context ViewModels (ProductCatalogPageViewModel, ProductDetailPageViewModel) to work with EnrichedProduct domain read model instead of Result objects.
+
+**Acceptance Criteria:**
+- ProductCatalogPageViewModel.ProductItemViewModel.fromEnrichedProduct() factory method
+- ProductDetailPageViewModel.fromResult() updated to use EnrichedProduct
+- ProductDtoConverter.toDto(EnrichedProduct) for REST API
+- ProductCatalogService (Open Host Service) updated to use EnrichedProduct
+- All web templates continue to work with updated ViewModels
+- REST API responses unchanged (backward compatible)
+- Architecture tests pass: ./gradlew test-architecture
+
+**Architectural Guidance:**
+- **Affected Layers:** adapter
+- **Locations:**
+  - `product/adapter/incoming/web/ProductCatalogPageViewModel.java`
+  - `product/adapter/incoming/web/ProductDetailPageViewModel.java`
+  - `product/adapter/incoming/api/ProductDtoConverter.java`
+  - `product/adapter/incoming/openhost/ProductCatalogService.java`
+- **Patterns:** ViewModel Pattern, DTO Converter, Open Host Service
+- **Constraints:**
+  - ViewModels use primitives only
+  - DTOs must remain backward compatible for API consumers
+  - Controllers map Result -> ViewModel in adapter layer
+
+---
+
+### US-122: Update Cart Context ViewModels
+**Epic:** interest-interface-pattern
+**Depends on:** US-114
+
+**Description:** Update cart context ViewModels (CartPageViewModel) to work with EnrichedCart domain read model. ViewModels convert enriched read models to primitives for templates.
+
+**Acceptance Criteria:**
+- CartPageViewModel in cart/adapter/incoming/web/
+- CartPageViewModel.fromEnrichedCart() factory method
+- CartLineItemViewModel with primitives only (no domain types)
+- ShoppingCartDtoConverter.toDto(EnrichedCart) for REST API
+- CartPageController uses CartPageViewModel
+- All web templates continue to work with updated ViewModels
+- REST API responses unchanged (backward compatible)
+- Architecture tests pass: ./gradlew test-architecture
+
+**Architectural Guidance:**
+- **Affected Layers:** adapter
+- **Locations:**
+  - `cart/adapter/incoming/web/CartPageViewModel.java`
+  - `cart/adapter/incoming/web/CartPageController.java`
+  - `cart/adapter/incoming/api/ShoppingCartDtoConverter.java`
+- **Patterns:** ViewModel Pattern, DTO Converter
+- **Constraints:**
+  - ViewModels use primitives only (String, BigDecimal, int, boolean)
+  - DTOs must remain backward compatible for API consumers
+  - Controllers map Result -> ViewModel in adapter layer
+  - No domain types in ViewModels
+
+---
+
+### US-123: Update Checkout Context ViewModels
+**Epic:** interest-interface-pattern
+**Depends on:** US-110
+
+**Description:** Update checkout context ViewModels to work with CheckoutCart domain read model. ViewModels convert enriched read models to primitives for checkout flow templates.
+
+**Acceptance Criteria:**
+- CheckoutPageViewModel in checkout/adapter/incoming/web/
+- CheckoutPageViewModel.fromCheckoutCart() factory method
+- CheckoutLineItemViewModel with primitives only
+- Step-specific ViewModels (BuyerInfoViewModel, DeliveryViewModel, etc.) if needed
+- CheckoutPageController uses CheckoutPageViewModel
+- All checkout flow templates continue to work
+- Architecture tests pass: ./gradlew test-architecture
+
+**Architectural Guidance:**
+- **Affected Layers:** adapter
+- **Locations:**
+  - `checkout/adapter/incoming/web/CheckoutPageViewModel.java`
+  - `checkout/adapter/incoming/web/CheckoutPageController.java`
+- **Patterns:** ViewModel Pattern, Page-Specific ViewModel
+- **Constraints:**
+  - ViewModels use primitives only
+  - Each checkout step may have its own ViewModel
+  - Controllers map Result -> ViewModel in adapter layer
+
+---

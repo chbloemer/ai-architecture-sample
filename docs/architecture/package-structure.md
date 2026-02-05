@@ -37,7 +37,12 @@ de.sample.aiarchitecture
 │   │   │   ├── SKU, ProductName, ProductDescription
 │   │   │   ├── ProductStock, Category (Value Objects)
 │   │   │   ├── ProductFactory
+│   │   │   ├── ProductStateInterest (Interest Interface)
+│   │   │   ├── ProductArticle, EnrichedProduct (Read Models)
 │   │   │   └── ProductAvailabilitySpecification
+│   │   ├── readmodel              # Read Model Builders
+│   │   │   ├── EnrichedProductStateInterest
+│   │   │   └── EnrichedProductBuilder
 │   │   ├── service                # Domain Services
 │   │   │   └── PricingService
 │   │   └── event                  # Domain Events
@@ -48,39 +53,41 @@ de.sample.aiarchitecture
 │   │   │   ├── CreateProductInputPort (interface)
 │   │   │   ├── CreateProductUseCase (implementation)
 │   │   │   ├── CreateProductCommand
-│   │   │   └── CreateProductResponse
+│   │   │   └── CreateProductResult
 │   │   ├── getallproducts/        # Use case: Get All Products
 │   │   │   ├── GetAllProductsInputPort
 │   │   │   ├── GetAllProductsUseCase
 │   │   │   ├── GetAllProductsQuery
-│   │   │   └── GetAllProductsResponse
+│   │   │   └── GetAllProductsResult (wraps EnrichedProduct list)
 │   │   ├── getproductbyid/        # Use case: Get Product By ID
 │   │   │   ├── GetProductByIdInputPort
 │   │   │   ├── GetProductByIdUseCase
 │   │   │   ├── GetProductByIdQuery
-│   │   │   └── GetProductByIdResponse
+│   │   │   └── GetProductByIdResult (wraps EnrichedProduct)
 │   │   ├── reduceproductstock/    # Use case: Reduce Product Stock
 │   │   │   ├── ReduceProductStockInputPort
 │   │   │   ├── ReduceProductStockUseCase
 │   │   │   ├── ReduceProductStockCommand
-│   │   │   └── ReduceProductStockResponse
+│   │   │   └── ReduceProductStockResult
 │   │   ├── updateproductprice/    # Use case: Update Product Price
 │   │   │   ├── UpdateProductPriceInputPort
 │   │   │   ├── UpdateProductPriceUseCase
 │   │   │   ├── UpdateProductPriceCommand
-│   │   │   └── UpdateProductPriceResponse
+│   │   │   └── UpdateProductPriceResult
 │   │   └── shared/                # Shared output ports
 │   │       └── ProductRepository (interface)
 │   └── adapter                    # Adapters
 │       ├── incoming               # Incoming Adapters (Primary)
 │       │   ├── api/
 │       │   │   ├── ProductResource
-│       │   │   ├── ProductDto
+│       │   │   ├── ProductDto, ProductDtoConverter
 │       │   │   └── CreateProductRequest
 │       │   ├── mcp/
 │       │   │   └── ProductCatalogMcpTools
 │       │   ├── web/
-│       │   │   └── ProductPageController
+│       │   │   ├── ProductPageController
+│       │   │   ├── ProductCatalogPageViewModel
+│       │   │   └── ProductDetailPageViewModel
 │       │   └── event/
 │       │       └── ProductEventListener
 │       └── outgoing               # Outgoing Adapters (Secondary)
@@ -173,22 +180,26 @@ de.sample.aiarchitecture
 
 ## Bounded Context Organization
 
-Each bounded context (product, cart) follows the same internal structure:
+Each bounded context (product, cart, checkout) follows the same internal structure:
 
 ```
 {context}/
 ├── domain/             # Domain layer (innermost)
-│   ├── model/          # Aggregates, entities, value objects
+│   ├── model/          # Aggregates, entities, value objects, Interest interfaces
+│   ├── readmodel/      # Domain read models (snapshots) and builders
 │   ├── service/        # Domain services
 │   └── event/          # Domain events
 ├── application/        # Application layer
-│   ├── port/           # Ports (interfaces)
-│   │   └── out/        # Output ports (repositories, external services)
-│   └── usecase/        # Use cases (input ports)
+│   ├── {usecasename}/  # Use case package (e.g., getcartbyid)
+│   │   ├── *InputPort.java    # Input port interface
+│   │   ├── *UseCase.java      # Use case implementation
+│   │   ├── *Query.java/*Command.java  # Input model
+│   │   └── *Result.java       # Output model (wraps domain read model)
+│   └── shared/         # Shared output ports (repositories, external services)
 └── adapter/            # Adapter layer (outermost)
     ├── incoming/       # Incoming adapters (primary/driving)
-    │   ├── api/        # REST API
-    │   ├── web/        # Web MVC
+    │   ├── api/        # REST API (DTOs, Resources)
+    │   ├── web/        # Web MVC (Controllers, ViewModels)
     │   ├── mcp/        # MCP server
     │   └── event/      # Domain event listeners
     └── outgoing/       # Outgoing adapters (secondary/driven)
@@ -200,12 +211,39 @@ Each bounded context (product, cart) follows the same internal structure:
 | Aspect | API (`adapter.incoming.api`) | Web (`adapter.incoming.web`) | MCP (`adapter.incoming.mcp`) | Event (`adapter.incoming.event`) |
 |--------|-------------|--------------|--------------|--------------|
 | **Annotation** | `@RestController` | `@Controller` | `@Component` | `@Component` |
-| **Naming** | `*Resource` | `*Controller` | `*McpTools` | `*EventListener` |
+| **Naming** | `*Resource` | `*PageController` | `*McpTools` | `*EventListener` |
 | **Returns** | JSON/XML (DTOs) | HTML (templates) | DTOs (JSON-RPC) | void |
 | **URL** | `/api/*` | `/*` | `/mcp` | N/A |
 | **Content-Type** | `application/json` | `text/html` | `application/json` | N/A |
 | **Consumers** | Apps, systems | Browsers (humans) | AI assistants | Domain events |
-| **Data Model** | DTOs | Domain or ViewModels | DTOs | Domain events |
+| **Data Model** | DTOs | Page-specific ViewModels | DTOs | Domain events |
+
+### Web Adapter Structure (ViewModels)
+
+MVC Controllers use page-specific ViewModels to pass data to templates:
+
+```
+{context}/adapter/incoming/web/
+├── CartPageController.java           # Controller for cart view page
+├── CartPageViewModel.java            # ViewModel with only primitives
+├── CartMergePageController.java      # Controller for cart merge page
+└── CartMergePageViewModel.java       # Different page, different ViewModel
+```
+
+**ViewModel Pattern:**
+- Each page has its own ViewModel tailored to that page's data needs
+- ViewModels use only primitives (`String`, `BigDecimal`, `int`, `boolean`)
+- Factory method converts domain read model → ViewModel
+- Template attribute name matches the ViewModel purpose
+
+**Example:**
+```java
+// Controller converts Result → ViewModel
+CartPageViewModel viewModel = CartPageViewModel.fromEnrichedCart(result.cart());
+model.addAttribute("shoppingCart", viewModel);  // Attribute name = "shoppingCart"
+```
+
+See [DTO vs ViewModel Analysis](dto-vs-viewmodel-analysis.md) for detailed patterns.
 
 ## ArchUnit Enforcement
 

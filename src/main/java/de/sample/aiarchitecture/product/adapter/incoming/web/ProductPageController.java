@@ -22,6 +22,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
  * <p><b>Clean Architecture:</b> This controller depends on use case interfaces (input ports)
  * instead of application services, following the Dependency Inversion Principle.
  *
+ * <p><b>ViewModel Pattern:</b> Use Case → Result → Controller → ViewModel → Template
+ * <ul>
+ *   <li>Use cases return domain read models wrapped in Result objects</li>
+ *   <li>Controller converts Results to page-specific ViewModels</li>
+ *   <li>ViewModels use primitives only (String, BigDecimal, int, boolean)</li>
+ * </ul>
+ *
  * <p><b>Naming Convention:</b> MVC controllers use {@code @Controller} annotation and
  * end with "Controller" suffix. REST controllers use {@code @RestController} and end
  * with "Resource" suffix.
@@ -47,19 +54,20 @@ public class ProductPageController {
    * Displays the product catalog page.
    *
    * <p>Returns a list of all products rendered using the Pug template.
+   * The use case result is converted to a page-specific ViewModel.
    *
    * @param model Spring MVC model to pass data to the view
    * @return view name "product/catalog" which resolves to templates/product/catalog.pug
    */
   @GetMapping
   public String showProductCatalog(final Model model) {
-    final GetAllProductsResult output = getAllProductsUseCase.execute(new GetAllProductsQuery());
+    final GetAllProductsResult result = getAllProductsUseCase.execute(new GetAllProductsQuery());
 
-    final List<GetAllProductsResult.ProductSummary> products = output.products();
+    // Convert Result → page-specific ViewModel
+    final ProductCatalogPageViewModel viewModel = ProductCatalogPageViewModel.fromResult(result);
 
-    model.addAttribute("products", products);
-    model.addAttribute("title", "Product Catalog");
-    model.addAttribute("totalProducts", products.size());
+    model.addAttribute("productCatalog", viewModel);
+    model.addAttribute("title", viewModel.pageTitle());
 
     return "product/catalog";
   }
@@ -68,7 +76,8 @@ public class ProductPageController {
    * Displays a single product detail page.
    *
    * <p>Shows detailed information about a specific product including availability
-   * information from the Inventory context.
+   * information from the Inventory context. The use case result is converted to
+   * a page-specific ViewModel.
    *
    * @param id the product ID
    * @param model Spring MVC model to pass data to the view
@@ -76,15 +85,17 @@ public class ProductPageController {
    */
   @GetMapping("/{id}")
   public String showProductDetail(@PathVariable final String id, final Model model) {
-    final GetProductByIdResult output = getProductByIdUseCase.execute(new GetProductByIdQuery(id));
+    final GetProductByIdResult result = getProductByIdUseCase.execute(new GetProductByIdQuery(id));
 
-    if (!output.found()) {
+    if (!result.found()) {
       return "error/404";
     }
 
-    model.addAttribute("product", output);
-    model.addAttribute("title", output.name());
-    model.addAttribute("isAvailable", output.isAvailable());
+    // Convert Result → page-specific ViewModel
+    final ProductDetailPageViewModel viewModel = ProductDetailPageViewModel.fromResult(result);
+
+    model.addAttribute("productDetail", viewModel);
+    model.addAttribute("title", viewModel.pageTitle());
 
     return "product/detail";
   }

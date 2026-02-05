@@ -25,30 +25,40 @@ Comprehensive architectural documentation for the AI Architecture Sample Project
 
 **Package Structure:**
 
-Each bounded context (product, cart, portal) follows the same structure:
+Each bounded context (product, cart, checkout) follows the same structure:
 ```
 {context}/
 ├── domain/             # Domain layer (innermost)
-│   ├── model/          # Aggregates, entities, value objects
+│   ├── model/          # Aggregates, entities, value objects, Interest interfaces
+│   ├── readmodel/      # Domain read models (snapshots) and builders
 │   ├── service/        # Domain services
 │   └── event/          # Domain events
 ├── application/        # Application layer
 │   ├── {usecasename}/  # Use case package (e.g., createproduct)
 │   │   ├── *InputPort.java   # Input port interface
 │   │   ├── *UseCase.java     # Use case implementation
-│   │   ├── *Command.java     # Input model
-│   │   └── *Response.java    # Output model
+│   │   ├── *Command.java/*Query.java  # Input model
+│   │   └── *Result.java      # Output model (wraps domain read model)
 │   └── shared/         # Shared output ports
 │       └── *Repository.java  # Repository interfaces
 └── adapter/            # Adapter layer (outermost)
     ├── incoming/       # Incoming adapters (primary/driving)
-    │   ├── api/        # REST API
-    │   ├── web/        # Web MVC
+    │   ├── api/        # REST API (DTOs, *Resource)
+    │   ├── web/        # Web MVC (*Controller, *ViewModel)
     │   ├── mcp/        # MCP server
     │   └── event/      # Domain event listeners
     └── outgoing/       # Outgoing adapters (secondary/driven)
         └── persistence/ # Repository implementations
 ```
+
+**Data Flow for Web MVC:**
+```
+Use Case → Result(Snapshot) → Controller → ViewModel → Template
+```
+- Use cases return domain read models wrapped in Result objects
+- Controllers convert snapshots to page-specific ViewModels
+- ViewModels use primitives only (String, BigDecimal, int) - no domain objects
+- See [dto-vs-viewmodel-analysis.md](dto-vs-viewmodel-analysis.md) for details
 
 **Shared Kernel:** Cross-context value objects and DDD marker interfaces in `sharedkernel/`
 

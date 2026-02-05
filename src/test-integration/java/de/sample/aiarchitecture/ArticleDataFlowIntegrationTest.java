@@ -11,6 +11,8 @@ import de.sample.aiarchitecture.cart.application.getorcreateactivecart.GetOrCrea
 import de.sample.aiarchitecture.cart.application.getorcreateactivecart.GetOrCreateActiveCartUseCase;
 import de.sample.aiarchitecture.cart.application.shared.ArticleDataPort;
 import de.sample.aiarchitecture.cart.domain.model.CartArticle;
+import de.sample.aiarchitecture.cart.domain.model.EnrichedCart;
+import de.sample.aiarchitecture.cart.domain.model.EnrichedCartItem;
 import de.sample.aiarchitecture.checkout.application.confirmcheckout.ConfirmCheckoutCommand;
 import de.sample.aiarchitecture.checkout.application.confirmcheckout.ConfirmCheckoutInputPort;
 import de.sample.aiarchitecture.checkout.application.confirmcheckout.ConfirmCheckoutResult;
@@ -340,13 +342,14 @@ class ArticleDataFlowIntegrationTest {
 
             // Then: Cart items should have current pricing from ArticleDataPort
             assertTrue(result.found(), "Cart should be found");
-            assertFalse(result.items().isEmpty(), "Cart should have items");
+            EnrichedCart cart = result.cart();
+            assertFalse(cart.items().isEmpty(), "Cart should have items");
 
-            GetCartByIdResult.CartItemSummary item = result.items().get(0);
+            EnrichedCartItem item = cart.items().get(0);
 
             // Verify current price is fetched from pricing service
-            assertNotNull(item.currentPriceAmount(), "Current price should be set");
-            assertNotNull(item.currentPriceCurrency(), "Current price currency should be set");
+            assertNotNull(item.currentArticle().currentPrice(), "Current price should be set");
+            assertNotNull(item.currentArticle().currentPrice().currency(), "Current price currency should be set");
         }
 
         @Test
@@ -364,12 +367,12 @@ class ArticleDataFlowIntegrationTest {
             GetCartByIdResult result = getCartByIdUseCase.execute(new GetCartByIdQuery(cartId));
 
             // Then: Item should have both price at addition and current price
-            GetCartByIdResult.CartItemSummary item = result.items().get(0);
+            EnrichedCartItem item = result.cart().items().get(0);
 
-            assertNotNull(item.unitPriceAmount(), "Price at addition should be set");
-            assertNotNull(item.unitPriceCurrency(), "Price at addition currency should be set");
-            assertNotNull(item.currentPriceAmount(), "Current price should be set");
-            assertNotNull(item.currentPriceCurrency(), "Current price currency should be set");
+            assertNotNull(item.priceAtAddition(), "Price at addition should be set");
+            assertNotNull(item.priceAtAddition().value().currency(), "Price at addition currency should be set");
+            assertNotNull(item.currentArticle().currentPrice(), "Current price should be set");
+            assertNotNull(item.currentArticle().currentPrice().currency(), "Current price currency should be set");
         }
     }
 
@@ -392,12 +395,12 @@ class ArticleDataFlowIntegrationTest {
             GetCartByIdResult result = getCartByIdUseCase.execute(new GetCartByIdQuery(cartId));
 
             // Then: Price should not be marked as changed
-            GetCartByIdResult.CartItemSummary item = result.items().get(0);
-            assertFalse(item.priceChanged(),
+            EnrichedCartItem item = result.cart().items().get(0);
+            assertFalse(item.hasPriceChanged(),
                 "Price should not be marked as changed when current equals original");
 
             // Verify prices are equal
-            assertEquals(0, item.unitPriceAmount().compareTo(item.currentPriceAmount()),
+            assertEquals(0, item.priceAtAddition().value().amount().compareTo(item.currentArticle().currentPrice().amount()),
                 "Prices should be equal");
         }
 
@@ -414,8 +417,8 @@ class ArticleDataFlowIntegrationTest {
 
             // Get initial cart state
             GetCartByIdResult initialResult = getCartByIdUseCase.execute(new GetCartByIdQuery(cartId));
-            GetCartByIdResult.CartItemSummary initialItem = initialResult.items().get(0);
-            BigDecimal originalPrice = initialItem.unitPriceAmount();
+            EnrichedCartItem initialItem = initialResult.cart().items().get(0);
+            BigDecimal originalPrice = initialItem.priceAtAddition().value().amount();
 
             // When: Price changes (update to a different price)
             BigDecimal newPrice = originalPrice.add(BigDecimal.valueOf(10.00));
@@ -427,13 +430,13 @@ class ArticleDataFlowIntegrationTest {
 
             // Then: Getting cart should show price changed
             GetCartByIdResult updatedResult = getCartByIdUseCase.execute(new GetCartByIdQuery(cartId));
-            GetCartByIdResult.CartItemSummary updatedItem = updatedResult.items().get(0);
+            EnrichedCartItem updatedItem = updatedResult.cart().items().get(0);
 
-            assertTrue(updatedItem.priceChanged(),
+            assertTrue(updatedItem.hasPriceChanged(),
                 "Price should be marked as changed after price update");
-            assertEquals(0, originalPrice.compareTo(updatedItem.unitPriceAmount()),
+            assertEquals(0, originalPrice.compareTo(updatedItem.priceAtAddition().value().amount()),
                 "Price at addition should remain the original price");
-            assertEquals(0, newPrice.compareTo(updatedItem.currentPriceAmount()),
+            assertEquals(0, newPrice.compareTo(updatedItem.currentArticle().currentPrice().amount()),
                 "Current price should be the new price");
         }
 
@@ -458,15 +461,15 @@ class ArticleDataFlowIntegrationTest {
 
             // Get initial prices
             GetCartByIdResult initialResult = getCartByIdUseCase.execute(new GetCartByIdQuery(cartId));
-            assertEquals(2, initialResult.items().size(), "Cart should have 2 items");
+            assertEquals(2, initialResult.cart().items().size(), "Cart should have 2 items");
 
             // Change price for only first product
-            GetCartByIdResult.CartItemSummary item1Initial = initialResult.items().stream()
-                .filter(i -> i.productId().equals(product1Id.value().toString()))
+            EnrichedCartItem item1Initial = initialResult.cart().items().stream()
+                .filter(i -> i.productId().equals(product1Id))
                 .findFirst()
                 .orElseThrow();
 
-            BigDecimal newPrice = item1Initial.unitPriceAmount().add(BigDecimal.valueOf(5.00));
+            BigDecimal newPrice = item1Initial.priceAtAddition().value().amount().add(BigDecimal.valueOf(5.00));
             setProductPriceInputPort.execute(new SetProductPriceCommand(
                 product1Id.value().toString(),
                 newPrice,
@@ -477,18 +480,18 @@ class ArticleDataFlowIntegrationTest {
             GetCartByIdResult result = getCartByIdUseCase.execute(new GetCartByIdQuery(cartId));
 
             // Then: Only first product should show price change
-            GetCartByIdResult.CartItemSummary item1 = result.items().stream()
-                .filter(i -> i.productId().equals(product1Id.value().toString()))
+            EnrichedCartItem item1 = result.cart().items().stream()
+                .filter(i -> i.productId().equals(product1Id))
                 .findFirst()
                 .orElseThrow();
 
-            GetCartByIdResult.CartItemSummary item2 = result.items().stream()
-                .filter(i -> i.productId().equals(product2Id.value().toString()))
+            EnrichedCartItem item2 = result.cart().items().stream()
+                .filter(i -> i.productId().equals(product2Id))
                 .findFirst()
                 .orElseThrow();
 
-            assertTrue(item1.priceChanged(), "First product should show price changed");
-            assertFalse(item2.priceChanged(), "Second product should not show price changed");
+            assertTrue(item1.hasPriceChanged(), "First product should show price changed");
+            assertFalse(item2.hasPriceChanged(), "Second product should not show price changed");
         }
     }
 
@@ -510,7 +513,7 @@ class ArticleDataFlowIntegrationTest {
             // Step 1: Verify cart enrichment
             GetCartByIdResult cartResult = getCartByIdUseCase.execute(new GetCartByIdQuery(cartId));
             assertTrue(cartResult.found());
-            assertNotNull(cartResult.items().get(0).currentPriceAmount(),
+            assertNotNull(cartResult.cart().items().get(0).currentArticle().currentPrice(),
                 "Cart should have fresh pricing from ArticleDataPort");
 
             // Step 2: Start checkout (uses CheckoutArticleDataPort for pricing)

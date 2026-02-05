@@ -13,40 +13,40 @@ block content
     .cart-box.anonymous-cart(data-test="anonymous-cart-summary")
       h3 Current Session Cart
       .cart-stats
-        p Items: #{anonymousCart.itemCount()}
-        p Total Quantity: #{anonymousCart.totalQuantity()}
-        p.total Total: #{anonymousCart.totalAmount()} #{anonymousCart.totalCurrency()}
+        p Items: #{cartMerge.anonymousCart().itemCount()}
+        p Total Quantity: #{cartMerge.anonymousCart().totalQuantity()}
+        p.total Total: #{cartMerge.anonymousCart().totalAmount()} #{cartMerge.anonymousCart().currencyCode()}
 
-      if anonymousCart.items() && anonymousCart.items().size() > 0
+      if cartMerge.anonymousCart().items() && cartMerge.anonymousCart().items().size() > 0
         .cart-items-list
-          each item in anonymousCart.items()
+          each item in cartMerge.anonymousCart().items()
             .item-row
               span.product Product: #{item.productId()}
               span.qty Qty: #{item.quantity()}
-              span.price #{item.unitPriceAmount()} #{item.unitPriceCurrency()}
+              span.price #{item.unitPrice()} #{item.currencyCode()}
 
     .cart-box.account-cart(data-test="account-cart-summary")
       h3 Account Cart
       .cart-stats
-        p Items: #{accountCart.itemCount()}
-        p Total Quantity: #{accountCart.totalQuantity()}
-        p.total Total: #{accountCart.totalAmount()} #{accountCart.totalCurrency()}
+        p Items: #{cartMerge.accountCart().itemCount()}
+        p Total Quantity: #{cartMerge.accountCart().totalQuantity()}
+        p.total Total: #{cartMerge.accountCart().totalAmount()} #{cartMerge.accountCart().currencyCode()}
 
-      if accountCart.items() && accountCart.items().size() > 0
+      if cartMerge.accountCart().items() && cartMerge.accountCart().items().size() > 0
         .cart-items-list
-          each item in accountCart.items()
+          each item in cartMerge.accountCart().items()
             .item-row
               span.product Product: #{item.productId()}
               span.qty Qty: #{item.quantity()}
-              span.price #{item.unitPriceAmount()} #{item.unitPriceCurrency()}
+              span.price #{item.unitPrice()} #{item.currencyCode()}
 
   .merge-options
     h3 Choose an Option
 
     form(method="POST" action="/cart/merge" data-test="merge-form")
-      input(type="hidden" name="anonymousUserId" value=anonymousUserId)
-      if returnUrl
-        input(type="hidden" name="returnUrl" value=returnUrl)
+      input(type="hidden" name="anonymousUserId" value=cartMerge.anonymousUserId())
+      if cartMerge.returnUrl()
+        input(type="hidden" name="returnUrl" value=cartMerge.returnUrl())
       .option-cards
         .option-card(data-test="merge-option-merge-both")
           input#merge-both(type="radio" name="strategy" value="MERGE_BOTH" checked)

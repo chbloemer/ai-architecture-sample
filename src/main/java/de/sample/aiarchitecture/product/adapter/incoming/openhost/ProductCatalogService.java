@@ -72,14 +72,15 @@ public class ProductCatalogService {
         GetProductByIdResult response = getProductByIdInputPort.execute(
             new GetProductByIdQuery(productId.value()));
 
-        if (!response.found()) {
+        if (!response.found() || response.product() == null) {
             return Optional.empty();
         }
 
+        var product = response.product();
         return Optional.of(new ProductInfo(
-            productId,
-            response.name(),
-            response.sku()
+            product.productId(),
+            product.name(),
+            product.sku()
         ));
     }
 
@@ -92,10 +93,10 @@ public class ProductCatalogService {
         var result = getAllProductsInputPort.execute(new GetAllProductsQuery());
 
         return result.products().stream()
-            .map(summary -> new ProductInfo(
-                ProductId.of(summary.productId()),
-                summary.name(),
-                summary.sku()
+            .map(product -> new ProductInfo(
+                product.productId(),
+                product.name(),
+                product.sku()
             ))
             .toList();
     }

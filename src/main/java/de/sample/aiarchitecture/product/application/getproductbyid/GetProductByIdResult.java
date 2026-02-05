@@ -1,63 +1,47 @@
 package de.sample.aiarchitecture.product.application.getproductbyid;
 
-import java.math.BigDecimal;
+import de.sample.aiarchitecture.product.domain.model.EnrichedProduct;
 import org.jspecify.annotations.Nullable;
 
 /**
  * Output model for product retrieval by ID.
  *
- * <p>All fields are nullable to represent the case where product is not found.
- * Check {@link #found()} to determine if the product exists.
+ * <p>This result wraps an {@link EnrichedProduct} domain read model that combines
+ * product state from the Product aggregate with external data from the Pricing and
+ * Inventory bounded contexts.
  *
- * <p>Stock information is fetched from the Inventory bounded context via the
- * ProductStockDataPort output port.
+ * <p>Check {@link #found()} to determine if the product exists before accessing
+ * the enriched product.
+ *
+ * <p><b>Pattern:</b> Use Case → Result(EnrichedProduct) → Controller → ViewModel → Template
  *
  * @param found whether the product was found
- * @param productId the product ID (null if not found)
- * @param sku the product SKU (null if not found)
- * @param name the product name (null if not found)
- * @param description the product description (null if not found)
- * @param priceAmount the price amount (null if not found)
- * @param priceCurrency the price currency (null if not found)
- * @param category the product category (null if not found)
- * @param stockQuantity the available stock quantity (null if not found)
- * @param isAvailable whether the product is available for purchase (null if not found)
+ * @param product the enriched product (null if not found)
  */
 public record GetProductByIdResult(
     boolean found,
-    @Nullable String productId,
-    @Nullable String sku,
-    @Nullable String name,
-    @Nullable String description,
-    @Nullable BigDecimal priceAmount,
-    @Nullable String priceCurrency,
-    @Nullable String category,
-    @Nullable Integer stockQuantity,
-    @Nullable Boolean isAvailable
+    @Nullable EnrichedProduct product
 ) {
 
   /**
-   * Creates an output for a product that was not found.
+   * Creates a result for a product that was not found.
+   *
+   * @return a result indicating the product was not found
    */
   public static GetProductByIdResult notFound() {
-    return new GetProductByIdResult(false, null, null, null, null, null, null, null, null, null);
+    return new GetProductByIdResult(false, null);
   }
 
   /**
-   * Creates an output for a product that was found.
+   * Creates a result for a product that was found.
+   *
+   * @param product the enriched product
+   * @return a result containing the enriched product
    */
-  public static GetProductByIdResult found(
-      String productId,
-      String sku,
-      String name,
-      String description,
-      BigDecimal priceAmount,
-      String priceCurrency,
-      String category,
-      Integer stockQuantity,
-      Boolean isAvailable) {
-    return new GetProductByIdResult(
-        true, productId, sku, name, description, priceAmount, priceCurrency, category,
-        stockQuantity, isAvailable);
+  public static GetProductByIdResult found(final EnrichedProduct product) {
+    if (product == null) {
+      throw new IllegalArgumentException("Product cannot be null when found");
+    }
+    return new GetProductByIdResult(true, product);
   }
 }

@@ -80,13 +80,13 @@ public class ShoppingCartResource {
 
   @GetMapping("/{cartId}")
   public ResponseEntity<ShoppingCartDto> getCart(@PathVariable final String cartId) {
-    final GetCartByIdResult output = getCartByIdUseCase.execute(new GetCartByIdQuery(cartId));
+    final GetCartByIdResult result = getCartByIdUseCase.execute(new GetCartByIdQuery(cartId));
 
-    if (!output.found()) {
+    if (!result.found()) {
       return ResponseEntity.notFound().build();
     }
 
-    return ResponseEntity.ok(converter.toDto(output));
+    return ResponseEntity.ok(converter.toDto(result.cart()));
   }
 
   @GetMapping("/customer/{customerId}/active")
@@ -98,9 +98,9 @@ public class ShoppingCartResource {
     final var response = getOrCreateActiveCartUseCase
         .execute(new de.sample.aiarchitecture.cart.application.getorcreateactivecart.GetOrCreateActiveCartCommand(customerId));
 
-    // Fetch full cart projection suited for the existing DTO conversion
-    final GetCartByIdResult byId = getCartByIdUseCase.execute(new GetCartByIdQuery(response.cartId()));
-    return ResponseEntity.ok(converter.toDto(byId));
+    // Fetch full cart with enriched data
+    final GetCartByIdResult result = getCartByIdUseCase.execute(new GetCartByIdQuery(response.cartId()));
+    return ResponseEntity.ok(converter.toDto(result.cart()));
   }
 
   @PostMapping("/{cartId}/items")

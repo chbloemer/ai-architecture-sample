@@ -3,7 +3,9 @@ package de.sample.aiarchitecture.checkout.domain.readmodel;
 import de.sample.aiarchitecture.checkout.domain.model.BuyerInfo;
 import de.sample.aiarchitecture.checkout.domain.model.CartId;
 import de.sample.aiarchitecture.checkout.domain.model.CheckoutSessionId;
+import de.sample.aiarchitecture.checkout.domain.model.CheckoutSessionStatus;
 import de.sample.aiarchitecture.checkout.domain.model.CheckoutStep;
+import de.sample.aiarchitecture.checkout.domain.model.CheckoutTotals;
 import de.sample.aiarchitecture.checkout.domain.model.CustomerId;
 import de.sample.aiarchitecture.checkout.domain.model.DeliveryAddress;
 import de.sample.aiarchitecture.checkout.domain.model.PaymentSelection;
@@ -33,12 +35,15 @@ public record CheckoutCartSnapshot(
     CartId cartId,
     CustomerId customerId,
     CheckoutStep step,
+    CheckoutSessionStatus status,
     List<LineItemSnapshot> lineItems,
     Money subtotal,
+    @Nullable CheckoutTotals totals,
     @Nullable BuyerInfo buyerInfo,
     @Nullable DeliveryAddress deliveryAddress,
     @Nullable ShippingOption shippingOption,
-    @Nullable PaymentSelection paymentSelection)
+    @Nullable PaymentSelection paymentSelection,
+    @Nullable String orderReference)
     implements Value {
 
   public CheckoutCartSnapshot {
@@ -53,6 +58,9 @@ public record CheckoutCartSnapshot(
     }
     if (step == null) {
       throw new IllegalArgumentException("Step cannot be null");
+    }
+    if (status == null) {
+      throw new IllegalArgumentException("Status cannot be null");
     }
     if (lineItems == null) {
       throw new IllegalArgumentException("Line items cannot be null");
@@ -118,5 +126,50 @@ public record CheckoutCartSnapshot(
    */
   public boolean hasPaymentSelection() {
     return paymentSelection != null;
+  }
+
+  /**
+   * Checks if the checkout has totals calculated.
+   *
+   * @return true if totals are present
+   */
+  public boolean hasTotals() {
+    return totals != null;
+  }
+
+  /**
+   * Checks if the checkout has an order reference.
+   *
+   * @return true if order reference is present
+   */
+  public boolean hasOrderReference() {
+    return orderReference != null;
+  }
+
+  /**
+   * Checks if the session is active.
+   *
+   * @return true if status is ACTIVE
+   */
+  public boolean isActive() {
+    return status == CheckoutSessionStatus.ACTIVE;
+  }
+
+  /**
+   * Checks if the session is completed.
+   *
+   * @return true if status is COMPLETED
+   */
+  public boolean isCompleted() {
+    return status == CheckoutSessionStatus.COMPLETED;
+  }
+
+  /**
+   * Checks if the session is confirmed.
+   *
+   * @return true if status is CONFIRMED
+   */
+  public boolean isConfirmed() {
+    return status == CheckoutSessionStatus.CONFIRMED;
   }
 }

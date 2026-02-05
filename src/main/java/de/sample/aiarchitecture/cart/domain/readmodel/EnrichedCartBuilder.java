@@ -33,10 +33,10 @@ import org.jspecify.annotations.Nullable;
  * <p><b>Usage:</b>
  * <pre>{@code
  * EnrichedCartBuilder builder = new EnrichedCartBuilder();
- * shoppingCart.provideStateTo(builder, articleInfoResolver);
- * // Provide current article data for each product
- * for (ProductId productId : productIds) {
- *     builder.receiveCurrentArticleData(productId, fetchCurrentArticle(productId));
+ * shoppingCart.provideStateTo(builder);
+ * // Provide current article data for each product (includes name, price, availability)
+ * for (ProductId productId : builder.getCollectedProductIds()) {
+ *     builder.receiveCurrentArticleData(productId, articleDataPort.getArticleData(productId));
  * }
  * EnrichedCart enrichedCart = builder.build();
  * }</pre>
@@ -79,10 +79,9 @@ public class EnrichedCartBuilder implements EnrichedCartStateInterest, ReadModel
   public void receiveLineItem(
       final CartItemId lineItemId,
       final ProductId productId,
-      final String name,
-      final Money price,
+      final Money priceAtAddition,
       final int quantity) {
-    lineItems.add(new LineItemSnapshot(lineItemId, productId, name, price, quantity));
+    lineItems.add(new LineItemSnapshot(lineItemId, productId, priceAtAddition, quantity));
   }
 
   @Override
@@ -142,7 +141,7 @@ public class EnrichedCartBuilder implements EnrichedCartStateInterest, ReadModel
           snapshot.lineItemId(),
           snapshot.productId(),
           Quantity.of(snapshot.quantity()),
-          Price.of(snapshot.price()),
+          Price.of(snapshot.priceAtAddition()),
           currentArticle);
       enrichedItems.add(enrichedItem);
     }
@@ -188,11 +187,12 @@ public class EnrichedCartBuilder implements EnrichedCartStateInterest, ReadModel
 
   /**
    * Internal snapshot of line item data received from the aggregate.
+   * Note: Product name is not included as the aggregate doesn't store it.
+   * Name comes from CartArticle via receiveCurrentArticleData().
    */
   private record LineItemSnapshot(
       CartItemId lineItemId,
       ProductId productId,
-      String name,
-      Money price,
+      Money priceAtAddition,
       int quantity) {}
 }

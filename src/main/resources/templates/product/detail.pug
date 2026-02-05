@@ -3,8 +3,8 @@ extends ../layout
 block content
   .product-detail(data-test="product-detail")
     .product-header
-      h2= product.name
-      if isAvailable
+      h2= productDetail.name()
+      if productDetail.isAvailable()
         span.badge.badge-success In Stock
       else
         span.badge.badge-danger Out of Stock
@@ -12,11 +12,11 @@ block content
     .product-content
       .product-main
         h3 Description
-        p= product.description || "No description available."
+        p= productDetail.description()
 
         h3 Pricing
         .price-box
-          .price-main= product.priceAmount + " " + product.priceCurrency
+          .price-main= productDetail.priceAmount() + " " + productDetail.priceCurrency()
           .price-label Retail Price
 
       .product-sidebar
@@ -25,32 +25,32 @@ block content
         .info-section
           .info-item
             .info-label SKU
-            .info-value= product.sku
+            .info-value= productDetail.sku()
 
           .info-item
             .info-label Product ID
-            .info-value= product.productId
+            .info-value= productDetail.productId()
 
           .info-item
             .info-label Category
-            .info-value= product.category
+            .info-value= productDetail.category()
 
           .info-item
             .info-label Stock Available
-            .info-value= product.stockQuantity
+            .info-value= productDetail.stockQuantity()
 
           .info-item
             .info-label Availability
-            if isAvailable
+            if productDetail.isAvailable()
               .info-value.text-success ✓ Available for purchase
             else
               .info-value.text-danger ✗ Currently out of stock
 
     .product-actions
       a.btn.btn-secondary(href="/products" data-test="product-back-link") ← Back to Catalog
-      if isAvailable
+      if productDetail.isAvailable()
         form(method="post" action="/cart/add-product" style="display: inline;" data-test="product-add-to-cart-form")
-          input(type="hidden" name="productId" value=product.productId)
+          input(type="hidden" name="productId" value=productDetail.productId())
           input(type="hidden" name="quantity" value="1")
           button.btn.btn-primary(type="submit" data-test="product-add-to-cart-button") Add to Cart
 

@@ -135,36 +135,9 @@ public class CheckoutCartBuilder implements CheckoutStateInterest, ReadModelBuil
   }
 
   /**
-   * Returns the received session status.
-   *
-   * @return the session status, or null if not received
-   */
-  public @Nullable CheckoutSessionStatus getStatus() {
-    return status;
-  }
-
-  /**
-   * Returns the received order reference.
-   *
-   * @return the order reference, or null if not received
-   */
-  public @Nullable String getOrderReference() {
-    return orderReference;
-  }
-
-  /**
-   * Returns the received checkout totals.
-   *
-   * @return the checkout totals, or null if not received
-   */
-  public @Nullable CheckoutTotals getTotals() {
-    return totals;
-  }
-
-  /**
    * Builds the immutable {@link CheckoutCartSnapshot} from the received state.
    *
-   * <p>All required state (sessionId, cartId, customerId, step, subtotal) must have been
+   * <p>All required state (sessionId, cartId, customerId, step, status, subtotal) must have been
    * received before calling this method.
    *
    * @return the constructed CheckoutCartSnapshot
@@ -183,6 +156,9 @@ public class CheckoutCartBuilder implements CheckoutStateInterest, ReadModelBuil
     if (step == null) {
       throw new IllegalStateException("Step has not been received");
     }
+    if (status == null) {
+      throw new IllegalStateException("Status has not been received");
+    }
     if (subtotal == null) {
       throw new IllegalStateException("Subtotal has not been received");
     }
@@ -192,12 +168,15 @@ public class CheckoutCartBuilder implements CheckoutStateInterest, ReadModelBuil
         cartId,
         customerId,
         step,
+        status,
         List.copyOf(lineItems),
         subtotal,
+        totals,
         buyerInfo,
         deliveryAddress,
         shippingOption,
-        paymentSelection);
+        paymentSelection,
+        orderReference);
   }
 
   /**

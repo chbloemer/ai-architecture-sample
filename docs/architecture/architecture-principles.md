@@ -840,13 +840,91 @@ public class GetCartByIdUseCase implements GetCartByIdInputPort {
 
 **Reference:** Vaughn Vernon's "Implementing Domain-Driven Design" (2013), Chapter 14: Application - State Mediator Pattern
 
+#### Complete Data Flow: Use Case → ViewModel → Template
+
+The Interest Interface pattern integrates with the adapter layer through page-specific ViewModels:
+
+```
+Domain          Application          Adapter (incoming.web)       Template
+────────        ───────────          ─────────────────────        ────────
+Aggregate   →   Use Case returns  →  Controller converts     →   Template
+provideStateTo  Result(Snapshot)     Snapshot → ViewModel        renders
+```
+
+**Example: GetCartByIdUseCase → CartPageController**
+
+```java
+// 1. Use Case returns domain read model wrapped in Result
+@Service
+public class GetCartByIdUseCase implements GetCartByIdInputPort {
+    @Override
+    public GetCartByIdResult execute(GetCartByIdQuery query) {
+        EnrichedCartBuilder builder = new EnrichedCartBuilder();
+        cart.provideStateTo(builder, resolver);
+        EnrichedCart snapshot = builder.build();
+        return new GetCartByIdResult(true, snapshot);  // Result wraps snapshot
+    }
+}
+
+// 2. Controller converts snapshot to page-specific ViewModel
+@Controller
+public class CartPageController {
+    @GetMapping("/cart")
+    public String showCart(Model model) {
+        GetCartByIdResult result = getCartByIdUseCase.execute(query);
+
+        // Convert domain snapshot → page ViewModel (primitives only)
+        CartPageViewModel viewModel = CartPageViewModel.fromEnrichedCart(result.cart());
+        model.addAttribute("shoppingCart", viewModel);
+        return "cart/view";
+    }
+}
+
+// 3. ViewModel contains primitives, no domain objects
+public record CartPageViewModel(
+    String cartId,           // Not CartId
+    String status,           // Not CartStatus enum
+    List<LineItemViewModel> lineItems,
+    int itemCount,
+    BigDecimal subtotal,
+    String currencyCode
+) {
+    public static CartPageViewModel fromEnrichedCart(EnrichedCart cart) {
+        return new CartPageViewModel(
+            cart.cartId().value().toString(),
+            cart.status().name(),
+            cart.items().stream().map(LineItemViewModel::from).toList(),
+            cart.itemCount(),
+            cart.totals().currentSubtotal().amount(),
+            cart.totals().currencyCode()
+        );
+    }
+}
+```
+
+**ViewModel Rules:**
+1. Reside in `adapter.incoming.web` alongside the controller
+2. Use primitives only (`String`, `BigDecimal`, `int`, `boolean`)
+3. Named `{Page}ViewModel` (e.g., `CartPageViewModel`, `BuyerInfoPageViewModel`)
+4. Factory method converts domain snapshot to ViewModel
+5. Template attribute name matches purpose (e.g., `shoppingCart`, `orderReview`)
+
+See [dto-vs-viewmodel-analysis.md](dto-vs-viewmodel-analysis.md) for detailed patterns.
+
 **Implementation:**
 - Marker Interface: `de.sample.aiarchitecture.sharedkernel.marker.tactical.StateInterest`
 - Builder Marker: `de.sample.aiarchitecture.sharedkernel.marker.tactical.ReadModelBuilder`
+- Product Interest: `de.sample.aiarchitecture.product.domain.model.ProductStateInterest`
+- Product Builder: `de.sample.aiarchitecture.product.domain.readmodel.EnrichedProductBuilder`
+- Product Read Model: `de.sample.aiarchitecture.product.domain.model.EnrichedProduct`
+- Product ViewModels: `de.sample.aiarchitecture.product.adapter.incoming.web.ProductCatalogPageViewModel`, `ProductDetailPageViewModel`
 - Cart Interest: `de.sample.aiarchitecture.cart.domain.model.CartStateInterest`
 - Cart Builder: `de.sample.aiarchitecture.cart.domain.readmodel.EnrichedCartBuilder`
+- Cart Read Model: `de.sample.aiarchitecture.cart.domain.model.EnrichedCart`
+- Cart ViewModels: `de.sample.aiarchitecture.cart.adapter.incoming.web.CartPageViewModel`, `CartMergePageViewModel`
 - Checkout Interest: `de.sample.aiarchitecture.checkout.domain.model.CheckoutStateInterest`
 - Checkout Builder: `de.sample.aiarchitecture.checkout.domain.readmodel.CheckoutCartBuilder`
+- Checkout ViewModels: `BuyerInfoPageViewModel`, `DeliveryPageViewModel`, `PaymentPageViewModel`, `ReviewPageViewModel`, `ConfirmationPageViewModel`
 
 #### Custom Annotations (Shared Kernel Common Layer)
 

@@ -10,7 +10,7 @@ import de.sample.aiarchitecture.sharedkernel.marker.port.in.UseCase;
  *
  * <p><b>Hexagonal Architecture:</b> This is a driving/primary port for read operations.
  *
- * @see de.sample.aiarchitecture.cart.application.usecase.getcartbyid.GetCartByIdUseCase
+ * @see GetCartByIdUseCase
  */
 public interface GetCartByIdInputPort extends UseCase<GetCartByIdQuery, GetCartByIdResult> {
 
@@ -18,7 +18,7 @@ public interface GetCartByIdInputPort extends UseCase<GetCartByIdQuery, GetCartB
    * Retrieves a shopping cart by its unique identifier.
    *
    * @param query the query containing the cart ID
-   * @return response containing cart details or indication that cart was not found
+   * @return result containing the enriched cart read model, or not found
    */
   @Override
   GetCartByIdResult execute(GetCartByIdQuery query);

@@ -90,19 +90,22 @@ public class PaymentPageController {
     }
 
     // Get full session details
-    final GetCheckoutSessionResult session =
+    final GetCheckoutSessionResult result =
         getCheckoutSessionInputPort.execute(
             GetCheckoutSessionQuery.of(activeSession.sessionId()));
 
-    if (!session.found()) {
+    if (!result.found()) {
       redirectAttributes.addFlashAttribute("error", "Checkout session not found");
       return "redirect:/cart";
     }
 
+    // Convert to page-specific ViewModel
+    final PaymentPageViewModel viewModel = PaymentPageViewModel.fromSnapshot(result.session());
+
     final GetPaymentProvidersResult paymentProviders =
         getPaymentProvidersInputPort.execute(GetPaymentProvidersQuery.create());
 
-    model.addAttribute("session", session);
+    model.addAttribute("paymentPage", viewModel);
     model.addAttribute("paymentProviders", paymentProviders.paymentProviders());
     model.addAttribute("title", "Payment - Checkout");
 

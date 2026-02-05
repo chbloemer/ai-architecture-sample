@@ -436,4 +436,48 @@ public final class ShoppingCart extends BaseAggregateRoot<ShoppingCart, CartId> 
       throw new IllegalStateException("Cannot modify cart with status: " + status);
     }
   }
+
+  /**
+   * Pushes cart state to an interested party through the Interest Interface pattern.
+   *
+   * <p>This method allows the aggregate to control exactly what state is exposed,
+   * following the "Tell, Don't Ask" principle. The aggregate pushes its state to
+   * the interest, rather than exposing internal structure through getters.
+   *
+   * <p>The resolver is used to fetch current product information (name and price)
+   * since CartItem only stores the productId and price at the time of addition.
+   *
+   * @param interest the interest to receive the cart state
+   * @param resolver the resolver to fetch current product information
+   * @throws IllegalArgumentException if interest or resolver is null
+   * @see CartStateInterest
+   * @see ArticleInfoResolver
+   */
+  public void provideStateTo(final CartStateInterest interest, final ArticleInfoResolver resolver) {
+    if (interest == null) {
+      throw new IllegalArgumentException("Interest cannot be null");
+    }
+    if (resolver == null) {
+      throw new IllegalArgumentException("Resolver cannot be null");
+    }
+
+    // Push identifiers
+    interest.receiveCartId(this.id);
+    interest.receiveCustomerId(this.customerId);
+
+    // Push all line items with resolved product information
+    for (final CartItem item : this.items) {
+      final ArticleInfo articleInfo = resolver.resolve(item.productId());
+      interest.receiveLineItem(
+          item.id(),
+          item.productId(),
+          articleInfo.name(),
+          articleInfo.price(),
+          item.quantity().value());
+    }
+
+    // Push calculated values
+    interest.receiveItemCount(this.itemCount());
+    interest.receiveSubtotal(this.calculateTotal());
+  }
 }

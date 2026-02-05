@@ -2962,7 +2962,7 @@
           "No new getters should be added"
         ]
       },
-      "passes": false
+      "passes": true
     },
     {
       "id": "US-113",

@@ -2,19 +2,20 @@ package de.sample.aiarchitecture.cart.application.getcartbyid;
 
 import de.sample.aiarchitecture.cart.application.shared.ArticleDataPort;
 import de.sample.aiarchitecture.cart.application.shared.ShoppingCartRepository;
+import de.sample.aiarchitecture.cart.domain.model.ArticleInfo;
+import de.sample.aiarchitecture.cart.domain.model.ArticleInfoResolver;
 import de.sample.aiarchitecture.cart.domain.model.CartArticle;
 import de.sample.aiarchitecture.cart.domain.model.CartId;
 import de.sample.aiarchitecture.cart.domain.model.EnrichedCart;
-import de.sample.aiarchitecture.cart.domain.model.EnrichedCartFactory;
 import de.sample.aiarchitecture.cart.domain.model.EnrichedCartItem;
 import de.sample.aiarchitecture.cart.domain.model.ShoppingCart;
+import de.sample.aiarchitecture.cart.domain.readmodel.EnrichedCartBuilder;
 import de.sample.aiarchitecture.sharedkernel.domain.model.Money;
 import de.sample.aiarchitecture.sharedkernel.domain.model.ProductId;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,15 +33,12 @@ public class GetCartByIdUseCase implements GetCartByIdInputPort {
 
   private final ShoppingCartRepository shoppingCartRepository;
   private final ArticleDataPort articleDataPort;
-  private final EnrichedCartFactory enrichedCartFactory;
 
   public GetCartByIdUseCase(
       final ShoppingCartRepository shoppingCartRepository,
-      final ArticleDataPort articleDataPort,
-      final EnrichedCartFactory enrichedCartFactory) {
+      final ArticleDataPort articleDataPort) {
     this.shoppingCartRepository = shoppingCartRepository;
     this.articleDataPort = articleDataPort;
-    this.enrichedCartFactory = enrichedCartFactory;
   }
 
   @Override
@@ -55,15 +53,27 @@ public class GetCartByIdUseCase implements GetCartByIdInputPort {
 
     final ShoppingCart cart = cartOpt.get();
 
-    // Fetch fresh article data for all cart items
-    final Set<ProductId> productIds = cart.items().stream()
-        .map(item -> item.productId())
-        .collect(Collectors.toSet());
+    // Create a caching resolver that lazily fetches article data
+    final Map<ProductId, CartArticle> articleCache = new HashMap<>();
+    final ArticleInfoResolver resolver = productId -> {
+      final CartArticle article = articleCache.computeIfAbsent(productId,
+          id -> articleDataPort.getArticleData(id).orElseThrow(
+              () -> new IllegalStateException("Article data not found for product: " + id.value())));
+      return new ArticleInfo(article.name(), article.currentPrice());
+    };
 
-    final Map<ProductId, CartArticle> articleDataMap = articleDataPort.getArticleData(productIds);
+    // Use builder pattern with Interest Interface
+    final EnrichedCartBuilder builder = new EnrichedCartBuilder();
+    cart.provideStateTo(builder, resolver);
 
-    // Create enriched cart using factory
-    final EnrichedCart enrichedCart = enrichedCartFactory.create(cart, articleDataMap);
+    // Push current article data for each product
+    for (final ProductId productId : builder.getCollectedProductIds()) {
+      final CartArticle article = articleCache.get(productId);
+      builder.receiveCurrentArticleData(productId, article);
+    }
+
+    // Build enriched cart
+    final EnrichedCart enrichedCart = builder.build();
 
     // Map enriched cart items to result
     final List<GetCartByIdResult.CartItemSummary> items = enrichedCart.items().stream()
@@ -74,8 +84,8 @@ public class GetCartByIdUseCase implements GetCartByIdInputPort {
 
     return GetCartByIdResult.found(
         cart.id().value(),
-        cart.customerId().value(),
-        cart.status().name(),
+        enrichedCart.customerId().value(),
+        enrichedCart.status().name(),
         items,
         total.amount(),
         total.currency().getCurrencyCode()

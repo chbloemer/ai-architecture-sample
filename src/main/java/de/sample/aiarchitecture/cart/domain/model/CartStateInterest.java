@@ -68,4 +68,11 @@ public interface CartStateInterest extends StateInterest {
    * @param subtotal the subtotal before any discounts or taxes
    */
   void receiveSubtotal(Money subtotal);
+
+  /**
+   * Receives the cart status.
+   *
+   * @param status the current cart status
+   */
+  void receiveStatus(CartStatus status);
 }

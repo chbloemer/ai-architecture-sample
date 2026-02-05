@@ -1,0 +1,42 @@
+All tests pass. Let me provide a summary of the changes made:
+
+## Summary of US-114 Implementation
+
+### Changes Made:
+
+1. **GetCartByIdUseCase** (`cart/application/getcartbyid/GetCartByIdUseCase.java`)
+   - Refactored to use `EnrichedCartBuilder` instead of `EnrichedCartFactory`
+   - Uses `cart.provideStateTo(builder, resolver)` to push state via Interest Interface pattern
+   - External article data pushed via `builder.receiveCurrentArticleData()`
+   - Only `cart.id()` is called directly on aggregate (as allowed)
+
+2. **CheckoutCartUseCase** (`cart/application/checkoutcart/CheckoutCartUseCase.java`)
+   - Refactored to use `EnrichedCartBuilder` instead of `EnrichedCartFactory`
+   - Same pattern as GetCartByIdUseCase with `provideStateTo()` and `receiveCurrentArticleData()`
+
+3. **EnrichedCartBuilder** (`cart/domain/readmodel/EnrichedCartBuilder.java`)
+   - Added `getCollectedProductIds()` method to retrieve product IDs after `provideStateTo()` call
+   - Added `receiveStatus(CartStatus)` method implementation
+   - Updated `build()` to use received status instead of hardcoded `ACTIVE`
+   - Updated `reset()` to clear status field
+
+4. **CartStateInterest** (`cart/domain/model/CartStateInterest.java`)
+   - Added `receiveStatus(CartStatus status)` method to interface
+
+5. **ShoppingCart** (`cart/domain/model/ShoppingCart.java`)
+   - Updated `provideStateTo()` to push status via `interest.receiveStatus(this.status)`
+   - Fixed line item price to use `item.priceAtAddition().value()` instead of current price from resolver
+
+6. **DomainConfiguration** (`infrastructure/config/DomainConfiguration.java`)
+   - Removed `EnrichedCartFactory` bean (no longer needed)
+
+### Acceptance Criteria Verification:
+- ✅ GetCartByIdUseCase uses CartStateInterest builder pattern
+- ✅ EnrichedCartBuilder is used (no separate GetEnrichedCartUseCase exists)
+- ✅ Aggregate's `provideStateTo()` is called with builder
+- ✅ External article data pushed via `receiveCurrentArticleData()`
+- ✅ No direct getter calls on ShoppingCart (except `id()`)
+- ✅ Existing tests continue to pass
+- ✅ Architecture tests pass
+
+<promise>STORY_COMPLETE</promise>

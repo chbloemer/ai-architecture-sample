@@ -465,19 +465,22 @@ public final class ShoppingCart extends BaseAggregateRoot<ShoppingCart, CartId> 
     interest.receiveCartId(this.id);
     interest.receiveCustomerId(this.customerId);
 
-    // Push all line items with resolved product information
+    // Push all line items with resolved product name but original price
     for (final CartItem item : this.items) {
       final ArticleInfo articleInfo = resolver.resolve(item.productId());
       interest.receiveLineItem(
           item.id(),
           item.productId(),
           articleInfo.name(),
-          articleInfo.price(),
+          item.priceAtAddition().value(),  // Use the price at addition, not current price
           item.quantity().value());
     }
 
     // Push calculated values
     interest.receiveItemCount(this.itemCount());
     interest.receiveSubtotal(this.calculateTotal());
+
+    // Push status
+    interest.receiveStatus(this.status);
   }
 }

@@ -2,22 +2,23 @@ package de.sample.aiarchitecture.cart.application.checkoutcart;
 
 import de.sample.aiarchitecture.cart.application.shared.ArticleDataPort;
 import de.sample.aiarchitecture.cart.application.shared.ShoppingCartRepository;
+import de.sample.aiarchitecture.cart.domain.model.ArticleInfo;
+import de.sample.aiarchitecture.cart.domain.model.ArticleInfoResolver;
 import de.sample.aiarchitecture.cart.domain.model.ArticlePrice;
 import de.sample.aiarchitecture.cart.domain.model.ArticlePriceResolver;
 import de.sample.aiarchitecture.cart.domain.model.CartArticle;
 import de.sample.aiarchitecture.cart.domain.model.CartId;
 import de.sample.aiarchitecture.cart.domain.model.CartValidationResult;
 import de.sample.aiarchitecture.cart.domain.model.EnrichedCart;
-import de.sample.aiarchitecture.cart.domain.model.EnrichedCartFactory;
 import de.sample.aiarchitecture.cart.domain.model.ShoppingCart;
+import de.sample.aiarchitecture.cart.domain.readmodel.EnrichedCartBuilder;
 import de.sample.aiarchitecture.sharedkernel.domain.model.Money;
 import de.sample.aiarchitecture.sharedkernel.domain.model.ProductId;
 import de.sample.aiarchitecture.sharedkernel.marker.port.out.DomainEventPublisher;
 import java.time.Instant;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -43,17 +44,14 @@ public class CheckoutCartUseCase implements CheckoutCartInputPort {
 
   private final ShoppingCartRepository shoppingCartRepository;
   private final ArticleDataPort articleDataPort;
-  private final EnrichedCartFactory enrichedCartFactory;
   private final DomainEventPublisher eventPublisher;
 
   public CheckoutCartUseCase(
       final ShoppingCartRepository shoppingCartRepository,
       final ArticleDataPort articleDataPort,
-      final EnrichedCartFactory enrichedCartFactory,
       final DomainEventPublisher eventPublisher) {
     this.shoppingCartRepository = shoppingCartRepository;
     this.articleDataPort = articleDataPort;
-    this.enrichedCartFactory = enrichedCartFactory;
     this.eventPublisher = eventPublisher;
   }
 
@@ -67,21 +65,33 @@ public class CheckoutCartUseCase implements CheckoutCartInputPort {
             .findById(cartId)
             .orElseThrow(() -> new IllegalArgumentException("Cart not found: " + input.cartId()));
 
-    // Fetch article data for all cart items
-    final Set<ProductId> productIds = cart.items().stream()
-        .map(item -> item.productId())
-        .collect(Collectors.toSet());
+    // Create a caching resolver that lazily fetches article data
+    final Map<ProductId, CartArticle> articleCache = new HashMap<>();
+    final ArticleInfoResolver resolver = productId -> {
+      final CartArticle article = articleCache.computeIfAbsent(productId,
+          id -> articleDataPort.getArticleData(id).orElseThrow(
+              () -> new IllegalStateException("Article data not found for product: " + id.value())));
+      return new ArticleInfo(article.name(), article.currentPrice());
+    };
 
-    final Map<ProductId, CartArticle> articleDataMap = articleDataPort.getArticleData(productIds);
+    // Use builder pattern with Interest Interface
+    final EnrichedCartBuilder builder = new EnrichedCartBuilder();
+    cart.provideStateTo(builder, resolver);
 
-    // Create enriched cart using factory for validation
-    final EnrichedCart enrichedCart = enrichedCartFactory.create(cart, articleDataMap);
+    // Push current article data for each product
+    for (final ProductId productId : builder.getCollectedProductIds()) {
+      final CartArticle article = articleCache.get(productId);
+      builder.receiveCurrentArticleData(productId, article);
+    }
+
+    // Build enriched cart
+    final EnrichedCart enrichedCart = builder.build();
 
     // Validate cart using EnrichedCart domain methods
     if (!enrichedCart.isValidForCheckout()) {
-      // Build resolver from CartArticle data for legacy validation result
-      final ArticlePriceResolver resolver = buildResolver(articleDataMap);
-      final CartValidationResult validationResult = cart.validateForCheckout(resolver);
+      // Build price resolver from cached article data for legacy validation result
+      final ArticlePriceResolver priceResolver = buildResolver(articleCache);
+      final CartValidationResult validationResult = cart.validateForCheckout(priceResolver);
       throw new CartValidationException(validationResult);
     }
 
@@ -109,7 +119,7 @@ public class CheckoutCartUseCase implements CheckoutCartInputPort {
 
     return new CheckoutCartResult(
         cart.id().value(),
-        cart.customerId().value(),
+        enrichedCart.customerId().value(),
         items,
         total.amount(),
         total.currency().getCurrencyCode(),

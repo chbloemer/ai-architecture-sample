@@ -16,6 +16,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -54,6 +56,7 @@ public class EnrichedCartBuilder implements EnrichedCartStateInterest, ReadModel
   private final Map<ProductId, CartArticle> currentArticles = new HashMap<>();
   private int itemCount;
   private @Nullable Money subtotal;
+  private @Nullable CartStatus status;
 
   /**
    * Creates a new EnrichedCartBuilder.
@@ -90,6 +93,11 @@ public class EnrichedCartBuilder implements EnrichedCartStateInterest, ReadModel
   @Override
   public void receiveSubtotal(final Money subtotal) {
     this.subtotal = subtotal;
+  }
+
+  @Override
+  public void receiveStatus(final CartStatus status) {
+    this.status = status;
   }
 
   @Override
@@ -139,11 +147,28 @@ public class EnrichedCartBuilder implements EnrichedCartStateInterest, ReadModel
       enrichedItems.add(enrichedItem);
     }
 
+    // Use received status, default to ACTIVE if not received
+    final CartStatus effectiveStatus = status != null ? status : CartStatus.ACTIVE;
+
     return EnrichedCart.of(
         cartId,
         customerId,
         List.copyOf(enrichedItems),
-        CartStatus.ACTIVE);
+        effectiveStatus);
+  }
+
+  /**
+   * Returns the collected product IDs from received line items.
+   *
+   * <p>Use this method after calling {@code provideStateTo()} to retrieve the product IDs
+   * for which current article data should be provided.
+   *
+   * @return a set of product IDs from all received line items
+   */
+  public Set<ProductId> getCollectedProductIds() {
+    return lineItems.stream()
+        .map(LineItemSnapshot::productId)
+        .collect(Collectors.toSet());
   }
 
   /**
@@ -158,6 +183,7 @@ public class EnrichedCartBuilder implements EnrichedCartStateInterest, ReadModel
     currentArticles.clear();
     itemCount = 0;
     subtotal = null;
+    status = null;
   }
 
   /**

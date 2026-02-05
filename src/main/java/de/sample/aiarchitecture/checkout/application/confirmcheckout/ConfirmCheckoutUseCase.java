@@ -1,8 +1,8 @@
 package de.sample.aiarchitecture.checkout.application.confirmcheckout;
 
 import de.sample.aiarchitecture.checkout.application.shared.CheckoutArticleDataPort;
-import de.sample.aiarchitecture.checkout.application.shared.CheckoutArticleDataPort.ArticleData;
 import de.sample.aiarchitecture.checkout.application.shared.CheckoutSessionRepository;
+import de.sample.aiarchitecture.checkout.domain.model.CheckoutArticle;
 import de.sample.aiarchitecture.checkout.domain.model.CheckoutArticlePriceResolver;
 import de.sample.aiarchitecture.checkout.domain.model.CheckoutSession;
 import de.sample.aiarchitecture.checkout.domain.model.CheckoutSessionId;
@@ -66,17 +66,17 @@ public class ConfirmCheckoutUseCase implements ConfirmCheckoutInputPort {
         .toList();
 
     // Fetch fresh article data (pricing, availability) for validation
-    final Map<ProductId, ArticleData> articleDataMap =
+    final Map<ProductId, CheckoutArticle> articleDataMap =
         checkoutArticleDataPort.getArticleData(productIds);
 
     // Build resolver from fetched data
     final CheckoutArticlePriceResolver resolver = productId -> {
-      final ArticleData data = articleDataMap.get(productId);
-      if (data == null) {
+      final CheckoutArticle article = articleDataMap.get(productId);
+      if (article == null) {
         throw new IllegalArgumentException("Article data not found for: " + productId.value());
       }
       return new CheckoutArticlePriceResolver.ArticlePrice(
-          data.currentPrice(), data.isAvailable(), data.availableStock());
+          article.currentPrice(), article.isAvailable(), article.availableStock());
     };
 
     // Confirm checkout with validation (domain validates state, step, completeness, and items)

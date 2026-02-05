@@ -3,9 +3,9 @@ package de.sample.aiarchitecture.checkout.application.startcheckout;
 import de.sample.aiarchitecture.checkout.application.shared.CartData;
 import de.sample.aiarchitecture.checkout.application.shared.CartDataPort;
 import de.sample.aiarchitecture.checkout.application.shared.CheckoutArticleDataPort;
-import de.sample.aiarchitecture.checkout.application.shared.CheckoutArticleDataPort.ArticleData;
 import de.sample.aiarchitecture.checkout.application.shared.CheckoutSessionRepository;
 import de.sample.aiarchitecture.checkout.domain.model.CartId;
+import de.sample.aiarchitecture.checkout.domain.model.CheckoutArticle;
 import de.sample.aiarchitecture.checkout.domain.model.CheckoutLineItem;
 import de.sample.aiarchitecture.checkout.domain.model.CheckoutLineItemId;
 import de.sample.aiarchitecture.checkout.domain.model.CheckoutSession;
@@ -79,7 +79,7 @@ public class StartCheckoutUseCase implements StartCheckoutInputPort {
             .toList();
 
         // Fetch article data (name, current price, availability) for all line items
-        final Map<ProductId, ArticleData> articleDataMap =
+        final Map<ProductId, CheckoutArticle> articleDataMap =
             checkoutArticleDataPort.getArticleData(productIds);
 
         // Create checkout line items from cart items with fresh pricing
@@ -87,8 +87,8 @@ public class StartCheckoutUseCase implements StartCheckoutInputPort {
         Money subtotal = Money.euro(0.0);
 
         for (final CartData.CartItemData cartItem : cart.items()) {
-            final ArticleData articleData = articleDataMap.get(cartItem.productId());
-            if (articleData == null) {
+            final CheckoutArticle article = articleDataMap.get(cartItem.productId());
+            if (article == null) {
                 throw new IllegalArgumentException(
                     "Product not found: " + cartItem.productId().value());
             }
@@ -97,8 +97,8 @@ public class StartCheckoutUseCase implements StartCheckoutInputPort {
                 CheckoutLineItem.of(
                     CheckoutLineItemId.generate(),
                     cartItem.productId(),
-                    articleData.name(),
-                    articleData.currentPrice(),
+                    article.name(),
+                    article.currentPrice(),
                     cartItem.quantity());
 
             lineItems.add(lineItem);

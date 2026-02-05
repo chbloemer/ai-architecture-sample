@@ -1,6 +1,7 @@
 package de.sample.aiarchitecture.checkout.adapter.outgoing.product;
 
 import de.sample.aiarchitecture.checkout.application.shared.CheckoutArticleDataPort;
+import de.sample.aiarchitecture.checkout.domain.model.CheckoutArticle;
 import de.sample.aiarchitecture.inventory.adapter.incoming.openhost.InventoryService;
 import de.sample.aiarchitecture.inventory.adapter.incoming.openhost.InventoryService.StockInfo;
 import de.sample.aiarchitecture.pricing.adapter.incoming.openhost.PricingService;
@@ -48,7 +49,7 @@ public class CompositeCheckoutArticleDataAdapter implements CheckoutArticleDataP
     }
 
     @Override
-    public Map<ProductId, ArticleData> getArticleData(Collection<ProductId> productIds) {
+    public Map<ProductId, CheckoutArticle> getArticleData(Collection<ProductId> productIds) {
         if (productIds == null || productIds.isEmpty()) {
             return Map.of();
         }
@@ -57,7 +58,7 @@ public class CompositeCheckoutArticleDataAdapter implements CheckoutArticleDataP
         Map<ProductId, PriceInfo> prices = pricingService.getPrices(productIds);
         Map<ProductId, StockInfo> stocks = inventoryService.getStock(productIds);
 
-        Map<ProductId, ArticleData> result = new HashMap<>();
+        Map<ProductId, CheckoutArticle> result = new HashMap<>();
 
         for (ProductId productId : productIds) {
             // ProductCatalogService doesn't have bulk fetch, so fetch individually
@@ -72,13 +73,13 @@ public class CompositeCheckoutArticleDataAdapter implements CheckoutArticleDataP
                         ". Ensure price is set in Pricing context.");
                 }
 
-                ArticleData articleData = combineData(
+                CheckoutArticle article = buildCheckoutArticle(
                     productId,
                     productInfo.get(),
                     priceInfo,
                     stocks.get(productId)
                 );
-                result.put(productId, articleData);
+                result.put(productId, article);
             }
         }
 
@@ -86,9 +87,9 @@ public class CompositeCheckoutArticleDataAdapter implements CheckoutArticleDataP
     }
 
     /**
-     * Combines data from multiple sources into a single ArticleData record.
+     * Builds a CheckoutArticle domain object from data fetched from multiple sources.
      */
-    private ArticleData combineData(
+    private CheckoutArticle buildCheckoutArticle(
             ProductId productId,
             ProductInfo productInfo,
             PriceInfo priceInfo,
@@ -101,6 +102,6 @@ public class CompositeCheckoutArticleDataAdapter implements CheckoutArticleDataP
         int availableStock = stockInfo != null ? stockInfo.availableStock() : 0;
         boolean isAvailable = stockInfo != null && stockInfo.isAvailable();
 
-        return new ArticleData(productId, name, currentPrice, availableStock, isAvailable);
+        return CheckoutArticle.of(productId, name, currentPrice, availableStock, isAvailable);
     }
 }

@@ -1,0 +1,12 @@
+All acceptance criteria are met:
+
+1. ✅ **CheckoutArticleDataPort returns Map<ProductId, CheckoutArticle>** - The port now returns domain objects
+2. ✅ **Removed nested ArticleData record from CheckoutArticleDataPort** - The DTO is gone, replaced with domain type
+3. ✅ **Updated CompositeCheckoutArticleDataAdapter to build CheckoutArticle objects** - Method renamed to `buildCheckoutArticle`
+4. ✅ **Updated StartCheckoutUseCase to use CheckoutArticle** - Uses `CheckoutArticle` instead of `ArticleData`
+5. ✅ **Updated ConfirmCheckoutUseCase to use CheckoutArticle** - Builds resolver from `CheckoutArticle`
+6. ✅ **Kept CheckoutArticlePriceResolver for backward compatibility** - Still used in `session.confirm()` method
+7. ✅ **All tests pass: ./gradlew build** - BUILD SUCCESSFUL
+8. ✅ **Architecture tests pass** - BUILD SUCCESSFUL
+
+<promise>STORY_COMPLETE</promise>

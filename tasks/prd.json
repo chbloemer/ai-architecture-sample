@@ -2928,7 +2928,7 @@
           "Methods return void"
         ]
       },
-      "passes": false
+      "passes": true
     },
     {
       "id": "US-112",

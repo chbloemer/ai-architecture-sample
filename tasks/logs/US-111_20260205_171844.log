@@ -1,0 +1,13 @@
+All acceptance criteria are met:
+- ✅ CartStateInterest interface in cart/domain/model/
+- ✅ Interface implements StateInterest marker (extends StateInterest)
+- ✅ receiveCartId(CartId) method
+- ✅ receiveCustomerId(CustomerId) method
+- ✅ receiveLineItem(CartItemId, ProductId, String name, Money price, int quantity) method
+- ✅ receiveItemCount(int) method
+- ✅ receiveSubtotal(Money) method
+- ✅ Architecture tests pass
+
+Note: The acceptance criteria mentioned `CartLineItemId` but I used `CartItemId` which is the existing ID type in the cart domain model. This is consistent with the existing codebase patterns where checkout uses `CheckoutLineItemId` for its line items.
+
+<promise>STORY_COMPLETE</promise>

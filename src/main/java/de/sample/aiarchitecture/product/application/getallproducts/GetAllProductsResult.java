@@ -7,8 +7,8 @@ import org.jspecify.annotations.NonNull;
 /**
  * Output model for retrieving all products.
  *
- * <p><b>Note:</b> Stock information is not included as stock is managed by the
- * Inventory bounded context. Use InventoryService to get stock information.
+ * <p>Stock information is fetched from the Inventory bounded context via the
+ * ProductStockDataPort output port.
  *
  * @param products the list of products
  */
@@ -23,6 +23,7 @@ public record GetAllProductsResult(@NonNull List<ProductSummary> products) {
    * @param priceAmount the price amount
    * @param priceCurrency the price currency
    * @param category the product category
+   * @param stockQuantity the available stock quantity
    */
   public record ProductSummary(
       @NonNull String productId,
@@ -30,6 +31,7 @@ public record GetAllProductsResult(@NonNull List<ProductSummary> products) {
       @NonNull String name,
       @NonNull BigDecimal priceAmount,
       @NonNull String priceCurrency,
-      @NonNull String category
+      @NonNull String category,
+      int stockQuantity
   ) {}
 }

@@ -67,7 +67,8 @@ public class ProductPageController {
   /**
    * Displays a single product detail page.
    *
-   * <p>Shows detailed information about a specific product.
+   * <p>Shows detailed information about a specific product including availability
+   * information from the Inventory context.
    *
    * @param id the product ID
    * @param model Spring MVC model to pass data to the view
@@ -83,7 +84,7 @@ public class ProductPageController {
 
     model.addAttribute("product", output);
     model.addAttribute("title", output.name());
-    // Note: isAvailable should be obtained from Inventory context
+    model.addAttribute("isAvailable", output.isAvailable());
 
     return "product/detail";
   }

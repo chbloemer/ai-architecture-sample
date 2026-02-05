@@ -9,8 +9,8 @@ import org.jspecify.annotations.Nullable;
  * <p>All fields are nullable to represent the case where product is not found.
  * Check {@link #found()} to determine if the product exists.
  *
- * <p><b>Note:</b> Stock information is not included as stock is managed by the
- * Inventory bounded context. Use InventoryService to get stock information.
+ * <p>Stock information is fetched from the Inventory bounded context via the
+ * ProductStockDataPort output port.
  *
  * @param found whether the product was found
  * @param productId the product ID (null if not found)
@@ -20,6 +20,8 @@ import org.jspecify.annotations.Nullable;
  * @param priceAmount the price amount (null if not found)
  * @param priceCurrency the price currency (null if not found)
  * @param category the product category (null if not found)
+ * @param stockQuantity the available stock quantity (null if not found)
+ * @param isAvailable whether the product is available for purchase (null if not found)
  */
 public record GetProductByIdResult(
     boolean found,
@@ -29,14 +31,16 @@ public record GetProductByIdResult(
     @Nullable String description,
     @Nullable BigDecimal priceAmount,
     @Nullable String priceCurrency,
-    @Nullable String category
+    @Nullable String category,
+    @Nullable Integer stockQuantity,
+    @Nullable Boolean isAvailable
 ) {
 
   /**
    * Creates an output for a product that was not found.
    */
   public static GetProductByIdResult notFound() {
-    return new GetProductByIdResult(false, null, null, null, null, null, null, null);
+    return new GetProductByIdResult(false, null, null, null, null, null, null, null, null, null);
   }
 
   /**
@@ -49,8 +53,11 @@ public record GetProductByIdResult(
       String description,
       BigDecimal priceAmount,
       String priceCurrency,
-      String category) {
+      String category,
+      Integer stockQuantity,
+      Boolean isAvailable) {
     return new GetProductByIdResult(
-        true, productId, sku, name, description, priceAmount, priceCurrency, category);
+        true, productId, sku, name, description, priceAmount, priceCurrency, category,
+        stockQuantity, isAvailable);
   }
 }

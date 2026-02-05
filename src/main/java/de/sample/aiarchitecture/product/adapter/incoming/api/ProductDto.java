@@ -5,8 +5,7 @@ import java.math.BigDecimal;
 /**
  * Product Data Transfer Object.
  *
- * <p><b>Note:</b> Stock information is not included as stock is managed by the
- * Inventory bounded context. Use the Inventory API to get stock information.
+ * <p>Stock information is fetched from the Inventory bounded context.
  */
 public record ProductDto(
     String id,
@@ -15,4 +14,6 @@ public record ProductDto(
     String description,
     BigDecimal price,
     String currency,
-    String category) {}
+    String category,
+    Integer stockQuantity,
+    Boolean isAvailable) {}

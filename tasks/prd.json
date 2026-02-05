@@ -2512,6 +2512,166 @@
         ]
       },
       "passes": false
+    },
+    {
+      "id": "US-101",
+      "epic": "inventory-integration",
+      "title": "Product Detail Page Availability from Inventory Context",
+      "description": "Display product availability information on the product detail page by fetching stock data from the Inventory Context via a proper output port, following hexagonal architecture principles.",
+      "depends_on": [
+        "US-85"
+      ],
+      "acceptance_criteria": [
+        "ProductStockDataPort output port in product/application/shared/",
+        "InventoryStockDataAdapter in product/adapter/outgoing/inventory/",
+        "GetProductByIdUseCase uses ProductStockDataPort for stock information",
+        "GetProductByIdResult includes stockQuantity and isAvailable fields",
+        "ProductPageController passes isAvailable to template model",
+        "Product detail page shows 'In Stock' or 'Out of Stock' from Inventory Context",
+        "Architecture tests pass: ./gradlew test-architecture"
+      ],
+      "architectural_guidance": {
+        "affected_layers": [
+          "application",
+          "adapter"
+        ],
+        "locations": [
+          "product/application/shared/ProductStockDataPort.java",
+          "product/adapter/outgoing/inventory/InventoryStockDataAdapter.java",
+          "product/application/getproductbyid/GetProductByIdUseCase.java",
+          "product/application/getproductbyid/GetProductByIdResult.java",
+          "product/adapter/incoming/web/ProductPageController.java"
+        ],
+        "patterns": [
+          "Output Port",
+          "Outgoing Adapter",
+          "Open Host Service Consumer"
+        ],
+        "constraints": [
+          "Controllers must NOT call external services directly",
+          "Stock data flows through output port -> adapter -> OHS",
+          "Product context consumes Inventory context via InventoryService OHS"
+        ]
+      },
+      "passes": true
+    },
+    {
+      "id": "US-102",
+      "epic": "inventory-integration",
+      "title": "Product Catalog Availability from Inventory Context",
+      "description": "Display product availability information on the product catalog overview page by fetching bulk stock data from the Inventory Context.",
+      "depends_on": [
+        "US-101"
+      ],
+      "acceptance_criteria": [
+        "ProductStockDataPort has method for bulk stock fetching: getStockData(Collection<ProductId>)",
+        "GetAllProductsUseCase uses ProductStockDataPort for stock information",
+        "GetAllProductsResult.ProductSummary includes stockQuantity field",
+        "Product catalog page shows stock status for all products",
+        "Architecture tests pass: ./gradlew test-architecture"
+      ],
+      "architectural_guidance": {
+        "affected_layers": [
+          "application",
+          "adapter"
+        ],
+        "locations": [
+          "product/application/shared/ProductStockDataPort.java",
+          "product/adapter/outgoing/inventory/InventoryStockDataAdapter.java",
+          "product/application/getallproducts/GetAllProductsUseCase.java",
+          "product/application/getallproducts/GetAllProductsResult.java"
+        ],
+        "patterns": [
+          "Output Port",
+          "Bulk Data Fetching"
+        ],
+        "constraints": [
+          "Bulk fetching for efficiency (single call for all products)",
+          "Graceful handling when stock data not found"
+        ]
+      },
+      "passes": true
+    },
+    {
+      "id": "US-103",
+      "epic": "inventory-integration",
+      "title": "Reduce Inventory Stock on Order Confirmation",
+      "description": "When a checkout is confirmed, reduce stock levels in the Inventory Context for all ordered products using domain events and eventual consistency.",
+      "depends_on": [
+        "US-65"
+      ],
+      "acceptance_criteria": [
+        "ReduceStockCommand record in inventory/application/reducestock/",
+        "ReduceStockResult record in inventory/application/reducestock/",
+        "ReduceStockInputPort interface extending UseCase",
+        "ReduceStockUseCase implements ReduceStockInputPort",
+        "CheckoutConfirmedEventConsumer in inventory/adapter/incoming/event/",
+        "Event consumer listens for CheckoutConfirmed integration event",
+        "Stock is reduced for each line item in the confirmed checkout",
+        "Domain events (StockDecreased/StockDepleted) are published",
+        "Logging for successful and failed stock reductions",
+        "Architecture tests pass: ./gradlew test-architecture"
+      ],
+      "architectural_guidance": {
+        "affected_layers": [
+          "application",
+          "adapter"
+        ],
+        "locations": [
+          "inventory/application/reducestock/ReduceStockCommand.java",
+          "inventory/application/reducestock/ReduceStockResult.java",
+          "inventory/application/reducestock/ReduceStockInputPort.java",
+          "inventory/application/reducestock/ReduceStockUseCase.java",
+          "inventory/adapter/incoming/event/CheckoutConfirmedEventConsumer.java"
+        ],
+        "patterns": [
+          "Use Case Pattern",
+          "Event Consumer Adapter",
+          "Eventual Consistency",
+          "Integration Events"
+        ],
+        "constraints": [
+          "Stock reduction happens in Inventory Context (not Product Context)",
+          "Event-driven: Checkout publishes, Inventory consumes",
+          "Partial failures allowed (eventual consistency)"
+        ]
+      },
+      "passes": true
+    },
+    {
+      "id": "US-104",
+      "epic": "inventory-integration",
+      "title": "Add Stock Information to MCP Product Catalog Tool",
+      "description": "Extend the MCP Product Catalog Tool to include stock quantity and availability information in product responses.",
+      "depends_on": [
+        "US-101"
+      ],
+      "acceptance_criteria": [
+        "ProductDto includes stockQuantity and isAvailable fields",
+        "ProductDtoConverter includes stock fields in all toDto methods",
+        "MCP getAllProducts returns stock information for each product",
+        "MCP getProductById returns stock information",
+        "Architecture tests pass: ./gradlew test-architecture"
+      ],
+      "architectural_guidance": {
+        "affected_layers": [
+          "adapter"
+        ],
+        "locations": [
+          "product/adapter/incoming/mcp/ProductDto.java",
+          "product/adapter/incoming/mcp/ProductDtoConverter.java",
+          "product/adapter/incoming/mcp/ProductCatalogMcpToolProvider.java"
+        ],
+        "patterns": [
+          "MCP Tool Provider",
+          "DTO Pattern"
+        ],
+        "constraints": [
+          "MCP responses include real-time stock from Inventory Context",
+          "Stock information flows through existing use cases"
+        ]
+      },
+      "passes": true
     }
   ]
 }

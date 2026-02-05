@@ -11,14 +11,16 @@ import org.springframework.stereotype.Component;
  * <p><b>Adapter Pattern:</b> This class belongs to the adapter layer and handles
  * the translation between application layer models and REST API DTOs.
  *
- * <p><b>Note:</b> Stock information is not included in DTOs as stock is managed
- * by the Inventory bounded context.
+ * <p>Stock information is fetched from the Inventory bounded context via the
+ * use case output ports.
  */
 @Component
 public final class ProductDtoConverter {
 
   /**
    * Converts CreateProductResult to DTO.
+   *
+   * <p>Note: Stock information is not available in CreateProductResult as it's a write operation.
    *
    * @param output the use case output
    * @return product DTO
@@ -31,7 +33,9 @@ public final class ProductDtoConverter {
         output.description(),
         output.priceAmount(),
         output.priceCurrency(),
-        output.category());
+        output.category(),
+        null,
+        null);
   }
 
   /**
@@ -48,7 +52,9 @@ public final class ProductDtoConverter {
         output.description(),
         output.priceAmount(),
         output.priceCurrency(),
-        output.category());
+        output.category(),
+        output.stockQuantity(),
+        output.isAvailable());
   }
 
   /**
@@ -65,6 +71,8 @@ public final class ProductDtoConverter {
         null, // Summary doesn't include description
         summary.priceAmount(),
         summary.priceCurrency(),
-        summary.category());
+        summary.category(),
+        summary.stockQuantity(),
+        summary.stockQuantity() > 0);
   }
 }

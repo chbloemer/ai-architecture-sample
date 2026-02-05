@@ -1,9 +1,11 @@
 package de.sample.aiarchitecture.product.application.getproductbyid;
 
-import de.sample.aiarchitecture.product.domain.model.Product;
 import de.sample.aiarchitecture.product.application.shared.PricingDataPort;
 import de.sample.aiarchitecture.product.application.shared.PricingDataPort.PriceData;
 import de.sample.aiarchitecture.product.application.shared.ProductRepository;
+import de.sample.aiarchitecture.product.application.shared.ProductStockDataPort;
+import de.sample.aiarchitecture.product.application.shared.ProductStockDataPort.StockData;
+import de.sample.aiarchitecture.product.domain.model.Product;
 import de.sample.aiarchitecture.sharedkernel.domain.model.ProductId;
 import java.math.BigDecimal;
 import java.util.Optional;
@@ -16,9 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
  *
  * <p>This is a query use case that retrieves product details without modifying state.
  * Pricing data is fetched from the Pricing bounded context via the PricingDataPort.
- *
- * <p><b>Note:</b> Stock information is not included - use the Inventory bounded context
- * via InventoryService to get stock information.
+ * Stock data is fetched from the Inventory bounded context via the ProductStockDataPort.
  *
  * <p><b>Hexagonal Architecture:</b> This class implements the {@link GetProductByIdInputPort}
  * interface, which is a primary/driving port in the application layer.
@@ -29,12 +29,15 @@ public class GetProductByIdUseCase implements GetProductByIdInputPort {
 
   private final ProductRepository productRepository;
   private final PricingDataPort pricingDataPort;
+  private final ProductStockDataPort productStockDataPort;
 
   public GetProductByIdUseCase(
       final ProductRepository productRepository,
-      final PricingDataPort pricingDataPort) {
+      final PricingDataPort pricingDataPort,
+      final ProductStockDataPort productStockDataPort) {
     this.productRepository = productRepository;
     this.pricingDataPort = pricingDataPort;
+    this.productStockDataPort = productStockDataPort;
   }
 
   @Override
@@ -54,6 +57,11 @@ public class GetProductByIdUseCase implements GetProductByIdInputPort {
     BigDecimal priceAmount = priceData.map(pd -> pd.currentPrice().amount()).orElse(BigDecimal.ZERO);
     String priceCurrency = priceData.map(pd -> pd.currentPrice().currency().getCurrencyCode()).orElse("EUR");
 
+    // Fetch stock from Inventory context
+    Optional<StockData> stockData = productStockDataPort.getStockData(productId);
+    Integer stockQuantity = stockData.map(StockData::availableStock).orElse(0);
+    Boolean isAvailable = stockData.map(StockData::isAvailable).orElse(false);
+
     return GetProductByIdResult.found(
         product.id().value().toString(),
         product.sku().value(),
@@ -61,7 +69,9 @@ public class GetProductByIdUseCase implements GetProductByIdInputPort {
         product.description().value(),
         priceAmount,
         priceCurrency,
-        product.category().name()
+        product.category().name(),
+        stockQuantity,
+        isAvailable
     );
   }
 }

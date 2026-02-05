@@ -2891,7 +2891,7 @@
           "No direct aggregate state access except ID"
         ]
       },
-      "passes": false
+      "passes": true
     },
     {
       "id": "US-111",

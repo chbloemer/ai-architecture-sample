@@ -4,8 +4,10 @@ import de.sample.aiarchitecture.checkout.domain.model.BuyerInfo;
 import de.sample.aiarchitecture.checkout.domain.model.CartId;
 import de.sample.aiarchitecture.checkout.domain.model.CheckoutLineItemId;
 import de.sample.aiarchitecture.checkout.domain.model.CheckoutSessionId;
+import de.sample.aiarchitecture.checkout.domain.model.CheckoutSessionStatus;
 import de.sample.aiarchitecture.checkout.domain.model.CheckoutStateInterest;
 import de.sample.aiarchitecture.checkout.domain.model.CheckoutStep;
+import de.sample.aiarchitecture.checkout.domain.model.CheckoutTotals;
 import de.sample.aiarchitecture.checkout.domain.model.CustomerId;
 import de.sample.aiarchitecture.checkout.domain.model.DeliveryAddress;
 import de.sample.aiarchitecture.checkout.domain.model.PaymentSelection;
@@ -45,12 +47,15 @@ public class CheckoutCartBuilder implements CheckoutStateInterest, ReadModelBuil
   private @Nullable CartId cartId;
   private @Nullable CustomerId customerId;
   private @Nullable CheckoutStep step;
+  private @Nullable CheckoutSessionStatus status;
   private final List<LineItemSnapshot> lineItems = new ArrayList<>();
   private @Nullable Money subtotal;
+  private @Nullable CheckoutTotals totals;
   private @Nullable BuyerInfo buyerInfo;
   private @Nullable DeliveryAddress deliveryAddress;
   private @Nullable ShippingOption shippingOption;
   private @Nullable PaymentSelection paymentSelection;
+  private @Nullable String orderReference;
 
   /**
    * Creates a new CheckoutCartBuilder.
@@ -114,6 +119,48 @@ public class CheckoutCartBuilder implements CheckoutStateInterest, ReadModelBuil
     this.paymentSelection = paymentSelection;
   }
 
+  @Override
+  public void receiveStatus(final CheckoutSessionStatus status) {
+    this.status = status;
+  }
+
+  @Override
+  public void receiveOrderReference(final @Nullable String orderReference) {
+    this.orderReference = orderReference;
+  }
+
+  @Override
+  public void receiveTotals(final CheckoutTotals totals) {
+    this.totals = totals;
+  }
+
+  /**
+   * Returns the received session status.
+   *
+   * @return the session status, or null if not received
+   */
+  public @Nullable CheckoutSessionStatus getStatus() {
+    return status;
+  }
+
+  /**
+   * Returns the received order reference.
+   *
+   * @return the order reference, or null if not received
+   */
+  public @Nullable String getOrderReference() {
+    return orderReference;
+  }
+
+  /**
+   * Returns the received checkout totals.
+   *
+   * @return the checkout totals, or null if not received
+   */
+  public @Nullable CheckoutTotals getTotals() {
+    return totals;
+  }
+
   /**
    * Builds the immutable {@link CheckoutCartSnapshot} from the received state.
    *
@@ -163,11 +210,14 @@ public class CheckoutCartBuilder implements CheckoutStateInterest, ReadModelBuil
     cartId = null;
     customerId = null;
     step = null;
+    status = null;
     lineItems.clear();
     subtotal = null;
+    totals = null;
     buyerInfo = null;
     deliveryAddress = null;
     shippingOption = null;
     paymentSelection = null;
+    orderReference = null;
   }
 }

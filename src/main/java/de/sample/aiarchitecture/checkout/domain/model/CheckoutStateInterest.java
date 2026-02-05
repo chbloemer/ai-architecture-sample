@@ -116,4 +116,27 @@ public interface CheckoutStateInterest extends StateInterest {
    * @param paymentSelection the payment selection, or null if not yet selected
    */
   void receivePaymentSelection(@Nullable PaymentSelection paymentSelection);
+
+  /**
+   * Receives the session status.
+   *
+   * @param status the current session status
+   */
+  void receiveStatus(CheckoutSessionStatus status);
+
+  /**
+   * Receives the order reference.
+   *
+   * <p>This method is only called if the checkout has been completed with an order reference.
+   *
+   * @param orderReference the order reference, or null if not yet completed
+   */
+  void receiveOrderReference(@Nullable String orderReference);
+
+  /**
+   * Receives the full checkout totals.
+   *
+   * @param totals the checkout totals including subtotal, shipping, tax, and total
+   */
+  void receiveTotals(CheckoutTotals totals);
 }

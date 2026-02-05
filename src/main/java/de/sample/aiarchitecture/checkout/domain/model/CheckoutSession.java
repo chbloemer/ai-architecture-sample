@@ -465,6 +465,8 @@ public final class CheckoutSession extends BaseAggregateRoot<CheckoutSession, Ch
     interest.receiveCartId(this.cartId);
     interest.receiveCustomerId(this.customerId);
     interest.receiveStep(this.currentStep);
+    interest.receiveStatus(this.status);
+    interest.receiveTotals(this.totals);
 
     // Push all line items
     for (final CheckoutLineItem item : this.lineItems) {
@@ -491,6 +493,9 @@ public final class CheckoutSession extends BaseAggregateRoot<CheckoutSession, Ch
     }
     if (this.paymentSelection != null) {
       interest.receivePaymentSelection(this.paymentSelection);
+    }
+    if (this.orderReference != null) {
+      interest.receiveOrderReference(this.orderReference);
     }
   }
 

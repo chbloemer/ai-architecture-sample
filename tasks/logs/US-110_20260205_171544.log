@@ -1,0 +1,3 @@
+The only reference to `session.` is `session.provideStateTo(builder)`, which is the expected pattern. No direct getter calls like `session.cartId()`, `session.status()`, etc. are present anymore.
+
+<promise>STORY_COMPLETE</promise>

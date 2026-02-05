@@ -9,12 +9,14 @@ import de.sample.aiarchitecture.checkout.application.getcheckoutsession.GetCheck
 import de.sample.aiarchitecture.checkout.application.getcheckoutsession.GetCheckoutSessionResult.TotalsData;
 import de.sample.aiarchitecture.checkout.application.shared.CheckoutSessionRepository;
 import de.sample.aiarchitecture.checkout.domain.model.BuyerInfo;
-import de.sample.aiarchitecture.checkout.domain.model.CheckoutLineItem;
 import de.sample.aiarchitecture.checkout.domain.model.CheckoutSession;
 import de.sample.aiarchitecture.checkout.domain.model.CheckoutTotals;
 import de.sample.aiarchitecture.checkout.domain.model.DeliveryAddress;
 import de.sample.aiarchitecture.checkout.domain.model.PaymentSelection;
 import de.sample.aiarchitecture.checkout.domain.model.ShippingOption;
+import de.sample.aiarchitecture.checkout.domain.readmodel.CheckoutCartBuilder;
+import de.sample.aiarchitecture.checkout.domain.readmodel.CheckoutCartSnapshot;
+import de.sample.aiarchitecture.checkout.domain.readmodel.LineItemSnapshot;
 import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,6 +26,10 @@ import org.springframework.transaction.annotation.Transactional;
  *
  * <p>This use case loads all session data for display, including line items,
  * totals, buyer info, delivery, and payment information.
+ *
+ * <p><b>Interest Interface Pattern:</b> This use case uses {@link CheckoutCartBuilder}
+ * to receive state from the aggregate via the Interest Interface Pattern, avoiding
+ * direct getter calls on the aggregate.
  *
  * <p><b>Hexagonal Architecture:</b> This class implements the {@link GetCheckoutSessionInputPort}
  * interface, which is a primary/driving port in the application layer.
@@ -47,37 +53,48 @@ public class GetCheckoutSessionUseCase implements GetCheckoutSessionInputPort {
   }
 
   private GetCheckoutSessionResult mapToResponse(final CheckoutSession session) {
+    // Use the builder pattern with Interest Interface
+    final CheckoutCartBuilder builder = new CheckoutCartBuilder();
+    session.provideStateTo(builder);
+    final CheckoutCartSnapshot snapshot = builder.build();
+
+    // Get additional data from builder that's not in the snapshot
+    final CheckoutTotals totals = builder.getTotals();
+
     return new GetCheckoutSessionResult(
         true,
-        session.id().value(),
-        session.cartId().value(),
-        session.customerId().value(),
-        session.currentStep().name(),
-        session.status().name(),
-        mapLineItems(session.lineItems()),
-        mapTotals(session.totals()),
-        mapBuyerInfo(session.buyerInfo()),
-        mapDelivery(session.deliveryAddress(), session.shippingOption()),
-        mapPayment(session.paymentSelection()),
-        session.orderReference());
+        snapshot.sessionId().value(),
+        snapshot.cartId().value(),
+        snapshot.customerId().value(),
+        snapshot.step().name(),
+        builder.getStatus() != null ? builder.getStatus().name() : null,
+        mapLineItems(snapshot.lineItems()),
+        mapTotals(totals),
+        mapBuyerInfo(snapshot.buyerInfo()),
+        mapDelivery(snapshot.deliveryAddress(), snapshot.shippingOption()),
+        mapPayment(snapshot.paymentSelection()),
+        builder.getOrderReference());
   }
 
-  private List<LineItemData> mapLineItems(final List<CheckoutLineItem> lineItems) {
+  private List<LineItemData> mapLineItems(final List<LineItemSnapshot> lineItems) {
     return lineItems.stream().map(this::mapLineItem).toList();
   }
 
-  private LineItemData mapLineItem(final CheckoutLineItem item) {
+  private LineItemData mapLineItem(final LineItemSnapshot item) {
     return new LineItemData(
-        item.id().value(),
+        item.lineItemId().value(),
         item.productId().value(),
-        item.productName(),
-        item.unitPrice().amount(),
-        item.unitPrice().currency().getCurrencyCode(),
+        item.name(),
+        item.price().amount(),
+        item.price().currency().getCurrencyCode(),
         item.quantity(),
         item.lineTotal().amount());
   }
 
   private TotalsData mapTotals(final CheckoutTotals totals) {
+    if (totals == null) {
+      return null;
+    }
     return new TotalsData(
         totals.subtotal().amount(),
         totals.shipping().amount(),

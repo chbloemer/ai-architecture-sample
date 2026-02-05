@@ -439,6 +439,62 @@ public final class CheckoutSession extends BaseAggregateRoot<CheckoutSession, Ch
   }
 
   /**
+   * Pushes the session state to an interested party.
+   *
+   * <p>The aggregate controls what state is exposed by calling the appropriate
+   * {@code receive*()} methods on the interest object. This implements the
+   * "Tell, Don't Ask" principle - the aggregate pushes its state rather than
+   * exposing it for external retrieval.
+   *
+   * <p>The following state is always pushed:
+   * <ul>
+   *   <li>Session ID, Cart ID, Customer ID</li>
+   *   <li>Current checkout step</li>
+   *   <li>All line items</li>
+   *   <li>Subtotal</li>
+   * </ul>
+   *
+   * <p>Optional state (buyer info, delivery address, shipping option, payment selection)
+   * is only pushed if present.
+   *
+   * @param interest the object interested in receiving the session state
+   */
+  public void provideStateTo(final CheckoutStateInterest interest) {
+    // Push required state
+    interest.receiveSessionId(this.id);
+    interest.receiveCartId(this.cartId);
+    interest.receiveCustomerId(this.customerId);
+    interest.receiveStep(this.currentStep);
+
+    // Push all line items
+    for (final CheckoutLineItem item : this.lineItems) {
+      interest.receiveLineItem(
+          item.id(),
+          item.productId(),
+          item.productName(),
+          item.unitPrice(),
+          item.quantity());
+    }
+
+    // Push subtotal
+    interest.receiveSubtotal(this.totals.subtotal());
+
+    // Push optional state only if present
+    if (this.buyerInfo != null) {
+      interest.receiveBuyerInfo(this.buyerInfo);
+    }
+    if (this.deliveryAddress != null) {
+      interest.receiveDeliveryAddress(this.deliveryAddress);
+    }
+    if (this.shippingOption != null) {
+      interest.receiveShippingOption(this.shippingOption);
+    }
+    if (this.paymentSelection != null) {
+      interest.receivePaymentSelection(this.paymentSelection);
+    }
+  }
+
+  /**
    * Navigates back to a previous step.
    *
    * @param step the step to navigate back to

@@ -1,9 +1,12 @@
 package de.sample.aiarchitecture.cart.application.getcartbyid;
 
 import de.sample.aiarchitecture.cart.application.shared.ArticleDataPort;
-import de.sample.aiarchitecture.cart.application.shared.ArticleDataPort.ArticleData;
 import de.sample.aiarchitecture.cart.application.shared.ShoppingCartRepository;
+import de.sample.aiarchitecture.cart.domain.model.CartArticle;
 import de.sample.aiarchitecture.cart.domain.model.CartId;
+import de.sample.aiarchitecture.cart.domain.model.EnrichedCart;
+import de.sample.aiarchitecture.cart.domain.model.EnrichedCartFactory;
+import de.sample.aiarchitecture.cart.domain.model.EnrichedCartItem;
 import de.sample.aiarchitecture.cart.domain.model.ShoppingCart;
 import de.sample.aiarchitecture.sharedkernel.domain.model.Money;
 import de.sample.aiarchitecture.sharedkernel.domain.model.ProductId;
@@ -30,12 +33,15 @@ public class GetCartByIdUseCase implements GetCartByIdInputPort {
 
   private final ShoppingCartRepository shoppingCartRepository;
   private final ArticleDataPort articleDataPort;
+  private final EnrichedCartFactory enrichedCartFactory;
 
   public GetCartByIdUseCase(
       final ShoppingCartRepository shoppingCartRepository,
-      final ArticleDataPort articleDataPort) {
+      final ArticleDataPort articleDataPort,
+      final EnrichedCartFactory enrichedCartFactory) {
     this.shoppingCartRepository = shoppingCartRepository;
     this.articleDataPort = articleDataPort;
+    this.enrichedCartFactory = enrichedCartFactory;
   }
 
   @Override
@@ -55,47 +61,17 @@ public class GetCartByIdUseCase implements GetCartByIdInputPort {
         .map(item -> item.productId())
         .collect(Collectors.toSet());
 
-    final Map<ProductId, ArticleData> articleDataMap = articleDataPort.getArticleData(productIds);
+    final Map<ProductId, CartArticle> articleDataMap = articleDataPort.getArticleData(productIds);
 
-    // Map cart items with fresh pricing and availability data
-    final List<GetCartByIdResult.CartItemSummary> items = cart.items().stream()
-        .map(item -> {
-          final ArticleData articleData = articleDataMap.get(item.productId());
-          final Money priceAtAddition = item.priceAtAddition().value();
+    // Create enriched cart using factory
+    final EnrichedCart enrichedCart = enrichedCartFactory.create(cart, articleDataMap);
 
-          if (articleData != null) {
-            final Money currentPrice = articleData.currentPrice();
-            final boolean priceChanged = !currentPrice.equals(priceAtAddition);
-
-            return new GetCartByIdResult.CartItemSummary(
-                item.id().value().toString(),
-                item.productId().value().toString(),
-                item.quantity().value(),
-                priceAtAddition.amount(),
-                priceAtAddition.currency().getCurrencyCode(),
-                currentPrice.amount(),
-                currentPrice.currency().getCurrencyCode(),
-                articleData.isAvailable(),
-                priceChanged
-            );
-          } else {
-            // Article data not available - return item with null current price
-            return new GetCartByIdResult.CartItemSummary(
-                item.id().value().toString(),
-                item.productId().value().toString(),
-                item.quantity().value(),
-                priceAtAddition.amount(),
-                priceAtAddition.currency().getCurrencyCode(),
-                null,
-                null,
-                false,
-                false
-            );
-          }
-        })
+    // Map enriched cart items to result
+    final List<GetCartByIdResult.CartItemSummary> items = enrichedCart.items().stream()
+        .map(this::mapToCartItemSummary)
         .toList();
 
-    final Money total = cart.calculateTotal();
+    final Money total = enrichedCart.calculateCurrentSubtotal();
 
     return GetCartByIdResult.found(
         cart.id().value(),
@@ -104,6 +80,23 @@ public class GetCartByIdUseCase implements GetCartByIdInputPort {
         items,
         total.amount(),
         total.currency().getCurrencyCode()
+    );
+  }
+
+  private GetCartByIdResult.CartItemSummary mapToCartItemSummary(final EnrichedCartItem item) {
+    final Money priceAtAddition = item.priceAtAddition().value();
+    final Money currentPrice = item.currentArticle().currentPrice();
+
+    return new GetCartByIdResult.CartItemSummary(
+        item.cartItemId().value().toString(),
+        item.productId().value().toString(),
+        item.quantity().value(),
+        priceAtAddition.amount(),
+        priceAtAddition.currency().getCurrencyCode(),
+        currentPrice.amount(),
+        currentPrice.currency().getCurrencyCode(),
+        item.currentArticle().isAvailable(),
+        item.hasPriceChanged()
     );
   }
 }

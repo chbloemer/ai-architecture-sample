@@ -10,7 +10,7 @@ import de.sample.aiarchitecture.cart.application.getorcreateactivecart.GetOrCrea
 import de.sample.aiarchitecture.cart.application.getorcreateactivecart.GetOrCreateActiveCartResult;
 import de.sample.aiarchitecture.cart.application.getorcreateactivecart.GetOrCreateActiveCartUseCase;
 import de.sample.aiarchitecture.cart.application.shared.ArticleDataPort;
-import de.sample.aiarchitecture.cart.application.shared.ArticleDataPort.ArticleData;
+import de.sample.aiarchitecture.cart.domain.model.CartArticle;
 import de.sample.aiarchitecture.checkout.application.confirmcheckout.ConfirmCheckoutCommand;
 import de.sample.aiarchitecture.checkout.application.confirmcheckout.ConfirmCheckoutInputPort;
 import de.sample.aiarchitecture.checkout.application.confirmcheckout.ConfirmCheckoutResult;
@@ -135,25 +135,25 @@ class ArticleDataFlowIntegrationTest {
         @DisplayName("Should aggregate data from available OHS services")
         void shouldAggregateDataFromOhsServices() {
             // When: Fetching article data through the composite adapter
-            Optional<ArticleData> result = articleDataPort.getArticleData(testProductId);
+            Optional<CartArticle> result = articleDataPort.getArticleData(testProductId);
 
             // Then: Data should be present (with fallback logic for pricing/inventory if needed)
             assertTrue(result.isPresent(), "Article data should be found");
-            ArticleData articleData = result.get();
+            CartArticle cartArticle = result.get();
 
             // Verify product name comes from ProductCatalogService
             Optional<ProductInfo> productInfo = productCatalogService.getProductInfo(testProductId);
             assertTrue(productInfo.isPresent(), "Product info should be available");
-            assertEquals(productInfo.get().name(), articleData.name(),
+            assertEquals(productInfo.get().name(), cartArticle.name(),
                 "Product name should come from ProductCatalogService");
 
             // Verify pricing is available (from PricingService or fallback to Product context)
-            assertNotNull(articleData.currentPrice(), "Price should be resolved");
-            assertTrue(articleData.currentPrice().amount().compareTo(BigDecimal.ZERO) > 0,
+            assertNotNull(cartArticle.currentPrice(), "Price should be resolved");
+            assertTrue(cartArticle.currentPrice().amount().compareTo(BigDecimal.ZERO) > 0,
                 "Price should be greater than zero");
 
             // Verify stock data is available
-            assertTrue(articleData.availableStock() >= 0, "Stock should not be negative");
+            assertTrue(cartArticle.availableStock() >= 0, "Stock should not be negative");
         }
 
         @Test
@@ -169,7 +169,7 @@ class ArticleDataFlowIntegrationTest {
             );
 
             // When: Fetching article data for multiple products
-            Map<ProductId, ArticleData> result = articleDataPort.getArticleData(productIds);
+            Map<ProductId, CartArticle> result = articleDataPort.getArticleData(productIds);
 
             // Then: All requested products should have data
             assertEquals(2, result.size(), "Should return data for all requested products");
@@ -177,16 +177,16 @@ class ArticleDataFlowIntegrationTest {
             for (ProductId productId : productIds) {
                 assertTrue(result.containsKey(productId),
                     "Should have data for product: " + productId.value());
-                ArticleData data = result.get(productId);
-                assertNotNull(data.name(), "Product should have name");
-                assertNotNull(data.currentPrice(), "Product should have price");
+                CartArticle cartArticle = result.get(productId);
+                assertNotNull(cartArticle.name(), "Product should have name");
+                assertNotNull(cartArticle.currentPrice(), "Product should have price");
             }
         }
 
         @Test
         @DisplayName("Should return empty for empty input")
         void shouldReturnEmptyForEmptyInput() {
-            Map<ProductId, ArticleData> result = articleDataPort.getArticleData(Set.of());
+            Map<ProductId, CartArticle> result = articleDataPort.getArticleData(Set.of());
             assertTrue(result.isEmpty(), "Should return empty map for empty input");
         }
 
@@ -194,7 +194,7 @@ class ArticleDataFlowIntegrationTest {
         @DisplayName("Should return empty Optional for unknown product")
         void shouldReturnEmptyForUnknownProduct() {
             ProductId unknownId = ProductId.of("00000000-0000-0000-0000-000000000000");
-            Optional<ArticleData> result = articleDataPort.getArticleData(unknownId);
+            Optional<CartArticle> result = articleDataPort.getArticleData(unknownId);
             assertTrue(result.isEmpty(), "Should return empty for unknown product");
         }
 
@@ -544,9 +544,9 @@ class ArticleDataFlowIntegrationTest {
                 "InventoryService should be callable");
 
             // Verify composite adapter returns aggregated data (with fallback for pricing if needed)
-            Optional<ArticleData> articleData = articleDataPort.getArticleData(testProductId);
-            assertTrue(articleData.isPresent(), "CompositeAdapter should return aggregated data");
-            assertEquals(productInfo.get().name(), articleData.get().name(),
+            Optional<CartArticle> cartArticle = articleDataPort.getArticleData(testProductId);
+            assertTrue(cartArticle.isPresent(), "CompositeAdapter should return aggregated data");
+            assertEquals(productInfo.get().name(), cartArticle.get().name(),
                 "Product name should match");
         }
     }

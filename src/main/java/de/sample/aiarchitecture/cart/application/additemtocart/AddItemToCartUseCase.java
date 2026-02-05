@@ -2,6 +2,7 @@ package de.sample.aiarchitecture.cart.application.additemtocart;
 
 import de.sample.aiarchitecture.cart.application.shared.ArticleDataPort;
 import de.sample.aiarchitecture.cart.application.shared.ShoppingCartRepository;
+import de.sample.aiarchitecture.cart.domain.model.CartArticle;
 import de.sample.aiarchitecture.cart.domain.model.CartId;
 import de.sample.aiarchitecture.cart.domain.model.Quantity;
 import de.sample.aiarchitecture.cart.domain.model.ShoppingCart;
@@ -66,17 +67,17 @@ public class AddItemToCartUseCase implements AddItemToCartInputPort {
                 .orElseThrow(() -> new IllegalArgumentException("Cart not found: " + input.cartId()));
 
         // Retrieve article data through output port (includes product existence, pricing, and stock)
-        final ArticleDataPort.ArticleData articleData =
+        final CartArticle cartArticle =
             articleDataPort
                 .getArticleData(productId)
                 .orElseThrow(() -> new IllegalArgumentException("Product not found: " + input.productId()));
 
-        // Business rule: Check if product has sufficient stock
-        if (articleData.availableStock() < quantity.value()) {
+        // Business rule: Check if product has sufficient stock using CartArticle domain method
+        if (!cartArticle.hasStockFor(quantity.value())) {
             throw new IllegalArgumentException("Insufficient stock for product: " + input.productId());
         }
 
-        final Price priceAtAddition = Price.of(articleData.currentPrice());
+        final Price priceAtAddition = Price.of(cartArticle.currentPrice());
 
         // Add item to cart (business logic in aggregate)
         cart.addItem(productId, quantity, priceAtAddition);

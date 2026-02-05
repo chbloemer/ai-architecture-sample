@@ -1,5 +1,6 @@
 package de.sample.aiarchitecture.infrastructure.config;
 
+import de.sample.aiarchitecture.cart.domain.model.EnrichedCartFactory;
 import de.sample.aiarchitecture.cart.domain.service.CartTotalCalculator;
 import de.sample.aiarchitecture.product.domain.service.PricingService;
 import de.sample.aiarchitecture.product.domain.model.ProductFactory;
@@ -28,5 +29,10 @@ public class DomainConfiguration {
   @Bean
   public CartTotalCalculator cartTotalCalculator() {
     return new CartTotalCalculator();
+  }
+
+  @Bean
+  public EnrichedCartFactory enrichedCartFactory() {
+    return new EnrichedCartFactory();
   }
 }

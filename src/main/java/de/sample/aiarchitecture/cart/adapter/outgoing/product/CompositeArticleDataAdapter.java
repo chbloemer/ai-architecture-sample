@@ -1,6 +1,7 @@
 package de.sample.aiarchitecture.cart.adapter.outgoing.product;
 
 import de.sample.aiarchitecture.cart.application.shared.ArticleDataPort;
+import de.sample.aiarchitecture.cart.domain.model.CartArticle;
 import de.sample.aiarchitecture.inventory.adapter.incoming.openhost.InventoryService;
 import de.sample.aiarchitecture.inventory.adapter.incoming.openhost.InventoryService.StockInfo;
 import de.sample.aiarchitecture.pricing.adapter.incoming.openhost.PricingService;
@@ -48,7 +49,7 @@ public class CompositeArticleDataAdapter implements ArticleDataPort {
     }
 
     @Override
-    public Map<ProductId, ArticleData> getArticleData(Collection<ProductId> productIds) {
+    public Map<ProductId, CartArticle> getArticleData(Collection<ProductId> productIds) {
         if (productIds == null || productIds.isEmpty()) {
             return Map.of();
         }
@@ -57,7 +58,7 @@ public class CompositeArticleDataAdapter implements ArticleDataPort {
         Map<ProductId, PriceInfo> prices = pricingService.getPrices(productIds);
         Map<ProductId, StockInfo> stocks = inventoryService.getStock(productIds);
 
-        Map<ProductId, ArticleData> result = new HashMap<>();
+        Map<ProductId, CartArticle> result = new HashMap<>();
 
         for (ProductId productId : productIds) {
             // ProductCatalogService doesn't have bulk fetch, so fetch individually
@@ -72,13 +73,13 @@ public class CompositeArticleDataAdapter implements ArticleDataPort {
                         ". Ensure price is set in Pricing context.");
                 }
 
-                ArticleData articleData = combineData(
+                CartArticle cartArticle = buildCartArticle(
                     productId,
                     productInfo.get(),
                     priceInfo,
                     stocks.get(productId)
                 );
-                result.put(productId, articleData);
+                result.put(productId, cartArticle);
             }
         }
 
@@ -86,7 +87,7 @@ public class CompositeArticleDataAdapter implements ArticleDataPort {
     }
 
     @Override
-    public Optional<ArticleData> getArticleData(ProductId productId) {
+    public Optional<CartArticle> getArticleData(ProductId productId) {
         if (productId == null) {
             return Optional.empty();
         }
@@ -114,7 +115,7 @@ public class CompositeArticleDataAdapter implements ArticleDataPort {
                 ". Ensure stock level is set in Inventory context.");
         }
 
-        return Optional.of(combineData(
+        return Optional.of(buildCartArticle(
             productId,
             productInfo.get(),
             priceInfo.get(),
@@ -123,9 +124,9 @@ public class CompositeArticleDataAdapter implements ArticleDataPort {
     }
 
     /**
-     * Combines data from multiple sources into a single ArticleData record.
+     * Builds a CartArticle domain object from multiple OHS data sources.
      */
-    private ArticleData combineData(
+    private CartArticle buildCartArticle(
             ProductId productId,
             ProductInfo productInfo,
             PriceInfo priceInfo,
@@ -138,6 +139,6 @@ public class CompositeArticleDataAdapter implements ArticleDataPort {
         int availableStock = stockInfo != null ? stockInfo.availableStock() : 0;
         boolean isAvailable = stockInfo != null && stockInfo.isAvailable();
 
-        return new ArticleData(productId, name, currentPrice, availableStock, isAvailable);
+        return CartArticle.of(productId, name, currentPrice, availableStock, isAvailable);
     }
 }

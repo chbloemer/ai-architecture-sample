@@ -1,12 +1,14 @@
 package de.sample.aiarchitecture.cart.application.checkoutcart;
 
 import de.sample.aiarchitecture.cart.application.shared.ArticleDataPort;
-import de.sample.aiarchitecture.cart.application.shared.ArticleDataPort.ArticleData;
 import de.sample.aiarchitecture.cart.application.shared.ShoppingCartRepository;
 import de.sample.aiarchitecture.cart.domain.model.ArticlePrice;
 import de.sample.aiarchitecture.cart.domain.model.ArticlePriceResolver;
+import de.sample.aiarchitecture.cart.domain.model.CartArticle;
 import de.sample.aiarchitecture.cart.domain.model.CartId;
 import de.sample.aiarchitecture.cart.domain.model.CartValidationResult;
+import de.sample.aiarchitecture.cart.domain.model.EnrichedCart;
+import de.sample.aiarchitecture.cart.domain.model.EnrichedCartFactory;
 import de.sample.aiarchitecture.cart.domain.model.ShoppingCart;
 import de.sample.aiarchitecture.sharedkernel.domain.model.Money;
 import de.sample.aiarchitecture.sharedkernel.domain.model.ProductId;
@@ -42,14 +44,17 @@ public class CheckoutCartUseCase implements CheckoutCartInputPort {
 
   private final ShoppingCartRepository shoppingCartRepository;
   private final ArticleDataPort articleDataPort;
+  private final EnrichedCartFactory enrichedCartFactory;
   private final DomainEventPublisher eventPublisher;
 
   public CheckoutCartUseCase(
       final ShoppingCartRepository shoppingCartRepository,
       final ArticleDataPort articleDataPort,
+      final EnrichedCartFactory enrichedCartFactory,
       final DomainEventPublisher eventPublisher) {
     this.shoppingCartRepository = shoppingCartRepository;
     this.articleDataPort = articleDataPort;
+    this.enrichedCartFactory = enrichedCartFactory;
     this.eventPublisher = eventPublisher;
   }
 
@@ -68,14 +73,16 @@ public class CheckoutCartUseCase implements CheckoutCartInputPort {
         .map(item -> item.productId())
         .collect(Collectors.toSet());
 
-    final Map<ProductId, ArticleData> articleDataMap = articleDataPort.getArticleData(productIds);
+    final Map<ProductId, CartArticle> articleDataMap = articleDataPort.getArticleData(productIds);
 
-    // Build resolver from fetched data
-    final ArticlePriceResolver resolver = buildResolver(articleDataMap);
+    // Create enriched cart using factory for validation
+    final EnrichedCart enrichedCart = enrichedCartFactory.create(cart, articleDataMap);
 
-    // Validate cart with fresh data
-    final CartValidationResult validationResult = cart.validateForCheckout(resolver);
-    if (!validationResult.isValid()) {
+    // Validate cart using EnrichedCart domain methods
+    if (!enrichedCart.isValidForCheckout()) {
+      // Build resolver from CartArticle data for legacy validation result
+      final ArticlePriceResolver resolver = buildResolver(articleDataMap);
+      final CartValidationResult validationResult = cart.validateForCheckout(resolver);
       throw new CartValidationException(validationResult);
     }
 
@@ -88,21 +95,18 @@ public class CheckoutCartUseCase implements CheckoutCartInputPort {
     // Publish domain events
     eventPublisher.publishAndClearEvents(cart);
 
-    // Map to output using fresh prices from resolver
-    final List<CheckoutCartResult.CartItemSummary> items = cart.items().stream()
-        .map(item -> {
-          final ArticlePrice articlePrice = resolver.resolve(item.productId());
-          return new CheckoutCartResult.CartItemSummary(
-              item.id().value().toString(),
-              item.productId().value().toString(),
-              item.quantity().value(),
-              articlePrice.price().amount(),
-              articlePrice.price().currency().getCurrencyCode()
-          );
-        })
+    // Map to output using enriched cart items
+    final List<CheckoutCartResult.CartItemSummary> items = enrichedCart.items().stream()
+        .map(item -> new CheckoutCartResult.CartItemSummary(
+            item.cartItemId().value().toString(),
+            item.productId().value().toString(),
+            item.quantity().value(),
+            item.currentArticle().currentPrice().amount(),
+            item.currentArticle().currentPrice().currency().getCurrencyCode()
+        ))
         .toList();
 
-    final Money total = cart.calculateTotal(resolver);
+    final Money total = enrichedCart.calculateCurrentSubtotal();
 
     return new CheckoutCartResult(
         cart.id().value(),
@@ -116,18 +120,19 @@ public class CheckoutCartUseCase implements CheckoutCartInputPort {
 
   /**
    * Builds an ArticlePriceResolver from the fetched article data.
+   * Kept for backward compatibility with CartValidationResult.
    *
-   * @param articleDataMap the map of product IDs to article data
+   * @param articleDataMap the map of product IDs to CartArticle
    * @return a resolver that provides pricing information
    */
-  private ArticlePriceResolver buildResolver(final Map<ProductId, ArticleData> articleDataMap) {
+  private ArticlePriceResolver buildResolver(final Map<ProductId, CartArticle> articleDataMap) {
     return productId -> {
-      final ArticleData data = articleDataMap.get(productId);
-      if (data == null) {
+      final CartArticle article = articleDataMap.get(productId);
+      if (article == null) {
         // Product not found - treat as unavailable
         return new ArticlePrice(Money.euro(0.0), false, 0);
       }
-      return new ArticlePrice(data.currentPrice(), data.isAvailable(), data.availableStock());
+      return new ArticlePrice(article.currentPrice(), article.isAvailable(), article.availableStock());
     };
   }
 

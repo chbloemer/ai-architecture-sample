@@ -2781,7 +2781,7 @@
           "Methods return void - push model, not pull"
         ]
       },
-      "passes": false
+      "passes": true
     },
     {
       "id": "US-108",

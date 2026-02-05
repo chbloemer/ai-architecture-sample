@@ -1,0 +1,31 @@
+All tests pass. Let me verify the implementation against the acceptance criteria:
+
+**Acceptance Criteria Verification:**
+
+1. ✅ **CheckoutStateInterest interface in checkout/domain/model/** - Created at `de.sample.aiarchitecture.checkout.domain.model.CheckoutStateInterest`
+
+2. ✅ **Interface implements StateInterest marker** - `extends StateInterest`
+
+3. ✅ **receiveSessionId(CheckoutSessionId) method** - Present
+
+4. ✅ **receiveCartId(CartId) method** - Present
+
+5. ✅ **receiveCustomerId(CustomerId) method** - Present
+
+6. ✅ **receiveStep(CheckoutStep) method** - Present
+
+7. ✅ **receiveLineItem(CheckoutLineItemId, ProductId, String name, Money price, int quantity) method** - Present with all required parameters
+
+8. ✅ **receiveSubtotal(Money) method** - Present
+
+9. ✅ **receiveBuyerInfo(BuyerInfo) method (optional - may be null)** - Present with `@Nullable` annotation
+
+10. ✅ **receiveDeliveryAddress(DeliveryAddress) method (optional)** - Present with `@Nullable` annotation
+
+11. ✅ **receiveShippingOption(ShippingOption) method (optional)** - Present with `@Nullable` annotation
+
+12. ✅ **receivePaymentSelection(PaymentSelection) method (optional)** - Present with `@Nullable` annotation
+
+13. ✅ **Architecture tests pass** - `./gradlew test-architecture` passed successfully
+
+<promise>STORY_COMPLETE</promise>

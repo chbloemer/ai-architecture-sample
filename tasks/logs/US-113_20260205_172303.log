@@ -1,0 +1,14 @@
+Let me verify each acceptance criterion by checking the code:
+
+**Acceptance Criteria Verification:**
+
+1. ✅ **Create cart/domain/readmodel/ package** - Created with package-info.java
+2. ✅ **EnrichedCartBuilder class in cart/domain/readmodel/** - Created at `cart/domain/readmodel/EnrichedCartBuilder.java`
+3. ✅ **Builder implements CartStateInterest** - EnrichedCartBuilder implements EnrichedCartStateInterest which extends CartStateInterest
+4. ✅ **Builder implements ReadModelBuilder marker** - `implements EnrichedCartStateInterest, ReadModelBuilder`
+5. ✅ **EnrichedCartStateInterest extends CartStateInterest with receiveCurrentArticleData()** - Interface created with the method
+6. ✅ **Builder can receive both snapshot and current article data** - Receives snapshot via CartStateInterest methods and current article data via `receiveCurrentArticleData()`
+7. ✅ **build() method returns immutable EnrichedCart read model** - Returns `EnrichedCart` which is an immutable record with `List.copyOf()`
+8. ✅ **Architecture tests pass** - `./gradlew test-architecture` completed successfully
+
+<promise>STORY_COMPLETE</promise>

@@ -6,7 +6,6 @@ import de.sample.aiarchitecture.account.domain.model.Email;
 import de.sample.aiarchitecture.account.domain.service.PasswordHasher;
 import de.sample.aiarchitecture.sharedkernel.marker.port.out.DomainEventPublisher;
 import de.sample.aiarchitecture.sharedkernel.domain.model.UserId;
-import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -48,8 +47,8 @@ public class RegisterAccountUseCase implements RegisterAccountInputPort {
 
   @Override
   @Transactional
-  @NonNull
-  public RegisterAccountResult execute(@NonNull final RegisterAccountCommand command) {
+  
+  public RegisterAccountResult execute(final RegisterAccountCommand command) {
     final Email email = Email.of(command.email());
 
     // Check if email is already registered

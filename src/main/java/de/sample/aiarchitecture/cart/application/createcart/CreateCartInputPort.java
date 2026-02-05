@@ -1,7 +1,6 @@
 package de.sample.aiarchitecture.cart.application.createcart;
 
 import de.sample.aiarchitecture.sharedkernel.marker.port.in.UseCase;
-import org.jspecify.annotations.NonNull;
 
 /**
  * Input port for creating a new shopping cart.
@@ -22,5 +21,5 @@ public interface CreateCartInputPort extends UseCase<CreateCartCommand, CreateCa
    * @return response containing the created cart details
    */
   @Override
-  @NonNull CreateCartResult execute(@NonNull CreateCartCommand command);
+  CreateCartResult execute(CreateCartCommand command);
 }

@@ -2,7 +2,6 @@ package de.sample.aiarchitecture.product.application.getallproducts;
 
 import java.math.BigDecimal;
 import java.util.List;
-import org.jspecify.annotations.NonNull;
 
 /**
  * Output model for retrieving all products.
@@ -12,7 +11,7 @@ import org.jspecify.annotations.NonNull;
  *
  * @param products the list of products
  */
-public record GetAllProductsResult(@NonNull List<ProductSummary> products) {
+public record GetAllProductsResult(List<ProductSummary> products) {
 
   /**
    * Summary of a product (used in lists).
@@ -26,12 +25,12 @@ public record GetAllProductsResult(@NonNull List<ProductSummary> products) {
    * @param stockQuantity the available stock quantity
    */
   public record ProductSummary(
-      @NonNull String productId,
-      @NonNull String sku,
-      @NonNull String name,
-      @NonNull BigDecimal priceAmount,
-      @NonNull String priceCurrency,
-      @NonNull String category,
+      String productId,
+      String sku,
+      String name,
+      BigDecimal priceAmount,
+      String priceCurrency,
+      String category,
       int stockQuantity
   ) {}
 }

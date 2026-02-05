@@ -3,7 +3,6 @@ package de.sample.aiarchitecture.sharedkernel.domain.model;
 import de.sample.aiarchitecture.sharedkernel.marker.tactical.Id;
 import de.sample.aiarchitecture.sharedkernel.marker.tactical.Value;
 import java.util.UUID;
-import org.jspecify.annotations.NonNull;
 
 /**
  * Value Object representing a User's unique identifier.
@@ -27,7 +26,7 @@ import org.jspecify.annotations.NonNull;
  * in the JWT claims (type: "anonymous" vs "registered"), not in the UserId itself.
  * This ensures the UserId remains unchanged on registration.
  */
-public record UserId(@NonNull String value) implements Id, Value {
+public record UserId(String value) implements Id, Value {
 
   public UserId {
     if (value == null || value.isBlank()) {

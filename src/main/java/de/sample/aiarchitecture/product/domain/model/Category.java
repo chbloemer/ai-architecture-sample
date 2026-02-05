@@ -1,12 +1,11 @@
 package de.sample.aiarchitecture.product.domain.model;
 
 import de.sample.aiarchitecture.sharedkernel.marker.tactical.Value;
-import org.jspecify.annotations.NonNull;
 
 /**
  * Value Object representing a Product's category.
  */
-public record Category(@NonNull String name) implements Value {
+public record Category(String name) implements Value {
 
   public Category {
     if (name == null || name.isBlank()) {

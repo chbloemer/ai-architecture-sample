@@ -1,13 +1,11 @@
 package de.sample.aiarchitecture.cart.application.checkoutcart;
 
-import org.jspecify.annotations.NonNull;
-
 /**
  * Input model for checking out a shopping cart.
  *
  * @param cartId the cart ID to checkout
  */
-public record CheckoutCartCommand(@NonNull String cartId) {
+public record CheckoutCartCommand(String cartId) {
 
   /**
    * Compact constructor with validation.

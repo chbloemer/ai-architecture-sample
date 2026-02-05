@@ -4,7 +4,6 @@ import de.sample.aiarchitecture.cart.application.shared.ShoppingCartRepository;
 import de.sample.aiarchitecture.cart.domain.model.ShoppingCart;
 import de.sample.aiarchitecture.sharedkernel.domain.model.Money;
 import java.util.List;
-import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,7 +26,7 @@ public class GetAllCartsUseCase implements GetAllCartsInputPort {
   }
 
   @Override
-  public @NonNull GetAllCartsResult execute(@NonNull final GetAllCartsQuery input) {
+  public GetAllCartsResult execute(final GetAllCartsQuery input) {
     final List<ShoppingCart> carts = shoppingCartRepository.findAll();
 
     final List<GetAllCartsResult.CartSummary> cartSummaries = carts.stream()

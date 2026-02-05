@@ -4,7 +4,6 @@ import de.sample.aiarchitecture.checkout.application.shared.CheckoutSessionRepos
 import de.sample.aiarchitecture.checkout.domain.model.BuyerInfo;
 import de.sample.aiarchitecture.checkout.domain.model.CheckoutSession;
 import de.sample.aiarchitecture.checkout.domain.model.CheckoutSessionId;
-import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,7 +32,7 @@ public class SubmitBuyerInfoUseCase implements SubmitBuyerInfoInputPort {
   }
 
   @Override
-  public @NonNull SubmitBuyerInfoResult execute(@NonNull final SubmitBuyerInfoCommand command) {
+  public SubmitBuyerInfoResult execute(final SubmitBuyerInfoCommand command) {
     // Load session
     final CheckoutSessionId sessionId = CheckoutSessionId.of(command.sessionId());
     final CheckoutSession session =

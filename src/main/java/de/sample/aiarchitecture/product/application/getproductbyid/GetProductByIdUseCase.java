@@ -9,7 +9,6 @@ import de.sample.aiarchitecture.product.domain.model.Product;
 import de.sample.aiarchitecture.sharedkernel.domain.model.ProductId;
 import java.math.BigDecimal;
 import java.util.Optional;
-import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -41,7 +40,7 @@ public class GetProductByIdUseCase implements GetProductByIdInputPort {
   }
 
   @Override
-  public @NonNull GetProductByIdResult execute(@NonNull final GetProductByIdQuery input) {
+  public GetProductByIdResult execute(final GetProductByIdQuery input) {
     final ProductId productId = ProductId.of(input.productId());
 
     final Optional<Product> productOpt = productRepository.findById(productId);

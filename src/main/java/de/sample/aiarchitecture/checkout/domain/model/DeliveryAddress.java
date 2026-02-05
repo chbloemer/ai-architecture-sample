@@ -1,18 +1,17 @@
 package de.sample.aiarchitecture.checkout.domain.model;
 
 import de.sample.aiarchitecture.sharedkernel.marker.tactical.Value;
-import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 /**
  * Value Object representing a delivery address for checkout.
  */
 public record DeliveryAddress(
-    @NonNull String street,
+    String street,
     @Nullable String streetLine2,
-    @NonNull String city,
-    @NonNull String postalCode,
-    @NonNull String country,
+    String city,
+    String postalCode,
+    String country,
     @Nullable String state)
     implements Value {
 

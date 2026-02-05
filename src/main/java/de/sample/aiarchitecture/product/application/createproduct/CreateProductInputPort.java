@@ -1,7 +1,6 @@
 package de.sample.aiarchitecture.product.application.createproduct;
 
 import de.sample.aiarchitecture.sharedkernel.marker.port.in.UseCase;
-import org.jspecify.annotations.NonNull;
 
 /**
  * Input port for creating a new product.
@@ -25,5 +24,5 @@ public interface CreateProductInputPort extends UseCase<CreateProductCommand, Cr
    * @throws IllegalArgumentException if SKU already exists or validation fails
    */
   @Override
-  @NonNull CreateProductResult execute(@NonNull CreateProductCommand command);
+  CreateProductResult execute(CreateProductCommand command);
 }

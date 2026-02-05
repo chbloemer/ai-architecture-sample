@@ -9,7 +9,6 @@ import de.sample.aiarchitecture.sharedkernel.marker.port.out.DomainEventPublishe
 import de.sample.aiarchitecture.sharedkernel.domain.model.Money;
 import java.util.List;
 import java.util.Optional;
-import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -42,7 +41,7 @@ public class RecoverCartOnLoginUseCase implements RecoverCartOnLoginInputPort {
   }
 
   @Override
-  public @NonNull RecoverCartOnLoginResult execute(@NonNull final RecoverCartOnLoginCommand input) {
+  public RecoverCartOnLoginResult execute(final RecoverCartOnLoginCommand input) {
     final CustomerId anonymousCustomerId = CustomerId.of(input.anonymousUserId());
     final CustomerId registeredCustomerId = CustomerId.of(input.registeredUserId());
 

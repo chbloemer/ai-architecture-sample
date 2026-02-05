@@ -71,12 +71,18 @@ class StockReductionOnCheckoutIntegrationTest {
     }
 
     /**
-     * Ensures a stock level exists for a product, creating one if needed.
+     * Ensures a stock level exists for a product and resets it to the specified quantity.
+     * This guarantees test isolation since the in-memory repository is shared across tests.
      */
     private void ensureStockLevelExists(ProductId productId, int initialStock) {
         Optional<StockLevel> existing = stockLevelRepository.findByProductId(productId);
         if (existing.isEmpty()) {
             StockLevel stockLevel = StockLevel.create(productId, initialStock);
+            stockLevelRepository.save(stockLevel);
+        } else {
+            // Always reset to initial stock for test isolation
+            StockLevel stockLevel = existing.get();
+            stockLevel.setAvailableQuantity(initialStock);
             stockLevelRepository.save(stockLevel);
         }
     }

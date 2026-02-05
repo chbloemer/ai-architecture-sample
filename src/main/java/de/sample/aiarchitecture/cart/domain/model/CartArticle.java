@@ -3,7 +3,6 @@ package de.sample.aiarchitecture.cart.domain.model;
 import de.sample.aiarchitecture.sharedkernel.domain.model.Money;
 import de.sample.aiarchitecture.sharedkernel.domain.model.ProductId;
 import de.sample.aiarchitecture.sharedkernel.marker.tactical.Value;
-import org.jspecify.annotations.NonNull;
 
 /**
  * Value Object representing cart's view of article data from external contexts.
@@ -12,9 +11,9 @@ import org.jspecify.annotations.NonNull;
  * needed during cart operations, including pricing and availability.
  */
 public record CartArticle(
-    @NonNull ProductId productId,
-    @NonNull String name,
-    @NonNull Money currentPrice,
+    ProductId productId,
+    String name,
+    Money currentPrice,
     int availableStock,
     boolean isAvailable)
     implements Value {

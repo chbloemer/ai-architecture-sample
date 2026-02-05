@@ -2,7 +2,6 @@ package de.sample.aiarchitecture.checkout.application.getactivecheckoutsession;
 
 import de.sample.aiarchitecture.checkout.application.shared.CheckoutSessionRepository;
 import de.sample.aiarchitecture.checkout.domain.model.CustomerId;
-import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,8 +25,8 @@ public class GetActiveCheckoutSessionUseCase implements GetActiveCheckoutSession
   }
 
   @Override
-  public @NonNull GetActiveCheckoutSessionResult execute(
-      @NonNull final GetActiveCheckoutSessionQuery query) {
+  public GetActiveCheckoutSessionResult execute(
+      final GetActiveCheckoutSessionQuery query) {
     final CustomerId customerId = CustomerId.of(query.customerId());
 
     return checkoutSessionRepository

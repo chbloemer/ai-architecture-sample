@@ -14,7 +14,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import javax.sql.DataSource;
-import org.jspecify.annotations.NonNull;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -43,7 +42,7 @@ public class JdbcShoppingCartRepository implements ShoppingCartRepository {
   }
 
   @Override
-  public Optional<ShoppingCart> findById(@NonNull final CartId id) {
+  public Optional<ShoppingCart> findById(final CartId id) {
     final List<ShoppingCart> carts =
         jdbcTemplate.query(
             "SELECT id, customer_id, status FROM carts WHERE id = ?",
@@ -57,7 +56,7 @@ public class JdbcShoppingCartRepository implements ShoppingCartRepository {
   }
 
   @Override
-  public List<ShoppingCart> findByCustomerId(@NonNull final CustomerId customerId) {
+  public List<ShoppingCart> findByCustomerId(final CustomerId customerId) {
     final List<ShoppingCart> carts =
         jdbcTemplate.query(
             "SELECT id, customer_id, status FROM carts WHERE customer_id = ? ORDER BY updated_at DESC",
@@ -68,7 +67,7 @@ public class JdbcShoppingCartRepository implements ShoppingCartRepository {
   }
 
   @Override
-  public Optional<ShoppingCart> findActiveCartByCustomerId(@NonNull final CustomerId customerId) {
+  public Optional<ShoppingCart> findActiveCartByCustomerId(final CustomerId customerId) {
     final List<ShoppingCart> carts =
         jdbcTemplate.query(
             "SELECT id, customer_id, status FROM carts WHERE customer_id = ? AND status = ? ORDER BY updated_at DESC LIMIT 1",
@@ -94,7 +93,7 @@ public class JdbcShoppingCartRepository implements ShoppingCartRepository {
 
   @Override
   @Transactional
-  public ShoppingCart save(@NonNull final ShoppingCart cart) {
+  public ShoppingCart save(final ShoppingCart cart) {
     // Upsert cart
     jdbcTemplate.update(
         "MERGE INTO carts (id, customer_id, status, updated_at) KEY(id) VALUES (?, ?, ?, CURRENT_TIMESTAMP)",
@@ -119,14 +118,14 @@ public class JdbcShoppingCartRepository implements ShoppingCartRepository {
 
   @Override
   @Transactional
-  public void deleteById(@NonNull final CartId id) {
+  public void deleteById(final CartId id) {
     jdbcTemplate.update("DELETE FROM cart_items WHERE cart_id = ?", id.value());
     jdbcTemplate.update("DELETE FROM carts WHERE id = ?", id.value());
   }
 
   @Override
   @Transactional(readOnly = true)
-  public Page<ShoppingCart> findBy(@NonNull final CompositeSpecification<ShoppingCart> specification, @NonNull final Pageable pageable) {
+  public Page<ShoppingCart> findBy(final CompositeSpecification<ShoppingCart> specification, final Pageable pageable) {
     final CartSpecToJdbc translator = requireTranslator();
     final var pred = specification.accept(translator);
 

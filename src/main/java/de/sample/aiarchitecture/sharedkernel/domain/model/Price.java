@@ -1,7 +1,6 @@
 package de.sample.aiarchitecture.sharedkernel.domain.model;
 
 import de.sample.aiarchitecture.sharedkernel.marker.tactical.Value;
-import org.jspecify.annotations.NonNull;
 
 /**
  * Value Object representing a Product's price.
@@ -10,7 +9,7 @@ import org.jspecify.annotations.NonNull;
  * Product and Cart contexts use Price to represent monetary values with business rules (e.g., price
  * must be greater than zero).
  */
-public record Price(@NonNull Money value) implements Value {
+public record Price(Money value) implements Value {
 
   public Price {
     if (value == null) {

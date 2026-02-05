@@ -1,13 +1,11 @@
 package de.sample.aiarchitecture.cart.application.createcart;
 
-import org.jspecify.annotations.NonNull;
-
 /**
  * Input model for creating a shopping cart.
  *
  * @param customerId the customer ID who owns the cart
  */
-public record CreateCartCommand(@NonNull String customerId) {
+public record CreateCartCommand(String customerId) {
 
   /**
    * Compact constructor with validation.

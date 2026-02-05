@@ -1,7 +1,5 @@
 package de.sample.aiarchitecture.account.application.registeraccount;
 
-import org.jspecify.annotations.NonNull;
-
 /**
  * Command to register a new account.
  *
@@ -10,9 +8,9 @@ import org.jspecify.annotations.NonNull;
  * @param currentUserId the current user's ID (from their anonymous JWT)
  */
 public record RegisterAccountCommand(
-    @NonNull String email,
-    @NonNull String password,
-    @NonNull String currentUserId) {
+    String email,
+    String password,
+    String currentUserId) {
 
   public RegisterAccountCommand {
     if (email == null || email.isBlank()) {

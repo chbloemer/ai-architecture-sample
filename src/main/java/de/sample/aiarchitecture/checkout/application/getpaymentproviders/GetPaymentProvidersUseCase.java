@@ -4,7 +4,6 @@ import de.sample.aiarchitecture.checkout.application.getpaymentproviders.GetPaym
 import de.sample.aiarchitecture.checkout.application.shared.PaymentProvider;
 import de.sample.aiarchitecture.checkout.application.shared.PaymentProviderRegistry;
 import java.util.List;
-import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,7 +27,7 @@ public class GetPaymentProvidersUseCase implements GetPaymentProvidersInputPort 
   }
 
   @Override
-  public @NonNull GetPaymentProvidersResult execute(@NonNull final GetPaymentProvidersQuery query) {
+  public GetPaymentProvidersResult execute(final GetPaymentProvidersQuery query) {
     final List<PaymentProviderData> providers =
         paymentProviderRegistry.findAll().stream()
             .map(this::mapToData)

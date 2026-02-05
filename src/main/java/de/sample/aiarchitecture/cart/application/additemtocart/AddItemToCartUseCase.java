@@ -11,7 +11,6 @@ import de.sample.aiarchitecture.sharedkernel.domain.model.Money;
 import de.sample.aiarchitecture.sharedkernel.domain.model.Price;
 import de.sample.aiarchitecture.sharedkernel.domain.model.ProductId;
 import java.util.List;
-import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -55,7 +54,7 @@ public class AddItemToCartUseCase implements AddItemToCartInputPort {
     }
 
     @Override
-    public @NonNull AddItemToCartResult execute(@NonNull final AddItemToCartCommand input) {
+    public AddItemToCartResult execute(final AddItemToCartCommand input) {
         final CartId cartId = CartId.of(input.cartId());
         final ProductId productId = ProductId.of(input.productId());
         final Quantity quantity = new Quantity(input.quantity());

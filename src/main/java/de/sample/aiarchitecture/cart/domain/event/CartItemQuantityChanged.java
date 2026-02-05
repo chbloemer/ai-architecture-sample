@@ -7,7 +7,6 @@ import de.sample.aiarchitecture.sharedkernel.domain.model.ProductId;
 import de.sample.aiarchitecture.sharedkernel.marker.tactical.DomainEvent;
 import java.time.Instant;
 import java.util.UUID;
-import org.jspecify.annotations.NonNull;
 
 /**
  * Domain Event indicating that the quantity of a cart item was changed.
@@ -16,22 +15,22 @@ import org.jspecify.annotations.NonNull;
  * of an existing item in their shopping cart.
  */
 public record CartItemQuantityChanged(
-    @NonNull UUID eventId,
-    @NonNull CartId cartId,
-    @NonNull CartItemId cartItemId,
-    @NonNull ProductId productId,
-    @NonNull Quantity oldQuantity,
-    @NonNull Quantity newQuantity,
-    @NonNull Instant occurredOn,
+    UUID eventId,
+    CartId cartId,
+    CartItemId cartItemId,
+    ProductId productId,
+    Quantity oldQuantity,
+    Quantity newQuantity,
+    Instant occurredOn,
     int version)
     implements DomainEvent {
 
   public static CartItemQuantityChanged now(
-      @NonNull final CartId cartId,
-      @NonNull final CartItemId cartItemId,
-      @NonNull final ProductId productId,
-      @NonNull final Quantity oldQuantity,
-      @NonNull final Quantity newQuantity) {
+      final CartId cartId,
+      final CartItemId cartItemId,
+      final ProductId productId,
+      final Quantity oldQuantity,
+      final Quantity newQuantity) {
     return new CartItemQuantityChanged(
         UUID.randomUUID(),
         cartId,

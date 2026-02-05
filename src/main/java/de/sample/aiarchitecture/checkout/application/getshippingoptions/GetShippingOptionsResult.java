@@ -2,14 +2,13 @@ package de.sample.aiarchitecture.checkout.application.getshippingoptions;
 
 import java.math.BigDecimal;
 import java.util.List;
-import org.jspecify.annotations.NonNull;
 
 /**
  * Output model containing available shipping options.
  *
  * @param shippingOptions list of available shipping options
  */
-public record GetShippingOptionsResult(@NonNull List<ShippingOptionData> shippingOptions) {
+public record GetShippingOptionsResult(List<ShippingOptionData> shippingOptions) {
 
   /**
    * Individual shipping option details.
@@ -21,9 +20,9 @@ public record GetShippingOptionsResult(@NonNull List<ShippingOptionData> shippin
    * @param currencyCode the currency code (e.g., "EUR")
    */
   public record ShippingOptionData(
-      @NonNull String id,
-      @NonNull String name,
-      @NonNull String estimatedDelivery,
-      @NonNull BigDecimal cost,
-      @NonNull String currencyCode) {}
+      String id,
+      String name,
+      String estimatedDelivery,
+      BigDecimal cost,
+      String currencyCode) {}
 }

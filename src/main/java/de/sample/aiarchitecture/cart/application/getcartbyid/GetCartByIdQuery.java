@@ -1,13 +1,11 @@
 package de.sample.aiarchitecture.cart.application.getcartbyid;
 
-import org.jspecify.annotations.NonNull;
-
 /**
  * Input model for retrieving a cart by ID.
  *
  * @param cartId the cart ID
  */
-public record GetCartByIdQuery(@NonNull String cartId) {
+public record GetCartByIdQuery(String cartId) {
 
   /**
    * Compact constructor with validation.

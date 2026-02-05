@@ -1,7 +1,5 @@
 package de.sample.aiarchitecture.account.application.authenticateaccount;
 
-import org.jspecify.annotations.NonNull;
-
 /**
  * Command to authenticate an account (login).
  *
@@ -9,8 +7,8 @@ import org.jspecify.annotations.NonNull;
  * @param password the user's plaintext password
  */
 public record AuthenticateAccountCommand(
-    @NonNull String email,
-    @NonNull String password) {
+    String email,
+    String password) {
 
   public AuthenticateAccountCommand {
     if (email == null || email.isBlank()) {

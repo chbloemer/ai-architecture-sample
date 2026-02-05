@@ -2,7 +2,6 @@ package de.sample.aiarchitecture.pricing.application.setproductprice;
 
 import java.math.BigDecimal;
 import java.time.Instant;
-import org.jspecify.annotations.NonNull;
 
 /**
  * Output model for setting or updating a product's price.
@@ -15,9 +14,9 @@ import org.jspecify.annotations.NonNull;
  * @param created true if a new price was created, false if an existing price was updated
  */
 public record SetProductPriceResult(
-    @NonNull String priceId,
-    @NonNull String productId,
-    @NonNull BigDecimal priceAmount,
-    @NonNull String priceCurrency,
-    @NonNull Instant effectiveFrom,
+    String priceId,
+    String productId,
+    BigDecimal priceAmount,
+    String priceCurrency,
+    Instant effectiveFrom,
     boolean created) {}

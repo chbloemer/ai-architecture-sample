@@ -6,7 +6,6 @@ import de.sample.aiarchitecture.sharedkernel.domain.model.ProductId;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,8 +28,8 @@ public class GetPricesForProductsUseCase implements GetPricesForProductsInputPor
   }
 
   @Override
-  public @NonNull GetPricesForProductsResult execute(
-      @NonNull final GetPricesForProductsQuery query) {
+  public GetPricesForProductsResult execute(
+      final GetPricesForProductsQuery query) {
     final List<ProductPrice> prices =
         productPriceRepository.findByProductIds(query.productIds());
 

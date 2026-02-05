@@ -2,7 +2,6 @@ package de.sample.aiarchitecture.checkout.application.getconfirmedcheckoutsessio
 
 import de.sample.aiarchitecture.checkout.application.shared.CheckoutSessionRepository;
 import de.sample.aiarchitecture.checkout.domain.model.CustomerId;
-import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,8 +26,8 @@ public class GetConfirmedCheckoutSessionUseCase implements GetConfirmedCheckoutS
   }
 
   @Override
-  public @NonNull GetConfirmedCheckoutSessionResult execute(
-      @NonNull final GetConfirmedCheckoutSessionQuery query) {
+  public GetConfirmedCheckoutSessionResult execute(
+      final GetConfirmedCheckoutSessionQuery query) {
     final CustomerId customerId = CustomerId.of(query.customerId());
 
     return checkoutSessionRepository

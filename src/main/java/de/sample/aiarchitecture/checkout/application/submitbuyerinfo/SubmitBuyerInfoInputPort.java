@@ -1,7 +1,6 @@
 package de.sample.aiarchitecture.checkout.application.submitbuyerinfo;
 
 import de.sample.aiarchitecture.sharedkernel.marker.port.in.UseCase;
-import org.jspecify.annotations.NonNull;
 
 /**
  * Input port for submitting buyer contact information during checkout.
@@ -33,5 +32,5 @@ public interface SubmitBuyerInfoInputPort
    * @throws IllegalStateException if session is not modifiable or step validation fails
    */
   @Override
-  @NonNull SubmitBuyerInfoResult execute(@NonNull SubmitBuyerInfoCommand command);
+  SubmitBuyerInfoResult execute(SubmitBuyerInfoCommand command);
 }

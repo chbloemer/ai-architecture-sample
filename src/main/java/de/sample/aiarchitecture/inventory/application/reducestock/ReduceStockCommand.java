@@ -1,7 +1,5 @@
 package de.sample.aiarchitecture.inventory.application.reducestock;
 
-import org.jspecify.annotations.NonNull;
-
 /**
  * Command for reducing stock of a product.
  *
@@ -9,7 +7,7 @@ import org.jspecify.annotations.NonNull;
  * @param quantity the quantity to reduce
  */
 public record ReduceStockCommand(
-    @NonNull String productId,
+    String productId,
     int quantity) {
 
   public ReduceStockCommand {

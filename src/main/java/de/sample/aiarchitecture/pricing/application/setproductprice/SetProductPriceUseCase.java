@@ -6,7 +6,6 @@ import de.sample.aiarchitecture.sharedkernel.domain.model.Money;
 import de.sample.aiarchitecture.sharedkernel.domain.model.ProductId;
 import de.sample.aiarchitecture.sharedkernel.marker.port.out.DomainEventPublisher;
 import java.util.Currency;
-import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -40,7 +39,7 @@ public class SetProductPriceUseCase implements SetProductPriceInputPort {
   }
 
   @Override
-  public @NonNull SetProductPriceResult execute(@NonNull final SetProductPriceCommand command) {
+  public SetProductPriceResult execute(final SetProductPriceCommand command) {
     final ProductId productId = ProductId.of(command.productId());
     final Money newPrice = new Money(command.priceAmount(), Currency.getInstance(command.priceCurrency()));
 

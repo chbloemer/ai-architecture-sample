@@ -3,7 +3,6 @@ package de.sample.aiarchitecture.checkout.domain.model;
 import de.sample.aiarchitecture.sharedkernel.domain.model.ProductId;
 import de.sample.aiarchitecture.sharedkernel.marker.tactical.Value;
 import java.util.List;
-import org.jspecify.annotations.NonNull;
 
 /**
  * Value Object representing the result of validating checkout items against current pricing and
@@ -14,7 +13,7 @@ import org.jspecify.annotations.NonNull;
  *
  * @param errors the list of validation errors, empty if validation passed
  */
-public record CheckoutValidationResult(@NonNull List<ValidationError> errors) implements Value {
+public record CheckoutValidationResult(List<ValidationError> errors) implements Value {
 
   public CheckoutValidationResult {
     errors = List.copyOf(errors);
@@ -44,7 +43,7 @@ public record CheckoutValidationResult(@NonNull List<ValidationError> errors) im
    * @param errors the validation errors
    * @return a CheckoutValidationResult containing the errors
    */
-  public static CheckoutValidationResult withErrors(@NonNull List<ValidationError> errors) {
+  public static CheckoutValidationResult withErrors(List<ValidationError> errors) {
     return new CheckoutValidationResult(errors);
   }
 
@@ -54,7 +53,7 @@ public record CheckoutValidationResult(@NonNull List<ValidationError> errors) im
    * @param error the validation error
    * @return a CheckoutValidationResult containing the single error
    */
-  public static CheckoutValidationResult withError(@NonNull ValidationError error) {
+  public static CheckoutValidationResult withError(ValidationError error) {
     return new CheckoutValidationResult(List.of(error));
   }
 
@@ -66,7 +65,7 @@ public record CheckoutValidationResult(@NonNull List<ValidationError> errors) im
    * @param type the type of validation error
    */
   public record ValidationError(
-      @NonNull ProductId productId, @NonNull String message, @NonNull ErrorType type)
+      ProductId productId, String message, ErrorType type)
       implements Value {
 
     public ValidationError {
@@ -81,7 +80,7 @@ public record CheckoutValidationResult(@NonNull List<ValidationError> errors) im
      * @param productId the unavailable product
      * @return a ValidationError with PRODUCT_UNAVAILABLE type
      */
-    public static ValidationError productUnavailable(@NonNull ProductId productId) {
+    public static ValidationError productUnavailable(ProductId productId) {
       return new ValidationError(
           productId, "Product is not available for purchase", ErrorType.PRODUCT_UNAVAILABLE);
     }
@@ -95,7 +94,7 @@ public record CheckoutValidationResult(@NonNull List<ValidationError> errors) im
      * @return a ValidationError with INSUFFICIENT_STOCK type
      */
     public static ValidationError insufficientStock(
-        @NonNull ProductId productId, int requested, int available) {
+        ProductId productId, int requested, int available) {
       return new ValidationError(
           productId,
           String.format(

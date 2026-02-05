@@ -5,7 +5,6 @@ import de.sample.aiarchitecture.cart.domain.event.CartCleared;
 import de.sample.aiarchitecture.cart.domain.event.CartItemAddedToCart;
 import de.sample.aiarchitecture.cart.domain.event.CartItemQuantityChanged;
 import de.sample.aiarchitecture.cart.domain.event.ProductRemovedFromCart;
-
 import de.sample.aiarchitecture.sharedkernel.marker.tactical.BaseAggregateRoot;
 import de.sample.aiarchitecture.sharedkernel.domain.model.Money;
 import de.sample.aiarchitecture.sharedkernel.domain.model.Price;
@@ -14,7 +13,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import org.jspecify.annotations.NonNull;
 
 /**
  * ShoppingCart Aggregate Root.
@@ -46,7 +44,7 @@ public final class ShoppingCart extends BaseAggregateRoot<ShoppingCart, CartId> 
   private final List<CartItem> items;
   private CartStatus status;
 
-  public ShoppingCart(@NonNull final CartId id, @NonNull final CustomerId customerId) {
+  public ShoppingCart(final CartId id, final CustomerId customerId) {
     this.id = id;
     this.customerId = customerId;
     this.items = new ArrayList<>();
@@ -81,9 +79,9 @@ public final class ShoppingCart extends BaseAggregateRoot<ShoppingCart, CartId> 
    * @throws IllegalStateException if cart is checked out
    */
   public void addItem(
-      @NonNull final ProductId productId,
-      @NonNull final Quantity quantity,
-      @NonNull final Price price) {
+      final ProductId productId,
+      final Quantity quantity,
+      final Price price) {
     ensureCartIsActive();
 
     // Check if product already in cart
@@ -110,7 +108,7 @@ public final class ShoppingCart extends BaseAggregateRoot<ShoppingCart, CartId> 
    * @throws IllegalStateException if cart is checked out
    * @throws IllegalArgumentException if item not found
    */
-  public void removeItem(@NonNull final CartItemId itemId) {
+  public void removeItem(final CartItemId itemId) {
     ensureCartIsActive();
 
     final boolean removed = items.removeIf(item -> item.id().equals(itemId));
@@ -127,7 +125,7 @@ public final class ShoppingCart extends BaseAggregateRoot<ShoppingCart, CartId> 
    * @param productId the product ID
    * @throws IllegalStateException if cart is checked out
    */
-  public void removeItemByProductId(@NonNull final ProductId productId) {
+  public void removeItemByProductId(final ProductId productId) {
     ensureCartIsActive();
 
     final boolean removed = items.removeIf(item -> item.productId().equals(productId));
@@ -150,7 +148,7 @@ public final class ShoppingCart extends BaseAggregateRoot<ShoppingCart, CartId> 
    * @throws IllegalArgumentException if item not found
    */
   public void updateItemQuantity(
-      @NonNull final CartItemId itemId, @NonNull final Quantity newQuantity) {
+      final CartItemId itemId, final Quantity newQuantity) {
     ensureCartIsActive();
 
     final CartItem item =
@@ -171,7 +169,7 @@ public final class ShoppingCart extends BaseAggregateRoot<ShoppingCart, CartId> 
    * @param itemId the item ID
    * @throws IllegalStateException if cart is checked out
    */
-  public void increaseItemQuantity(@NonNull final CartItemId itemId) {
+  public void increaseItemQuantity(final CartItemId itemId) {
     ensureCartIsActive();
 
     final CartItem item =
@@ -188,7 +186,7 @@ public final class ShoppingCart extends BaseAggregateRoot<ShoppingCart, CartId> 
    * @param itemId the item ID
    * @throws IllegalStateException if cart is checked out
    */
-  public void decreaseItemQuantity(@NonNull final CartItemId itemId) {
+  public void decreaseItemQuantity(final CartItemId itemId) {
     ensureCartIsActive();
 
     final CartItem item =
@@ -295,7 +293,7 @@ public final class ShoppingCart extends BaseAggregateRoot<ShoppingCart, CartId> 
    * @param priceResolver the resolver to fetch current pricing
    * @return the total money value based on current prices
    */
-  public Money calculateTotal(@NonNull final ArticlePriceResolver priceResolver) {
+  public Money calculateTotal(final ArticlePriceResolver priceResolver) {
     if (priceResolver == null) {
       throw new IllegalArgumentException("Price resolver cannot be null");
     }
@@ -321,7 +319,7 @@ public final class ShoppingCart extends BaseAggregateRoot<ShoppingCart, CartId> 
    * @param priceResolver the resolver to fetch current pricing and availability
    * @return a CartValidationResult containing any validation errors
    */
-  public CartValidationResult validateForCheckout(@NonNull final ArticlePriceResolver priceResolver) {
+  public CartValidationResult validateForCheckout(final ArticlePriceResolver priceResolver) {
     if (priceResolver == null) {
       throw new IllegalArgumentException("Price resolver cannot be null");
     }
@@ -390,7 +388,7 @@ public final class ShoppingCart extends BaseAggregateRoot<ShoppingCart, CartId> 
    * @param productId the product ID
    * @return true if product is in cart
    */
-  public boolean containsProduct(@NonNull final ProductId productId) {
+  public boolean containsProduct(final ProductId productId) {
     return items.stream().anyMatch(item -> item.productId().equals(productId));
   }
 
@@ -410,7 +408,7 @@ public final class ShoppingCart extends BaseAggregateRoot<ShoppingCart, CartId> 
    * @throws IllegalStateException if this cart is not active
    * @throws IllegalArgumentException if sourceCart is null
    */
-  public int merge(@NonNull final ShoppingCart sourceCart) {
+  public int merge(final ShoppingCart sourceCart) {
     if (sourceCart == null) {
       throw new IllegalArgumentException("Source cart cannot be null");
     }

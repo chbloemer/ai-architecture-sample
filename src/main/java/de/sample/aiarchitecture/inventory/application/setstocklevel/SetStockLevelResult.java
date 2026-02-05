@@ -1,7 +1,5 @@
 package de.sample.aiarchitecture.inventory.application.setstocklevel;
 
-import org.jspecify.annotations.NonNull;
-
 /**
  * Output model for setting or updating stock levels.
  *
@@ -12,8 +10,8 @@ import org.jspecify.annotations.NonNull;
  * @param created true if a new stock level was created, false if an existing one was updated
  */
 public record SetStockLevelResult(
-    @NonNull String stockLevelId,
-    @NonNull String productId,
+    String stockLevelId,
+    String productId,
     int availableQuantity,
     int reservedQuantity,
     boolean created) {}

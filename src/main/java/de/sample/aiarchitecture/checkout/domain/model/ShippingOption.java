@@ -2,7 +2,6 @@ package de.sample.aiarchitecture.checkout.domain.model;
 
 import de.sample.aiarchitecture.sharedkernel.domain.model.Money;
 import de.sample.aiarchitecture.sharedkernel.marker.tactical.Value;
-import org.jspecify.annotations.NonNull;
 
 /**
  * Value Object representing a shipping option for checkout.
@@ -11,10 +10,10 @@ import org.jspecify.annotations.NonNull;
  * estimated delivery time, and cost.
  */
 public record ShippingOption(
-    @NonNull String id,
-    @NonNull String name,
-    @NonNull String estimatedDelivery,
-    @NonNull Money cost)
+    String id,
+    String name,
+    String estimatedDelivery,
+    Money cost)
     implements Value {
 
   public ShippingOption {

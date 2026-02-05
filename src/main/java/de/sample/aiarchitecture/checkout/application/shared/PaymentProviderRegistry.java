@@ -4,7 +4,6 @@ import de.sample.aiarchitecture.checkout.domain.model.PaymentProviderId;
 import de.sample.aiarchitecture.sharedkernel.marker.port.out.OutputPort;
 import java.util.List;
 import java.util.Optional;
-import org.jspecify.annotations.NonNull;
 
 /**
  * Output port for managing payment provider registration and lookup.
@@ -24,14 +23,14 @@ public interface PaymentProviderRegistry extends OutputPort {
    * @param providerId the payment provider ID to look up
    * @return the payment provider if found, empty otherwise
    */
-  Optional<PaymentProvider> findById(@NonNull PaymentProviderId providerId);
+  Optional<PaymentProvider> findById(PaymentProviderId providerId);
 
   /**
    * Returns all registered payment providers.
    *
    * @return list of all registered providers (never null, may be empty)
    */
-  @NonNull
+  
   List<PaymentProvider> findAll();
 
   /**
@@ -42,7 +41,7 @@ public interface PaymentProviderRegistry extends OutputPort {
    *
    * @return list of available providers (never null, may be empty)
    */
-  @NonNull
+  
   List<PaymentProvider> findAvailable();
 
   /**
@@ -52,7 +51,7 @@ public interface PaymentProviderRegistry extends OutputPort {
    *
    * @param provider the provider to register
    */
-  void register(@NonNull PaymentProvider provider);
+  void register(PaymentProvider provider);
 
   /**
    * Removes a payment provider from the registry.
@@ -60,7 +59,7 @@ public interface PaymentProviderRegistry extends OutputPort {
    * @param providerId the ID of the provider to remove
    * @return true if the provider was removed, false if it was not found
    */
-  boolean unregister(@NonNull PaymentProviderId providerId);
+  boolean unregister(PaymentProviderId providerId);
 
   /**
    * Checks if a provider with the given ID is registered.
@@ -68,5 +67,5 @@ public interface PaymentProviderRegistry extends OutputPort {
    * @param providerId the payment provider ID to check
    * @return true if registered, false otherwise
    */
-  boolean isRegistered(@NonNull PaymentProviderId providerId);
+  boolean isRegistered(PaymentProviderId providerId);
 }

@@ -1,12 +1,11 @@
 package de.sample.aiarchitecture.product.domain.model;
 
 import de.sample.aiarchitecture.sharedkernel.marker.tactical.Value;
-import org.jspecify.annotations.NonNull;
 
 /**
  * Value Object representing a Product's description.
  */
-public record ProductDescription(@NonNull String value) implements Value {
+public record ProductDescription(String value) implements Value {
 
   public ProductDescription {
     if (value == null) {

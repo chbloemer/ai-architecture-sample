@@ -1,7 +1,6 @@
 package de.sample.aiarchitecture.sharedkernel.domain.specification;
 
 import de.sample.aiarchitecture.sharedkernel.marker.tactical.Specification;
-import org.jspecify.annotations.NonNull;
 
 /**
  * Generic, framework-agnostic Specification interface for domain use.
@@ -13,19 +12,19 @@ import org.jspecify.annotations.NonNull;
 public interface CompositeSpecification<T> extends Specification<T> {
 
   /** Returns true if the candidate satisfies this specification when evaluated in-memory. */
-  boolean isSatisfiedBy(@NonNull T candidate);
+  boolean isSatisfiedBy(T candidate);
 
   /**
    * Accepts a visitor to translate this specification into another representation (e.g.,
    * a JPA Specification for pushdown or a Mongo filter).
    */
-  <R> R accept(@NonNull SpecificationVisitor<T, R> visitor);
+  <R> R accept(SpecificationVisitor<T, R> visitor);
 
-  default CompositeSpecification<T> and(@NonNull CompositeSpecification<T> other) {
+  default CompositeSpecification<T> and(CompositeSpecification<T> other) {
     return new AndSpecification<>(this, other);
   }
 
-  default CompositeSpecification<T> or(@NonNull CompositeSpecification<T> other) {
+  default CompositeSpecification<T> or(CompositeSpecification<T> other) {
     return new OrSpecification<>(this, other);
   }
 

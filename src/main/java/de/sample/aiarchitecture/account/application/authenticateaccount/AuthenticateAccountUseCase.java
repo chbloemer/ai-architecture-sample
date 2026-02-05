@@ -5,7 +5,6 @@ import de.sample.aiarchitecture.account.domain.model.Account;
 import de.sample.aiarchitecture.account.domain.model.Email;
 import de.sample.aiarchitecture.account.domain.service.PasswordHasher;
 import java.util.Optional;
-import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -56,8 +55,8 @@ public class AuthenticateAccountUseCase implements AuthenticateAccountInputPort 
 
   @Override
   @Transactional
-  @NonNull
-  public AuthenticateAccountResult execute(@NonNull final AuthenticateAccountCommand command) {
+  
+  public AuthenticateAccountResult execute(final AuthenticateAccountCommand command) {
     final Email email;
     try {
       email = Email.of(command.email());

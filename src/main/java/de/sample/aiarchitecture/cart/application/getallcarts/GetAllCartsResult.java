@@ -2,14 +2,13 @@ package de.sample.aiarchitecture.cart.application.getallcarts;
 
 import java.math.BigDecimal;
 import java.util.List;
-import org.jspecify.annotations.NonNull;
 
 /**
  * Output model for retrieving all shopping carts.
  *
  * @param carts the list of cart summaries
  */
-public record GetAllCartsResult(@NonNull List<CartSummary> carts) {
+public record GetAllCartsResult(List<CartSummary> carts) {
 
   /**
    * Summary of a shopping cart.
@@ -22,11 +21,11 @@ public record GetAllCartsResult(@NonNull List<CartSummary> carts) {
    * @param totalCurrency the total currency
    */
   public record CartSummary(
-      @NonNull String cartId,
-      @NonNull String customerId,
-      @NonNull String status,
+      String cartId,
+      String customerId,
+      String status,
       int itemCount,
-      @NonNull BigDecimal totalAmount,
-      @NonNull String totalCurrency
+      BigDecimal totalAmount,
+      String totalCurrency
   ) {}
 }

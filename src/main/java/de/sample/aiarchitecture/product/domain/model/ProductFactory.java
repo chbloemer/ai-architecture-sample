@@ -1,11 +1,9 @@
 package de.sample.aiarchitecture.product.domain.model;
 
 import de.sample.aiarchitecture.product.domain.event.ProductCreated;
-
 import de.sample.aiarchitecture.sharedkernel.marker.tactical.Factory;
 import de.sample.aiarchitecture.sharedkernel.domain.model.Money;
 import de.sample.aiarchitecture.sharedkernel.domain.model.ProductId;
-import org.jspecify.annotations.NonNull;
 
 /**
  * Factory for creating Product aggregates.
@@ -34,11 +32,11 @@ public final class ProductFactory implements Factory {
    * @return a new Product aggregate
    */
   public Product createProduct(
-      @NonNull final SKU sku,
-      @NonNull final ProductName name,
-      @NonNull final ProductDescription description,
-      @NonNull final Category category,
-      @NonNull final Money initialPrice,
+      final SKU sku,
+      final ProductName name,
+      final ProductDescription description,
+      final Category category,
+      final Money initialPrice,
       final int initialStock) {
 
     final ProductId id = ProductId.generate();
@@ -65,11 +63,11 @@ public final class ProductFactory implements Factory {
    * @return a new Product aggregate
    */
   public Product createProductWithId(
-      @NonNull final ProductId id,
-      @NonNull final SKU sku,
-      @NonNull final ProductName name,
-      @NonNull final ProductDescription description,
-      @NonNull final Category category) {
+      final ProductId id,
+      final SKU sku,
+      final ProductName name,
+      final ProductDescription description,
+      final Category category) {
 
     return new Product(id, sku, name, description, category);
   }
@@ -85,10 +83,10 @@ public final class ProductFactory implements Factory {
    * @return a new Product aggregate
    */
   public Product createBasicProduct(
-      @NonNull final SKU sku,
-      @NonNull final ProductName name,
-      @NonNull final Category category,
-      @NonNull final Money initialPrice,
+      final SKU sku,
+      final ProductName name,
+      final Category category,
+      final Money initialPrice,
       final int initialStock) {
 
     return createProduct(sku, name, ProductDescription.empty(), category, initialPrice, initialStock);

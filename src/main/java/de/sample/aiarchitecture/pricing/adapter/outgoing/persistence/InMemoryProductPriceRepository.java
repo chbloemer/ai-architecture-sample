@@ -9,7 +9,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
-import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Async;
@@ -44,12 +43,12 @@ public class InMemoryProductPriceRepository implements ProductPriceRepository {
   }
 
   @Override
-  public Optional<ProductPrice> findById(@NonNull final PriceId id) {
+  public Optional<ProductPrice> findById(final PriceId id) {
     return Optional.ofNullable(prices.get(id));
   }
 
   @Override
-  public Optional<ProductPrice> findByProductId(@NonNull final ProductId productId) {
+  public Optional<ProductPrice> findByProductId(final ProductId productId) {
     final PriceId priceId = productIdIndex.get(productId);
     if (priceId == null) {
       return Optional.empty();
@@ -58,7 +57,7 @@ public class InMemoryProductPriceRepository implements ProductPriceRepository {
   }
 
   @Override
-  public List<ProductPrice> findByProductIds(@NonNull final Collection<ProductId> productIds) {
+  public List<ProductPrice> findByProductIds(final Collection<ProductId> productIds) {
     return productIds.stream()
         .map(productIdIndex::get)
         .filter(priceId -> priceId != null)
@@ -68,14 +67,14 @@ public class InMemoryProductPriceRepository implements ProductPriceRepository {
   }
 
   @Override
-  public ProductPrice save(@NonNull final ProductPrice productPrice) {
+  public ProductPrice save(final ProductPrice productPrice) {
     prices.put(productPrice.id(), productPrice);
     productIdIndex.put(productPrice.productId(), productPrice.id());
     return productPrice;
   }
 
   @Override
-  public void deleteById(@NonNull final PriceId id) {
+  public void deleteById(final PriceId id) {
     final ProductPrice productPrice = prices.remove(id);
     if (productPrice != null) {
       productIdIndex.remove(productPrice.productId());

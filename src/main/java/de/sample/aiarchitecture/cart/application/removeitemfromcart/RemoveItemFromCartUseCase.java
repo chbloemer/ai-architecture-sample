@@ -7,7 +7,6 @@ import de.sample.aiarchitecture.sharedkernel.marker.port.out.DomainEventPublishe
 import de.sample.aiarchitecture.sharedkernel.domain.model.Money;
 import de.sample.aiarchitecture.sharedkernel.domain.model.ProductId;
 import java.util.List;
-import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -40,7 +39,7 @@ public class RemoveItemFromCartUseCase implements RemoveItemFromCartInputPort {
   }
 
   @Override
-  public @NonNull RemoveItemFromCartResult execute(@NonNull final RemoveItemFromCartCommand input) {
+  public RemoveItemFromCartResult execute(final RemoveItemFromCartCommand input) {
     final CartId cartId = CartId.of(input.cartId());
     final ProductId productId = ProductId.of(input.productId());
 

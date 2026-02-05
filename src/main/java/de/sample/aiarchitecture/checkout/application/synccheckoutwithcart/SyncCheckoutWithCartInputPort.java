@@ -1,7 +1,6 @@
 package de.sample.aiarchitecture.checkout.application.synccheckoutwithcart;
 
 import de.sample.aiarchitecture.sharedkernel.marker.port.in.UseCase;
-import org.jspecify.annotations.NonNull;
 
 /**
  * Input port for synchronizing a checkout session with current cart state.
@@ -24,5 +23,5 @@ public interface SyncCheckoutWithCartInputPort
    * @return response indicating if sync occurred and the updated state
    */
   @Override
-  @NonNull SyncCheckoutWithCartResult execute(@NonNull SyncCheckoutWithCartCommand command);
+  SyncCheckoutWithCartResult execute(SyncCheckoutWithCartCommand command);
 }

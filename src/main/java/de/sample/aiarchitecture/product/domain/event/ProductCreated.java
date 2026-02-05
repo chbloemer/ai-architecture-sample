@@ -7,7 +7,6 @@ import de.sample.aiarchitecture.sharedkernel.domain.model.Money;
 import de.sample.aiarchitecture.sharedkernel.domain.model.ProductId;
 import java.time.Instant;
 import java.util.UUID;
-import org.jspecify.annotations.NonNull;
 
 /**
  * Domain Event indicating that a new product was created.
@@ -23,21 +22,21 @@ import org.jspecify.annotations.NonNull;
  * immediately in the respective contexts.
  */
 public record ProductCreated(
-    @NonNull UUID eventId,
-    @NonNull ProductId productId,
-    @NonNull SKU sku,
-    @NonNull ProductName name,
-    @NonNull Money initialPrice,
+    UUID eventId,
+    ProductId productId,
+    SKU sku,
+    ProductName name,
+    Money initialPrice,
     int initialStock,
-    @NonNull Instant occurredOn,
+    Instant occurredOn,
     int version)
     implements DomainEvent {
 
   public static ProductCreated now(
-      @NonNull final ProductId productId,
-      @NonNull final SKU sku,
-      @NonNull final ProductName name,
-      @NonNull final Money initialPrice,
+      final ProductId productId,
+      final SKU sku,
+      final ProductName name,
+      final Money initialPrice,
       final int initialStock) {
     return new ProductCreated(UUID.randomUUID(), productId, sku, name, initialPrice, initialStock, Instant.now(), 1);
   }

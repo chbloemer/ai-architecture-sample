@@ -3,7 +3,6 @@ package de.sample.aiarchitecture.cart.domain.specification;
 import de.sample.aiarchitecture.cart.domain.model.ShoppingCart;
 import de.sample.aiarchitecture.sharedkernel.domain.specification.AndSpecification;
 import de.sample.aiarchitecture.sharedkernel.domain.specification.SpecificationVisitor;
-import org.jspecify.annotations.NonNull;
 
 /**
  * Customer owning the cart has opted-in to receive marketing communication.
@@ -15,13 +14,13 @@ import org.jspecify.annotations.NonNull;
 public record CustomerAllowsMarketing() implements CartSpecification {
 
   @Override
-  public boolean isSatisfiedBy(@NonNull ShoppingCart candidate) {
+  public boolean isSatisfiedBy(ShoppingCart candidate) {
     // No visibility into customer preferences at domain aggregate level.
     return true;
   }
 
   @Override
-  public <R> R accept(@NonNull SpecificationVisitor<ShoppingCart, R> visitor) {
+  public <R> R accept(SpecificationVisitor<ShoppingCart, R> visitor) {
     if (visitor instanceof CartSpecificationVisitor<?> v) {
       @SuppressWarnings("unchecked")
       final CartSpecificationVisitor<R> cv = (CartSpecificationVisitor<R>) v;

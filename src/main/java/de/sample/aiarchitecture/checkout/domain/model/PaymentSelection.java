@@ -1,7 +1,6 @@
 package de.sample.aiarchitecture.checkout.domain.model;
 
 import de.sample.aiarchitecture.sharedkernel.marker.tactical.Value;
-import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -11,7 +10,7 @@ import org.jspecify.annotations.Nullable;
  * reference data (e.g., payment intent ID, saved card token).
  */
 public record PaymentSelection(
-    @NonNull PaymentProviderId providerId, @Nullable String providerReference)
+    PaymentProviderId providerId, @Nullable String providerReference)
     implements Value {
 
   public PaymentSelection {

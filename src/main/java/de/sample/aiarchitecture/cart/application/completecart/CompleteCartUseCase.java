@@ -3,7 +3,6 @@ package de.sample.aiarchitecture.cart.application.completecart;
 import de.sample.aiarchitecture.cart.application.shared.ShoppingCartRepository;
 import de.sample.aiarchitecture.cart.domain.model.CartId;
 import de.sample.aiarchitecture.cart.domain.model.ShoppingCart;
-import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,7 +26,7 @@ public class CompleteCartUseCase implements CompleteCartInputPort {
   }
 
   @Override
-  public @NonNull CompleteCartResult execute(@NonNull final CompleteCartCommand input) {
+  public CompleteCartResult execute(final CompleteCartCommand input) {
     final CartId cartId = CartId.of(input.cartId());
 
     // Retrieve cart

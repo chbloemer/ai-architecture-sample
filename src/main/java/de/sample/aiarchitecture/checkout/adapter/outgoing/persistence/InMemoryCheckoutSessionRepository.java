@@ -9,7 +9,6 @@ import de.sample.aiarchitecture.checkout.domain.model.CustomerId;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
-import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Repository;
 
 /**
@@ -28,19 +27,19 @@ public class InMemoryCheckoutSessionRepository implements CheckoutSessionReposit
       new ConcurrentHashMap<>();
 
   @Override
-  public Optional<CheckoutSession> findById(@NonNull final CheckoutSessionId id) {
+  public Optional<CheckoutSession> findById(final CheckoutSessionId id) {
     return Optional.ofNullable(sessions.get(id));
   }
 
   @Override
-  public Optional<CheckoutSession> findByCartId(@NonNull final CartId cartId) {
+  public Optional<CheckoutSession> findByCartId(final CartId cartId) {
     return sessions.values().stream()
         .filter(session -> session.cartId().equals(cartId))
         .findFirst();
   }
 
   @Override
-  public Optional<CheckoutSession> findActiveByCartId(@NonNull final CartId cartId) {
+  public Optional<CheckoutSession> findActiveByCartId(final CartId cartId) {
     return sessions.values().stream()
         .filter(session -> session.cartId().equals(cartId))
         .filter(session -> session.status() == CheckoutSessionStatus.ACTIVE)
@@ -48,7 +47,7 @@ public class InMemoryCheckoutSessionRepository implements CheckoutSessionReposit
   }
 
   @Override
-  public Optional<CheckoutSession> findActiveByCustomerId(@NonNull final CustomerId customerId) {
+  public Optional<CheckoutSession> findActiveByCustomerId(final CustomerId customerId) {
     return sessions.values().stream()
         .filter(session -> session.customerId().equals(customerId))
         .filter(session -> session.status() == CheckoutSessionStatus.ACTIVE)
@@ -68,19 +67,19 @@ public class InMemoryCheckoutSessionRepository implements CheckoutSessionReposit
   }
 
   @Override
-  public CheckoutSession save(@NonNull final CheckoutSession session) {
+  public CheckoutSession save(final CheckoutSession session) {
     sessions.put(session.id(), session);
     return session;
   }
 
   @Override
-  public void deleteById(@NonNull final CheckoutSessionId id) {
+  public void deleteById(final CheckoutSessionId id) {
     sessions.remove(id);
   }
 
   @Override
   public Optional<CheckoutSession> findConfirmedOrCompletedByCustomerId(
-      @NonNull final CustomerId customerId) {
+      final CustomerId customerId) {
     return sessions.values().stream()
         .filter(session -> session.customerId().equals(customerId))
         .filter(session ->

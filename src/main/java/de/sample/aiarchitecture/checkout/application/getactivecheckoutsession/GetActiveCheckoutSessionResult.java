@@ -1,6 +1,4 @@
 package de.sample.aiarchitecture.checkout.application.getactivecheckoutsession;
-
-import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -26,7 +24,7 @@ public record GetActiveCheckoutSessionResult(
    * Creates a response with the found session.
    */
   public static GetActiveCheckoutSessionResult of(
-      @NonNull final String sessionId, @NonNull final String customerId) {
+      final String sessionId, final String customerId) {
     return new GetActiveCheckoutSessionResult(true, sessionId, customerId);
   }
 }

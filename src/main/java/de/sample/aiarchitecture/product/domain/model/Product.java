@@ -2,7 +2,6 @@ package de.sample.aiarchitecture.product.domain.model;
 
 import de.sample.aiarchitecture.sharedkernel.marker.tactical.BaseAggregateRoot;
 import de.sample.aiarchitecture.sharedkernel.domain.model.ProductId;
-import org.jspecify.annotations.NonNull;
 
 /**
  * Product Aggregate Root.
@@ -36,11 +35,11 @@ public final class Product extends BaseAggregateRoot<Product, ProductId> {
   private Category category;
 
   public Product(
-      @NonNull final ProductId id,
-      @NonNull final SKU sku,
-      @NonNull final ProductName name,
-      @NonNull final ProductDescription description,
-      @NonNull final Category category) {
+      final ProductId id,
+      final SKU sku,
+      final ProductName name,
+      final ProductDescription description,
+      final Category category) {
     this.id = id;
     this.sku = sku;
     this.name = name;
@@ -74,7 +73,7 @@ public final class Product extends BaseAggregateRoot<Product, ProductId> {
    *
    * @param newName the new name
    */
-  public void updateName(@NonNull final ProductName newName) {
+  public void updateName(final ProductName newName) {
     if (newName == null) {
       throw new IllegalArgumentException("New name cannot be null");
     }
@@ -86,7 +85,7 @@ public final class Product extends BaseAggregateRoot<Product, ProductId> {
    *
    * @param newDescription the new description
    */
-  public void updateDescription(@NonNull final ProductDescription newDescription) {
+  public void updateDescription(final ProductDescription newDescription) {
     if (newDescription == null) {
       throw new IllegalArgumentException("New description cannot be null");
     }
@@ -98,7 +97,7 @@ public final class Product extends BaseAggregateRoot<Product, ProductId> {
    *
    * @param newCategory the new category
    */
-  public void updateCategory(@NonNull final Category newCategory) {
+  public void updateCategory(final Category newCategory) {
     if (newCategory == null) {
       throw new IllegalArgumentException("New category cannot be null");
     }

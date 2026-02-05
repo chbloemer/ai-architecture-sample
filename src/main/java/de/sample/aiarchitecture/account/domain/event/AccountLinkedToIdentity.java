@@ -5,7 +5,6 @@ import de.sample.aiarchitecture.sharedkernel.domain.model.UserId;
 import de.sample.aiarchitecture.sharedkernel.marker.tactical.DomainEvent;
 import java.time.Instant;
 import java.util.UUID;
-import org.jspecify.annotations.NonNull;
 
 /**
  * Domain event raised when an account is linked to a UserId.
@@ -26,10 +25,10 @@ import org.jspecify.annotations.NonNull;
  * @param version event schema version
  */
 public record AccountLinkedToIdentity(
-    @NonNull UUID eventId,
-    @NonNull AccountId accountId,
-    @NonNull UserId userId,
-    @NonNull Instant occurredOn,
+    UUID eventId,
+    AccountId accountId,
+    UserId userId,
+    Instant occurredOn,
     int version) implements DomainEvent {
 
   /**

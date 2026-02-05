@@ -7,7 +7,6 @@ import de.sample.aiarchitecture.sharedkernel.domain.model.Money;
 import de.sample.aiarchitecture.sharedkernel.marker.tactical.DomainEvent;
 import java.time.Instant;
 import java.util.UUID;
-import org.jspecify.annotations.NonNull;
 
 /**
  * Domain Event indicating that a checkout session was started.
@@ -16,21 +15,21 @@ import org.jspecify.annotations.NonNull;
  * from their shopping cart.
  */
 public record CheckoutSessionStarted(
-    @NonNull UUID eventId,
-    @NonNull CheckoutSessionId sessionId,
-    @NonNull CartId cartId,
-    @NonNull CustomerId customerId,
-    @NonNull Money subtotal,
+    UUID eventId,
+    CheckoutSessionId sessionId,
+    CartId cartId,
+    CustomerId customerId,
+    Money subtotal,
     int lineItemCount,
-    @NonNull Instant occurredOn,
+    Instant occurredOn,
     int version)
     implements DomainEvent {
 
   public static CheckoutSessionStarted now(
-      @NonNull final CheckoutSessionId sessionId,
-      @NonNull final CartId cartId,
-      @NonNull final CustomerId customerId,
-      @NonNull final Money subtotal,
+      final CheckoutSessionId sessionId,
+      final CartId cartId,
+      final CustomerId customerId,
+      final Money subtotal,
       final int lineItemCount) {
     return new CheckoutSessionStarted(
         UUID.randomUUID(), sessionId, cartId, customerId, subtotal, lineItemCount, Instant.now(), 1);

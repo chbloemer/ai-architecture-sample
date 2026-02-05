@@ -1,7 +1,6 @@
 package de.sample.aiarchitecture.cart.application.getcartbyid;
 
 import de.sample.aiarchitecture.sharedkernel.marker.port.in.UseCase;
-import org.jspecify.annotations.NonNull;
 
 /**
  * Input port for retrieving a cart by its ID.
@@ -22,5 +21,5 @@ public interface GetCartByIdInputPort extends UseCase<GetCartByIdQuery, GetCartB
    * @return response containing cart details or indication that cart was not found
    */
   @Override
-  @NonNull GetCartByIdResult execute(@NonNull GetCartByIdQuery query);
+  GetCartByIdResult execute(GetCartByIdQuery query);
 }

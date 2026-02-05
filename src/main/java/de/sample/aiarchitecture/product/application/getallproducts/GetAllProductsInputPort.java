@@ -1,7 +1,6 @@
 package de.sample.aiarchitecture.product.application.getallproducts;
 
 import de.sample.aiarchitecture.sharedkernel.marker.port.in.UseCase;
-import org.jspecify.annotations.NonNull;
 
 /**
  * Input port for retrieving all products.
@@ -22,5 +21,5 @@ public interface GetAllProductsInputPort extends UseCase<GetAllProductsQuery, Ge
    * @return response containing all products
    */
   @Override
-  @NonNull GetAllProductsResult execute(@NonNull GetAllProductsQuery query);
+  GetAllProductsResult execute(GetAllProductsQuery query);
 }

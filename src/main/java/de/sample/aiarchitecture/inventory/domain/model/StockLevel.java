@@ -7,7 +7,6 @@ import de.sample.aiarchitecture.inventory.domain.event.StockLevelCreated;
 import de.sample.aiarchitecture.inventory.domain.event.StockReserved;
 import de.sample.aiarchitecture.sharedkernel.domain.model.ProductId;
 import de.sample.aiarchitecture.sharedkernel.marker.tactical.BaseAggregateRoot;
-import org.jspecify.annotations.NonNull;
 
 /**
  * StockLevel Aggregate Root.
@@ -39,10 +38,10 @@ public final class StockLevel extends BaseAggregateRoot<StockLevel, StockLevelId
   private StockQuantity reservedQuantity;
 
   private StockLevel(
-      @NonNull final StockLevelId id,
-      @NonNull final ProductId productId,
-      @NonNull final StockQuantity availableQuantity,
-      @NonNull final StockQuantity reservedQuantity) {
+      final StockLevelId id,
+      final ProductId productId,
+      final StockQuantity availableQuantity,
+      final StockQuantity reservedQuantity) {
     this.id = id;
     this.productId = productId;
     this.availableQuantity = availableQuantity;
@@ -57,7 +56,7 @@ public final class StockLevel extends BaseAggregateRoot<StockLevel, StockLevelId
    * @return a new StockLevel instance
    */
   public static StockLevel create(
-      @NonNull final ProductId productId,
+      final ProductId productId,
       final int initialQuantity) {
     if (productId == null) {
       throw new IllegalArgumentException("ProductId cannot be null");

@@ -1,7 +1,6 @@
 package de.sample.aiarchitecture.product.application.createproduct;
 
 import java.math.BigDecimal;
-import org.jspecify.annotations.NonNull;
 
 /**
  * Input model for creating a product.
@@ -25,12 +24,12 @@ import org.jspecify.annotations.NonNull;
  * @param stockQuantity the initial stock quantity (for Inventory context, defaults to 0)
  */
 public record CreateProductCommand(
-    @NonNull String sku,
-    @NonNull String name,
-    @NonNull String description,
-    @NonNull BigDecimal priceAmount,
-    @NonNull String priceCurrency,
-    @NonNull String category,
+    String sku,
+    String name,
+    String description,
+    BigDecimal priceAmount,
+    String priceCurrency,
+    String category,
     int stockQuantity
 ) {
 

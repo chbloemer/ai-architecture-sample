@@ -1,7 +1,5 @@
 package de.sample.aiarchitecture.sharedkernel.marker.tactical;
 
-import org.jspecify.annotations.NonNull;
-
 /**
  * Marker interface for Specifications.
  *
@@ -54,5 +52,5 @@ import org.jspecify.annotations.NonNull;
  * @see <a href="https://www.domainlanguage.com/ddd/">Domain-Driven Design Reference</a>
  */
 public interface Specification<T> {
-    boolean isSatisfiedBy(@NonNull T candidate);
+    boolean isSatisfiedBy(T candidate);
 }

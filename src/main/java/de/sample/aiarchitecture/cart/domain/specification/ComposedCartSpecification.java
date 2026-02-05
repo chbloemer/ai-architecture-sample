@@ -4,7 +4,6 @@ import de.sample.aiarchitecture.cart.domain.model.ShoppingCart;
 import de.sample.aiarchitecture.sharedkernel.domain.specification.CompositeSpecification;
 import de.sample.aiarchitecture.sharedkernel.domain.specification.SpecificationVisitor;
 import java.util.Objects;
-import org.jspecify.annotations.NonNull;
 
 /**
  * Legacy adapter wrapper. No longer needed now that repositories accept
@@ -15,17 +14,17 @@ public final class ComposedCartSpecification implements CompositeSpecification<S
 
   private final CompositeSpecification<ShoppingCart> delegate;
 
-  public ComposedCartSpecification(@NonNull final CompositeSpecification<ShoppingCart> delegate) {
+  public ComposedCartSpecification(final CompositeSpecification<ShoppingCart> delegate) {
     this.delegate = Objects.requireNonNull(delegate, "delegate must not be null");
   }
 
   @Override
-  public boolean isSatisfiedBy(@NonNull final ShoppingCart candidate) {
+  public boolean isSatisfiedBy(final ShoppingCart candidate) {
     return delegate.isSatisfiedBy(candidate);
   }
 
   @Override
-  public <R> R accept(@NonNull final SpecificationVisitor<ShoppingCart, R> visitor) {
+  public <R> R accept(final SpecificationVisitor<ShoppingCart, R> visitor) {
     return delegate.accept(visitor);
   }
 }

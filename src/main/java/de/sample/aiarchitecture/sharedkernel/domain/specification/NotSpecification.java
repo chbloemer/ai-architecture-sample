@@ -1,22 +1,20 @@
 package de.sample.aiarchitecture.sharedkernel.domain.specification;
 
-import org.jspecify.annotations.NonNull;
-
 /** Logical NOT for a domain specification. */
 public final class NotSpecification<T> implements CompositeSpecification<T> {
   private final CompositeSpecification<T> inner;
 
-  public NotSpecification(@NonNull CompositeSpecification<T> inner) {
+  public NotSpecification(CompositeSpecification<T> inner) {
     this.inner = inner;
   }
 
   @Override
-  public boolean isSatisfiedBy(@NonNull T candidate) {
+  public boolean isSatisfiedBy(T candidate) {
     return !inner.isSatisfiedBy(candidate);
   }
 
   @Override
-  public <R> R accept(@NonNull SpecificationVisitor<T, R> visitor) {
+  public <R> R accept(SpecificationVisitor<T, R> visitor) {
     return visitor.visit(this);
   }
 

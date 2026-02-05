@@ -1,7 +1,6 @@
 package de.sample.aiarchitecture.inventory.application.getstockforproducts;
 
 import de.sample.aiarchitecture.sharedkernel.marker.port.in.UseCase;
-import org.jspecify.annotations.NonNull;
 
 /**
  * Input port for retrieving stock levels for multiple products.
@@ -26,5 +25,5 @@ public interface GetStockForProductsInputPort
    * @return response containing stock data mapped by product ID
    */
   @Override
-  @NonNull GetStockForProductsResult execute(@NonNull GetStockForProductsQuery query);
+  GetStockForProductsResult execute(GetStockForProductsQuery query);
 }

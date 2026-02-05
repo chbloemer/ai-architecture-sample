@@ -1,7 +1,6 @@
 package de.sample.aiarchitecture.product.application.getproductbyid;
 
 import de.sample.aiarchitecture.sharedkernel.marker.port.in.UseCase;
-import org.jspecify.annotations.NonNull;
 
 /**
  * Input port for retrieving a product by its ID.
@@ -22,5 +21,5 @@ public interface GetProductByIdInputPort extends UseCase<GetProductByIdQuery, Ge
    * @return response containing product details or indication that product was not found
    */
   @Override
-  @NonNull GetProductByIdResult execute(@NonNull GetProductByIdQuery query);
+  GetProductByIdResult execute(GetProductByIdQuery query);
 }

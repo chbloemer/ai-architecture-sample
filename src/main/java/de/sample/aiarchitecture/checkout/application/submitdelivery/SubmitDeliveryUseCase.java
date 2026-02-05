@@ -7,7 +7,6 @@ import de.sample.aiarchitecture.checkout.domain.model.DeliveryAddress;
 import de.sample.aiarchitecture.checkout.domain.model.ShippingOption;
 import de.sample.aiarchitecture.sharedkernel.domain.model.Money;
 import java.util.Currency;
-import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,7 +35,7 @@ public class SubmitDeliveryUseCase implements SubmitDeliveryInputPort {
   }
 
   @Override
-  public @NonNull SubmitDeliveryResult execute(@NonNull final SubmitDeliveryCommand command) {
+  public SubmitDeliveryResult execute(final SubmitDeliveryCommand command) {
     // Load session
     final CheckoutSessionId sessionId = CheckoutSessionId.of(command.sessionId());
     final CheckoutSession session =

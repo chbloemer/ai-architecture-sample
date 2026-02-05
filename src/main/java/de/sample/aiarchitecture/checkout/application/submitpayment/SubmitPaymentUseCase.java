@@ -7,7 +7,6 @@ import de.sample.aiarchitecture.checkout.domain.model.CheckoutSession;
 import de.sample.aiarchitecture.checkout.domain.model.CheckoutSessionId;
 import de.sample.aiarchitecture.checkout.domain.model.PaymentProviderId;
 import de.sample.aiarchitecture.checkout.domain.model.PaymentSelection;
-import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -41,7 +40,7 @@ public class SubmitPaymentUseCase implements SubmitPaymentInputPort {
   }
 
   @Override
-  public @NonNull SubmitPaymentResult execute(@NonNull final SubmitPaymentCommand command) {
+  public SubmitPaymentResult execute(final SubmitPaymentCommand command) {
     // Load session
     final CheckoutSessionId sessionId = CheckoutSessionId.of(command.sessionId());
     final CheckoutSession session =

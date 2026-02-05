@@ -6,7 +6,6 @@ import de.sample.aiarchitecture.cart.domain.model.CustomerId;
 import de.sample.aiarchitecture.cart.domain.model.ShoppingCart;
 import de.sample.aiarchitecture.sharedkernel.domain.model.Money;
 import java.util.Optional;
-import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,7 +30,7 @@ public class GetCartMergeOptionsUseCase implements GetCartMergeOptionsInputPort 
   }
 
   @Override
-  public @NonNull GetCartMergeOptionsResult execute(@NonNull final GetCartMergeOptionsQuery input) {
+  public GetCartMergeOptionsResult execute(final GetCartMergeOptionsQuery input) {
     final CustomerId anonymousCustomerId = CustomerId.of(input.anonymousUserId());
     final CustomerId registeredCustomerId = CustomerId.of(input.registeredUserId());
 

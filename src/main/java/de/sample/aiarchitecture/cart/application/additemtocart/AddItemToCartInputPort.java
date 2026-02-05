@@ -1,7 +1,6 @@
 package de.sample.aiarchitecture.cart.application.additemtocart;
 
 import de.sample.aiarchitecture.sharedkernel.marker.port.in.UseCase;
-import org.jspecify.annotations.NonNull;
 
 /**
  * Input port for adding items to a shopping cart.
@@ -23,5 +22,5 @@ public interface AddItemToCartInputPort extends UseCase<AddItemToCartCommand, Ad
    * @throws IllegalArgumentException if cart not found, product not found, or insufficient stock
    */
   @Override
-  @NonNull AddItemToCartResult execute(@NonNull AddItemToCartCommand command);
+  AddItemToCartResult execute(AddItemToCartCommand command);
 }

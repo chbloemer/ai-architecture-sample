@@ -1,7 +1,5 @@
 package de.sample.aiarchitecture.checkout.application.submitbuyerinfo;
 
-import org.jspecify.annotations.NonNull;
-
 /**
  * Input model for submitting buyer contact information during checkout.
  *
@@ -12,11 +10,11 @@ import org.jspecify.annotations.NonNull;
  * @param phone the buyer's phone number
  */
 public record SubmitBuyerInfoCommand(
-    @NonNull String sessionId,
-    @NonNull String email,
-    @NonNull String firstName,
-    @NonNull String lastName,
-    @NonNull String phone) {
+    String sessionId,
+    String email,
+    String firstName,
+    String lastName,
+    String phone) {
 
   /**
    * Compact constructor with validation.

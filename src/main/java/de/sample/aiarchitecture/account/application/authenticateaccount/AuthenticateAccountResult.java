@@ -1,7 +1,6 @@
 package de.sample.aiarchitecture.account.application.authenticateaccount;
 
 import java.util.Set;
-import org.jspecify.annotations.NonNull;
 
 /**
  * Response from authenticating an account.
@@ -28,9 +27,9 @@ public record AuthenticateAccountResult(
    * @return a successful response
    */
   public static AuthenticateAccountResult success(
-      @NonNull final String userId,
-      @NonNull final String email,
-      @NonNull final Set<String> roles) {
+      final String userId,
+      final String email,
+      final Set<String> roles) {
     return new AuthenticateAccountResult(true, userId, email, roles, null);
   }
 
@@ -40,7 +39,7 @@ public record AuthenticateAccountResult(
    * @param errorMessage the error message
    * @return a failed response
    */
-  public static AuthenticateAccountResult failure(@NonNull final String errorMessage) {
+  public static AuthenticateAccountResult failure(final String errorMessage) {
     return new AuthenticateAccountResult(false, null, null, null, errorMessage);
   }
 }

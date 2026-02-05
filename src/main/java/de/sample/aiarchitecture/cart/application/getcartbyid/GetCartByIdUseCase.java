@@ -15,7 +15,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -45,7 +44,7 @@ public class GetCartByIdUseCase implements GetCartByIdInputPort {
   }
 
   @Override
-  public @NonNull GetCartByIdResult execute(@NonNull final GetCartByIdQuery input) {
+  public GetCartByIdResult execute(final GetCartByIdQuery input) {
     final CartId cartId = CartId.of(input.cartId());
 
     final Optional<ShoppingCart> cartOpt = shoppingCartRepository.findById(cartId);

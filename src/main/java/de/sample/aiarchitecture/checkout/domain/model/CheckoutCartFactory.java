@@ -5,7 +5,6 @@ import de.sample.aiarchitecture.sharedkernel.marker.tactical.Factory;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import org.jspecify.annotations.NonNull;
 
 /**
  * Factory for assembling CheckoutCart instances from checkout line items and article data.
@@ -33,10 +32,10 @@ public final class CheckoutCartFactory implements Factory {
    * @throws IllegalArgumentException if article data is missing for any line item
    */
   public CheckoutCart create(
-      @NonNull final CartId cartId,
-      @NonNull final CustomerId customerId,
-      @NonNull final List<CheckoutLineItem> lineItems,
-      @NonNull final Map<ProductId, CheckoutArticle> articleData) {
+      final CartId cartId,
+      final CustomerId customerId,
+      final List<CheckoutLineItem> lineItems,
+      final Map<ProductId, CheckoutArticle> articleData) {
 
     validateArticleDataComplete(lineItems, articleData);
 
@@ -57,8 +56,8 @@ public final class CheckoutCartFactory implements Factory {
    * @throws IllegalArgumentException if article data is missing for any line item
    */
   public CheckoutCart fromSession(
-      @NonNull final CheckoutSession session,
-      @NonNull final Map<ProductId, CheckoutArticle> articleData) {
+      final CheckoutSession session,
+      final Map<ProductId, CheckoutArticle> articleData) {
 
     return create(
         session.cartId(),

@@ -1,7 +1,5 @@
 package de.sample.aiarchitecture.checkout.application.synccheckoutwithcart;
 
-import org.jspecify.annotations.NonNull;
-
 /**
  * Response from synchronizing a checkout session with cart.
  *
@@ -19,7 +17,7 @@ public record SyncCheckoutWithCartResult(
   }
 
   public static SyncCheckoutWithCartResult synced(
-      @NonNull final String sessionId,
+      final String sessionId,
       final int itemCount) {
     return new SyncCheckoutWithCartResult(true, sessionId, itemCount);
   }

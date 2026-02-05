@@ -1,7 +1,5 @@
 package de.sample.aiarchitecture.cart.application.getcartmergeoptions;
 
-import org.jspecify.annotations.NonNull;
-
 /**
  * Query to check if cart merge options should be presented to the user.
  *
@@ -13,8 +11,8 @@ import org.jspecify.annotations.NonNull;
  * @param registeredUserId the user ID of the registered account (after login)
  */
 public record GetCartMergeOptionsQuery(
-    @NonNull String anonymousUserId,
-    @NonNull String registeredUserId
+    String anonymousUserId,
+    String registeredUserId
 ) {
 
   public GetCartMergeOptionsQuery {

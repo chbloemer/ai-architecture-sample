@@ -1,7 +1,5 @@
 package de.sample.aiarchitecture.account.application.shared;
 
-import org.jspecify.annotations.NonNull;
-
 /**
  * Port for managing user identity sessions.
  *
@@ -54,7 +52,7 @@ public interface IdentitySession {
    *
    * @param token the authentication token to store
    */
-  void setRegisteredIdentity(@NonNull String token);
+  void setRegisteredIdentity(String token);
 
   /**
    * Clears the identity cookie, effectively logging out the user.

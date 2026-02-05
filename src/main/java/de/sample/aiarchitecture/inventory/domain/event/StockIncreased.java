@@ -6,26 +6,25 @@ import de.sample.aiarchitecture.sharedkernel.domain.model.ProductId;
 import de.sample.aiarchitecture.sharedkernel.marker.tactical.DomainEvent;
 import java.time.Instant;
 import java.util.UUID;
-import org.jspecify.annotations.NonNull;
 
 /**
  * Domain Event indicating that stock was increased for a product.
  */
 public record StockIncreased(
-    @NonNull UUID eventId,
-    @NonNull StockLevelId stockLevelId,
-    @NonNull ProductId productId,
-    @NonNull StockQuantity addedQuantity,
-    @NonNull StockQuantity newQuantity,
-    @NonNull Instant occurredOn,
+    UUID eventId,
+    StockLevelId stockLevelId,
+    ProductId productId,
+    StockQuantity addedQuantity,
+    StockQuantity newQuantity,
+    Instant occurredOn,
     int version)
     implements DomainEvent {
 
   public static StockIncreased now(
-      @NonNull final StockLevelId stockLevelId,
-      @NonNull final ProductId productId,
-      @NonNull final StockQuantity addedQuantity,
-      @NonNull final StockQuantity newQuantity) {
+      final StockLevelId stockLevelId,
+      final ProductId productId,
+      final StockQuantity addedQuantity,
+      final StockQuantity newQuantity) {
     return new StockIncreased(
         UUID.randomUUID(), stockLevelId, productId, addedQuantity, newQuantity, Instant.now(), 1);
   }

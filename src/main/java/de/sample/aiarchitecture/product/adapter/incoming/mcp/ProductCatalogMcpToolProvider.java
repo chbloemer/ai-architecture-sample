@@ -9,7 +9,6 @@ import de.sample.aiarchitecture.product.application.getproductbyid.GetProductByI
 import de.sample.aiarchitecture.product.application.getproductbyid.GetProductByIdResult;
 import de.sample.aiarchitecture.product.application.getproductbyid.GetProductByIdUseCase;
 import java.util.List;
-import org.jspecify.annotations.NonNull;
 import org.springaicommunity.mcp.annotation.McpTool;
 import org.springframework.stereotype.Component;
 
@@ -77,7 +76,7 @@ public class ProductCatalogMcpToolProvider {
    * @throws IllegalArgumentException if ID format is invalid
    */
   @McpTool(name="product-by-id", description = "Get detailed product information by product ID. Requires the internal product UUID. Returns complete product details including all attributes.")
-  public ProductDto getProductById(@NonNull final String id) {
+  public ProductDto getProductById(final String id) {
     final GetProductByIdResult output = getProductByIdUseCase.execute(new GetProductByIdQuery(id));
 
     if (!output.found()) {

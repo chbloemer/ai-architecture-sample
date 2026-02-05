@@ -3,7 +3,6 @@ package de.sample.aiarchitecture.infrastructure.security.jwt;
 import de.sample.aiarchitecture.account.application.shared.IdentitySession;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
-import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.annotation.RequestScope;
 
@@ -37,7 +36,7 @@ public class JwtIdentitySession implements IdentitySession {
   }
 
   @Override
-  public void setRegisteredIdentity(@NonNull final String token) {
+  public void setRegisteredIdentity(final String token) {
     final int maxAgeSeconds = jwtProperties.registeredExpirationDays() * 24 * 60 * 60;
     setIdentityCookie(token, maxAgeSeconds);
   }

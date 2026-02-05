@@ -6,30 +6,29 @@ import de.sample.aiarchitecture.sharedkernel.domain.model.ProductId;
 import de.sample.aiarchitecture.sharedkernel.marker.tactical.DomainEvent;
 import java.time.Instant;
 import java.util.UUID;
-import org.jspecify.annotations.NonNull;
 
 /**
  * Domain Event indicating that stock levels have changed for a product.
  */
 public record StockChanged(
-    @NonNull UUID eventId,
-    @NonNull StockLevelId stockLevelId,
-    @NonNull ProductId productId,
-    @NonNull StockQuantity previousAvailableQuantity,
-    @NonNull StockQuantity newAvailableQuantity,
-    @NonNull StockQuantity previousReservedQuantity,
-    @NonNull StockQuantity newReservedQuantity,
-    @NonNull Instant occurredOn,
+    UUID eventId,
+    StockLevelId stockLevelId,
+    ProductId productId,
+    StockQuantity previousAvailableQuantity,
+    StockQuantity newAvailableQuantity,
+    StockQuantity previousReservedQuantity,
+    StockQuantity newReservedQuantity,
+    Instant occurredOn,
     int version)
     implements DomainEvent {
 
   public static StockChanged now(
-      @NonNull final StockLevelId stockLevelId,
-      @NonNull final ProductId productId,
-      @NonNull final StockQuantity previousAvailableQuantity,
-      @NonNull final StockQuantity newAvailableQuantity,
-      @NonNull final StockQuantity previousReservedQuantity,
-      @NonNull final StockQuantity newReservedQuantity) {
+      final StockLevelId stockLevelId,
+      final ProductId productId,
+      final StockQuantity previousAvailableQuantity,
+      final StockQuantity newAvailableQuantity,
+      final StockQuantity previousReservedQuantity,
+      final StockQuantity newReservedQuantity) {
     return new StockChanged(
         UUID.randomUUID(),
         stockLevelId,

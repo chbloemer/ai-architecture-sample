@@ -7,7 +7,6 @@ import de.sample.aiarchitecture.sharedkernel.domain.model.ProductId;
 import de.sample.aiarchitecture.sharedkernel.marker.port.out.Repository;
 import java.util.List;
 import java.util.Optional;
-import org.jspecify.annotations.NonNull;
 
 /**
  * Repository interface for Product aggregate.
@@ -30,7 +29,7 @@ public interface ProductRepository extends Repository<Product, ProductId> {
    * @param sku the SKU to search for
    * @return the product if found, empty otherwise
    */
-  Optional<Product> findBySku(@NonNull SKU sku);
+  Optional<Product> findBySku(SKU sku);
 
   /**
    * Finds all products in a specific category.
@@ -38,7 +37,7 @@ public interface ProductRepository extends Repository<Product, ProductId> {
    * @param category the category to filter by
    * @return list of products in the category
    */
-  List<Product> findByCategory(@NonNull Category category);
+  List<Product> findByCategory(Category category);
 
   /**
    * Retrieves all products.
@@ -53,5 +52,5 @@ public interface ProductRepository extends Repository<Product, ProductId> {
    * @param sku the SKU to check
    * @return true if exists, false otherwise
    */
-  boolean existsBySku(@NonNull SKU sku);
+  boolean existsBySku(SKU sku);
 }

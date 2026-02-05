@@ -4,7 +4,6 @@ import de.sample.aiarchitecture.inventory.application.shared.StockLevelRepositor
 import de.sample.aiarchitecture.inventory.domain.model.StockLevel;
 import de.sample.aiarchitecture.sharedkernel.domain.model.ProductId;
 import de.sample.aiarchitecture.sharedkernel.marker.port.out.DomainEventPublisher;
-import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,7 +37,7 @@ public class SetStockLevelUseCase implements SetStockLevelInputPort {
   }
 
   @Override
-  public @NonNull SetStockLevelResult execute(@NonNull final SetStockLevelCommand command) {
+  public SetStockLevelResult execute(final SetStockLevelCommand command) {
     final ProductId productId = ProductId.of(command.productId());
 
     // Check if stock level exists for this product

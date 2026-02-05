@@ -4,7 +4,6 @@ import de.sample.aiarchitecture.sharedkernel.domain.model.Money;
 import de.sample.aiarchitecture.sharedkernel.marker.tactical.Value;
 import java.util.Currency;
 import java.util.List;
-import org.jspecify.annotations.NonNull;
 
 /**
  * Value Object representing a 'smart shopping cart' that contains enriched line items.
@@ -14,9 +13,9 @@ import org.jspecify.annotations.NonNull;
  * that shows all relevant checkout information.
  */
 public record CheckoutCart(
-    @NonNull CartId cartId,
-    @NonNull CustomerId customerId,
-    @NonNull List<EnrichedCheckoutLineItem> items)
+    CartId cartId,
+    CustomerId customerId,
+    List<EnrichedCheckoutLineItem> items)
     implements Value {
 
   private static final Currency DEFAULT_CURRENCY = Currency.getInstance("EUR");

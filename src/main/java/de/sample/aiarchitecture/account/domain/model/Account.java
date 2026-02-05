@@ -8,7 +8,6 @@ import de.sample.aiarchitecture.sharedkernel.marker.tactical.BaseAggregateRoot;
 import java.time.Instant;
 import java.util.HashSet;
 import java.util.Set;
-import org.jspecify.annotations.NonNull;
 
 /**
  * Account Aggregate Root.
@@ -50,11 +49,11 @@ public final class Account extends BaseAggregateRoot<Account, AccountId> {
   private Instant lastLoginAt;
 
   private Account(
-      @NonNull final AccountId id,
-      @NonNull final Email email,
-      @NonNull final UserId linkedUserId,
-      @NonNull final HashedPassword password,
-      @NonNull final Set<String> roles) {
+      final AccountId id,
+      final Email email,
+      final UserId linkedUserId,
+      final HashedPassword password,
+      final Set<String> roles) {
     this.id = id;
     this.email = email;
     this.linkedUserId = linkedUserId;
@@ -87,10 +86,10 @@ public final class Account extends BaseAggregateRoot<Account, AccountId> {
    * @throws IllegalArgumentException if email or password is invalid
    */
   public static Account register(
-      @NonNull final Email email,
-      @NonNull final String plainPassword,
-      @NonNull final UserId currentUserId,
-      @NonNull final PasswordHasher passwordHasher) {
+      final Email email,
+      final String plainPassword,
+      final UserId currentUserId,
+      final PasswordHasher passwordHasher) {
 
     final HashedPassword hashedPassword = HashedPassword.fromPlaintext(plainPassword, passwordHasher);
     final AccountId accountId = AccountId.generate();
@@ -187,8 +186,8 @@ public final class Account extends BaseAggregateRoot<Account, AccountId> {
    * @return true if the password matches
    */
   public boolean checkPassword(
-      @NonNull final String plainPassword,
-      @NonNull final PasswordHasher passwordHasher) {
+      final String plainPassword,
+      final PasswordHasher passwordHasher) {
     return password.matches(plainPassword, passwordHasher);
   }
 
@@ -215,8 +214,8 @@ public final class Account extends BaseAggregateRoot<Account, AccountId> {
    * @throws IllegalArgumentException if the password doesn't meet requirements
    */
   public void changePassword(
-      @NonNull final String newPlainPassword,
-      @NonNull final PasswordHasher passwordHasher) {
+      final String newPlainPassword,
+      final PasswordHasher passwordHasher) {
     if (status.isTerminal()) {
       throw new IllegalStateException("Cannot change password on closed account");
     }

@@ -7,7 +7,6 @@ import de.sample.aiarchitecture.sharedkernel.domain.model.Money;
 import de.sample.aiarchitecture.sharedkernel.marker.tactical.DomainEvent;
 import java.time.Instant;
 import java.util.UUID;
-import org.jspecify.annotations.NonNull;
 
 /**
  * Domain Event indicating that delivery details were submitted for a checkout session.
@@ -16,19 +15,19 @@ import org.jspecify.annotations.NonNull;
  * providing their shipping address and selecting a shipping option.
  */
 public record DeliverySubmitted(
-    @NonNull UUID eventId,
-    @NonNull CheckoutSessionId sessionId,
-    @NonNull String deliveryAddress,
-    @NonNull String shippingOptionId,
-    @NonNull Money shippingCost,
-    @NonNull Instant occurredOn,
+    UUID eventId,
+    CheckoutSessionId sessionId,
+    String deliveryAddress,
+    String shippingOptionId,
+    Money shippingCost,
+    Instant occurredOn,
     int version)
     implements DomainEvent {
 
   public static DeliverySubmitted now(
-      @NonNull final CheckoutSessionId sessionId,
-      @NonNull final DeliveryAddress address,
-      @NonNull final ShippingOption shippingOption) {
+      final CheckoutSessionId sessionId,
+      final DeliveryAddress address,
+      final ShippingOption shippingOption) {
     return new DeliverySubmitted(
         UUID.randomUUID(),
         sessionId,

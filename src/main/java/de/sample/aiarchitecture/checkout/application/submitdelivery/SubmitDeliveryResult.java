@@ -1,7 +1,6 @@
 package de.sample.aiarchitecture.checkout.application.submitdelivery;
 
 import java.math.BigDecimal;
-import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -23,17 +22,17 @@ import org.jspecify.annotations.Nullable;
  * @param currencyCode the currency code for shipping cost
  */
 public record SubmitDeliveryResult(
-    @NonNull String sessionId,
-    @NonNull String currentStep,
-    @NonNull String status,
-    @NonNull String street,
+    String sessionId,
+    String currentStep,
+    String status,
+    String street,
     @Nullable String streetLine2,
-    @NonNull String city,
-    @NonNull String postalCode,
-    @NonNull String country,
+    String city,
+    String postalCode,
+    String country,
     @Nullable String state,
-    @NonNull String shippingOptionId,
-    @NonNull String shippingOptionName,
-    @NonNull String estimatedDelivery,
-    @NonNull BigDecimal shippingCost,
-    @NonNull String currencyCode) {}
+    String shippingOptionId,
+    String shippingOptionName,
+    String estimatedDelivery,
+    BigDecimal shippingCost,
+    String currencyCode) {}

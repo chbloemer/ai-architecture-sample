@@ -3,7 +3,6 @@ package de.sample.aiarchitecture.cart.domain.model;
 import de.sample.aiarchitecture.sharedkernel.marker.tactical.Entity;
 import de.sample.aiarchitecture.sharedkernel.domain.model.Price;
 import de.sample.aiarchitecture.sharedkernel.domain.model.ProductId;
-import org.jspecify.annotations.NonNull;
 
 /**
  * CartItem Entity.
@@ -25,10 +24,10 @@ public final class CartItem implements Entity<CartItem, CartItemId> {
    * Package-private constructor - CartItems can only be created through ShoppingCart.
    */
   CartItem(
-      @NonNull final CartItemId id,
-      @NonNull final ProductId productId,
-      @NonNull final Quantity quantity,
-      @NonNull final Price priceAtAddition) {
+      final CartItemId id,
+      final ProductId productId,
+      final Quantity quantity,
+      final Price priceAtAddition) {
     this.id = id;
     this.productId = productId;
     this.quantity = quantity;
@@ -55,7 +54,7 @@ public final class CartItem implements Entity<CartItem, CartItemId> {
   /**
    * Package-private - only ShoppingCart aggregate can modify quantity.
    */
-  void updateQuantity(@NonNull final Quantity newQuantity) {
+  void updateQuantity(final Quantity newQuantity) {
     if (newQuantity == null) {
       throw new IllegalArgumentException("Quantity cannot be null");
     }

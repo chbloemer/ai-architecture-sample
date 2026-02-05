@@ -5,7 +5,6 @@ import de.sample.aiarchitecture.sharedkernel.marker.tactical.Value;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import org.jspecify.annotations.NonNull;
 
 /**
  * Value Object representing the result of cart validation for checkout.
@@ -13,7 +12,7 @@ import org.jspecify.annotations.NonNull;
  * <p>Collects validation errors that prevent a cart from being checked out,
  * such as unavailable products or insufficient stock.
  */
-public record CartValidationResult(@NonNull List<ValidationError> errors) implements Value {
+public record CartValidationResult(List<ValidationError> errors) implements Value {
 
   public CartValidationResult {
     if (errors == null) {
@@ -46,7 +45,7 @@ public record CartValidationResult(@NonNull List<ValidationError> errors) implem
    * @param errors the validation errors
    * @return a CartValidationResult with the given errors
    */
-  public static CartValidationResult withErrors(@NonNull final List<ValidationError> errors) {
+  public static CartValidationResult withErrors(final List<ValidationError> errors) {
     return new CartValidationResult(errors);
   }
 
@@ -54,9 +53,9 @@ public record CartValidationResult(@NonNull List<ValidationError> errors) implem
    * Represents a single validation error for a product in the cart.
    */
   public record ValidationError(
-      @NonNull ProductId productId,
-      @NonNull String message,
-      @NonNull ErrorType type) implements Value {
+      ProductId productId,
+      String message,
+      ErrorType type) implements Value {
 
     public ValidationError {
       if (productId == null) {
@@ -76,7 +75,7 @@ public record CartValidationResult(@NonNull List<ValidationError> errors) implem
      * @param productId the unavailable product ID
      * @return a ValidationError of type PRODUCT_UNAVAILABLE
      */
-    public static ValidationError productUnavailable(@NonNull final ProductId productId) {
+    public static ValidationError productUnavailable(final ProductId productId) {
       return new ValidationError(
           productId,
           "Product is not available: " + productId.value(),
@@ -92,7 +91,7 @@ public record CartValidationResult(@NonNull List<ValidationError> errors) implem
      * @return a ValidationError of type INSUFFICIENT_STOCK
      */
     public static ValidationError insufficientStock(
-        @NonNull final ProductId productId,
+        final ProductId productId,
         final int requested,
         final int available) {
       return new ValidationError(

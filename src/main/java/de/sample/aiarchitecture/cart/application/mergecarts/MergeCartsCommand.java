@@ -1,7 +1,5 @@
 package de.sample.aiarchitecture.cart.application.mergecarts;
 
-import org.jspecify.annotations.NonNull;
-
 /**
  * Command to merge carts according to the user's chosen strategy.
  *
@@ -13,9 +11,9 @@ import org.jspecify.annotations.NonNull;
  * @param strategy the merge strategy chosen by the user
  */
 public record MergeCartsCommand(
-    @NonNull String anonymousUserId,
-    @NonNull String registeredUserId,
-    @NonNull CartMergeStrategy strategy
+    String anonymousUserId,
+    String registeredUserId,
+    CartMergeStrategy strategy
 ) {
 
   public MergeCartsCommand {

@@ -1,7 +1,5 @@
 package de.sample.aiarchitecture.cart.application.getorcreateactivecart;
 
-import org.jspecify.annotations.NonNull;
-
 /**
  * Output model for getting or creating an active cart.
  *
@@ -10,7 +8,7 @@ import org.jspecify.annotations.NonNull;
  * @param wasCreated whether a new cart was created (true) or existing was found (false)
  */
 public record GetOrCreateActiveCartResult(
-    @NonNull String cartId,
-    @NonNull String customerId,
+    String cartId,
+    String customerId,
     boolean wasCreated
 ) {}

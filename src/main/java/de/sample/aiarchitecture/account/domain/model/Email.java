@@ -2,7 +2,6 @@ package de.sample.aiarchitecture.account.domain.model;
 
 import de.sample.aiarchitecture.sharedkernel.marker.tactical.Value;
 import java.util.regex.Pattern;
-import org.jspecify.annotations.NonNull;
 
 /**
  * Value Object representing an email address.
@@ -17,7 +16,7 @@ import org.jspecify.annotations.NonNull;
  * <p>Note: Full RFC 5322 compliance is not attempted; this provides
  * practical validation for common email formats.
  */
-public record Email(@NonNull String value) implements Value {
+public record Email(String value) implements Value {
 
   /**
    * Basic email pattern for validation.

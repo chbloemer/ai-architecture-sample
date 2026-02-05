@@ -3,7 +3,6 @@ package de.sample.aiarchitecture.checkout.domain.model;
 import de.sample.aiarchitecture.sharedkernel.marker.tactical.Id;
 import de.sample.aiarchitecture.sharedkernel.marker.tactical.Value;
 import java.util.UUID;
-import org.jspecify.annotations.NonNull;
 
 /**
  * Value Object representing a Shopping Cart's unique identifier within the Checkout context.
@@ -11,7 +10,7 @@ import org.jspecify.annotations.NonNull;
  * <p>This is the Checkout bounded context's own representation of a cart ID,
  * avoiding direct coupling to the Cart bounded context's domain model.
  */
-public record CartId(@NonNull String value) implements Id, Value {
+public record CartId(String value) implements Id, Value {
 
   public CartId {
     if (value == null || value.isBlank()) {

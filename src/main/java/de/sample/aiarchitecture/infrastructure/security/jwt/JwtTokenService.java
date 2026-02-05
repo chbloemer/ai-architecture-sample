@@ -16,7 +16,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import javax.crypto.SecretKey;
-import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -71,8 +70,8 @@ public class JwtTokenService implements TokenService {
    * @param userId the user's unique identifier
    * @return the generated JWT token string
    */
-  @NonNull
-  public String generateAnonymousToken(@NonNull final UserId userId) {
+  
+  public String generateAnonymousToken(final UserId userId) {
     final Date now = new Date();
     final Date expiration = new Date(now.getTime() + properties.anonymousExpirationMs());
 
@@ -95,11 +94,11 @@ public class JwtTokenService implements TokenService {
    * @return the generated JWT token string
    */
   @Override
-  @NonNull
+  
   public String generateRegisteredToken(
-      @NonNull final UserId userId,
-      @NonNull final String email,
-      @NonNull final Set<String> roles) {
+      final UserId userId,
+      final String email,
+      final Set<String> roles) {
     final Date now = new Date();
     final Date expiration = new Date(now.getTime() + properties.registeredExpirationMs());
 
@@ -121,8 +120,8 @@ public class JwtTokenService implements TokenService {
    * @param token the JWT token to validate
    * @return an Optional containing the Identity if valid, empty otherwise
    */
-  @NonNull
-  public Optional<IdentityProvider.Identity> validateAndParse(@NonNull final String token) {
+  
+  public Optional<IdentityProvider.Identity> validateAndParse(final String token) {
     try {
       final Claims claims = Jwts.parser()
           .verifyWith(secretKey)
@@ -151,7 +150,7 @@ public class JwtTokenService implements TokenService {
    * @param token the JWT token to check
    * @return true if the token is expired or invalid, false otherwise
    */
-  public boolean isExpired(@NonNull final String token) {
+  public boolean isExpired(final String token) {
     try {
       Jwts.parser()
           .verifyWith(secretKey)

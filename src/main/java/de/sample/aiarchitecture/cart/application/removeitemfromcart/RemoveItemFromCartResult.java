@@ -2,7 +2,6 @@ package de.sample.aiarchitecture.cart.application.removeitemfromcart;
 
 import java.math.BigDecimal;
 import java.util.List;
-import org.jspecify.annotations.NonNull;
 
 /**
  * Output model for removing an item from cart.
@@ -14,11 +13,11 @@ import org.jspecify.annotations.NonNull;
  * @param totalCurrency the total cart currency
  */
 public record RemoveItemFromCartResult(
-    @NonNull String cartId,
-    @NonNull String customerId,
-    @NonNull List<CartItemSummary> items,
-    @NonNull BigDecimal totalAmount,
-    @NonNull String totalCurrency
+    String cartId,
+    String customerId,
+    List<CartItemSummary> items,
+    BigDecimal totalAmount,
+    String totalCurrency
 ) {
 
   /**
@@ -31,10 +30,10 @@ public record RemoveItemFromCartResult(
    * @param unitPriceCurrency the unit price currency
    */
   public record CartItemSummary(
-      @NonNull String itemId,
-      @NonNull String productId,
+      String itemId,
+      String productId,
       int quantity,
-      @NonNull BigDecimal unitPriceAmount,
-      @NonNull String unitPriceCurrency
+      BigDecimal unitPriceAmount,
+      String unitPriceCurrency
   ) {}
 }

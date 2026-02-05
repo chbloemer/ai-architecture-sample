@@ -4,14 +4,13 @@ import de.sample.aiarchitecture.sharedkernel.marker.tactical.Value;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Currency;
-import org.jspecify.annotations.NonNull;
 
 /**
  * Value Object representing money with amount and currency.
  *
  * <p>This is part of the Shared Kernel and can be used across multiple bounded contexts.
  */
-public record Money(@NonNull BigDecimal amount, @NonNull Currency currency) implements Value {
+public record Money(BigDecimal amount, Currency currency) implements Value {
 
   public Money {
     if (amount == null) {

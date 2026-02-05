@@ -2,7 +2,6 @@ package de.sample.aiarchitecture.cart.domain.model;
 
 import de.sample.aiarchitecture.sharedkernel.domain.model.Money;
 import de.sample.aiarchitecture.sharedkernel.marker.tactical.Value;
-import org.jspecify.annotations.NonNull;
 
 /**
  * Value Object representing current pricing and availability information for an article.
@@ -11,7 +10,7 @@ import org.jspecify.annotations.NonNull;
  * without coupling to specific infrastructure implementations.
  */
 public record ArticlePrice(
-    @NonNull Money price,
+    Money price,
     boolean isAvailable,
     int availableStock) implements Value {
 

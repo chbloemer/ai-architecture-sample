@@ -2,7 +2,6 @@ package de.sample.aiarchitecture.checkout.domain.model;
 
 import de.sample.aiarchitecture.sharedkernel.marker.tactical.Id;
 import de.sample.aiarchitecture.sharedkernel.marker.tactical.Value;
-import org.jspecify.annotations.NonNull;
 
 /**
  * Value Object representing a payment provider's unique identifier.
@@ -10,7 +9,7 @@ import org.jspecify.annotations.NonNull;
  * <p>Payment providers are external systems that handle payment processing
  * (e.g., "stripe", "paypal", "invoice").
  */
-public record PaymentProviderId(@NonNull String value) implements Id, Value {
+public record PaymentProviderId(String value) implements Id, Value {
 
   public PaymentProviderId {
     if (value == null || value.isBlank()) {

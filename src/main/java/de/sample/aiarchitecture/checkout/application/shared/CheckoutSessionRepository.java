@@ -7,7 +7,6 @@ import de.sample.aiarchitecture.checkout.domain.model.CustomerId;
 import de.sample.aiarchitecture.sharedkernel.marker.port.out.Repository;
 import java.util.List;
 import java.util.Optional;
-import org.jspecify.annotations.NonNull;
 
 /**
  * Repository interface for CheckoutSession aggregate.
@@ -32,7 +31,7 @@ public interface CheckoutSessionRepository extends Repository<CheckoutSession, C
    * @param cartId the cart ID
    * @return the checkout session if found, empty otherwise
    */
-  Optional<CheckoutSession> findByCartId(@NonNull CartId cartId);
+  Optional<CheckoutSession> findByCartId(CartId cartId);
 
   /**
    * Finds an active checkout session by the cart it was created from.
@@ -42,7 +41,7 @@ public interface CheckoutSessionRepository extends Repository<CheckoutSession, C
    * @param cartId the cart ID
    * @return the active checkout session if found, empty otherwise
    */
-  Optional<CheckoutSession> findActiveByCartId(@NonNull CartId cartId);
+  Optional<CheckoutSession> findActiveByCartId(CartId cartId);
 
   /**
    * Finds an active checkout session for a customer.
@@ -53,7 +52,7 @@ public interface CheckoutSessionRepository extends Repository<CheckoutSession, C
    * @param customerId the customer ID
    * @return the active checkout session if found, empty otherwise
    */
-  Optional<CheckoutSession> findActiveByCustomerId(@NonNull CustomerId customerId);
+  Optional<CheckoutSession> findActiveByCustomerId(CustomerId customerId);
 
   /**
    * Finds all checkout sessions that have expired.
@@ -80,5 +79,5 @@ public interface CheckoutSessionRepository extends Repository<CheckoutSession, C
    * @param customerId the customer ID
    * @return the confirmed or completed checkout session if found, empty otherwise
    */
-  Optional<CheckoutSession> findConfirmedOrCompletedByCustomerId(@NonNull CustomerId customerId);
+  Optional<CheckoutSession> findConfirmedOrCompletedByCustomerId(CustomerId customerId);
 }

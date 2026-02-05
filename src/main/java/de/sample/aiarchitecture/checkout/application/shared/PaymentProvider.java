@@ -4,7 +4,6 @@ import de.sample.aiarchitecture.checkout.domain.model.CheckoutSessionId;
 import de.sample.aiarchitecture.checkout.domain.model.PaymentProviderId;
 import de.sample.aiarchitecture.sharedkernel.marker.port.out.OutputPort;
 import de.sample.aiarchitecture.sharedkernel.domain.model.Money;
-import org.jspecify.annotations.NonNull;
 
 /**
  * Output port for payment processing operations.
@@ -22,7 +21,7 @@ public interface PaymentProvider extends OutputPort {
    *
    * @return the payment provider ID
    */
-  @NonNull
+  
   PaymentProviderId providerId();
 
   /**
@@ -30,7 +29,7 @@ public interface PaymentProvider extends OutputPort {
    *
    * @return the display name
    */
-  @NonNull
+  
   String displayName();
 
   /**
@@ -44,8 +43,8 @@ public interface PaymentProvider extends OutputPort {
    * @param amount the total amount to charge
    * @return the result of the payment initiation
    */
-  @NonNull
-  PaymentResult initiatePayment(@NonNull CheckoutSessionId sessionId, @NonNull Money amount);
+  
+  PaymentResult initiatePayment(CheckoutSessionId sessionId, Money amount);
 
   /**
    * Confirms a previously initiated payment.
@@ -57,8 +56,8 @@ public interface PaymentProvider extends OutputPort {
    * @param providerReference the reference returned from {@link #initiatePayment}
    * @return the result of the payment confirmation
    */
-  @NonNull
-  PaymentResult confirmPayment(@NonNull String providerReference);
+  
+  PaymentResult confirmPayment(String providerReference);
 
   /**
    * Cancels a previously initiated payment.
@@ -68,8 +67,8 @@ public interface PaymentProvider extends OutputPort {
    * @param providerReference the reference returned from {@link #initiatePayment}
    * @return the result of the cancellation
    */
-  @NonNull
-  PaymentResult cancelPayment(@NonNull String providerReference);
+  
+  PaymentResult cancelPayment(String providerReference);
 
   /**
    * Checks whether this provider is currently available for processing payments.

@@ -11,7 +11,6 @@ import java.math.BigDecimal;
 import jakarta.persistence.criteria.Expression;
 import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.JoinType;
-import org.jspecify.annotations.NonNull;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
 
@@ -25,17 +24,17 @@ public class CartSpecToJpa implements CartSpecificationVisitor<Specification<Car
   // --- Leaf specs
 
   @Override
-  public Specification<CartEntity> visit(@NonNull ActiveCart spec) {
+  public Specification<CartEntity> visit(ActiveCart spec) {
     return (root, query, cb) -> cb.equal(root.get("status"), CartStatus.ACTIVE.name());
   }
 
   @Override
-  public Specification<CartEntity> visit(@NonNull LastUpdatedBefore spec) {
+  public Specification<CartEntity> visit(LastUpdatedBefore spec) {
     return (root, query, cb) -> cb.lessThan(root.get("updatedAt"), spec.threshold());
   }
 
   @Override
-  public Specification<CartEntity> visit(@NonNull HasMinTotal spec) {
+  public Specification<CartEntity> visit(HasMinTotal spec) {
     return (root, query, cb) -> {
       // Join items and aggregate sum(price_amount * quantity) filtered by currency
       Join<CartEntity, CartItemEntity> items = root.join("items", JoinType.LEFT);
@@ -63,7 +62,7 @@ public class CartSpecToJpa implements CartSpecificationVisitor<Specification<Car
 
   // Additions for new leaf specs
   @Override
-  public Specification<CartEntity> visit(@NonNull HasAnyAvailableItem spec) {
+  public Specification<CartEntity> visit(HasAnyAvailableItem spec) {
     return (root, query, cb) -> {
       // Minimal pushdown: require at least one item with quantity > 0
       // (No join to products here; add when product read-model is present)
@@ -74,7 +73,7 @@ public class CartSpecToJpa implements CartSpecificationVisitor<Specification<Car
   }
 
   @Override
-  public Specification<CartEntity> visit(@NonNull CustomerAllowsMarketing spec) {
+  public Specification<CartEntity> visit(CustomerAllowsMarketing spec) {
     // No customer read-model entity available yet; keep as no-op to preserve semantics.
     // TODO: Join customers table (or subquery) to filter by allows_marketing flag when available.
     return (root, query, cb) -> cb.conjunction();
@@ -83,21 +82,21 @@ public class CartSpecToJpa implements CartSpecificationVisitor<Specification<Car
   // --- Combinators from shared visitor
 
   @Override
-  public Specification<CartEntity> visit(@NonNull AndSpecification<ShoppingCart> spec) {
+  public Specification<CartEntity> visit(AndSpecification<ShoppingCart> spec) {
     Specification<CartEntity> left = dispatch(spec.left());
     Specification<CartEntity> right = dispatch(spec.right());
     return left.and(right);
   }
 
   @Override
-  public Specification<CartEntity> visit(@NonNull OrSpecification<ShoppingCart> spec) {
+  public Specification<CartEntity> visit(OrSpecification<ShoppingCart> spec) {
     Specification<CartEntity> left = dispatch(spec.left());
     Specification<CartEntity> right = dispatch(spec.right());
     return left.or(right);
   }
 
   @Override
-  public Specification<CartEntity> visit(@NonNull NotSpecification<ShoppingCart> spec) {
+  public Specification<CartEntity> visit(NotSpecification<ShoppingCart> spec) {
     Specification<CartEntity> inner = dispatch(spec.inner());
     return Specification.not(inner);
   }

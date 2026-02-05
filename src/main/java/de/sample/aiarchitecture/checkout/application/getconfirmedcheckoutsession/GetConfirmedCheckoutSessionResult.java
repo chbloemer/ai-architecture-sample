@@ -1,6 +1,4 @@
 package de.sample.aiarchitecture.checkout.application.getconfirmedcheckoutsession;
-
-import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -26,7 +24,7 @@ public record GetConfirmedCheckoutSessionResult(
    * Creates a response with the found session.
    */
   public static GetConfirmedCheckoutSessionResult of(
-      @NonNull final String sessionId, @NonNull final String customerId) {
+      final String sessionId, final String customerId) {
     return new GetConfirmedCheckoutSessionResult(true, sessionId, customerId);
   }
 }

@@ -1,6 +1,4 @@
 package de.sample.aiarchitecture.checkout.application.confirmcheckout;
-
-import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -16,11 +14,11 @@ import org.jspecify.annotations.Nullable;
  * @param orderReference optional order reference if available
  */
 public record ConfirmCheckoutResult(
-    @NonNull String sessionId,
-    @NonNull String currentStep,
-    @NonNull String status,
-    @NonNull String cartId,
-    @NonNull String customerId,
-    @NonNull String totalAmount,
-    @NonNull String currency,
+    String sessionId,
+    String currentStep,
+    String status,
+    String cartId,
+    String customerId,
+    String totalAmount,
+    String currency,
     @Nullable String orderReference) {}

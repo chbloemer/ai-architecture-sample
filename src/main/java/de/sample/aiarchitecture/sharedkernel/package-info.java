@@ -14,7 +14,10 @@
  *   <li>{@code domain/specification/} - Composable specification pattern</li>
  * </ul>
  */
+@NullMarked
 @SharedKernel(description = "Common value objects, DDD markers, and cross-cutting concerns")
 package de.sample.aiarchitecture.sharedkernel;
 
 import de.sample.aiarchitecture.sharedkernel.marker.strategic.SharedKernel;
+import org.jspecify.annotations.NullMarked;
+

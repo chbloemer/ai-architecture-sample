@@ -7,7 +7,6 @@ import de.sample.aiarchitecture.sharedkernel.domain.model.ProductId;
 import de.sample.aiarchitecture.sharedkernel.marker.tactical.BaseAggregateRoot;
 import java.math.BigDecimal;
 import java.time.Instant;
-import org.jspecify.annotations.NonNull;
 
 /**
  * ProductPrice Aggregate Root.
@@ -37,10 +36,10 @@ public final class ProductPrice extends BaseAggregateRoot<ProductPrice, PriceId>
   private Instant effectiveFrom;
 
   private ProductPrice(
-      @NonNull final PriceId id,
-      @NonNull final ProductId productId,
-      @NonNull final Money currentPrice,
-      @NonNull final Instant effectiveFrom) {
+      final PriceId id,
+      final ProductId productId,
+      final Money currentPrice,
+      final Instant effectiveFrom) {
     this.id = id;
     this.productId = productId;
     this.currentPrice = currentPrice;
@@ -58,7 +57,7 @@ public final class ProductPrice extends BaseAggregateRoot<ProductPrice, PriceId>
    * @throws IllegalArgumentException if price is not greater than zero
    */
   public static ProductPrice create(
-      @NonNull final ProductId productId, @NonNull final Money price) {
+      final ProductId productId, final Money price) {
     validatePriceGreaterThanZero(price);
     final PriceId priceId = PriceId.generate();
     final Instant effectiveFrom = Instant.now();
@@ -92,7 +91,7 @@ public final class ProductPrice extends BaseAggregateRoot<ProductPrice, PriceId>
    * @param newPrice the new price (must be greater than zero)
    * @throws IllegalArgumentException if newPrice is not greater than zero
    */
-  public void updatePrice(@NonNull final Money newPrice) {
+  public void updatePrice(final Money newPrice) {
     validatePriceGreaterThanZero(newPrice);
 
     final Money oldPrice = this.currentPrice;

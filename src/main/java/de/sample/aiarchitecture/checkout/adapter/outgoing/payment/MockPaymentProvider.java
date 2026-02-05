@@ -5,7 +5,6 @@ import de.sample.aiarchitecture.checkout.domain.model.CheckoutSessionId;
 import de.sample.aiarchitecture.checkout.domain.model.PaymentProviderId;
 import de.sample.aiarchitecture.sharedkernel.domain.model.Money;
 import java.util.UUID;
-import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Component;
 
 /**
@@ -27,21 +26,21 @@ public class MockPaymentProvider implements PaymentProvider {
   private boolean available = true;
 
   @Override
-  @NonNull
+  
   public PaymentProviderId providerId() {
     return PROVIDER_ID;
   }
 
   @Override
-  @NonNull
+  
   public String displayName() {
     return DISPLAY_NAME;
   }
 
   @Override
-  @NonNull
+  
   public PaymentResult initiatePayment(
-      @NonNull final CheckoutSessionId sessionId, @NonNull final Money amount) {
+      final CheckoutSessionId sessionId, final Money amount) {
     if (!available) {
       return PaymentResult.failure("Mock payment provider is currently unavailable");
     }
@@ -52,8 +51,8 @@ public class MockPaymentProvider implements PaymentProvider {
   }
 
   @Override
-  @NonNull
-  public PaymentResult confirmPayment(@NonNull final String providerReference) {
+  
+  public PaymentResult confirmPayment(final String providerReference) {
     if (!available) {
       return PaymentResult.failure("Mock payment provider is currently unavailable");
     }
@@ -67,8 +66,8 @@ public class MockPaymentProvider implements PaymentProvider {
   }
 
   @Override
-  @NonNull
-  public PaymentResult cancelPayment(@NonNull final String providerReference) {
+  
+  public PaymentResult cancelPayment(final String providerReference) {
     if (!available) {
       return PaymentResult.failure("Mock payment provider is currently unavailable");
     }

@@ -1,7 +1,6 @@
 package de.sample.aiarchitecture.cart.application.completecart;
 
 import de.sample.aiarchitecture.sharedkernel.marker.port.in.UseCase;
-import org.jspecify.annotations.NonNull;
 
 /**
  * Input port for completing a shopping cart after checkout confirmation.
@@ -22,5 +21,5 @@ public interface CompleteCartInputPort extends UseCase<CompleteCartCommand, Comp
    * @throws IllegalStateException if cart is not in CHECKED_OUT status
    */
   @Override
-  @NonNull CompleteCartResult execute(@NonNull CompleteCartCommand command);
+  CompleteCartResult execute(CompleteCartCommand command);
 }

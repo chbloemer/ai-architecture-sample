@@ -1,7 +1,6 @@
 package de.sample.aiarchitecture.checkout.domain.model;
 
 import de.sample.aiarchitecture.sharedkernel.marker.tactical.Value;
-import org.jspecify.annotations.NonNull;
 
 /**
  * Value Object representing buyer contact information for checkout.
@@ -9,10 +8,10 @@ import org.jspecify.annotations.NonNull;
  * <p>Contains the essential contact details needed to process an order.
  */
 public record BuyerInfo(
-    @NonNull String email,
-    @NonNull String firstName,
-    @NonNull String lastName,
-    @NonNull String phone)
+    String email,
+    String firstName,
+    String lastName,
+    String phone)
     implements Value {
 
   public BuyerInfo {

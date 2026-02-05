@@ -7,7 +7,6 @@ import de.sample.aiarchitecture.sharedkernel.marker.port.out.Repository;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
-import org.jspecify.annotations.NonNull;
 
 /**
  * Repository interface for ProductPrice aggregate.
@@ -30,7 +29,7 @@ public interface ProductPriceRepository extends Repository<ProductPrice, PriceId
    * @param productId the product ID to search for
    * @return the product price if found, empty otherwise
    */
-  Optional<ProductPrice> findByProductId(@NonNull ProductId productId);
+  Optional<ProductPrice> findByProductId(ProductId productId);
 
   /**
    * Finds prices for multiple products.
@@ -38,5 +37,5 @@ public interface ProductPriceRepository extends Repository<ProductPrice, PriceId
    * @param productIds the collection of product IDs to search for
    * @return list of product prices for the given product IDs
    */
-  List<ProductPrice> findByProductIds(@NonNull Collection<ProductId> productIds);
+  List<ProductPrice> findByProductIds(Collection<ProductId> productIds);
 }

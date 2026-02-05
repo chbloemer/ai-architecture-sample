@@ -1,7 +1,6 @@
 package de.sample.aiarchitecture.account.adapter.outgoing.security;
 
 import de.sample.aiarchitecture.account.domain.service.PasswordHasher;
-import org.jspecify.annotations.NonNull;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
@@ -33,13 +32,13 @@ public class SpringSecurityPasswordHasher implements PasswordHasher {
   }
 
   @Override
-  @NonNull
-  public String hash(@NonNull final String plaintext) {
+  
+  public String hash(final String plaintext) {
     return passwordEncoder.encode(plaintext);
   }
 
   @Override
-  public boolean matches(@NonNull final String plaintext, @NonNull final String hash) {
+  public boolean matches(final String plaintext, final String hash) {
     return passwordEncoder.matches(plaintext, hash);
   }
 }

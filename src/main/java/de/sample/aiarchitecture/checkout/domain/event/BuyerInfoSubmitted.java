@@ -5,7 +5,6 @@ import de.sample.aiarchitecture.checkout.domain.model.CheckoutSessionId;
 import de.sample.aiarchitecture.sharedkernel.marker.tactical.DomainEvent;
 import java.time.Instant;
 import java.util.UUID;
-import org.jspecify.annotations.NonNull;
 
 /**
  * Domain Event indicating that buyer information was submitted for a checkout session.
@@ -14,17 +13,17 @@ import org.jspecify.annotations.NonNull;
  * providing their contact details.
  */
 public record BuyerInfoSubmitted(
-    @NonNull UUID eventId,
-    @NonNull CheckoutSessionId sessionId,
-    @NonNull String email,
-    @NonNull String firstName,
-    @NonNull String lastName,
-    @NonNull Instant occurredOn,
+    UUID eventId,
+    CheckoutSessionId sessionId,
+    String email,
+    String firstName,
+    String lastName,
+    Instant occurredOn,
     int version)
     implements DomainEvent {
 
   public static BuyerInfoSubmitted now(
-      @NonNull final CheckoutSessionId sessionId, @NonNull final BuyerInfo buyerInfo) {
+      final CheckoutSessionId sessionId, final BuyerInfo buyerInfo) {
     return new BuyerInfoSubmitted(
         UUID.randomUUID(),
         sessionId,

@@ -1,7 +1,6 @@
 package de.sample.aiarchitecture.pricing.application.setproductprice;
 
 import de.sample.aiarchitecture.sharedkernel.marker.port.in.UseCase;
-import org.jspecify.annotations.NonNull;
 
 /**
  * Input port for setting or updating a product's price.
@@ -27,6 +26,6 @@ public interface SetProductPriceInputPort
    * @throws IllegalArgumentException if price amount is not greater than zero
    */
   @Override
-  @NonNull
-  SetProductPriceResult execute(@NonNull SetProductPriceCommand command);
+  
+  SetProductPriceResult execute(SetProductPriceCommand command);
 }

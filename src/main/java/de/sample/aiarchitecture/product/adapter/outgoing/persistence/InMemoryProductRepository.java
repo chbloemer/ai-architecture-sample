@@ -9,7 +9,6 @@ import de.sample.aiarchitecture.sharedkernel.domain.model.ProductId;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
-import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Async;
@@ -38,12 +37,12 @@ public class InMemoryProductRepository implements ProductRepository {
   private final ConcurrentHashMap<SKU, ProductId> skuIndex = new ConcurrentHashMap<>();
 
   @Override
-  public Optional<Product> findById(@NonNull final ProductId id) {
+  public Optional<Product> findById(final ProductId id) {
     return Optional.ofNullable(products.get(id));
   }
 
   @Override
-  public Optional<Product> findBySku(@NonNull final SKU sku) {
+  public Optional<Product> findBySku(final SKU sku) {
     final ProductId productId = skuIndex.get(sku);
     if (productId == null) {
       return Optional.empty();
@@ -52,7 +51,7 @@ public class InMemoryProductRepository implements ProductRepository {
   }
 
   @Override
-  public List<Product> findByCategory(@NonNull final Category category) {
+  public List<Product> findByCategory(final Category category) {
     return products.values().stream()
         .filter(product -> product.category().equals(category))
         .toList();
@@ -64,14 +63,14 @@ public class InMemoryProductRepository implements ProductRepository {
   }
 
   @Override
-  public Product save(@NonNull final Product product) {
+  public Product save(final Product product) {
     products.put(product.id(), product);
     skuIndex.put(product.sku(), product.id());
     return product;
   }
 
   @Override
-  public void deleteById(@NonNull final ProductId id) {
+  public void deleteById(final ProductId id) {
     final Product product = products.remove(id);
     if (product != null) {
       skuIndex.remove(product.sku());
@@ -79,7 +78,7 @@ public class InMemoryProductRepository implements ProductRepository {
   }
 
   @Override
-  public boolean existsBySku(@NonNull final SKU sku) {
+  public boolean existsBySku(final SKU sku) {
     return skuIndex.containsKey(sku);
   }
 

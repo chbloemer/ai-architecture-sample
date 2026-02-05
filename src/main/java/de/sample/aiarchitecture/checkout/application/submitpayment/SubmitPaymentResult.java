@@ -1,6 +1,4 @@
 package de.sample.aiarchitecture.checkout.application.submitpayment;
-
-import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -14,9 +12,9 @@ import org.jspecify.annotations.Nullable;
  * @param providerReference optional provider-specific reference
  */
 public record SubmitPaymentResult(
-    @NonNull String sessionId,
-    @NonNull String currentStep,
-    @NonNull String status,
-    @NonNull String providerId,
-    @NonNull String providerName,
+    String sessionId,
+    String currentStep,
+    String status,
+    String providerId,
+    String providerName,
     @Nullable String providerReference) {}

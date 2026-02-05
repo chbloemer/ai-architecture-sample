@@ -2,7 +2,6 @@ package de.sample.aiarchitecture.cart.application.getcartbyid;
 
 import java.math.BigDecimal;
 import java.util.List;
-import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -63,11 +62,11 @@ public record GetCartByIdResult(
    * @param priceChanged true if currentPrice differs from priceAtAddition
    */
   public record CartItemSummary(
-      @NonNull String itemId,
-      @NonNull String productId,
+      String itemId,
+      String productId,
       int quantity,
-      @NonNull BigDecimal unitPriceAmount,
-      @NonNull String unitPriceCurrency,
+      BigDecimal unitPriceAmount,
+      String unitPriceCurrency,
       @Nullable BigDecimal currentPriceAmount,
       @Nullable String currentPriceCurrency,
       boolean isAvailable,

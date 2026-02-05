@@ -1,7 +1,6 @@
 package de.sample.aiarchitecture.account.application.registeraccount;
 
 import java.util.Set;
-import org.jspecify.annotations.NonNull;
 
 /**
  * Response from registering an account.
@@ -12,10 +11,10 @@ import org.jspecify.annotations.NonNull;
  * @param roles the user's roles
  */
 public record RegisterAccountResult(
-    @NonNull String accountId,
-    @NonNull String userId,
-    @NonNull String email,
-    @NonNull Set<String> roles) {
+    String accountId,
+    String userId,
+    String email,
+    Set<String> roles) {
 
   /**
    * Creates a successful registration response.

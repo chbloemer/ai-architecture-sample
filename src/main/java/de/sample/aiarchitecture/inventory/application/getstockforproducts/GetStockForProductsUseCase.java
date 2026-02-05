@@ -7,7 +7,6 @@ import de.sample.aiarchitecture.sharedkernel.domain.model.ProductId;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,12 +25,12 @@ public class GetStockForProductsUseCase implements GetStockForProductsInputPort 
 
   private final StockLevelRepository stockLevelRepository;
 
-  public GetStockForProductsUseCase(@NonNull final StockLevelRepository stockLevelRepository) {
+  public GetStockForProductsUseCase(final StockLevelRepository stockLevelRepository) {
     this.stockLevelRepository = stockLevelRepository;
   }
 
   @Override
-  public @NonNull GetStockForProductsResult execute(@NonNull final GetStockForProductsQuery query) {
+  public GetStockForProductsResult execute(final GetStockForProductsQuery query) {
     final List<StockLevel> stockLevels =
         stockLevelRepository.findByProductIds(query.productIds());
 

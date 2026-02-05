@@ -1,7 +1,6 @@
 package de.sample.aiarchitecture.checkout.application.getcheckoutsession;
 
 import de.sample.aiarchitecture.sharedkernel.marker.port.in.UseCase;
-import org.jspecify.annotations.NonNull;
 
 /**
  * Input port for retrieving a checkout session.
@@ -25,5 +24,5 @@ public interface GetCheckoutSessionInputPort
    * @return response containing the session data or found=false
    */
   @Override
-  @NonNull GetCheckoutSessionResult execute(@NonNull GetCheckoutSessionQuery query);
+  GetCheckoutSessionResult execute(GetCheckoutSessionQuery query);
 }

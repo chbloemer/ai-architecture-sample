@@ -3,7 +3,6 @@ package de.sample.aiarchitecture.cart.domain.specification;
 import de.sample.aiarchitecture.cart.domain.model.ShoppingCart;
 import de.sample.aiarchitecture.sharedkernel.domain.specification.AndSpecification;
 import de.sample.aiarchitecture.sharedkernel.domain.specification.SpecificationVisitor;
-import org.jspecify.annotations.NonNull;
 
 /**
  * Cart contains at least one item that is considered "available".
@@ -16,13 +15,13 @@ import org.jspecify.annotations.NonNull;
 public record HasAnyAvailableItem() implements CartSpecification {
 
   @Override
-  public boolean isSatisfiedBy(@NonNull ShoppingCart candidate) {
+  public boolean isSatisfiedBy(ShoppingCart candidate) {
     // Domain model has no product availability view. Keep neutral in memory.
     return true;
   }
 
   @Override
-  public <R> R accept(@NonNull SpecificationVisitor<ShoppingCart, R> visitor) {
+  public <R> R accept(SpecificationVisitor<ShoppingCart, R> visitor) {
     if (visitor instanceof CartSpecificationVisitor<?> v) {
       @SuppressWarnings("unchecked")
       final CartSpecificationVisitor<R> cv = (CartSpecificationVisitor<R>) v;

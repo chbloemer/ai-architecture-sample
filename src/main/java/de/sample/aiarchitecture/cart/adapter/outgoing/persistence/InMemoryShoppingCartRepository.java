@@ -6,11 +6,9 @@ import de.sample.aiarchitecture.cart.domain.model.CustomerId;
 import de.sample.aiarchitecture.cart.domain.model.ShoppingCart;
 import de.sample.aiarchitecture.cart.domain.model.CartStatus;
 import de.sample.aiarchitecture.sharedkernel.marker.infrastructure.AsyncInitialize;
-
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
-import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Async;
@@ -39,19 +37,19 @@ public class InMemoryShoppingCartRepository implements ShoppingCartRepository {
   private final ConcurrentHashMap<CartId, ShoppingCart> carts = new ConcurrentHashMap<>();
 
   @Override
-  public Optional<ShoppingCart> findById(@NonNull final CartId id) {
+  public Optional<ShoppingCart> findById(final CartId id) {
     return Optional.ofNullable(carts.get(id));
   }
 
   @Override
-  public List<ShoppingCart> findByCustomerId(@NonNull final CustomerId customerId) {
+  public List<ShoppingCart> findByCustomerId(final CustomerId customerId) {
     return carts.values().stream()
         .filter(cart -> cart.customerId().equals(customerId))
         .toList();
   }
 
   @Override
-  public Optional<ShoppingCart> findActiveCartByCustomerId(@NonNull final CustomerId customerId) {
+  public Optional<ShoppingCart> findActiveCartByCustomerId(final CustomerId customerId) {
     return carts.values().stream()
         .filter(cart -> cart.customerId().equals(customerId))
         .filter(cart -> cart.status() == CartStatus.ACTIVE)
@@ -64,13 +62,13 @@ public class InMemoryShoppingCartRepository implements ShoppingCartRepository {
   }
 
   @Override
-  public ShoppingCart save(@NonNull final ShoppingCart cart) {
+  public ShoppingCart save(final ShoppingCart cart) {
     carts.put(cart.id(), cart);
     return cart;
   }
 
   @Override
-  public void deleteById(@NonNull final CartId id) {
+  public void deleteById(final CartId id) {
     carts.remove(id);
   }
 

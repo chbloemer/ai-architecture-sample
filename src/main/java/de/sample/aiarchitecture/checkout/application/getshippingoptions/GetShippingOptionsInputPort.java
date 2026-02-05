@@ -1,7 +1,6 @@
 package de.sample.aiarchitecture.checkout.application.getshippingoptions;
 
 import de.sample.aiarchitecture.sharedkernel.marker.port.in.UseCase;
-import org.jspecify.annotations.NonNull;
 
 /**
  * Input port for retrieving available shipping options.
@@ -25,5 +24,5 @@ public interface GetShippingOptionsInputPort
    * @return response containing available shipping options
    */
   @Override
-  @NonNull GetShippingOptionsResult execute(@NonNull GetShippingOptionsQuery query);
+  GetShippingOptionsResult execute(GetShippingOptionsQuery query);
 }

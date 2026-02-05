@@ -9,7 +9,6 @@ import de.sample.aiarchitecture.sharedkernel.marker.tactical.IntegrationEvent;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
-import org.jspecify.annotations.NonNull;
 
 /**
  * Integration Event indicating that a shopping cart was checked out.
@@ -37,13 +36,13 @@ import org.jspecify.annotations.NonNull;
  * from one bounded context to another. This ensures proper context isolation.
  */
 public record CartCheckedOut(
-    @NonNull UUID eventId,
-    @NonNull CartId cartId,
-    @NonNull CustomerId customerId,
-    @NonNull Money totalAmount,
+    UUID eventId,
+    CartId cartId,
+    CustomerId customerId,
+    Money totalAmount,
     int itemCount,
-    @NonNull List<ItemInfo> items,
-    @NonNull Instant occurredOn,
+    List<ItemInfo> items,
+    Instant occurredOn,
     int version)
     implements IntegrationEvent {
 
@@ -53,11 +52,11 @@ public record CartCheckedOut(
    * <p>Converts CartItem domain objects to lightweight ItemInfo DTOs.
    */
   public static CartCheckedOut now(
-      @NonNull final CartId cartId,
-      @NonNull final CustomerId customerId,
-      @NonNull final Money totalAmount,
+      final CartId cartId,
+      final CustomerId customerId,
+      final Money totalAmount,
       final int itemCount,
-      @NonNull final List<CartItem> cartItems) {
+      final List<CartItem> cartItems) {
 
     // Convert domain objects to DTOs for cross-context communication
     final List<ItemInfo> itemInfos = cartItems.stream()
@@ -85,7 +84,7 @@ public record CartCheckedOut(
    * @param quantity the quantity (primitive type)
    */
   public record ItemInfo(
-      @NonNull ProductId productId,
+      ProductId productId,
       int quantity
   ) {}
 }

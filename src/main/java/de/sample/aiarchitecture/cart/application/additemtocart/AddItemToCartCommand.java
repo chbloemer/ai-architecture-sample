@@ -1,7 +1,5 @@
 package de.sample.aiarchitecture.cart.application.additemtocart;
 
-import org.jspecify.annotations.NonNull;
-
 /**
  * Input model for adding an item to a shopping cart.
  *
@@ -10,8 +8,8 @@ import org.jspecify.annotations.NonNull;
  * @param quantity the quantity to add
  */
 public record AddItemToCartCommand(
-    @NonNull String cartId,
-    @NonNull String productId,
+    String cartId,
+    String productId,
     int quantity
 ) {
 

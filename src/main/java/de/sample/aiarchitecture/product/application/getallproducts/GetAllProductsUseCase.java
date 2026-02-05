@@ -10,7 +10,6 @@ import de.sample.aiarchitecture.sharedkernel.domain.model.ProductId;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
-import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -42,7 +41,7 @@ public class GetAllProductsUseCase implements GetAllProductsInputPort {
   }
 
   @Override
-  public @NonNull GetAllProductsResult execute(@NonNull final GetAllProductsQuery input) {
+  public GetAllProductsResult execute(final GetAllProductsQuery input) {
     final List<Product> products = productRepository.findAll();
 
     // Fetch prices and stock for all products from external contexts

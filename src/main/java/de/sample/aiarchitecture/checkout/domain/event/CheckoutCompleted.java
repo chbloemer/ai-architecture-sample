@@ -5,7 +5,6 @@ import de.sample.aiarchitecture.sharedkernel.domain.model.Money;
 import de.sample.aiarchitecture.sharedkernel.marker.tactical.DomainEvent;
 import java.time.Instant;
 import java.util.UUID;
-import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -15,17 +14,17 @@ import org.jspecify.annotations.Nullable;
  * is finalized.
  */
 public record CheckoutCompleted(
-    @NonNull UUID eventId,
-    @NonNull CheckoutSessionId sessionId,
-    @NonNull Money totalAmount,
+    UUID eventId,
+    CheckoutSessionId sessionId,
+    Money totalAmount,
     @Nullable String orderReference,
-    @NonNull Instant occurredOn,
+    Instant occurredOn,
     int version)
     implements DomainEvent {
 
   public static CheckoutCompleted now(
-      @NonNull final CheckoutSessionId sessionId,
-      @NonNull final Money totalAmount,
+      final CheckoutSessionId sessionId,
+      final Money totalAmount,
       @Nullable final String orderReference) {
     return new CheckoutCompleted(
         UUID.randomUUID(), sessionId, totalAmount, orderReference, Instant.now(), 1);

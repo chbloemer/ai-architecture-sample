@@ -4,7 +4,6 @@ import de.sample.aiarchitecture.cart.domain.model.CartId;
 import de.sample.aiarchitecture.cart.domain.model.CustomerId;
 import de.sample.aiarchitecture.cart.domain.model.ShoppingCart;
 import de.sample.aiarchitecture.cart.application.shared.ShoppingCartRepository;
-import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,7 +26,7 @@ public class CreateCartUseCase implements CreateCartInputPort {
   }
 
   @Override
-  public @NonNull CreateCartResult execute(@NonNull final CreateCartCommand input) {
+  public CreateCartResult execute(final CreateCartCommand input) {
     final CustomerId customerId = new CustomerId(input.customerId());
     final CartId cartId = CartId.generate();
 

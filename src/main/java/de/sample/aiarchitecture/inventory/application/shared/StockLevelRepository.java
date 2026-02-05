@@ -7,7 +7,6 @@ import de.sample.aiarchitecture.sharedkernel.marker.port.out.Repository;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
-import org.jspecify.annotations.NonNull;
 
 /**
  * Repository interface for StockLevel aggregate.
@@ -30,7 +29,7 @@ public interface StockLevelRepository extends Repository<StockLevel, StockLevelI
    * @param productId the product ID to search for
    * @return the stock level if found, empty otherwise
    */
-  Optional<StockLevel> findByProductId(@NonNull ProductId productId);
+  Optional<StockLevel> findByProductId(ProductId productId);
 
   /**
    * Finds stock levels for multiple products.
@@ -38,5 +37,5 @@ public interface StockLevelRepository extends Repository<StockLevel, StockLevelI
    * @param productIds the collection of product IDs to search for
    * @return list of stock levels for the given product IDs
    */
-  List<StockLevel> findByProductIds(@NonNull Collection<ProductId> productIds);
+  List<StockLevel> findByProductIds(Collection<ProductId> productIds);
 }

@@ -4,7 +4,6 @@ import de.sample.aiarchitecture.checkout.domain.model.CheckoutSession;
 import de.sample.aiarchitecture.checkout.domain.model.CheckoutStep;
 import de.sample.aiarchitecture.sharedkernel.marker.tactical.DomainService;
 import java.util.Optional;
-import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -35,7 +34,7 @@ public final class CheckoutStepValidator implements DomainService {
    * @return empty if access is allowed, or redirect URL if access is denied
    */
   public Optional<String> validateStepAccess(
-      @Nullable final CheckoutSession session, @NonNull final CheckoutStep targetStep) {
+      @Nullable final CheckoutSession session, final CheckoutStep targetStep) {
 
     // Rule 1: Invalid session - redirect to cart
     if (session == null) {
@@ -73,7 +72,7 @@ public final class CheckoutStepValidator implements DomainService {
    * @param session the checkout session
    * @return the URL path for the session's current step
    */
-  public String getCurrentStepPath(@NonNull final CheckoutSession session) {
+  public String getCurrentStepPath(final CheckoutSession session) {
     return getStepPath(session.currentStep());
   }
 

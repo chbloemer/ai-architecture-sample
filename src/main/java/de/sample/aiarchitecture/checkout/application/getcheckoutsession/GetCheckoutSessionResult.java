@@ -2,7 +2,6 @@ package de.sample.aiarchitecture.checkout.application.getcheckoutsession;
 
 import java.math.BigDecimal;
 import java.util.List;
-import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -28,7 +27,7 @@ public record GetCheckoutSessionResult(
     @Nullable String customerId,
     @Nullable String currentStep,
     @Nullable String status,
-    @NonNull List<LineItemData> lineItems,
+    List<LineItemData> lineItems,
     @Nullable TotalsData totals,
     @Nullable BuyerInfoData buyerInfo,
     @Nullable DeliveryData delivery,
@@ -57,13 +56,13 @@ public record GetCheckoutSessionResult(
    * @param lineTotal the line total amount
    */
   public record LineItemData(
-      @NonNull String id,
-      @NonNull String productId,
-      @NonNull String productName,
-      @NonNull BigDecimal unitPrice,
-      @NonNull String currencyCode,
+      String id,
+      String productId,
+      String productName,
+      BigDecimal unitPrice,
+      String currencyCode,
       int quantity,
-      @NonNull BigDecimal lineTotal) {}
+      BigDecimal lineTotal) {}
 
   /**
    * Checkout totals.
@@ -75,11 +74,11 @@ public record GetCheckoutSessionResult(
    * @param currencyCode the currency code
    */
   public record TotalsData(
-      @NonNull BigDecimal subtotal,
-      @NonNull BigDecimal shipping,
-      @NonNull BigDecimal tax,
-      @NonNull BigDecimal total,
-      @NonNull String currencyCode) {}
+      BigDecimal subtotal,
+      BigDecimal shipping,
+      BigDecimal tax,
+      BigDecimal total,
+      String currencyCode) {}
 
   /**
    * Buyer information.
@@ -90,10 +89,10 @@ public record GetCheckoutSessionResult(
    * @param phone the buyer's phone number
    */
   public record BuyerInfoData(
-      @NonNull String email,
-      @NonNull String firstName,
-      @NonNull String lastName,
-      @NonNull String phone) {}
+      String email,
+      String firstName,
+      String lastName,
+      String phone) {}
 
   /**
    * Delivery information.
@@ -102,7 +101,7 @@ public record GetCheckoutSessionResult(
    * @param shippingOption the selected shipping option
    */
   public record DeliveryData(
-      @NonNull AddressData address, @NonNull ShippingOptionData shippingOption) {}
+      AddressData address, ShippingOptionData shippingOption) {}
 
   /**
    * Delivery address.
@@ -115,11 +114,11 @@ public record GetCheckoutSessionResult(
    * @param state the state (optional)
    */
   public record AddressData(
-      @NonNull String street,
+      String street,
       @Nullable String streetLine2,
-      @NonNull String city,
-      @NonNull String postalCode,
-      @NonNull String country,
+      String city,
+      String postalCode,
+      String country,
       @Nullable String state) {}
 
   /**
@@ -132,11 +131,11 @@ public record GetCheckoutSessionResult(
    * @param currencyCode the currency code
    */
   public record ShippingOptionData(
-      @NonNull String id,
-      @NonNull String name,
-      @NonNull String estimatedDelivery,
-      @NonNull BigDecimal cost,
-      @NonNull String currencyCode) {}
+      String id,
+      String name,
+      String estimatedDelivery,
+      BigDecimal cost,
+      String currencyCode) {}
 
   /**
    * Payment selection.
@@ -144,5 +143,5 @@ public record GetCheckoutSessionResult(
    * @param providerId the payment provider ID
    * @param providerReference the provider reference (optional)
    */
-  public record PaymentData(@NonNull String providerId, @Nullable String providerReference) {}
+  public record PaymentData(String providerId, @Nullable String providerReference) {}
 }

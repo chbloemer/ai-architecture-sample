@@ -4,7 +4,6 @@ import de.sample.aiarchitecture.sharedkernel.marker.tactical.DomainService;
 import de.sample.aiarchitecture.sharedkernel.domain.model.Money;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import org.jspecify.annotations.NonNull;
 
 /**
  * Domain Service for calculating shopping cart totals with tax and other charges.
@@ -24,7 +23,7 @@ public final class CartTotalCalculator implements DomainService {
    * @return the total including tax
    */
   public Money calculateTotalWithTax(
-      @NonNull final Money subtotal, @NonNull final BigDecimal taxRate) {
+      final Money subtotal, final BigDecimal taxRate) {
     if (taxRate.compareTo(BigDecimal.ZERO) < 0) {
       throw new IllegalArgumentException("Tax rate cannot be negative");
     }
@@ -41,7 +40,7 @@ public final class CartTotalCalculator implements DomainService {
    * @param subtotal the subtotal before tax
    * @return the total including default tax
    */
-  public Money calculateTotalWithDefaultTax(@NonNull final Money subtotal) {
+  public Money calculateTotalWithDefaultTax(final Money subtotal) {
     return calculateTotalWithTax(subtotal, DEFAULT_TAX_RATE);
   }
 
@@ -53,7 +52,7 @@ public final class CartTotalCalculator implements DomainService {
    * @return the tax amount
    */
   public Money calculateTaxAmount(
-      @NonNull final Money subtotal, @NonNull final BigDecimal taxRate) {
+      final Money subtotal, final BigDecimal taxRate) {
     if (taxRate.compareTo(BigDecimal.ZERO) < 0) {
       throw new IllegalArgumentException("Tax rate cannot be negative");
     }
@@ -71,9 +70,9 @@ public final class CartTotalCalculator implements DomainService {
    * @return the grand total
    */
   public Money calculateGrandTotal(
-      @NonNull final Money subtotal,
-      @NonNull final Money shipping,
-      @NonNull final BigDecimal taxRate) {
+      final Money subtotal,
+      final Money shipping,
+      final BigDecimal taxRate) {
 
     final Money subtotalWithShipping = subtotal.add(shipping);
     return calculateTotalWithTax(subtotalWithShipping, taxRate);

@@ -3,7 +3,6 @@ package de.sample.aiarchitecture.account.domain.model;
 import de.sample.aiarchitecture.sharedkernel.marker.tactical.Id;
 import de.sample.aiarchitecture.sharedkernel.marker.tactical.Value;
 import java.util.UUID;
-import org.jspecify.annotations.NonNull;
 
 /**
  * Value Object representing an Account's unique identifier.
@@ -18,7 +17,7 @@ import org.jspecify.annotations.NonNull;
  *   <li>Anonymous users have a UserId but no Account</li>
  * </ul>
  */
-public record AccountId(@NonNull String value) implements Id, Value {
+public record AccountId(String value) implements Id, Value {
 
   public AccountId {
     if (value == null || value.isBlank()) {

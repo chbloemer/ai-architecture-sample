@@ -3,12 +3,11 @@ package de.sample.aiarchitecture.checkout.domain.model;
 import de.sample.aiarchitecture.sharedkernel.marker.tactical.Id;
 import de.sample.aiarchitecture.sharedkernel.marker.tactical.Value;
 import java.util.UUID;
-import org.jspecify.annotations.NonNull;
 
 /**
  * Value Object representing a Checkout Session's unique identifier.
  */
-public record CheckoutSessionId(@NonNull String value) implements Id, Value {
+public record CheckoutSessionId(String value) implements Id, Value {
 
   public CheckoutSessionId {
     if (value == null || value.isBlank()) {

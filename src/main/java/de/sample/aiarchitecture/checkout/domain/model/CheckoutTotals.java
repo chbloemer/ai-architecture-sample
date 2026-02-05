@@ -3,7 +3,6 @@ package de.sample.aiarchitecture.checkout.domain.model;
 import de.sample.aiarchitecture.sharedkernel.domain.model.Money;
 import de.sample.aiarchitecture.sharedkernel.marker.tactical.Value;
 import java.util.Currency;
-import org.jspecify.annotations.NonNull;
 
 /**
  * Value Object representing the calculated totals for a checkout session.
@@ -11,7 +10,7 @@ import org.jspecify.annotations.NonNull;
  * <p>Contains subtotal, shipping, tax, and grand total amounts.
  */
 public record CheckoutTotals(
-    @NonNull Money subtotal, @NonNull Money shipping, @NonNull Money tax, @NonNull Money total)
+    Money subtotal, Money shipping, Money tax, Money total)
     implements Value {
 
   public CheckoutTotals {

@@ -10,7 +10,6 @@ import de.sample.aiarchitecture.sharedkernel.domain.model.ProductId;
 import de.sample.aiarchitecture.sharedkernel.marker.port.out.DomainEventPublisher;
 import java.util.List;
 import java.util.Map;
-import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -51,7 +50,7 @@ public class ConfirmCheckoutUseCase implements ConfirmCheckoutInputPort {
   }
 
   @Override
-  public @NonNull ConfirmCheckoutResult execute(@NonNull final ConfirmCheckoutCommand command) {
+  public ConfirmCheckoutResult execute(final ConfirmCheckoutCommand command) {
     // Load session
     final CheckoutSessionId sessionId = CheckoutSessionId.of(command.sessionId());
     final CheckoutSession session =

@@ -2,7 +2,6 @@ package de.sample.aiarchitecture.cart.application.mergecarts;
 
 import java.math.BigDecimal;
 import java.util.List;
-import org.jspecify.annotations.NonNull;
 
 /**
  * Response from the cart merge operation.
@@ -18,12 +17,12 @@ import org.jspecify.annotations.NonNull;
  * @param anonymousCartDeleted whether the anonymous cart was deleted
  */
 public record MergeCartsResult(
-    @NonNull String cartId,
-    @NonNull String customerId,
-    @NonNull List<CartItemSummary> items,
-    @NonNull BigDecimal totalAmount,
-    @NonNull String totalCurrency,
-    @NonNull CartMergeStrategy strategyApplied,
+    String cartId,
+    String customerId,
+    List<CartItemSummary> items,
+    BigDecimal totalAmount,
+    String totalCurrency,
+    CartMergeStrategy strategyApplied,
     int itemsFromAnonymous,
     int itemsFromAccount,
     boolean anonymousCartDeleted
@@ -39,10 +38,10 @@ public record MergeCartsResult(
    * @param unitPriceCurrency the unit price currency
    */
   public record CartItemSummary(
-      @NonNull String itemId,
-      @NonNull String productId,
+      String itemId,
+      String productId,
       int quantity,
-      @NonNull BigDecimal unitPriceAmount,
-      @NonNull String unitPriceCurrency
+      BigDecimal unitPriceAmount,
+      String unitPriceCurrency
   ) {}
 }

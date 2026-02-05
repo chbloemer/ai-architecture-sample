@@ -1,7 +1,6 @@
 package de.sample.aiarchitecture.checkout.application.startcheckout;
 
 import java.util.List;
-import org.jspecify.annotations.NonNull;
 
 /**
  * Output model for checkout session creation.
@@ -15,13 +14,13 @@ import org.jspecify.annotations.NonNull;
  * @param subtotal the subtotal amount as string
  */
 public record StartCheckoutResult(
-    @NonNull String sessionId,
-    @NonNull String cartId,
-    @NonNull String customerId,
-    @NonNull String currentStep,
-    @NonNull String status,
-    @NonNull List<LineItemData> lineItems,
-    @NonNull String subtotal) {
+    String sessionId,
+    String cartId,
+    String customerId,
+    String currentStep,
+    String status,
+    List<LineItemData> lineItems,
+    String subtotal) {
 
   /**
    * Line item details in the result.
@@ -34,10 +33,10 @@ public record StartCheckoutResult(
    * @param lineTotal the line total as string
    */
   public record LineItemData(
-      @NonNull String lineItemId,
-      @NonNull String productId,
-      @NonNull String productName,
-      @NonNull String unitPrice,
+      String lineItemId,
+      String productId,
+      String productName,
+      String unitPrice,
       int quantity,
-      @NonNull String lineTotal) {}
+      String lineTotal) {}
 }

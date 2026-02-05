@@ -1,7 +1,5 @@
 package de.sample.aiarchitecture.cart.application.removeitemfromcart;
 
-import org.jspecify.annotations.NonNull;
-
 /**
  * Command to remove an item from a shopping cart.
  *
@@ -12,8 +10,8 @@ import org.jspecify.annotations.NonNull;
  * @param productId the ID of the product to remove
  */
 public record RemoveItemFromCartCommand(
-    @NonNull String cartId,
-    @NonNull String productId) {
+    String cartId,
+    String productId) {
 
   public RemoveItemFromCartCommand {
     if (cartId == null || cartId.isBlank()) {

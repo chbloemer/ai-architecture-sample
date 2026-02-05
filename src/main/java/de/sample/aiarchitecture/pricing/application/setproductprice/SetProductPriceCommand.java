@@ -1,7 +1,6 @@
 package de.sample.aiarchitecture.pricing.application.setproductprice;
 
 import java.math.BigDecimal;
-import org.jspecify.annotations.NonNull;
 
 /**
  * Input model for setting or updating a product's price.
@@ -11,9 +10,9 @@ import org.jspecify.annotations.NonNull;
  * @param priceCurrency the price currency code (e.g., "EUR", "USD")
  */
 public record SetProductPriceCommand(
-    @NonNull String productId,
-    @NonNull BigDecimal priceAmount,
-    @NonNull String priceCurrency) {
+    String productId,
+    BigDecimal priceAmount,
+    String priceCurrency) {
 
   /**
    * Compact constructor with validation.

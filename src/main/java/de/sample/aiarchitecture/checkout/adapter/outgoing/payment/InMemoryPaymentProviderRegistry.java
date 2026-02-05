@@ -6,7 +6,6 @@ import de.sample.aiarchitecture.checkout.domain.model.PaymentProviderId;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
-import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Component;
 
 /**
@@ -42,34 +41,34 @@ public class InMemoryPaymentProviderRegistry implements PaymentProviderRegistry 
   }
 
   @Override
-  public Optional<PaymentProvider> findById(@NonNull final PaymentProviderId providerId) {
+  public Optional<PaymentProvider> findById(final PaymentProviderId providerId) {
     return Optional.ofNullable(providers.get(providerId));
   }
 
   @Override
-  @NonNull
+  
   public List<PaymentProvider> findAll() {
     return List.copyOf(providers.values());
   }
 
   @Override
-  @NonNull
+  
   public List<PaymentProvider> findAvailable() {
     return providers.values().stream().filter(PaymentProvider::isAvailable).toList();
   }
 
   @Override
-  public void register(@NonNull final PaymentProvider provider) {
+  public void register(final PaymentProvider provider) {
     providers.put(provider.providerId(), provider);
   }
 
   @Override
-  public boolean unregister(@NonNull final PaymentProviderId providerId) {
+  public boolean unregister(final PaymentProviderId providerId) {
     return providers.remove(providerId) != null;
   }
 
   @Override
-  public boolean isRegistered(@NonNull final PaymentProviderId providerId) {
+  public boolean isRegistered(final PaymentProviderId providerId) {
     return providers.containsKey(providerId);
   }
 }

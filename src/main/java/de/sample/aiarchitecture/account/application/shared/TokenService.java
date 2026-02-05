@@ -2,7 +2,6 @@ package de.sample.aiarchitecture.account.application.shared;
 
 import de.sample.aiarchitecture.sharedkernel.domain.model.UserId;
 import java.util.Set;
-import org.jspecify.annotations.NonNull;
 
 /**
  * Port for generating authentication tokens.
@@ -49,9 +48,9 @@ public interface TokenService {
    * @param roles the user's roles (e.g., "CUSTOMER")
    * @return the generated token string
    */
-  @NonNull
+  
   String generateRegisteredToken(
-      @NonNull UserId userId,
-      @NonNull String email,
-      @NonNull Set<String> roles);
+      UserId userId,
+      String email,
+      Set<String> roles);
 }

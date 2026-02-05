@@ -16,7 +16,6 @@ import de.sample.aiarchitecture.checkout.domain.model.DeliveryAddress;
 import de.sample.aiarchitecture.checkout.domain.model.PaymentSelection;
 import de.sample.aiarchitecture.checkout.domain.model.ShippingOption;
 import java.util.List;
-import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -40,7 +39,7 @@ public class GetCheckoutSessionUseCase implements GetCheckoutSessionInputPort {
   }
 
   @Override
-  public @NonNull GetCheckoutSessionResult execute(@NonNull final GetCheckoutSessionQuery query) {
+  public GetCheckoutSessionResult execute(final GetCheckoutSessionQuery query) {
     return checkoutSessionRepository
         .findById(query.sessionId())
         .map(this::mapToResponse)

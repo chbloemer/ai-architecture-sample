@@ -3,7 +3,6 @@ package de.sample.aiarchitecture.cart.application.checkoutcart;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
-import org.jspecify.annotations.NonNull;
 
 /**
  * Output model for cart checkout.
@@ -16,12 +15,12 @@ import org.jspecify.annotations.NonNull;
  * @param checkedOutAt the checkout timestamp
  */
 public record CheckoutCartResult(
-    @NonNull String cartId,
-    @NonNull String customerId,
-    @NonNull List<CartItemSummary> items,
-    @NonNull BigDecimal totalAmount,
-    @NonNull String totalCurrency,
-    @NonNull Instant checkedOutAt
+    String cartId,
+    String customerId,
+    List<CartItemSummary> items,
+    BigDecimal totalAmount,
+    String totalCurrency,
+    Instant checkedOutAt
 ) {
 
   /**
@@ -34,10 +33,10 @@ public record CheckoutCartResult(
    * @param unitPriceCurrency the unit price currency
    */
   public record CartItemSummary(
-      @NonNull String itemId,
-      @NonNull String productId,
+      String itemId,
+      String productId,
       int quantity,
-      @NonNull BigDecimal unitPriceAmount,
-      @NonNull String unitPriceCurrency
+      BigDecimal unitPriceAmount,
+      String unitPriceCurrency
   ) {}
 }

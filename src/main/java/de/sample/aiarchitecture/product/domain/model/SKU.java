@@ -1,13 +1,12 @@
 package de.sample.aiarchitecture.product.domain.model;
 
 import de.sample.aiarchitecture.sharedkernel.marker.tactical.Value;
-import org.jspecify.annotations.NonNull;
 
 /**
  * Value Object representing a Stock Keeping Unit (SKU).
  * SKUs are unique identifiers for products in inventory management.
  */
-public record SKU(@NonNull String value) implements Value {
+public record SKU(String value) implements Value {
 
   public SKU {
     if (value == null || value.isBlank()) {

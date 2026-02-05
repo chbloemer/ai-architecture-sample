@@ -9,7 +9,6 @@ import de.sample.aiarchitecture.sharedkernel.domain.specification.NotSpecificati
 import de.sample.aiarchitecture.sharedkernel.domain.specification.OrSpecification;
 import java.util.ArrayList;
 import java.util.List;
-import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Component;
 
 /**
@@ -29,17 +28,17 @@ public class CartSpecToJdbc implements CartSpecificationVisitor<CartSpecToJdbc.J
   // ---- Leaf specs
 
   @Override
-  public JdbcPredicate visit(@NonNull ActiveCart spec) {
+  public JdbcPredicate visit(ActiveCart spec) {
     return new JdbcPredicate("c.status = ?", List.of(CartStatus.ACTIVE.name()));
   }
 
   @Override
-  public JdbcPredicate visit(@NonNull LastUpdatedBefore spec) {
+  public JdbcPredicate visit(LastUpdatedBefore spec) {
     return new JdbcPredicate("c.updated_at < ?", List.of(spec.threshold()));
   }
 
   @Override
-  public JdbcPredicate visit(@NonNull HasMinTotal spec) {
+  public JdbcPredicate visit(HasMinTotal spec) {
     // Sum over items of this cart filtered by currency
     final String sql = "(SELECT COALESCE(SUM(ci.price_amount * ci.quantity), 0) FROM cart_items ci " +
         "WHERE ci.cart_id = c.id AND ci.price_currency = ?) >= ?";
@@ -50,13 +49,13 @@ public class CartSpecToJdbc implements CartSpecificationVisitor<CartSpecToJdbc.J
   }
 
   @Override
-  public JdbcPredicate visit(@NonNull HasAnyAvailableItem spec) {
+  public JdbcPredicate visit(HasAnyAvailableItem spec) {
     final String sql = "EXISTS (SELECT 1 FROM cart_items ci WHERE ci.cart_id = c.id AND ci.quantity > 0)";
     return new JdbcPredicate(sql, List.of());
   }
 
   @Override
-  public JdbcPredicate visit(@NonNull CustomerAllowsMarketing spec) {
+  public JdbcPredicate visit(CustomerAllowsMarketing spec) {
     // No customer read-model currently; treat as no-op
     return JdbcPredicate.alwaysTrue();
   }
@@ -64,21 +63,21 @@ public class CartSpecToJdbc implements CartSpecificationVisitor<CartSpecToJdbc.J
   // ---- Combinators
 
   @Override
-  public JdbcPredicate visit(@NonNull AndSpecification<ShoppingCart> spec) {
+  public JdbcPredicate visit(AndSpecification<ShoppingCart> spec) {
     final JdbcPredicate l = dispatch(spec.left());
     final JdbcPredicate r = dispatch(spec.right());
     return combine("AND", l, r);
   }
 
   @Override
-  public JdbcPredicate visit(@NonNull OrSpecification<ShoppingCart> spec) {
+  public JdbcPredicate visit(OrSpecification<ShoppingCart> spec) {
     final JdbcPredicate l = dispatch(spec.left());
     final JdbcPredicate r = dispatch(spec.right());
     return combine("OR", l, r);
   }
 
   @Override
-  public JdbcPredicate visit(@NonNull NotSpecification<ShoppingCart> spec) {
+  public JdbcPredicate visit(NotSpecification<ShoppingCart> spec) {
     final JdbcPredicate inner = dispatch(spec.inner());
     final String sql = "NOT (" + inner.sql + ")";
     return new JdbcPredicate(sql, inner.params);

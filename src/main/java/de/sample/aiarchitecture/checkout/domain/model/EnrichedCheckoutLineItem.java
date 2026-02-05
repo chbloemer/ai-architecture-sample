@@ -2,7 +2,6 @@ package de.sample.aiarchitecture.checkout.domain.model;
 
 import de.sample.aiarchitecture.sharedkernel.domain.model.Money;
 import de.sample.aiarchitecture.sharedkernel.marker.tactical.Value;
-import org.jspecify.annotations.NonNull;
 
 /**
  * Value Object that combines a CheckoutLineItem with current CheckoutArticle data.
@@ -11,8 +10,8 @@ import org.jspecify.annotations.NonNull;
  * was added to the cart and whether there is sufficient stock for the requested quantity.
  */
 public record EnrichedCheckoutLineItem(
-    @NonNull CheckoutLineItem lineItem,
-    @NonNull CheckoutArticle currentArticle)
+    CheckoutLineItem lineItem,
+    CheckoutArticle currentArticle)
     implements Value {
 
   public EnrichedCheckoutLineItem {

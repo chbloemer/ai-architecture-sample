@@ -5,7 +5,6 @@ import de.sample.aiarchitecture.sharedkernel.marker.tactical.Factory;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import org.jspecify.annotations.NonNull;
 
 /**
  * Factory for assembling EnrichedCart instances from ShoppingCart and article data.
@@ -31,8 +30,8 @@ public final class EnrichedCartFactory implements Factory {
    * @throws IllegalArgumentException if article data is missing for any cart item
    */
   public EnrichedCart create(
-      @NonNull final ShoppingCart cart,
-      @NonNull final Map<ProductId, CartArticle> articleData) {
+      final ShoppingCart cart,
+      final Map<ProductId, CartArticle> articleData) {
 
     validateArticleDataComplete(cart.items(), articleData);
 

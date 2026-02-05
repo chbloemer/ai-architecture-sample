@@ -12,7 +12,6 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Service;
 
 /**
@@ -47,7 +46,7 @@ public class PricingService {
    * @param effectiveFrom when the price became effective
    */
   public record PriceInfo(
-      @NonNull ProductId productId, @NonNull Money currentPrice, @NonNull Instant effectiveFrom) {}
+      ProductId productId, Money currentPrice, Instant effectiveFrom) {}
 
   /**
    * Retrieves prices for multiple products.
@@ -55,7 +54,7 @@ public class PricingService {
    * @param productIds the collection of product IDs to get prices for
    * @return map of product IDs to their price info
    */
-  public @NonNull Map<ProductId, PriceInfo> getPrices(@NonNull Collection<ProductId> productIds) {
+  public Map<ProductId, PriceInfo> getPrices(Collection<ProductId> productIds) {
     if (productIds.isEmpty()) {
       return Collections.emptyMap();
     }
@@ -80,7 +79,7 @@ public class PricingService {
    * @param productId the product ID
    * @return price info if found
    */
-  public @NonNull Optional<PriceInfo> getPrice(@NonNull ProductId productId) {
+  public Optional<PriceInfo> getPrice(ProductId productId) {
     Map<ProductId, PriceInfo> prices = getPrices(Collections.singletonList(productId));
     return Optional.ofNullable(prices.get(productId));
   }

@@ -10,7 +10,6 @@ import de.sample.aiarchitecture.sharedkernel.marker.tactical.IntegrationEvent;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
-import org.jspecify.annotations.NonNull;
 
 /**
  * Integration Event indicating that a checkout was confirmed by the customer.
@@ -31,13 +30,13 @@ import org.jspecify.annotations.NonNull;
  * Anti-Corruption Layer to translate this event into their own ubiquitous language.
  */
 public record CheckoutConfirmed(
-    @NonNull UUID eventId,
-    @NonNull CheckoutSessionId sessionId,
-    @NonNull CartId cartId,
-    @NonNull CustomerId customerId,
-    @NonNull Money totalAmount,
-    @NonNull List<LineItemInfo> items,
-    @NonNull Instant occurredOn,
+    UUID eventId,
+    CheckoutSessionId sessionId,
+    CartId cartId,
+    CustomerId customerId,
+    Money totalAmount,
+    List<LineItemInfo> items,
+    Instant occurredOn,
     int version)
     implements IntegrationEvent {
 
@@ -47,11 +46,11 @@ public record CheckoutConfirmed(
    * <p>Converts CheckoutLineItem domain objects to lightweight LineItemInfo DTOs.
    */
   public static CheckoutConfirmed now(
-      @NonNull final CheckoutSessionId sessionId,
-      @NonNull final CartId cartId,
-      @NonNull final CustomerId customerId,
-      @NonNull final Money totalAmount,
-      @NonNull final List<CheckoutLineItem> lineItems) {
+      final CheckoutSessionId sessionId,
+      final CartId cartId,
+      final CustomerId customerId,
+      final Money totalAmount,
+      final List<CheckoutLineItem> lineItems) {
 
     // Convert domain objects to DTOs for cross-context communication
     final List<LineItemInfo> itemInfos = lineItems.stream()
@@ -71,7 +70,7 @@ public record CheckoutConfirmed(
    * @param quantity the quantity (primitive type)
    */
   public record LineItemInfo(
-      @NonNull ProductId productId,
+      ProductId productId,
       int quantity
   ) {}
 }

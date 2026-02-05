@@ -7,7 +7,6 @@ import de.sample.aiarchitecture.sharedkernel.marker.port.out.Repository;
 import de.sample.aiarchitecture.sharedkernel.domain.specification.CompositeSpecification;
 import java.util.List;
 import java.util.Optional;
-import org.jspecify.annotations.NonNull;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -33,7 +32,7 @@ public interface ShoppingCartRepository extends Repository<ShoppingCart, CartId>
    * @param customerId the customer ID
    * @return list of carts belonging to the customer
    */
-  List<ShoppingCart> findByCustomerId(@NonNull CustomerId customerId);
+  List<ShoppingCart> findByCustomerId(CustomerId customerId);
 
   /**
    * Finds the active cart for a customer.
@@ -41,7 +40,7 @@ public interface ShoppingCartRepository extends Repository<ShoppingCart, CartId>
    * @param customerId the customer ID
    * @return the active cart if found, empty otherwise
    */
-  Optional<ShoppingCart> findActiveCartByCustomerId(@NonNull CustomerId customerId);
+  Optional<ShoppingCart> findActiveCartByCustomerId(CustomerId customerId);
 
   /**
    * Retrieves all shopping carts.
@@ -59,7 +58,7 @@ public interface ShoppingCartRepository extends Repository<ShoppingCart, CartId>
    * <p>Default implementation falls back to in-memory filtering and manual paging, so secondary
    * adapters can opt-in to DB pushdown progressively.
    */
-  default Page<ShoppingCart> findBy(@NonNull CompositeSpecification<ShoppingCart> specification, @NonNull Pageable pageable) {
+  default Page<ShoppingCart> findBy(CompositeSpecification<ShoppingCart> specification, Pageable pageable) {
     final List<ShoppingCart> filtered = findAll().stream()
         .filter(specification::isSatisfiedBy)
         .toList();

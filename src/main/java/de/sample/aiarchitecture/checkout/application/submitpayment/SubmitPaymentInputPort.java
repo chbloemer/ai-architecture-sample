@@ -1,7 +1,6 @@
 package de.sample.aiarchitecture.checkout.application.submitpayment;
 
 import de.sample.aiarchitecture.sharedkernel.marker.port.in.UseCase;
-import org.jspecify.annotations.NonNull;
 
 /**
  * Input port for submitting payment information during checkout.
@@ -35,5 +34,5 @@ public interface SubmitPaymentInputPort
    * @throws IllegalStateException if session is not modifiable or step validation fails
    */
   @Override
-  @NonNull SubmitPaymentResult execute(@NonNull SubmitPaymentCommand command);
+  SubmitPaymentResult execute(SubmitPaymentCommand command);
 }

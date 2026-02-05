@@ -4,7 +4,6 @@ import de.sample.aiarchitecture.inventory.application.shared.StockLevelRepositor
 import de.sample.aiarchitecture.inventory.domain.model.StockLevel;
 import de.sample.aiarchitecture.sharedkernel.domain.model.ProductId;
 import de.sample.aiarchitecture.sharedkernel.marker.port.out.DomainEventPublisher;
-import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -36,7 +35,7 @@ public class ReduceStockUseCase implements ReduceStockInputPort {
   }
 
   @Override
-  public @NonNull ReduceStockResult execute(@NonNull final ReduceStockCommand command) {
+  public ReduceStockResult execute(final ReduceStockCommand command) {
     final ProductId productId = ProductId.of(command.productId());
 
     final var stockLevelOpt = stockLevelRepository.findByProductId(productId);

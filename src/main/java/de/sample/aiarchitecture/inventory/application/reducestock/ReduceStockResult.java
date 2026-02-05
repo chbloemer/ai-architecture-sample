@@ -1,7 +1,5 @@
 package de.sample.aiarchitecture.inventory.application.reducestock;
 
-import org.jspecify.annotations.NonNull;
-
 /**
  * Result of reducing stock for a product.
  *
@@ -12,7 +10,7 @@ import org.jspecify.annotations.NonNull;
  * @param errorMessage error message if reduction failed (null if successful)
  */
 public record ReduceStockResult(
-    @NonNull String productId,
+    String productId,
     int previousStock,
     int newStock,
     boolean success,

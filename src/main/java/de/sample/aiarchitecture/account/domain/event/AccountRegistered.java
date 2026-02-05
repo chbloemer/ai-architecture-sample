@@ -6,7 +6,6 @@ import de.sample.aiarchitecture.sharedkernel.domain.model.UserId;
 import de.sample.aiarchitecture.sharedkernel.marker.tactical.DomainEvent;
 import java.time.Instant;
 import java.util.UUID;
-import org.jspecify.annotations.NonNull;
 
 /**
  * Domain event raised when a new account is registered.
@@ -26,11 +25,11 @@ import org.jspecify.annotations.NonNull;
  * @param version event schema version
  */
 public record AccountRegistered(
-    @NonNull UUID eventId,
-    @NonNull AccountId accountId,
-    @NonNull Email email,
-    @NonNull UserId linkedUserId,
-    @NonNull Instant occurredOn,
+    UUID eventId,
+    AccountId accountId,
+    Email email,
+    UserId linkedUserId,
+    Instant occurredOn,
     int version) implements DomainEvent {
 
   /**

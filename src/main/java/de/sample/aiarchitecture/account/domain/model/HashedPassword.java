@@ -2,7 +2,6 @@ package de.sample.aiarchitecture.account.domain.model;
 
 import de.sample.aiarchitecture.account.domain.service.PasswordHasher;
 import de.sample.aiarchitecture.sharedkernel.marker.tactical.Value;
-import org.jspecify.annotations.NonNull;
 
 /**
  * Value Object representing a securely hashed password.
@@ -32,7 +31,7 @@ import org.jspecify.annotations.NonNull;
  * HashedPassword restored = HashedPassword.of("$2a$12$...");
  * }</pre>
  */
-public record HashedPassword(@NonNull String hash) implements Value {
+public record HashedPassword(String hash) implements Value {
 
   /**
    * Minimum password length requirement.
@@ -60,8 +59,8 @@ public record HashedPassword(@NonNull String hash) implements Value {
    * @throws IllegalArgumentException if password doesn't meet strength requirements
    */
   public static HashedPassword fromPlaintext(
-      @NonNull final String plaintext,
-      @NonNull final PasswordHasher hasher) {
+      final String plaintext,
+      final PasswordHasher hasher) {
     validatePasswordStrength(plaintext);
     return new HashedPassword(hasher.hash(plaintext));
   }
@@ -75,7 +74,7 @@ public record HashedPassword(@NonNull String hash) implements Value {
    * @param hash the BCrypt hash
    * @return a HashedPassword wrapping the hash
    */
-  public static HashedPassword of(@NonNull final String hash) {
+  public static HashedPassword of(final String hash) {
     return new HashedPassword(hash);
   }
 
@@ -85,7 +84,7 @@ public record HashedPassword(@NonNull String hash) implements Value {
    * @param hash the existing BCrypt hash
    * @return a HashedPassword wrapping the hash
    */
-  public static HashedPassword fromHash(@NonNull final String hash) {
+  public static HashedPassword fromHash(final String hash) {
     return of(hash);
   }
 
@@ -96,7 +95,7 @@ public record HashedPassword(@NonNull String hash) implements Value {
    * @param hasher the password hasher service
    * @return true if the password matches
    */
-  public boolean matches(@NonNull final String plaintext, @NonNull final PasswordHasher hasher) {
+  public boolean matches(final String plaintext, final PasswordHasher hasher) {
     return hasher.matches(plaintext, hash);
   }
 
@@ -114,7 +113,7 @@ public record HashedPassword(@NonNull String hash) implements Value {
    * @param plaintext the password to validate
    * @throws IllegalArgumentException if requirements are not met
    */
-  public static void validatePasswordStrength(@NonNull final String plaintext) {
+  public static void validatePasswordStrength(final String plaintext) {
     if (plaintext == null || plaintext.length() < MIN_LENGTH) {
       throw new IllegalArgumentException(
           "Password must be at least " + MIN_LENGTH + " characters long");

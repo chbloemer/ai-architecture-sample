@@ -4,7 +4,6 @@ import de.sample.aiarchitecture.sharedkernel.marker.tactical.DomainService;
 import de.sample.aiarchitecture.sharedkernel.domain.model.Money;
 import de.sample.aiarchitecture.sharedkernel.domain.model.Price;
 import java.math.BigDecimal;
-import org.jspecify.annotations.NonNull;
 
 /**
  * Domain Service for pricing calculations.
@@ -23,7 +22,7 @@ public final class PricingService implements DomainService {
    * @throws IllegalArgumentException if discount percentage is invalid
    */
   public Price applyDiscount(
-      @NonNull final Price originalPrice, final int discountPercentage) {
+      final Price originalPrice, final int discountPercentage) {
     if (discountPercentage < 0 || discountPercentage > 100) {
       throw new IllegalArgumentException("Discount percentage must be between 0 and 100");
     }
@@ -48,7 +47,7 @@ public final class PricingService implements DomainService {
    * @return the discounted price per unit
    */
   public Price calculateBulkDiscount(
-      @NonNull final Price originalPrice, final int quantity) {
+      final Price originalPrice, final int quantity) {
     if (quantity < 1) {
       throw new IllegalArgumentException("Quantity must be at least 1");
     }
@@ -75,7 +74,7 @@ public final class PricingService implements DomainService {
    * @param price2 second price
    * @return the lower price
    */
-  public Price lowerPrice(@NonNull final Price price1, @NonNull final Price price2) {
+  public Price lowerPrice(final Price price1, final Price price2) {
     return price1.isHigherThan(price2) ? price2 : price1;
   }
 }

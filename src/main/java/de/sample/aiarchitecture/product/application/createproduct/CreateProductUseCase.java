@@ -10,7 +10,6 @@ import de.sample.aiarchitecture.product.domain.model.ProductName;
 import de.sample.aiarchitecture.product.domain.model.SKU;
 import de.sample.aiarchitecture.sharedkernel.domain.model.Money;
 import java.util.Currency;
-import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -50,7 +49,7 @@ public class CreateProductUseCase implements CreateProductInputPort {
   }
 
   @Override
-  public @NonNull CreateProductResult execute(@NonNull final CreateProductCommand input) {
+  public CreateProductResult execute(final CreateProductCommand input) {
     final SKU sku = new SKU(input.sku());
 
     // Business rule: SKU must be unique

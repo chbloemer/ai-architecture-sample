@@ -2,7 +2,6 @@ package de.sample.aiarchitecture.cart.domain.specification;
 
 import de.sample.aiarchitecture.cart.domain.model.ShoppingCart;
 import de.sample.aiarchitecture.sharedkernel.domain.specification.SpecificationVisitor;
-import org.jspecify.annotations.NonNull;
 
 /**
  * Visitor for translating cart specifications to adapter-specific forms.
@@ -11,9 +10,9 @@ import org.jspecify.annotations.NonNull;
  * specification into a query predicate or similar construct.
  */
 public interface CartSpecificationVisitor<R> extends SpecificationVisitor<ShoppingCart, R> {
-  R visit(@NonNull ActiveCart spec);
-  R visit(@NonNull LastUpdatedBefore spec);
-  R visit(@NonNull HasMinTotal spec);
-  R visit(@NonNull HasAnyAvailableItem spec);
-  R visit(@NonNull CustomerAllowsMarketing spec);
+  R visit(ActiveCart spec);
+  R visit(LastUpdatedBefore spec);
+  R visit(HasMinTotal spec);
+  R visit(HasAnyAvailableItem spec);
+  R visit(CustomerAllowsMarketing spec);
 }

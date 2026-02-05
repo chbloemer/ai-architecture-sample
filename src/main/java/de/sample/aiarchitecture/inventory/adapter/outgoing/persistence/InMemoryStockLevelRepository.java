@@ -8,7 +8,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
-import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Repository;
 
 /**
@@ -29,12 +28,12 @@ public class InMemoryStockLevelRepository implements StockLevelRepository {
   private final ConcurrentHashMap<ProductId, StockLevelId> productIdIndex = new ConcurrentHashMap<>();
 
   @Override
-  public Optional<StockLevel> findById(@NonNull final StockLevelId id) {
+  public Optional<StockLevel> findById(final StockLevelId id) {
     return Optional.ofNullable(stockLevels.get(id));
   }
 
   @Override
-  public Optional<StockLevel> findByProductId(@NonNull final ProductId productId) {
+  public Optional<StockLevel> findByProductId(final ProductId productId) {
     final StockLevelId stockLevelId = productIdIndex.get(productId);
     if (stockLevelId == null) {
       return Optional.empty();
@@ -43,7 +42,7 @@ public class InMemoryStockLevelRepository implements StockLevelRepository {
   }
 
   @Override
-  public List<StockLevel> findByProductIds(@NonNull final Collection<ProductId> productIds) {
+  public List<StockLevel> findByProductIds(final Collection<ProductId> productIds) {
     return productIds.stream()
         .map(productIdIndex::get)
         .filter(stockLevelId -> stockLevelId != null)
@@ -53,14 +52,14 @@ public class InMemoryStockLevelRepository implements StockLevelRepository {
   }
 
   @Override
-  public StockLevel save(@NonNull final StockLevel stockLevel) {
+  public StockLevel save(final StockLevel stockLevel) {
     stockLevels.put(stockLevel.id(), stockLevel);
     productIdIndex.put(stockLevel.productId(), stockLevel.id());
     return stockLevel;
   }
 
   @Override
-  public void deleteById(@NonNull final StockLevelId id) {
+  public void deleteById(final StockLevelId id) {
     final StockLevel stockLevel = stockLevels.remove(id);
     if (stockLevel != null) {
       productIdIndex.remove(stockLevel.productId());

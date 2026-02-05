@@ -1,14 +1,13 @@
 package de.sample.aiarchitecture.checkout.application.getcheckoutsession;
 
 import de.sample.aiarchitecture.checkout.domain.model.CheckoutSessionId;
-import org.jspecify.annotations.NonNull;
 
 /**
  * Query model for retrieving a checkout session by ID.
  *
  * @param sessionId the checkout session ID to retrieve
  */
-public record GetCheckoutSessionQuery(@NonNull CheckoutSessionId sessionId) {
+public record GetCheckoutSessionQuery(CheckoutSessionId sessionId) {
 
   public GetCheckoutSessionQuery {
     if (sessionId == null) {
@@ -22,7 +21,7 @@ public record GetCheckoutSessionQuery(@NonNull CheckoutSessionId sessionId) {
    * @param sessionId the session ID to query
    * @return a new GetCheckoutSessionQuery
    */
-  public static GetCheckoutSessionQuery of(@NonNull final CheckoutSessionId sessionId) {
+  public static GetCheckoutSessionQuery of(final CheckoutSessionId sessionId) {
     return new GetCheckoutSessionQuery(sessionId);
   }
 
@@ -32,7 +31,7 @@ public record GetCheckoutSessionQuery(@NonNull CheckoutSessionId sessionId) {
    * @param sessionId the session ID string
    * @return a new GetCheckoutSessionQuery
    */
-  public static GetCheckoutSessionQuery of(@NonNull final String sessionId) {
+  public static GetCheckoutSessionQuery of(final String sessionId) {
     return new GetCheckoutSessionQuery(CheckoutSessionId.of(sessionId));
   }
 }

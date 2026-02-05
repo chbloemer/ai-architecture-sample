@@ -5,7 +5,6 @@ import de.sample.aiarchitecture.checkout.domain.model.CheckoutStep;
 import de.sample.aiarchitecture.sharedkernel.marker.tactical.DomainEvent;
 import java.time.Instant;
 import java.util.UUID;
-import org.jspecify.annotations.NonNull;
 
 /**
  * Domain Event indicating that a checkout session was abandoned by the customer.
@@ -14,15 +13,15 @@ import org.jspecify.annotations.NonNull;
  * or navigates away from the checkout flow.
  */
 public record CheckoutAbandoned(
-    @NonNull UUID eventId,
-    @NonNull CheckoutSessionId sessionId,
-    @NonNull CheckoutStep abandonedAtStep,
-    @NonNull Instant occurredOn,
+    UUID eventId,
+    CheckoutSessionId sessionId,
+    CheckoutStep abandonedAtStep,
+    Instant occurredOn,
     int version)
     implements DomainEvent {
 
   public static CheckoutAbandoned now(
-      @NonNull final CheckoutSessionId sessionId, @NonNull final CheckoutStep abandonedAtStep) {
+      final CheckoutSessionId sessionId, final CheckoutStep abandonedAtStep) {
     return new CheckoutAbandoned(UUID.randomUUID(), sessionId, abandonedAtStep, Instant.now(), 1);
   }
 }

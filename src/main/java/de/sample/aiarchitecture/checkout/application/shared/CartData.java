@@ -5,7 +5,6 @@ import de.sample.aiarchitecture.checkout.domain.model.CustomerId;
 import de.sample.aiarchitecture.sharedkernel.domain.model.Price;
 import de.sample.aiarchitecture.sharedkernel.domain.model.ProductId;
 import java.util.List;
-import org.jspecify.annotations.NonNull;
 
 /**
  * Data transfer object representing cart data from the Cart bounded context.
@@ -14,14 +13,14 @@ import org.jspecify.annotations.NonNull;
  * data into the Checkout context's language.
  */
 public record CartData(
-    @NonNull CartId cartId,
-    @NonNull CustomerId customerId,
-    @NonNull List<CartItemData> items,
+    CartId cartId,
+    CustomerId customerId,
+    List<CartItemData> items,
     boolean active) {
 
   /**
    * Represents a cart item in terms the Checkout context understands.
    */
   public record CartItemData(
-      @NonNull ProductId productId, @NonNull Price priceAtAddition, int quantity) {}
+      ProductId productId, Price priceAtAddition, int quantity) {}
 }

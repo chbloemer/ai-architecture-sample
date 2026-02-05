@@ -3,7 +3,6 @@ package de.sample.aiarchitecture.sharedkernel.marker.port.out;
 import de.sample.aiarchitecture.sharedkernel.domain.model.UserId;
 import java.util.Optional;
 import java.util.Set;
-import org.jspecify.annotations.NonNull;
 
 /**
  * Port for retrieving the current user's identity.
@@ -53,7 +52,7 @@ public interface IdentityProvider extends OutputPort {
    * @return the current user's identity (never null)
    * @throws IllegalStateException if called outside of a request context
    */
-  @NonNull
+  
   Identity getCurrentIdentity();
 
   /**
@@ -80,25 +79,25 @@ public interface IdentityProvider extends OutputPort {
     /**
      * The user's unique identifier (always present).
      */
-    @NonNull
+    
     UserId userId();
 
     /**
      * The identity type (ANONYMOUS or REGISTERED).
      */
-    @NonNull
+    
     IdentityType type();
 
     /**
      * The user's email (only present for registered users).
      */
-    @NonNull
+    
     Optional<String> email();
 
     /**
      * The user's roles (typically empty for anonymous, contains CUSTOMER for registered).
      */
-    @NonNull
+    
     Set<String> roles();
 
     /**

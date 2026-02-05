@@ -1,7 +1,6 @@
 package de.sample.aiarchitecture.checkout.application.startcheckout;
 
 import de.sample.aiarchitecture.sharedkernel.marker.port.in.UseCase;
-import org.jspecify.annotations.NonNull;
 
 /**
  * Input port for starting a checkout session from a cart.
@@ -31,5 +30,5 @@ public interface StartCheckoutInputPort extends UseCase<StartCheckoutCommand, St
    * @throws IllegalArgumentException if cart is not found or cannot be checked out
    */
   @Override
-  @NonNull StartCheckoutResult execute(@NonNull StartCheckoutCommand command);
+  StartCheckoutResult execute(StartCheckoutCommand command);
 }

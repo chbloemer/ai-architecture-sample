@@ -2672,6 +2672,42 @@
         ]
       },
       "passes": true
+    },
+    {
+      "id": "US-105",
+      "epic": "code-quality",
+      "title": "Add @NullMarked Package-Level Nullability",
+      "description": "Add JSpecify @NullMarked annotation at package level for all bounded contexts and shared kernel, removing redundant @NonNull annotations for cleaner code.",
+      "depends_on": [],
+      "acceptance_criteria": [
+        "@NullMarked added to all bounded context package-info.java files (account, cart, checkout, portal, product, inventory, pricing)",
+        "@NullMarked added to sharedkernel/package-info.java",
+        "@NullMarked added to new infrastructure/package-info.java",
+        "All @NonNull annotations removed from src/main/java (232 files cleaned)",
+        "Import statements for org.jspecify.annotations.NonNull removed",
+        "Code formatting preserved after cleanup",
+        "Build passes: ./gradlew build",
+        "Architecture tests pass: ./gradlew test-architecture"
+      ],
+      "architectural_guidance": {
+        "affected_layers": [
+          "all"
+        ],
+        "locations": [
+          "*/package-info.java",
+          "All Java files in src/main/java"
+        ],
+        "patterns": [
+          "JSpecify Nullability",
+          "Package-Level Annotations"
+        ],
+        "constraints": [
+          "All types are non-null by default with @NullMarked",
+          "Only @Nullable annotations needed for parameters/returns that can be null",
+          "No @NonNull annotations should remain in codebase"
+        ]
+      },
+      "passes": true
     }
   ]
 }

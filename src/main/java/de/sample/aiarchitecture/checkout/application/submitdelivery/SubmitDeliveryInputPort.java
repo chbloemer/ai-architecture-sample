@@ -1,7 +1,6 @@
 package de.sample.aiarchitecture.checkout.application.submitdelivery;
 
 import de.sample.aiarchitecture.sharedkernel.marker.port.in.UseCase;
-import org.jspecify.annotations.NonNull;
 
 /**
  * Input port for submitting delivery information during checkout.
@@ -36,5 +35,5 @@ public interface SubmitDeliveryInputPort
    *         or buyer info step is not completed
    */
   @Override
-  @NonNull SubmitDeliveryResult execute(@NonNull SubmitDeliveryCommand command);
+  SubmitDeliveryResult execute(SubmitDeliveryCommand command);
 }

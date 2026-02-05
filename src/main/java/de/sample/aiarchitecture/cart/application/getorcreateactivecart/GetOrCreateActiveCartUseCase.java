@@ -5,7 +5,6 @@ import de.sample.aiarchitecture.cart.domain.model.CartId;
 import de.sample.aiarchitecture.cart.domain.model.CustomerId;
 import de.sample.aiarchitecture.cart.domain.model.ShoppingCart;
 import java.util.Optional;
-import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,7 +28,7 @@ public class GetOrCreateActiveCartUseCase implements GetOrCreateActiveCartInputP
   }
 
   @Override
-  public @NonNull GetOrCreateActiveCartResult execute(@NonNull final GetOrCreateActiveCartCommand input) {
+  public GetOrCreateActiveCartResult execute(final GetOrCreateActiveCartCommand input) {
     final CustomerId customerId = CustomerId.of(input.customerId());
 
     // Try to find existing active cart

@@ -5,7 +5,6 @@ import de.sample.aiarchitecture.sharedkernel.domain.model.ProductId;
 import de.sample.aiarchitecture.sharedkernel.marker.tactical.DomainEvent;
 import java.time.Instant;
 import java.util.UUID;
-import org.jspecify.annotations.NonNull;
 
 /**
  * Domain Event indicating that a product was removed from a shopping cart.
@@ -14,16 +13,16 @@ import org.jspecify.annotations.NonNull;
  * from their shopping cart.
  */
 public record ProductRemovedFromCart(
-    @NonNull UUID eventId,
-    @NonNull CartId cartId,
-    @NonNull ProductId productId,
-    @NonNull Instant occurredOn,
+    UUID eventId,
+    CartId cartId,
+    ProductId productId,
+    Instant occurredOn,
     int version)
     implements DomainEvent {
 
   public static ProductRemovedFromCart now(
-      @NonNull final CartId cartId,
-      @NonNull final ProductId productId) {
+      final CartId cartId,
+      final ProductId productId) {
     return new ProductRemovedFromCart(UUID.randomUUID(), cartId, productId, Instant.now(), 1);
   }
 }

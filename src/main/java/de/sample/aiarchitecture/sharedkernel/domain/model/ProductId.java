@@ -3,7 +3,6 @@ package de.sample.aiarchitecture.sharedkernel.domain.model;
 import de.sample.aiarchitecture.sharedkernel.marker.tactical.Id;
 import de.sample.aiarchitecture.sharedkernel.marker.tactical.Value;
 import java.util.UUID;
-import org.jspecify.annotations.NonNull;
 
 /**
  * Value Object representing a Product's unique identifier.
@@ -11,7 +10,7 @@ import org.jspecify.annotations.NonNull;
  * <p>This is part of the Shared Kernel and allows the Cart bounded context to reference products
  * without creating a direct dependency on the Product aggregate.
  */
-public record ProductId(@NonNull String value) implements Id, Value {
+public record ProductId(String value) implements Id, Value {
 
   public ProductId {
     if (value == null || value.isBlank()) {

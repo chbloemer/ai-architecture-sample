@@ -1,7 +1,5 @@
 package de.sample.aiarchitecture.checkout.application.submitbuyerinfo;
 
-import org.jspecify.annotations.NonNull;
-
 /**
  * Output model for buyer info submission.
  *
@@ -14,10 +12,10 @@ import org.jspecify.annotations.NonNull;
  * @param phone the submitted phone number
  */
 public record SubmitBuyerInfoResult(
-    @NonNull String sessionId,
-    @NonNull String currentStep,
-    @NonNull String status,
-    @NonNull String email,
-    @NonNull String firstName,
-    @NonNull String lastName,
-    @NonNull String phone) {}
+    String sessionId,
+    String currentStep,
+    String status,
+    String email,
+    String firstName,
+    String lastName,
+    String phone) {}

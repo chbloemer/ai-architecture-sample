@@ -1,7 +1,6 @@
 package de.sample.aiarchitecture.checkout.application.getpaymentproviders;
 
 import de.sample.aiarchitecture.sharedkernel.marker.port.in.UseCase;
-import org.jspecify.annotations.NonNull;
 
 /**
  * Input port for retrieving available payment providers.
@@ -25,5 +24,5 @@ public interface GetPaymentProvidersInputPort
    * @return response containing available payment providers
    */
   @Override
-  @NonNull GetPaymentProvidersResult execute(@NonNull GetPaymentProvidersQuery query);
+  GetPaymentProvidersResult execute(GetPaymentProvidersQuery query);
 }

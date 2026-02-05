@@ -1,7 +1,5 @@
 package de.sample.aiarchitecture.inventory.application.setstocklevel;
 
-import org.jspecify.annotations.NonNull;
-
 /**
  * Input model for setting or updating stock levels.
  *
@@ -9,7 +7,7 @@ import org.jspecify.annotations.NonNull;
  * @param quantity the stock quantity to set (must be non-negative)
  */
 public record SetStockLevelCommand(
-    @NonNull String productId,
+    String productId,
     int quantity) {
 
   /**

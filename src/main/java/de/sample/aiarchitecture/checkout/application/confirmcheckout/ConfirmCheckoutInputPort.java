@@ -1,7 +1,6 @@
 package de.sample.aiarchitecture.checkout.application.confirmcheckout;
 
 import de.sample.aiarchitecture.sharedkernel.marker.port.in.UseCase;
-import org.jspecify.annotations.NonNull;
 
 /**
  * Input port for confirming a checkout session.
@@ -35,5 +34,5 @@ public interface ConfirmCheckoutInputPort
    *         or not at review step
    */
   @Override
-  @NonNull ConfirmCheckoutResult execute(@NonNull ConfirmCheckoutCommand command);
+  ConfirmCheckoutResult execute(ConfirmCheckoutCommand command);
 }

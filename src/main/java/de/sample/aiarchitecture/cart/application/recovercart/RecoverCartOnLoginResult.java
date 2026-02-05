@@ -2,7 +2,6 @@ package de.sample.aiarchitecture.cart.application.recovercart;
 
 import java.math.BigDecimal;
 import java.util.List;
-import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -18,10 +17,10 @@ import org.jspecify.annotations.Nullable;
  */
 public record RecoverCartOnLoginResult(
     @Nullable String cartId,
-    @NonNull String customerId,
-    @NonNull List<CartItemSummary> items,
-    @NonNull BigDecimal totalAmount,
-    @NonNull String totalCurrency,
+    String customerId,
+    List<CartItemSummary> items,
+    BigDecimal totalAmount,
+    String totalCurrency,
     int itemsMerged,
     boolean anonymousCartDeleted
 ) {
@@ -51,10 +50,10 @@ public record RecoverCartOnLoginResult(
    * @param unitPriceCurrency the unit price currency
    */
   public record CartItemSummary(
-      @NonNull String itemId,
-      @NonNull String productId,
+      String itemId,
+      String productId,
       int quantity,
-      @NonNull BigDecimal unitPriceAmount,
-      @NonNull String unitPriceCurrency
+      BigDecimal unitPriceAmount,
+      String unitPriceCurrency
   ) {}
 }

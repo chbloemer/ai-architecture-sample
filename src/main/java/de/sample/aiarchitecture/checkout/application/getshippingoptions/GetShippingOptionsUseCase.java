@@ -6,7 +6,6 @@ import de.sample.aiarchitecture.sharedkernel.domain.model.Money;
 import java.math.BigDecimal;
 import java.util.Currency;
 import java.util.List;
-import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -41,7 +40,7 @@ public class GetShippingOptionsUseCase implements GetShippingOptionsInputPort {
               "free", "Free Shipping", "7-10 business days", Money.zero(EUR)));
 
   @Override
-  public @NonNull GetShippingOptionsResult execute(@NonNull final GetShippingOptionsQuery query) {
+  public GetShippingOptionsResult execute(final GetShippingOptionsQuery query) {
     final List<ShippingOptionData> options =
         SHIPPING_OPTIONS.stream().map(this::mapToData).toList();
     return new GetShippingOptionsResult(options);

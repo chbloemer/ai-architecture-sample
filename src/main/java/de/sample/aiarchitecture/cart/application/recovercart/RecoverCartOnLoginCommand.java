@@ -1,7 +1,5 @@
 package de.sample.aiarchitecture.cart.application.recovercart;
 
-import org.jspecify.annotations.NonNull;
-
 /**
  * Command to recover cart on login by merging anonymous cart into registered user's cart.
  *
@@ -12,8 +10,8 @@ import org.jspecify.annotations.NonNull;
  * @param registeredUserId the user ID of the registered user (after login)
  */
 public record RecoverCartOnLoginCommand(
-    @NonNull String anonymousUserId,
-    @NonNull String registeredUserId
+    String anonymousUserId,
+    String registeredUserId
 ) {
 
   public RecoverCartOnLoginCommand {

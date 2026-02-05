@@ -12,7 +12,6 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import org.jspecify.annotations.NonNull;
 import org.springframework.context.annotation.Primary;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -34,19 +33,19 @@ public class JpaShoppingCartRepository implements ShoppingCartRepository {
 
   @Override
   @Transactional(readOnly = true)
-  public Optional<ShoppingCart> findById(@NonNull final CartId id) {
+  public Optional<ShoppingCart> findById(final CartId id) {
     return cartRepo.findById(id.value()).map(this::toDomain);
   }
 
   @Override
   @Transactional(readOnly = true)
-  public List<ShoppingCart> findByCustomerId(@NonNull final CustomerId customerId) {
+  public List<ShoppingCart> findByCustomerId(final CustomerId customerId) {
     return cartRepo.findByCustomerId(customerId.value()).stream().map(this::toDomain).toList();
   }
 
   @Override
   @Transactional(readOnly = true)
-  public Optional<ShoppingCart> findActiveCartByCustomerId(@NonNull final CustomerId customerId) {
+  public Optional<ShoppingCart> findActiveCartByCustomerId(final CustomerId customerId) {
     return cartRepo
         .findFirstByCustomerIdAndStatusOrderByUpdatedAtDesc(customerId.value(), CartStatus.ACTIVE.name())
         .map(this::toDomain);
@@ -60,7 +59,7 @@ public class JpaShoppingCartRepository implements ShoppingCartRepository {
 
   @Override
   @Transactional(readOnly = true)
-  public Page<ShoppingCart> findBy(@NonNull final CompositeSpecification<ShoppingCart> specification, @NonNull final Pageable pageable) {
+  public Page<ShoppingCart> findBy(final CompositeSpecification<ShoppingCart> specification, final Pageable pageable) {
     final CartSpecToJpa translator = requireTranslator();
     final Specification<CartEntity> jpaSpec = specification.accept(translator);
     return cartRepo.findAll(jpaSpec, pageable).map(this::toDomain);
@@ -68,7 +67,7 @@ public class JpaShoppingCartRepository implements ShoppingCartRepository {
 
   @Override
   @Transactional
-  public ShoppingCart save(@NonNull final ShoppingCart cart) {
+  public ShoppingCart save(final ShoppingCart cart) {
     final CartEntity entity = toEntity(cart);
     entity.setUpdatedAt(Instant.now());
     final CartEntity saved = cartRepo.saveAndFlush(entity);
@@ -77,7 +76,7 @@ public class JpaShoppingCartRepository implements ShoppingCartRepository {
 
   @Override
   @Transactional
-  public void deleteById(@NonNull final CartId id) {
+  public void deleteById(final CartId id) {
     cartRepo.deleteById(id.value());
   }
 

@@ -10,7 +10,6 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Service;
 
 /**
@@ -45,7 +44,7 @@ public class InventoryService {
    * @param isAvailable whether any stock is available for purchase
    */
   public record StockInfo(
-      @NonNull ProductId productId, int availableStock, boolean isAvailable) {
+      ProductId productId, int availableStock, boolean isAvailable) {
 
     public StockInfo {
       if (productId == null) {
@@ -63,7 +62,7 @@ public class InventoryService {
    * @param productIds the collection of product IDs to get stock for
    * @return map of product IDs to their stock info
    */
-  public @NonNull Map<ProductId, StockInfo> getStock(@NonNull Collection<ProductId> productIds) {
+  public Map<ProductId, StockInfo> getStock(Collection<ProductId> productIds) {
     if (productIds.isEmpty()) {
       return Collections.emptyMap();
     }
@@ -88,7 +87,7 @@ public class InventoryService {
    * @param productId the product ID
    * @return stock info if found
    */
-  public @NonNull Optional<StockInfo> getStock(@NonNull ProductId productId) {
+  public Optional<StockInfo> getStock(ProductId productId) {
     Map<ProductId, StockInfo> stocks = getStock(Collections.singletonList(productId));
     return Optional.ofNullable(stocks.get(productId));
   }
@@ -100,7 +99,7 @@ public class InventoryService {
    * @param quantity the required quantity
    * @return true if the product has at least the specified quantity available
    */
-  public boolean hasStock(@NonNull ProductId productId, int quantity) {
+  public boolean hasStock(ProductId productId, int quantity) {
     if (quantity <= 0) {
       return true;
     }

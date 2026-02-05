@@ -12,7 +12,6 @@ import de.sample.aiarchitecture.sharedkernel.domain.model.Money;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -58,8 +57,8 @@ public class SyncCheckoutWithCartUseCase implements SyncCheckoutWithCartInputPor
     }
 
     @Override
-    public @NonNull SyncCheckoutWithCartResult execute(
-        @NonNull final SyncCheckoutWithCartCommand command) {
+    public SyncCheckoutWithCartResult execute(
+        final SyncCheckoutWithCartCommand command) {
 
         final CartId cartId = CartId.of(command.cartId());
 

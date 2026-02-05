@@ -14,7 +14,6 @@ import de.sample.aiarchitecture.checkout.domain.model.CheckoutValidationResult.V
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -64,11 +63,11 @@ public final class CheckoutSession extends BaseAggregateRoot<CheckoutSession, Ch
   private String orderReference;
 
   private CheckoutSession(
-      @NonNull final CheckoutSessionId id,
-      @NonNull final CartId cartId,
-      @NonNull final CustomerId customerId,
-      @NonNull final List<CheckoutLineItem> lineItems,
-      @NonNull final Money subtotal) {
+      final CheckoutSessionId id,
+      final CartId cartId,
+      final CustomerId customerId,
+      final List<CheckoutLineItem> lineItems,
+      final Money subtotal) {
     this.id = id;
     this.cartId = cartId;
     this.customerId = customerId;
@@ -95,10 +94,10 @@ public final class CheckoutSession extends BaseAggregateRoot<CheckoutSession, Ch
    * @throws IllegalArgumentException if lineItems is empty
    */
   public static CheckoutSession start(
-      @NonNull final CartId cartId,
-      @NonNull final CustomerId customerId,
-      @NonNull final List<CheckoutLineItem> lineItems,
-      @NonNull final Money subtotal) {
+      final CartId cartId,
+      final CustomerId customerId,
+      final List<CheckoutLineItem> lineItems,
+      final Money subtotal) {
     if (lineItems == null || lineItems.isEmpty()) {
       throw new IllegalArgumentException("Cannot start checkout with empty line items");
     }
@@ -180,8 +179,8 @@ public final class CheckoutSession extends BaseAggregateRoot<CheckoutSession, Ch
    * @throws IllegalArgumentException if newLineItems is empty
    */
   public void syncLineItems(
-      @NonNull final List<CheckoutLineItem> newLineItems,
-      @NonNull final Money newSubtotal) {
+      final List<CheckoutLineItem> newLineItems,
+      final Money newSubtotal) {
     ensureModifiable();
 
     if (newLineItems == null || newLineItems.isEmpty()) {
@@ -208,7 +207,7 @@ public final class CheckoutSession extends BaseAggregateRoot<CheckoutSession, Ch
    * @param buyerInfo the buyer contact information
    * @throws IllegalStateException if session is not modifiable or if trying to skip steps
    */
-  public void submitBuyerInfo(@NonNull final BuyerInfo buyerInfo) {
+  public void submitBuyerInfo(final BuyerInfo buyerInfo) {
     ensureModifiable();
     ensureAtOrBeforeStep(CheckoutStep.BUYER_INFO);
 
@@ -232,7 +231,7 @@ public final class CheckoutSession extends BaseAggregateRoot<CheckoutSession, Ch
    * @throws IllegalStateException if session is not modifiable or if trying to skip steps
    */
   public void submitDelivery(
-      @NonNull final DeliveryAddress address, @NonNull final ShippingOption shippingOption) {
+      final DeliveryAddress address, final ShippingOption shippingOption) {
     ensureModifiable();
     ensureStepCompleted(CheckoutStep.BUYER_INFO);
     ensureAtOrBeforeStep(CheckoutStep.DELIVERY);
@@ -259,7 +258,7 @@ public final class CheckoutSession extends BaseAggregateRoot<CheckoutSession, Ch
    * @param payment the payment method selection
    * @throws IllegalStateException if session is not modifiable or if trying to skip steps
    */
-  public void submitPayment(@NonNull final PaymentSelection payment) {
+  public void submitPayment(final PaymentSelection payment) {
     ensureModifiable();
     ensureStepCompleted(CheckoutStep.BUYER_INFO);
     ensureStepCompleted(CheckoutStep.DELIVERY);
@@ -284,7 +283,7 @@ public final class CheckoutSession extends BaseAggregateRoot<CheckoutSession, Ch
    * @param resolver the resolver providing current pricing information
    * @return the calculated order total
    */
-  public Money calculateOrderTotal(@NonNull final CheckoutArticlePriceResolver resolver) {
+  public Money calculateOrderTotal(final CheckoutArticlePriceResolver resolver) {
     Money total = Money.zero(totals.subtotal().currency());
     for (final CheckoutLineItem item : lineItems) {
       final CheckoutArticlePriceResolver.ArticlePrice articlePrice =
@@ -308,7 +307,7 @@ public final class CheckoutSession extends BaseAggregateRoot<CheckoutSession, Ch
    * @return a validation result containing any errors found
    */
   public CheckoutValidationResult validateItems(
-      @NonNull final CheckoutArticlePriceResolver resolver) {
+      final CheckoutArticlePriceResolver resolver) {
     final List<ValidationError> errors = new ArrayList<>();
     for (final CheckoutLineItem item : lineItems) {
       final CheckoutArticlePriceResolver.ArticlePrice articlePrice =
@@ -337,7 +336,7 @@ public final class CheckoutSession extends BaseAggregateRoot<CheckoutSession, Ch
    * @throws IllegalStateException if session is not confirmable, steps are incomplete,
    *         or validation fails
    */
-  public void confirm(@NonNull final CheckoutArticlePriceResolver resolver) {
+  public void confirm(final CheckoutArticlePriceResolver resolver) {
     ensureModifiable();
     ensureAllStepsCompleted();
 
@@ -446,7 +445,7 @@ public final class CheckoutSession extends BaseAggregateRoot<CheckoutSession, Ch
    * @throws IllegalStateException if session is not modifiable
    * @throws IllegalArgumentException if trying to go forward or to confirmation step
    */
-  public void goBackTo(@NonNull final CheckoutStep step) {
+  public void goBackTo(final CheckoutStep step) {
     ensureModifiable();
 
     if (step == CheckoutStep.CONFIRMATION) {
@@ -466,7 +465,7 @@ public final class CheckoutSession extends BaseAggregateRoot<CheckoutSession, Ch
    * @param step the step to check
    * @return true if the step data has been submitted
    */
-  public boolean isStepCompleted(@NonNull final CheckoutStep step) {
+  public boolean isStepCompleted(final CheckoutStep step) {
     return switch (step) {
       case BUYER_INFO -> buyerInfo != null;
       case DELIVERY -> deliveryAddress != null && shippingOption != null;

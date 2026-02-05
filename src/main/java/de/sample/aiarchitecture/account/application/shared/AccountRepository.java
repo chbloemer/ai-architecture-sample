@@ -6,7 +6,6 @@ import de.sample.aiarchitecture.account.domain.model.Email;
 import de.sample.aiarchitecture.sharedkernel.marker.port.out.Repository;
 import de.sample.aiarchitecture.sharedkernel.domain.model.UserId;
 import java.util.Optional;
-import org.jspecify.annotations.NonNull;
 
 /**
  * Repository interface for Account aggregate.
@@ -31,7 +30,7 @@ public interface AccountRepository extends Repository<Account, AccountId> {
    * @param email the email address
    * @return the account if found, empty otherwise
    */
-  Optional<Account> findByEmail(@NonNull Email email);
+  Optional<Account> findByEmail(Email email);
 
   /**
    * Finds an account by its linked UserId.
@@ -41,7 +40,7 @@ public interface AccountRepository extends Repository<Account, AccountId> {
    * @param userId the linked user ID
    * @return the account if found, empty otherwise
    */
-  Optional<Account> findByLinkedUserId(@NonNull UserId userId);
+  Optional<Account> findByLinkedUserId(UserId userId);
 
   /**
    * Checks if an email is already registered.
@@ -49,7 +48,7 @@ public interface AccountRepository extends Repository<Account, AccountId> {
    * @param email the email to check
    * @return true if an account with this email exists
    */
-  default boolean existsByEmail(@NonNull final Email email) {
+  default boolean existsByEmail(final Email email) {
     return findByEmail(email).isPresent();
   }
 }

@@ -7,7 +7,6 @@ import de.sample.aiarchitecture.account.domain.model.Email;
 import de.sample.aiarchitecture.sharedkernel.domain.model.UserId;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
-import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Repository;
 
 /**
@@ -29,12 +28,12 @@ public class InMemoryAccountRepository implements AccountRepository {
   private final ConcurrentHashMap<String, AccountId> userIdIndex = new ConcurrentHashMap<>();
 
   @Override
-  public Optional<Account> findById(@NonNull final AccountId id) {
+  public Optional<Account> findById(final AccountId id) {
     return Optional.ofNullable(accounts.get(id));
   }
 
   @Override
-  public Optional<Account> findByEmail(@NonNull final Email email) {
+  public Optional<Account> findByEmail(final Email email) {
     final AccountId accountId = emailIndex.get(email.value());
     if (accountId == null) {
       return Optional.empty();
@@ -43,7 +42,7 @@ public class InMemoryAccountRepository implements AccountRepository {
   }
 
   @Override
-  public Optional<Account> findByLinkedUserId(@NonNull final UserId userId) {
+  public Optional<Account> findByLinkedUserId(final UserId userId) {
     final AccountId accountId = userIdIndex.get(userId.value());
     if (accountId == null) {
       return Optional.empty();
@@ -52,7 +51,7 @@ public class InMemoryAccountRepository implements AccountRepository {
   }
 
   @Override
-  public Account save(@NonNull final Account account) {
+  public Account save(final Account account) {
     // Update main storage
     accounts.put(account.id(), account);
 
@@ -64,7 +63,7 @@ public class InMemoryAccountRepository implements AccountRepository {
   }
 
   @Override
-  public void deleteById(@NonNull final AccountId id) {
+  public void deleteById(final AccountId id) {
     final Account account = accounts.remove(id);
     if (account != null) {
       emailIndex.remove(account.email().value());

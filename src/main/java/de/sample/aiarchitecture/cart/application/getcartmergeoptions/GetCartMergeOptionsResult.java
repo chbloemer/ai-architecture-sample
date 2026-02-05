@@ -2,7 +2,6 @@ package de.sample.aiarchitecture.cart.application.getcartmergeoptions;
 
 import java.math.BigDecimal;
 import java.util.List;
-import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -33,8 +32,8 @@ public record GetCartMergeOptionsResult(
    * Creates a response indicating merge options should be presented.
    */
   public static GetCartMergeOptionsResult mergeRequired(
-      @NonNull CartSummary anonymousCart,
-      @NonNull CartSummary accountCart) {
+      CartSummary anonymousCart,
+      CartSummary accountCart) {
     return new GetCartMergeOptionsResult(true, anonymousCart, accountCart);
   }
 
@@ -49,12 +48,12 @@ public record GetCartMergeOptionsResult(
    * @param items list of item summaries
    */
   public record CartSummary(
-      @NonNull String cartId,
+      String cartId,
       int itemCount,
       int totalQuantity,
-      @NonNull BigDecimal totalAmount,
-      @NonNull String totalCurrency,
-      @NonNull List<CartItemSummary> items
+      BigDecimal totalAmount,
+      String totalCurrency,
+      List<CartItemSummary> items
   ) {}
 
   /**
@@ -66,9 +65,9 @@ public record GetCartMergeOptionsResult(
    * @param unitPriceCurrency the unit price currency
    */
   public record CartItemSummary(
-      @NonNull String productId,
+      String productId,
       int quantity,
-      @NonNull BigDecimal unitPriceAmount,
-      @NonNull String unitPriceCurrency
+      BigDecimal unitPriceAmount,
+      String unitPriceCurrency
   ) {}
 }

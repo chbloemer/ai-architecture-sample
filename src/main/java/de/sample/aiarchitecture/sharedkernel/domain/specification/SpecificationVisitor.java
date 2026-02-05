@@ -1,7 +1,5 @@
 package de.sample.aiarchitecture.sharedkernel.domain.specification;
 
-import org.jspecify.annotations.NonNull;
-
 /**
  * Visitor for translating domain specifications to other representations.
  *
@@ -10,7 +8,7 @@ import org.jspecify.annotations.NonNull;
  * Elasticsearch query, etc.).
  */
 public interface SpecificationVisitor<T, R> {
-  R visit(@NonNull AndSpecification<T> spec);
-  R visit(@NonNull OrSpecification<T> spec);
-  R visit(@NonNull NotSpecification<T> spec);
+  R visit(AndSpecification<T> spec);
+  R visit(OrSpecification<T> spec);
+  R visit(NotSpecification<T> spec);
 }

@@ -3,7 +3,6 @@ package de.sample.aiarchitecture.checkout.domain.model;
 import de.sample.aiarchitecture.sharedkernel.domain.model.Money;
 import de.sample.aiarchitecture.sharedkernel.domain.model.ProductId;
 import de.sample.aiarchitecture.sharedkernel.marker.tactical.Value;
-import org.jspecify.annotations.NonNull;
 
 /**
  * Value Object representing a line item in the checkout.
@@ -12,10 +11,10 @@ import org.jspecify.annotations.NonNull;
  * item in the checkout session.
  */
 public record CheckoutLineItem(
-    @NonNull CheckoutLineItemId id,
-    @NonNull ProductId productId,
-    @NonNull String productName,
-    @NonNull Money unitPrice,
+    CheckoutLineItemId id,
+    ProductId productId,
+    String productName,
+    Money unitPrice,
     int quantity)
     implements Value {
 

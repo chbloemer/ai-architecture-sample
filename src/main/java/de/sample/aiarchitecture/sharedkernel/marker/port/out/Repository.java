@@ -1,10 +1,8 @@
 package de.sample.aiarchitecture.sharedkernel.marker.port.out;
 
 import java.util.Optional;
-
 import de.sample.aiarchitecture.sharedkernel.marker.tactical.AggregateRoot;
 import de.sample.aiarchitecture.sharedkernel.marker.tactical.Id;
-import org.jspecify.annotations.NonNull;
 
 /**
  * Base interface for Repositories.
@@ -83,7 +81,7 @@ public interface Repository<T extends AggregateRoot<T, ID>, ID extends Id> exten
    * @param id the aggregate ID
    * @return an Optional containing the aggregate if found, empty otherwise
    */
-  Optional<T> findById(@NonNull ID id);
+  Optional<T> findById(ID id);
 
   /**
    * Saves an aggregate to the repository.
@@ -96,7 +94,7 @@ public interface Repository<T extends AggregateRoot<T, ID>, ID extends Id> exten
    * @param aggregate the aggregate to save
    * @return the saved aggregate
    */
-  T save(@NonNull T aggregate);
+  T save(T aggregate);
 
   /**
    * Deletes an aggregate from the repository by its ID.
@@ -106,5 +104,5 @@ public interface Repository<T extends AggregateRoot<T, ID>, ID extends Id> exten
    *
    * @param id the ID of the aggregate to delete
    */
-  void deleteById(@NonNull ID id);
+  void deleteById(ID id);
 }

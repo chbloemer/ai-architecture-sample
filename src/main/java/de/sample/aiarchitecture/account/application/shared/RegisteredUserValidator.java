@@ -2,7 +2,6 @@ package de.sample.aiarchitecture.account.application.shared;
 
 import de.sample.aiarchitecture.sharedkernel.marker.port.out.OutputPort;
 import de.sample.aiarchitecture.sharedkernel.domain.model.UserId;
-import org.jspecify.annotations.NonNull;
 
 /**
  * Validator for checking if a registered user's account exists.
@@ -22,5 +21,5 @@ public interface RegisteredUserValidator {
    * @param userId the user ID to check
    * @return true if an account exists for this user ID, false otherwise
    */
-  boolean existsForUserId(@NonNull UserId userId);
+  boolean existsForUserId(UserId userId);
 }

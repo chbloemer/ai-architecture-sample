@@ -1,14 +1,13 @@
 package de.sample.aiarchitecture.checkout.application.getpaymentproviders;
 
 import java.util.List;
-import org.jspecify.annotations.NonNull;
 
 /**
  * Output model containing available payment providers.
  *
  * @param paymentProviders list of available payment providers
  */
-public record GetPaymentProvidersResult(@NonNull List<PaymentProviderData> paymentProviders) {
+public record GetPaymentProvidersResult(List<PaymentProviderData> paymentProviders) {
 
   /**
    * Individual payment provider details.
@@ -18,7 +17,7 @@ public record GetPaymentProvidersResult(@NonNull List<PaymentProviderData> payme
    * @param available whether the provider is currently available
    */
   public record PaymentProviderData(
-      @NonNull String id,
-      @NonNull String displayName,
+      String id,
+      String displayName,
       boolean available) {}
 }

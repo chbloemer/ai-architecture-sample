@@ -18,7 +18,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -59,7 +58,7 @@ public class CheckoutCartUseCase implements CheckoutCartInputPort {
   }
 
   @Override
-  public @NonNull CheckoutCartResult execute(@NonNull final CheckoutCartCommand input) {
+  public CheckoutCartResult execute(final CheckoutCartCommand input) {
     final CartId cartId = CartId.of(input.cartId());
 
     // Retrieve cart

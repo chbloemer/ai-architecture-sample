@@ -5,7 +5,7 @@ import de.sample.aiarchitecture.sharedkernel.marker.tactical.Value;
 import java.util.UUID;
 import lombok.NonNull;
 
-public record StockLevelId(@NonNull String value) implements Id, Value {
+public record StockLevelId(String value) implements Id, Value {
 
   public StockLevelId {
     if (value == null || value.isBlank()) {

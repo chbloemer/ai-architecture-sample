@@ -14,7 +14,6 @@ import de.sample.aiarchitecture.sharedkernel.domain.model.ProductId;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -57,7 +56,7 @@ public class StartCheckoutUseCase implements StartCheckoutInputPort {
     }
 
     @Override
-    public @NonNull StartCheckoutResult execute(@NonNull final StartCheckoutCommand command) {
+    public StartCheckoutResult execute(final StartCheckoutCommand command) {
         // Load cart through ACL
         final CartId cartId = CartId.of(command.cartId());
         final CartData cart =

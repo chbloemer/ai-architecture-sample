@@ -5,7 +5,6 @@ import de.sample.aiarchitecture.checkout.domain.model.PaymentSelection;
 import de.sample.aiarchitecture.sharedkernel.marker.tactical.DomainEvent;
 import java.time.Instant;
 import java.util.UUID;
-import org.jspecify.annotations.NonNull;
 
 /**
  * Domain Event indicating that payment method was submitted for a checkout session.
@@ -14,15 +13,15 @@ import org.jspecify.annotations.NonNull;
  * selecting their preferred payment method.
  */
 public record PaymentSubmitted(
-    @NonNull UUID eventId,
-    @NonNull CheckoutSessionId sessionId,
-    @NonNull String paymentProviderId,
-    @NonNull Instant occurredOn,
+    UUID eventId,
+    CheckoutSessionId sessionId,
+    String paymentProviderId,
+    Instant occurredOn,
     int version)
     implements DomainEvent {
 
   public static PaymentSubmitted now(
-      @NonNull final CheckoutSessionId sessionId, @NonNull final PaymentSelection payment) {
+      final CheckoutSessionId sessionId, final PaymentSelection payment) {
     return new PaymentSubmitted(
         UUID.randomUUID(), sessionId, payment.providerId().value(), Instant.now(), 1);
   }

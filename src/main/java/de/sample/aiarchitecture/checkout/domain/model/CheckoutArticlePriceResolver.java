@@ -3,7 +3,6 @@ package de.sample.aiarchitecture.checkout.domain.model;
 import de.sample.aiarchitecture.sharedkernel.domain.model.Money;
 import de.sample.aiarchitecture.sharedkernel.domain.model.ProductId;
 import de.sample.aiarchitecture.sharedkernel.marker.tactical.Value;
-import org.jspecify.annotations.NonNull;
 
 /**
  * Functional interface for resolving current pricing and availability information for articles
@@ -19,7 +18,7 @@ public interface CheckoutArticlePriceResolver {
    * @param productId the product identifier to resolve pricing for
    * @return the article price information including availability status
    */
-  ArticlePrice resolve(@NonNull ProductId productId);
+  ArticlePrice resolve(ProductId productId);
 
   /**
    * Value object containing pricing and availability information for an article.
@@ -28,7 +27,7 @@ public interface CheckoutArticlePriceResolver {
    * @param isAvailable whether the article is currently available for purchase
    * @param availableStock the quantity currently available in stock
    */
-  record ArticlePrice(@NonNull Money price, boolean isAvailable, int availableStock)
+  record ArticlePrice(Money price, boolean isAvailable, int availableStock)
       implements Value {
 
     public ArticlePrice {

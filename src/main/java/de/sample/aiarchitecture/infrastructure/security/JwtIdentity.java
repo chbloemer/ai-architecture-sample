@@ -4,7 +4,6 @@ import de.sample.aiarchitecture.sharedkernel.domain.model.UserId;
 import de.sample.aiarchitecture.sharedkernel.marker.port.out.IdentityProvider;
 import java.util.Optional;
 import java.util.Set;
-import org.jspecify.annotations.NonNull;
 
 /**
  * JWT-based implementation of Identity.
@@ -18,10 +17,10 @@ import org.jspecify.annotations.NonNull;
  * @param roles the user's roles (typically empty for anonymous, contains CUSTOMER for registered)
  */
 public record JwtIdentity(
-    @NonNull UserId userId,
-    @NonNull JwtIdentityType type,
-    @NonNull Optional<String> email,
-    @NonNull Set<String> roles) implements IdentityProvider.Identity {
+    UserId userId,
+    JwtIdentityType type,
+    Optional<String> email,
+    Set<String> roles) implements IdentityProvider.Identity {
 
   public JwtIdentity {
     if (userId == null) {
@@ -44,7 +43,7 @@ public record JwtIdentity(
    * @param userId the anonymous user's ID
    * @return a new anonymous identity
    */
-  public static JwtIdentity anonymous(@NonNull final UserId userId) {
+  public static JwtIdentity anonymous(final UserId userId) {
     return new JwtIdentity(userId, JwtIdentityType.ANONYMOUS, Optional.empty(), Set.of());
   }
 
@@ -57,9 +56,9 @@ public record JwtIdentity(
    * @return a new registered identity
    */
   public static JwtIdentity registered(
-      @NonNull final UserId userId,
-      @NonNull final String email,
-      @NonNull final Set<String> roles) {
+      final UserId userId,
+      final String email,
+      final Set<String> roles) {
     return new JwtIdentity(userId, JwtIdentityType.REGISTERED, Optional.of(email), roles);
   }
 
@@ -70,7 +69,7 @@ public record JwtIdentity(
    * @param email the user's email address
    * @return a new registered identity with CUSTOMER role
    */
-  public static JwtIdentity registeredCustomer(@NonNull final UserId userId, @NonNull final String email) {
+  public static JwtIdentity registeredCustomer(final UserId userId, final String email) {
     return registered(userId, email, Set.of(ROLE_CUSTOMER));
   }
 }

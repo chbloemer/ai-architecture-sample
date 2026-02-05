@@ -1,7 +1,5 @@
 package de.sample.aiarchitecture.cart.application.createcart;
 
-import org.jspecify.annotations.NonNull;
-
 /**
  * Output model for cart creation.
  *
@@ -10,7 +8,7 @@ import org.jspecify.annotations.NonNull;
  * @param status the cart status (always "ACTIVE" for new carts)
  */
 public record CreateCartResult(
-    @NonNull String cartId,
-    @NonNull String customerId,
-    @NonNull String status
+    String cartId,
+    String customerId,
+    String status
 ) {}

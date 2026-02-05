@@ -1,7 +1,6 @@
 package de.sample.aiarchitecture.inventory.application.setstocklevel;
 
 import de.sample.aiarchitecture.sharedkernel.marker.port.in.UseCase;
-import org.jspecify.annotations.NonNull;
 
 /**
  * Input port for setting or updating stock levels.
@@ -28,6 +27,6 @@ public interface SetStockLevelInputPort
    * @throws IllegalArgumentException if quantity is negative
    */
   @Override
-  @NonNull
-  SetStockLevelResult execute(@NonNull SetStockLevelCommand command);
+  
+  SetStockLevelResult execute(SetStockLevelCommand command);
 }

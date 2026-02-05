@@ -1,7 +1,6 @@
 package de.sample.aiarchitecture.pricing.application.getpricesforproducts;
 
 import de.sample.aiarchitecture.sharedkernel.marker.port.in.UseCase;
-import org.jspecify.annotations.NonNull;
 
 /**
  * Input port for retrieving prices for multiple products.
@@ -22,6 +21,6 @@ public interface GetPricesForProductsInputPort
    * @return result containing prices mapped by product ID
    */
   @Override
-  @NonNull
-  GetPricesForProductsResult execute(@NonNull GetPricesForProductsQuery query);
+  
+  GetPricesForProductsResult execute(GetPricesForProductsQuery query);
 }

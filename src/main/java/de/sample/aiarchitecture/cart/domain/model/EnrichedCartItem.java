@@ -4,7 +4,6 @@ import de.sample.aiarchitecture.sharedkernel.domain.model.Money;
 import de.sample.aiarchitecture.sharedkernel.domain.model.Price;
 import de.sample.aiarchitecture.sharedkernel.domain.model.ProductId;
 import de.sample.aiarchitecture.sharedkernel.marker.tactical.Value;
-import org.jspecify.annotations.NonNull;
 
 /**
  * Value Object that combines CartItem data with current CartArticle data.
@@ -16,11 +15,11 @@ import org.jspecify.annotations.NonNull;
  * DDD principle that value objects should not contain entities.
  */
 public record EnrichedCartItem(
-    @NonNull CartItemId cartItemId,
-    @NonNull ProductId productId,
-    @NonNull Quantity quantity,
-    @NonNull Price priceAtAddition,
-    @NonNull CartArticle currentArticle)
+    CartItemId cartItemId,
+    ProductId productId,
+    Quantity quantity,
+    Price priceAtAddition,
+    CartArticle currentArticle)
     implements Value {
 
   public EnrichedCartItem {

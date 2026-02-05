@@ -1,7 +1,5 @@
 package de.sample.aiarchitecture.account.domain.service;
 
-import org.jspecify.annotations.NonNull;
-
 /**
  * Domain service interface for password hashing operations.
  *
@@ -29,8 +27,8 @@ public interface PasswordHasher {
    * @param plaintext the plaintext password to hash
    * @return the secure hash (including salt)
    */
-  @NonNull
-  String hash(@NonNull String plaintext);
+  
+  String hash(String plaintext);
 
   /**
    * Checks if a plaintext password matches a previously hashed password.
@@ -41,5 +39,5 @@ public interface PasswordHasher {
    * @param hash the previously generated hash to compare against
    * @return true if the password matches the hash
    */
-  boolean matches(@NonNull String plaintext, @NonNull String hash);
+  boolean matches(String plaintext, String hash);
 }

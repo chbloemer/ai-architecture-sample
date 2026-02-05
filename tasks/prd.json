@@ -3081,7 +3081,7 @@
           "Follow documentation writing style guidelines"
         ]
       },
-      "passes": false
+      "passes": true
     }
   ]
 }

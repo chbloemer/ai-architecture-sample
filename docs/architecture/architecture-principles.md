@@ -6,6 +6,8 @@ This document describes the architectural patterns and principles used in the AI
 
 1. [Overview](#overview)
 2. [Domain-Driven Design (DDD)](#domain-driven-design-ddd)
+   - [Tactical Patterns](#tactical-patterns)
+     - [Interest Interface Pattern (State Mediator)](#interest-interface-pattern-state-mediator)
 3. [Clean Architecture (Use Cases)](#clean-architecture-use-cases)
 4. [Hexagonal Architecture](#hexagonal-architecture)
    - [Advanced Adapter Patterns](#advanced-adapter-patterns)
@@ -694,6 +696,157 @@ public class ProductAvailableSpecification implements Specification<Product> {
 4. Reusable across use cases
 
 **Implementation:** See `de.sample.aiarchitecture.sharedkernel.domain.marker.Specification`
+
+#### Interest Interface Pattern (State Mediator)
+
+The Interest Interface Pattern (also known as State Mediator) is a technique for exposing aggregate state without breaking encapsulation. Instead of using getters, aggregates "push" their state to interested parties through an interface.
+
+**Problem:**
+- Getters on aggregates expose internal structure
+- Clients become coupled to aggregate implementation details
+- Violates "Tell, Don't Ask" principle
+- Read model assembly happens outside the aggregate
+
+**Solution:**
+- Aggregate provides a `provideStateTo(Interest interest)` method
+- Interest interface defines `receive*()` methods for states of interest
+- Aggregate calls these methods to push its state
+- Read Model builders implement the Interest interface
+
+**Example: CartStateInterest Interface**
+
+```java
+public interface CartStateInterest extends StateInterest {
+    void receiveCartId(CartId cartId);
+    void receiveCustomerId(CustomerId customerId);
+    void receiveLineItem(CartItemId lineItemId, ProductId productId,
+                         String name, Money price, int quantity);
+    void receiveItemCount(int itemCount);
+    void receiveSubtotal(Money subtotal);
+    void receiveStatus(CartStatus status);
+}
+```
+
+**Example: ShoppingCart Aggregate with provideStateTo()**
+
+```java
+public final class ShoppingCart extends BaseAggregateRoot<ShoppingCart, CartId> {
+
+    /**
+     * Pushes cart state to an interested party through the Interest Interface pattern.
+     */
+    public void provideStateTo(CartStateInterest interest, ArticleInfoResolver resolver) {
+        interest.receiveCartId(this.id);
+        interest.receiveCustomerId(this.customerId);
+
+        for (CartItem item : this.items) {
+            ArticleInfo articleInfo = resolver.resolve(item.productId());
+            interest.receiveLineItem(
+                item.id(),
+                item.productId(),
+                articleInfo.name(),
+                item.priceAtAddition().value(),
+                item.quantity().value());
+        }
+
+        interest.receiveItemCount(this.itemCount());
+        interest.receiveSubtotal(this.calculateTotal());
+        interest.receiveStatus(this.status);
+    }
+}
+```
+
+**Example: EnrichedCartBuilder (Read Model Builder)**
+
+```java
+public class EnrichedCartBuilder implements EnrichedCartStateInterest, ReadModelBuilder {
+    private CartId cartId;
+    private CustomerId customerId;
+    private final List<LineItemSnapshot> lineItems = new ArrayList<>();
+    private final Map<ProductId, CartArticle> currentArticles = new HashMap<>();
+
+    @Override
+    public void receiveCartId(CartId cartId) { this.cartId = cartId; }
+
+    @Override
+    public void receiveCustomerId(CustomerId customerId) { this.customerId = customerId; }
+
+    @Override
+    public void receiveLineItem(CartItemId lineItemId, ProductId productId,
+                                String name, Money price, int quantity) {
+        lineItems.add(new LineItemSnapshot(lineItemId, productId, name, price, quantity));
+    }
+
+    @Override
+    public void receiveCurrentArticleData(ProductId productId, CartArticle cartArticle) {
+        currentArticles.put(productId, cartArticle);
+    }
+
+    public EnrichedCart build() {
+        // Combine snapshot state with current article data
+        List<EnrichedCartItem> enrichedItems = lineItems.stream()
+            .map(snapshot -> new EnrichedCartItem(snapshot, currentArticles.get(snapshot.productId())))
+            .toList();
+        return EnrichedCart.of(cartId, customerId, enrichedItems);
+    }
+}
+```
+
+**Example: Use Case using Interest Interface**
+
+```java
+@Service
+@Transactional(readOnly = true)
+public class GetCartByIdUseCase implements GetCartByIdInputPort {
+    private final ShoppingCartRepository shoppingCartRepository;
+    private final ArticleDataPort articleDataPort;
+
+    @Override
+    public GetCartByIdResult execute(GetCartByIdQuery input) {
+        ShoppingCart cart = shoppingCartRepository.findById(CartId.of(input.cartId()))
+            .orElseThrow(() -> new CartNotFoundException(input.cartId()));
+
+        // Use builder pattern with Interest Interface
+        EnrichedCartBuilder builder = new EnrichedCartBuilder();
+        cart.provideStateTo(builder, createResolver());
+
+        // Push current article data for each product
+        for (ProductId productId : builder.getCollectedProductIds()) {
+            CartArticle article = articleDataPort.getArticleData(productId)
+                .orElseThrow(() -> new ArticleNotFoundException(productId));
+            builder.receiveCurrentArticleData(productId, article);
+        }
+
+        EnrichedCart enrichedCart = builder.build();
+        return mapToResult(enrichedCart);
+    }
+}
+```
+
+**Rules:**
+1. Interest interfaces extend `StateInterest` marker interface
+2. Builders implement Interest interfaces and `ReadModelBuilder` marker
+3. Aggregate controls what state is exposed through `provideStateTo()`
+4. Method names follow `receive*()` convention
+5. Interest interfaces reside in `domain/model` package
+6. Builders reside in `domain/readmodel` package
+
+**Benefits:**
+- **Encapsulation**: Aggregate controls what state is exposed, not clients
+- **Tell, Don't Ask**: Aggregate tells the builder what it needs to know
+- **Decoupling**: Clients depend on stable Interest interface, not aggregate internals
+- **Testability**: Easy to mock Interest interface for testing
+- **Evolution**: Aggregate internals can change without breaking clients
+
+**Reference:** Vaughn Vernon's "Implementing Domain-Driven Design" (2013), Chapter 14: Application - State Mediator Pattern
+
+**Implementation:**
+- Marker Interface: `de.sample.aiarchitecture.sharedkernel.marker.tactical.StateInterest`
+- Builder Marker: `de.sample.aiarchitecture.sharedkernel.marker.tactical.ReadModelBuilder`
+- Cart Interest: `de.sample.aiarchitecture.cart.domain.model.CartStateInterest`
+- Cart Builder: `de.sample.aiarchitecture.cart.domain.readmodel.EnrichedCartBuilder`
+- Checkout Interest: `de.sample.aiarchitecture.checkout.domain.model.CheckoutStateInterest`
+- Checkout Builder: `de.sample.aiarchitecture.checkout.domain.readmodel.CheckoutCartBuilder`
 
 #### Custom Annotations (Shared Kernel Common Layer)
 
@@ -1917,6 +2070,7 @@ All architectural rules are automatically tested and enforced using ArchUnit.
 - **Value Object**: Immutable descriptor without identity
 - **Entity**: Object with distinct identity
 - **Aggregate Root**: Entry point to aggregate
+- **Interest Interface (State Mediator)**: Aggregate pushes state to interested parties without exposing getters
 
 ### Design Principles
 

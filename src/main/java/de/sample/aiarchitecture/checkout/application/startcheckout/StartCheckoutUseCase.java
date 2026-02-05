@@ -6,7 +6,6 @@ import de.sample.aiarchitecture.checkout.application.shared.CheckoutArticleDataP
 import de.sample.aiarchitecture.checkout.application.shared.CheckoutArticleDataPort.ArticleData;
 import de.sample.aiarchitecture.checkout.application.shared.CheckoutSessionRepository;
 import de.sample.aiarchitecture.checkout.domain.model.CartId;
-import de.sample.aiarchitecture.checkout.domain.model.CheckoutArticlePriceResolver;
 import de.sample.aiarchitecture.checkout.domain.model.CheckoutLineItem;
 import de.sample.aiarchitecture.checkout.domain.model.CheckoutLineItemId;
 import de.sample.aiarchitecture.checkout.domain.model.CheckoutSession;
@@ -26,7 +25,6 @@ import org.springframework.transaction.annotation.Transactional;
  * <ul>
  *   <li>Loading the cart data through the Anti-Corruption Layer</li>
  *   <li>Fetching article data (name, price, availability) via CheckoutArticleDataPort</li>
- *   <li>Building a resolver for fresh pricing data</li>
  *   <li>Creating checkout line items with current product details</li>
  *   <li>Creating and persisting the checkout session</li>
  * </ul>
@@ -83,16 +81,6 @@ public class StartCheckoutUseCase implements StartCheckoutInputPort {
         // Fetch article data (name, current price, availability) for all line items
         final Map<ProductId, ArticleData> articleDataMap =
             checkoutArticleDataPort.getArticleData(productIds);
-
-        // Build resolver from fetched data
-        final CheckoutArticlePriceResolver resolver = productId -> {
-            final ArticleData data = articleDataMap.get(productId);
-            if (data == null) {
-                throw new IllegalArgumentException("Article data not found for: " + productId.value());
-            }
-            return new CheckoutArticlePriceResolver.ArticlePrice(
-                data.currentPrice(), data.isAvailable(), data.availableStock());
-        };
 
         // Create checkout line items from cart items with fresh pricing
         final List<CheckoutLineItem> lineItems = new ArrayList<>();

@@ -47,6 +47,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.transaction.annotation.Transactional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -66,6 +67,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * <p><b>US-87:</b> Integration Tests for Article Data Flow
  */
 @SpringBootTest(classes = AiArchitectureApplication.class)
+@Transactional
 class ArticleDataFlowIntegrationTest {
 
     @Autowired

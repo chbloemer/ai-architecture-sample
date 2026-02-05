@@ -2436,7 +2436,7 @@
           "Run ./gradlew test-architecture to verify"
         ]
       },
-      "passes": false
+      "passes": true
     },
     {
       "id": "US-99",

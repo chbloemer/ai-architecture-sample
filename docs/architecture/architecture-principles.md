@@ -1263,6 +1263,186 @@ Adapters are implementations that connect external systems to the ports.
 3. **Technology Independence**: Business logic doesn't depend on frameworks
 4. **Clear Boundaries**: Explicit separation of concerns
 
+### Advanced Adapter Patterns
+
+#### Composite Adapter Pattern
+
+A composite adapter aggregates data from multiple external sources (bounded contexts) through a single output port. This isolates cross-context coupling to the adapter layer.
+
+**Example: CompositeCheckoutArticleDataAdapter**
+
+```java
+@Component
+public class CompositeCheckoutArticleDataAdapter implements CheckoutArticleDataPort {
+    private final ProductCatalogService productCatalogService;  // OHS
+    private final PricingService pricingService;                // OHS
+    private final InventoryService inventoryService;            // OHS
+
+    @Override
+    public Map<ProductId, CheckoutArticle> getArticleData(Collection<ProductId> productIds) {
+        // Fetch from all three Open Host Services
+        Map<ProductId, PriceInfo> prices = pricingService.getPrices(productIds);
+        Map<ProductId, StockInfo> stocks = inventoryService.getStock(productIds);
+
+        Map<ProductId, CheckoutArticle> result = new HashMap<>();
+        for (ProductId productId : productIds) {
+            Optional<ProductInfo> productInfo = productCatalogService.getProductInfo(productId);
+            if (productInfo.isPresent()) {
+                result.put(productId, buildCheckoutArticle(productId, productInfo.get(),
+                    prices.get(productId), stocks.get(productId)));
+            }
+        }
+        return result;
+    }
+}
+```
+
+**Rules:**
+1. Implements a single output port from the consuming context
+2. Delegates to Open Host Services (OHS) from other bounded contexts
+3. Translates external DTOs into context-specific domain value objects
+4. Is the ONLY place in the context that imports from external contexts
+5. Resides in `adapter/outgoing` package
+
+**Benefits:**
+- Single integration point for cross-context data
+- Application layer remains ignorant of external context structure
+- Easy to mock for testing
+- Changes to external services only affect this adapter
+
+**Implementation:** `de.sample.aiarchitecture.checkout.adapter.outgoing.product.CompositeCheckoutArticleDataAdapter`
+
+#### Enriched Read Model Pattern
+
+An enriched read model combines aggregate data with externally-sourced data to enable domain logic that spans multiple data sources. The enrichment happens at the domain level, not in adapters.
+
+**Example: EnrichedCheckoutLineItem**
+
+```java
+public record EnrichedCheckoutLineItem(
+    @NonNull CheckoutLineItem lineItem,      // From aggregate
+    @NonNull CheckoutArticle currentArticle  // From external context
+) implements Value {
+
+    // Domain logic using both data sources
+    public boolean hasPriceChanged() {
+        return !currentArticle.currentPrice().equals(lineItem.unitPrice());
+    }
+
+    public boolean hasSufficientStock() {
+        return currentArticle.hasStockFor(lineItem.quantity());
+    }
+
+    public boolean isValidForCheckout() {
+        return currentArticle.isAvailable() && hasSufficientStock();
+    }
+
+    public Money currentLineTotal() {
+        return currentArticle.currentPrice().multiply(lineItem.quantity());
+    }
+}
+```
+
+**Example: CheckoutCart (Enriched Collection)**
+
+```java
+public record CheckoutCart(
+    @NonNull CartId cartId,
+    @NonNull CustomerId customerId,
+    @NonNull List<EnrichedCheckoutLineItem> items
+) implements Value {
+
+    public boolean isValidForCheckout() {
+        return !items.isEmpty() && items.stream()
+            .allMatch(EnrichedCheckoutLineItem::isValidForCheckout);
+    }
+
+    public boolean hasAnyPriceChanges() {
+        return items.stream().anyMatch(EnrichedCheckoutLineItem::hasPriceChanged);
+    }
+
+    public Money calculateCurrentSubtotal() {
+        return items.stream()
+            .map(EnrichedCheckoutLineItem::currentLineTotal)
+            .reduce(Money.zero(DEFAULT_CURRENCY), Money::add);
+    }
+}
+```
+
+**Rules:**
+1. Enriched models are Value Objects (immutable records)
+2. Combine aggregate data with context-specific translations of external data
+3. Domain logic operates on combined data without knowing its origin
+4. Validation ensures data consistency (e.g., matching ProductIds)
+5. External data is represented as context-local value objects (e.g., `CheckoutArticle`)
+
+**Benefits:**
+- Rich domain logic spanning multiple data sources
+- Clear separation: assembly in application layer, logic in domain
+- Immutable, testable value objects
+- No direct coupling to external bounded contexts
+
+**Implementation:**
+- `de.sample.aiarchitecture.checkout.domain.model.EnrichedCheckoutLineItem`
+- `de.sample.aiarchitecture.checkout.domain.model.CheckoutCart`
+- `de.sample.aiarchitecture.checkout.domain.model.CheckoutArticle`
+
+#### Factory for Cross-Context Assembly
+
+A factory encapsulates the complex assembly logic for creating enriched domain objects from multiple data sources. This keeps use cases thin and assembly logic testable.
+
+**Example: CheckoutCartFactory**
+
+```java
+public final class CheckoutCartFactory implements Factory {
+
+    public CheckoutCart create(
+        @NonNull CartId cartId,
+        @NonNull CustomerId customerId,
+        @NonNull List<CheckoutLineItem> lineItems,
+        @NonNull Map<ProductId, CheckoutArticle> articleData) {
+
+        validateArticleDataComplete(lineItems, articleData);
+        List<EnrichedCheckoutLineItem> enrichedItems = createEnrichedItems(lineItems, articleData);
+        return CheckoutCart.of(cartId, customerId, enrichedItems);
+    }
+
+    public CheckoutCart fromSession(
+        @NonNull CheckoutSession session,
+        @NonNull Map<ProductId, CheckoutArticle> articleData) {
+        return create(session.cartId(), session.customerId(),
+            session.lineItems(), articleData);
+    }
+
+    private void validateArticleDataComplete(
+        List<CheckoutLineItem> lineItems,
+        Map<ProductId, CheckoutArticle> articleData) {
+        // Ensure all line items have corresponding article data
+    }
+
+    private List<EnrichedCheckoutLineItem> createEnrichedItems(
+        List<CheckoutLineItem> lineItems,
+        Map<ProductId, CheckoutArticle> articleData) {
+        // Pair each line item with its article data
+    }
+}
+```
+
+**Rules:**
+1. Implements `Factory` marker interface
+2. Validates completeness of data before assembly
+3. Creates enriched domain objects by combining data sources
+4. Framework-independent (no Spring annotations)
+5. Resides in domain layer
+
+**Benefits:**
+- Keeps use cases thin (orchestration only)
+- Assembly logic is testable in isolation
+- Single responsibility for complex object creation
+- Validates data completeness at assembly time
+
+**Implementation:** `de.sample.aiarchitecture.checkout.domain.model.CheckoutCartFactory`
+
 ---
 
 ## Onion Architecture

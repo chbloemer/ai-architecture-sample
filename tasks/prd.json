@@ -2739,7 +2739,7 @@
           "Follow existing marker interface patterns in sharedkernel/marker/"
         ]
       },
-      "passes": false
+      "passes": true
     },
     {
       "id": "US-107",

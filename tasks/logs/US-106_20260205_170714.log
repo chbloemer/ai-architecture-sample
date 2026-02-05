@@ -1,0 +1,14 @@
+All acceptance criteria have been met:
+
+1. ✅ **StateInterest marker interface** created in `sharedkernel/marker/tactical/StateInterest.java`
+2. ✅ **ReadModelBuilder marker interface** created in `sharedkernel/marker/tactical/ReadModelBuilder.java`
+3. ✅ **JavaDoc explains the Interest Interface Pattern** with:
+   - Pattern overview and purpose
+   - When to use it (CQRS, Read Models, event projections)
+   - Code examples demonstrating usage
+   - **References to IDDD Chapter 14** ("Vaughn Vernon's Implementing Domain-Driven Design (2013), Chapter 14: 'Application' - State Mediator Pattern (Interest Interface)")
+4. ✅ **Architecture tests pass**: `./gradlew test-architecture` - BUILD SUCCESSFUL
+5. ✅ **Build passes**: `./gradlew build` - BUILD SUCCESSFUL
+6. ✅ **package-info.java** updated to include the new marker interfaces in the documentation
+
+<promise>STORY_COMPLETE</promise>

@@ -12,6 +12,8 @@
  *   <li>{@link DomainService} - Stateless domain operations</li>
  *   <li>{@link Factory} - Complex object creation</li>
  *   <li>{@link Specification} - Business rules as objects</li>
+ *   <li>{@link StateInterest} - Interest Interface Pattern for Read Models</li>
+ *   <li>{@link ReadModelBuilder} - Builds Read Models from events</li>
  * </ul>
  *
  * <p><b>References:</b>

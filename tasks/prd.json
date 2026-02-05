@@ -2511,7 +2511,7 @@
           "Link to related docs instead of duplicating"
         ]
       },
-      "passes": false
+      "passes": true
     },
     {
       "id": "US-101",
@@ -2708,6 +2708,380 @@
         ]
       },
       "passes": true
+    },
+    {
+      "id": "US-106",
+      "epic": "interest-interface-pattern",
+      "title": "StateInterest Marker Interface",
+      "description": "Create marker interfaces in shared kernel for the Interest Interface Pattern (State Mediator). These markers identify Interest interfaces and their implementing Read Model Builders.",
+      "depends_on": [],
+      "acceptance_criteria": [
+        "StateInterest marker interface in sharedkernel/marker/tactical/",
+        "ReadModelBuilder marker interface in sharedkernel/marker/tactical/",
+        "JavaDoc explains the Interest Interface Pattern and references IDDD Chapter 14",
+        "Architecture tests pass: ./gradlew test-architecture"
+      ],
+      "architectural_guidance": {
+        "affected_layers": [
+          "sharedkernel"
+        ],
+        "locations": [
+          "sharedkernel/marker/tactical/StateInterest.java",
+          "sharedkernel/marker/tactical/ReadModelBuilder.java"
+        ],
+        "patterns": [
+          "Interest Interface Pattern",
+          "Marker Interface"
+        ],
+        "constraints": [
+          "Marker interfaces only - no methods",
+          "No Spring annotations in shared kernel",
+          "Follow existing marker interface patterns in sharedkernel/marker/"
+        ]
+      },
+      "passes": false
+    },
+    {
+      "id": "US-107",
+      "epic": "interest-interface-pattern",
+      "title": "CheckoutStateInterest Interface",
+      "description": "Create the Interest interface for CheckoutSession aggregate. This interface defines receive*() methods for all state that can be exposed from the aggregate.",
+      "depends_on": [
+        "US-106"
+      ],
+      "acceptance_criteria": [
+        "CheckoutStateInterest interface in checkout/domain/model/",
+        "Interface implements StateInterest marker",
+        "receiveSessionId(CheckoutSessionId) method",
+        "receiveCartId(CartId) method",
+        "receiveCustomerId(CustomerId) method",
+        "receiveStep(CheckoutStep) method",
+        "receiveLineItem(CheckoutLineItemId, ProductId, String name, Money price, int quantity) method",
+        "receiveSubtotal(Money) method",
+        "receiveBuyerInfo(BuyerInfo) method (optional - may be null)",
+        "receiveDeliveryAddress(DeliveryAddress) method (optional)",
+        "receiveShippingOption(ShippingOption) method (optional)",
+        "receivePaymentSelection(PaymentSelection) method (optional)",
+        "Architecture tests pass: ./gradlew test-architecture"
+      ],
+      "architectural_guidance": {
+        "affected_layers": [
+          "domain"
+        ],
+        "locations": [
+          "checkout/domain/model/CheckoutStateInterest.java"
+        ],
+        "patterns": [
+          "Interest Interface Pattern",
+          "Double Dispatch"
+        ],
+        "constraints": [
+          "No Spring annotations in domain layer",
+          "Use domain types in method signatures (not primitives)",
+          "Methods return void - push model, not pull"
+        ]
+      },
+      "passes": false
+    },
+    {
+      "id": "US-108",
+      "epic": "interest-interface-pattern",
+      "title": "CheckoutSession provideStateTo Method",
+      "description": "Add provideStateTo(CheckoutStateInterest) method to CheckoutSession aggregate. The aggregate pushes its state to interested parties through this method, keeping control over what is exposed.",
+      "depends_on": [
+        "US-107"
+      ],
+      "acceptance_criteria": [
+        "provideStateTo(CheckoutStateInterest interest) method added to CheckoutSession",
+        "Method calls all appropriate receive*() methods on the interest",
+        "All line items are pushed via receiveLineItem()",
+        "Optional fields (buyerInfo, deliveryAddress, etc.) only pushed if present",
+        "Subtotal is calculated and pushed",
+        "Existing getters can remain temporarily (will be deprecated later)",
+        "Architecture tests pass: ./gradlew test-architecture"
+      ],
+      "architectural_guidance": {
+        "affected_layers": [
+          "domain"
+        ],
+        "locations": [
+          "checkout/domain/model/CheckoutSession.java"
+        ],
+        "patterns": [
+          "Interest Interface Pattern",
+          "Tell Don't Ask"
+        ],
+        "constraints": [
+          "Aggregate controls what state is exposed",
+          "No new getters should be added",
+          "Method must be comprehensive - push all relevant state"
+        ]
+      },
+      "passes": false
+    },
+    {
+      "id": "US-109",
+      "epic": "interest-interface-pattern",
+      "title": "CheckoutCartBuilder",
+      "description": "Create CheckoutCartBuilder that implements CheckoutStateInterest to build the CheckoutCart read model. The builder receives state from the aggregate and constructs an immutable read model.",
+      "depends_on": [
+        "US-108"
+      ],
+      "acceptance_criteria": [
+        "Create checkout/domain/readmodel/ package",
+        "Move CheckoutCart to checkout/domain/readmodel/ (if not already there)",
+        "CheckoutCartBuilder class in checkout/domain/readmodel/",
+        "Builder implements CheckoutStateInterest",
+        "Builder implements ReadModelBuilder marker",
+        "All receive*() methods store state internally",
+        "build() method returns immutable CheckoutCart",
+        "Builder is reusable - can call reset() and build another",
+        "Architecture tests pass: ./gradlew test-architecture"
+      ],
+      "architectural_guidance": {
+        "affected_layers": [
+          "domain"
+        ],
+        "locations": [
+          "checkout/domain/readmodel/CheckoutCartBuilder.java",
+          "checkout/domain/readmodel/CheckoutCart.java"
+        ],
+        "patterns": [
+          "Interest Interface Pattern",
+          "Builder Pattern",
+          "Read Model"
+        ],
+        "constraints": [
+          "Builder is in domain layer (not application)",
+          "CheckoutCart must be immutable",
+          "No Spring annotations in domain layer"
+        ]
+      },
+      "passes": false
+    },
+    {
+      "id": "US-110",
+      "epic": "interest-interface-pattern",
+      "title": "Refactor GetCheckoutSessionUseCase",
+      "description": "Refactor GetCheckoutSessionUseCase to use the builder pattern with CheckoutStateInterest instead of directly accessing aggregate getters.",
+      "depends_on": [
+        "US-109"
+      ],
+      "acceptance_criteria": [
+        "GetCheckoutSessionUseCase uses CheckoutCartBuilder",
+        "Aggregate's provideStateTo() is called with builder",
+        "Builder.build() returns CheckoutCart for response",
+        "No direct getter calls on CheckoutSession (except getId())",
+        "Existing tests continue to pass",
+        "Architecture tests pass: ./gradlew test-architecture"
+      ],
+      "architectural_guidance": {
+        "affected_layers": [
+          "application"
+        ],
+        "locations": [
+          "checkout/application/getcheckoutsession/GetCheckoutSessionUseCase.java"
+        ],
+        "patterns": [
+          "Interest Interface Pattern",
+          "Use Case Pattern"
+        ],
+        "constraints": [
+          "Use case orchestrates: load aggregate, provide state to builder, return result",
+          "No direct aggregate state access except ID"
+        ]
+      },
+      "passes": false
+    },
+    {
+      "id": "US-111",
+      "epic": "interest-interface-pattern",
+      "title": "CartStateInterest Interface",
+      "description": "Create the Interest interface for ShoppingCart aggregate. This interface defines receive*() methods for all state that can be exposed from the cart aggregate.",
+      "depends_on": [
+        "US-106"
+      ],
+      "acceptance_criteria": [
+        "CartStateInterest interface in cart/domain/model/",
+        "Interface implements StateInterest marker",
+        "receiveCartId(CartId) method",
+        "receiveCustomerId(CustomerId) method",
+        "receiveLineItem(CartLineItemId, ProductId, String name, Money price, int quantity) method",
+        "receiveItemCount(int) method",
+        "receiveSubtotal(Money) method",
+        "Architecture tests pass: ./gradlew test-architecture"
+      ],
+      "architectural_guidance": {
+        "affected_layers": [
+          "domain"
+        ],
+        "locations": [
+          "cart/domain/model/CartStateInterest.java"
+        ],
+        "patterns": [
+          "Interest Interface Pattern",
+          "Double Dispatch"
+        ],
+        "constraints": [
+          "No Spring annotations in domain layer",
+          "Use domain types in method signatures",
+          "Methods return void"
+        ]
+      },
+      "passes": false
+    },
+    {
+      "id": "US-112",
+      "epic": "interest-interface-pattern",
+      "title": "ShoppingCart provideStateTo Method",
+      "description": "Add provideStateTo(CartStateInterest) method to ShoppingCart aggregate. The aggregate pushes its state to interested parties through this method.",
+      "depends_on": [
+        "US-111"
+      ],
+      "acceptance_criteria": [
+        "provideStateTo(CartStateInterest interest) method added to ShoppingCart",
+        "Method calls all appropriate receive*() methods on the interest",
+        "All line items are pushed via receiveLineItem()",
+        "Item count and subtotal are calculated and pushed",
+        "Existing getters can remain temporarily",
+        "Architecture tests pass: ./gradlew test-architecture"
+      ],
+      "architectural_guidance": {
+        "affected_layers": [
+          "domain"
+        ],
+        "locations": [
+          "cart/domain/model/ShoppingCart.java"
+        ],
+        "patterns": [
+          "Interest Interface Pattern",
+          "Tell Don't Ask"
+        ],
+        "constraints": [
+          "Aggregate controls what state is exposed",
+          "No new getters should be added"
+        ]
+      },
+      "passes": false
+    },
+    {
+      "id": "US-113",
+      "epic": "interest-interface-pattern",
+      "title": "EnrichedCartBuilder",
+      "description": "Create EnrichedCartBuilder that implements CartStateInterest to build enriched cart read models. The builder combines snapshot state from the aggregate with current data from external services.",
+      "depends_on": [
+        "US-112"
+      ],
+      "acceptance_criteria": [
+        "Create cart/domain/readmodel/ package",
+        "EnrichedCartBuilder class in cart/domain/readmodel/",
+        "Builder implements CartStateInterest",
+        "Builder implements ReadModelBuilder marker",
+        "EnrichedCartStateInterest extends CartStateInterest with receiveCurrentArticleData()",
+        "Builder can receive both snapshot and current article data",
+        "build() method returns immutable EnrichedCart read model",
+        "Architecture tests pass: ./gradlew test-architecture"
+      ],
+      "architectural_guidance": {
+        "affected_layers": [
+          "domain"
+        ],
+        "locations": [
+          "cart/domain/readmodel/EnrichedCartBuilder.java",
+          "cart/domain/readmodel/EnrichedCartStateInterest.java",
+          "cart/domain/readmodel/EnrichedCart.java"
+        ],
+        "patterns": [
+          "Interest Interface Pattern",
+          "Builder Pattern",
+          "Enriched Read Model"
+        ],
+        "constraints": [
+          "Builder is in domain layer",
+          "EnrichedCart must be immutable",
+          "No Spring annotations in domain layer"
+        ]
+      },
+      "passes": false
+    },
+    {
+      "id": "US-114",
+      "epic": "interest-interface-pattern",
+      "title": "Refactor Cart Use Cases",
+      "description": "Refactor cart use cases (GetCartUseCase, GetEnrichedCartUseCase) to use the builder pattern with CartStateInterest instead of directly accessing aggregate getters.",
+      "depends_on": [
+        "US-113"
+      ],
+      "acceptance_criteria": [
+        "GetCartUseCase uses CartStateInterest builder pattern (if exists)",
+        "GetEnrichedCartUseCase uses EnrichedCartBuilder",
+        "Aggregate's provideStateTo() is called with builder",
+        "External article data pushed via receiveCurrentArticleData()",
+        "No direct getter calls on ShoppingCart (except getId())",
+        "Existing tests continue to pass",
+        "Architecture tests pass: ./gradlew test-architecture"
+      ],
+      "architectural_guidance": {
+        "affected_layers": [
+          "application"
+        ],
+        "locations": [
+          "cart/application/getcart/GetCartUseCase.java",
+          "cart/application/getenrichedcart/GetEnrichedCartUseCase.java"
+        ],
+        "patterns": [
+          "Interest Interface Pattern",
+          "Use Case Pattern",
+          "Enriched Read Model"
+        ],
+        "constraints": [
+          "Use case orchestrates: load aggregate, provide state to builder, enrich, return result",
+          "No direct aggregate state access except ID"
+        ]
+      },
+      "passes": false
+    },
+    {
+      "id": "US-115",
+      "epic": "interest-interface-pattern",
+      "title": "Document Interest Interface Pattern",
+      "description": "Update all documentation sources (dca-book, implementing-domain-centric-architecture, ai-architecture-sample docs) with the Interest Interface Pattern description, examples, and guidance.",
+      "depends_on": [
+        "US-110",
+        "US-114"
+      ],
+      "acceptance_criteria": [
+        "dca-book/05-domain-layer.md: Add 'Interest Interface Pattern' subsection to Aggregates",
+        "dca-book/06-application-layer.md: Show how use cases use Interest Interface for read models",
+        "dca-book/appendix-d-cheat-sheet.md: Add Interest Interface Pattern with code example",
+        "implementing-domain-centric-architecture/README.md: Add pattern after 'Enriched Read Model Pattern'",
+        "ai-architecture-sample/docs/architecture/architecture-principles.md: Add to DDD Tactical Patterns",
+        "All documentation references actual code from the implementation",
+        "Pattern benefits and 'Tell Don't Ask' principle explained",
+        "Cross-project consistency verified"
+      ],
+      "architectural_guidance": {
+        "affected_layers": [
+          "documentation"
+        ],
+        "locations": [
+          "dca-book/05-domain-layer.md",
+          "dca-book/06-application-layer.md",
+          "dca-book/appendix-d-cheat-sheet.md",
+          "implementing-domain-centric-architecture/README.md",
+          "docs/architecture/architecture-principles.md"
+        ],
+        "patterns": [
+          "Documentation",
+          "Cross-Project Consistency"
+        ],
+        "constraints": [
+          "All three documentation sources must be updated",
+          "Examples must reference actual implementation code",
+          "Follow documentation writing style guidelines"
+        ]
+      },
+      "passes": false
     }
   ]
 }

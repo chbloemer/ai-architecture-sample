@@ -1688,6 +1688,523 @@
         "patterns": ["Integration Testing"]
       },
       "passes": false
+    },
+    {
+      "id": "US-88",
+      "epic": "data-migration",
+      "title": "Remove Deprecated Price from Product Context",
+      "description": "Complete the pricing migration by removing all deprecated price-related code from the Product context.",
+      "depends_on": [
+        "US-86",
+        "US-87"
+      ],
+      "acceptance_criteria": [
+        "Remove price field from Product aggregate",
+        "Remove deprecated price() method from Product",
+        "Remove deprecated changePrice() method from Product",
+        "Remove ProductPriceChanged domain event from Product context",
+        "Remove deprecated ProductInfoWithPrice record from ProductCatalogService",
+        "Remove deprecated getAllProductsWithInitialPrice() method from ProductCatalogService",
+        "Remove transition fallbacks from CompositeArticleDataAdapter",
+        "Remove transition fallbacks from CompositeCheckoutArticleDataAdapter",
+        "Update CreateProductUseCase to not set price",
+        "Update UpdateProductPriceUseCase to use Pricing context or remove",
+        "All tests pass after removal"
+      ],
+      "architectural_guidance": {
+        "affected_layers": [
+          "domain",
+          "application",
+          "adapter"
+        ],
+        "locations": [
+          "product/domain/model/Product.java",
+          "product/domain/event/ProductPriceChanged.java",
+          "product/adapter/incoming/openhost/ProductCatalogService.java",
+          "product/application/createproduct/CreateProductUseCase.java",
+          "product/application/updateproductprice/",
+          "cart/adapter/outgoing/product/CompositeArticleDataAdapter.java",
+          "checkout/adapter/outgoing/product/CompositeCheckoutArticleDataAdapter.java"
+        ],
+        "patterns": [
+          "Migration cleanup",
+          "Bounded context separation"
+        ]
+      },
+      "passes": true
+    },
+    {
+      "id": "US-89",
+      "epic": "data-migration",
+      "title": "Remove Stock Responsibility from Product Context",
+      "description": "Remove stock/availability responsibility from Product context since Inventory is the proper owner. Product context should only own identity (productId, sku) and description (name, description, category). This eliminates the duplicated stock data between Product.stock and Inventory.stockLevel.",
+      "depends_on": [
+        "US-85",
+        "US-74",
+        "US-81"
+      ],
+      "acceptance_criteria": [
+        "Remove ProductStock value object from Product domain",
+        "Remove stock field from Product aggregate",
+        "Remove stockQuantity from ProductCatalogService.ProductInfo DTO",
+        "Remove hasStock() method from ProductCatalogService",
+        "Remove ProductDataPort from Cart context (no longer needed)",
+        "Remove ProductDataAdapter from Cart context",
+        "Update AddItemToCartUseCase to use only ArticleDataPort for validation",
+        "CompositeArticleDataAdapter uses InventoryService for stock (not ProductCatalogService)",
+        "Update CreateProductCommand to not require stockQuantity",
+        "Update CreateProductUseCase to not set stock",
+        "All tests pass: ./gradlew build, ./gradlew test-architecture"
+      ],
+      "architectural_guidance": {
+        "affected_layers": [
+          "domain",
+          "application",
+          "adapter"
+        ],
+        "locations": [
+          "product/domain/model/ProductStock.java (DELETE)",
+          "product/domain/model/Product.java (remove stock field)",
+          "product/adapter/incoming/openhost/ProductCatalogService.java",
+          "cart/application/shared/ProductDataPort.java (DELETE)",
+          "cart/adapter/outgoing/product/ProductDataAdapter.java (DELETE)",
+          "cart/application/additemtocart/AddItemToCartUseCase.java",
+          "cart/adapter/outgoing/product/CompositeArticleDataAdapter.java",
+          "product/application/createproduct/CreateProductCommand.java",
+          "product/application/createproduct/CreateProductUseCase.java"
+        ],
+        "patterns": [
+          "Bounded Context Separation",
+          "Single Source of Truth"
+        ],
+        "constraints": [
+          "Inventory context is the single source of truth for stock",
+          "Product context owns only identity and descriptive information",
+          "No stock-related methods or fields in Product context after completion",
+          "Run ./gradlew test-architecture to verify"
+        ]
+      },
+      "passes": true
+    },
+    {
+      "id": "US-90",
+      "epic": "enriched-cart-pattern",
+      "title": "CheckoutArticle Domain Value Object",
+      "description": "Promote ArticleData from application port to proper domain value object. Currently ArticleData is nested inside CheckoutArticleDataPort (application layer), preventing domain logic from using it directly. Create CheckoutArticle as a domain-level value object that represents checkout's view of article data from external contexts.\n\nBefore starting, check tasks/logs/ folder for US-89 result to understand the current article data flow, or check git history for recent changes to the checkout context.",
+      "depends_on": [
+        "US-89"
+      ],
+      "acceptance_criteria": [
+        "CheckoutArticle record in checkout/domain/model/",
+        "Fields: ProductId productId, String name, Money currentPrice, int availableStock, boolean isAvailable",
+        "Implements Value interface",
+        "Method: hasStockFor(int quantity) returns boolean",
+        "Validation: productId not null, name not blank, currentPrice not null, availableStock >= 0",
+        "Architecture tests pass"
+      ],
+      "architectural_guidance": {
+        "affected_layers": [
+          "domain"
+        ],
+        "locations": [
+          "checkout/domain/model/CheckoutArticle.java"
+        ],
+        "patterns": [
+          "Value Object",
+          "Anti-Corruption Layer"
+        ],
+        "constraints": [
+          "This is checkout context's representation of external article data",
+          "Domain value objects must be immutable (Java record)",
+          "Run ./gradlew test-architecture to verify"
+        ]
+      },
+      "passes": false
+    },
+    {
+      "id": "US-91",
+      "epic": "enriched-cart-pattern",
+      "title": "EnrichedCheckoutLineItem Value Object",
+      "description": "Create value object that combines a CheckoutLineItem with current CheckoutArticle data. This enables domain logic like 'has price changed since item was added' and 'is stock sufficient for this quantity'.\n\nBefore starting, check tasks/logs/ folder for US-90 result to understand the CheckoutArticle structure.",
+      "depends_on": [
+        "US-90"
+      ],
+      "acceptance_criteria": [
+        "EnrichedCheckoutLineItem record in checkout/domain/model/",
+        "Fields: CheckoutLineItem lineItem, CheckoutArticle currentArticle",
+        "Implements Value interface",
+        "Method: currentLineTotal() returns Money (currentPrice * quantity)",
+        "Method: originalLineTotal() returns Money (lineItem.lineTotal())",
+        "Method: hasPriceChanged() returns boolean",
+        "Method: priceDifference() returns Money",
+        "Method: hasSufficientStock() returns boolean",
+        "Method: isValidForCheckout() returns boolean (available AND sufficient stock)",
+        "Validation: productId must match between lineItem and currentArticle",
+        "Architecture tests pass"
+      ],
+      "architectural_guidance": {
+        "affected_layers": [
+          "domain"
+        ],
+        "locations": [
+          "checkout/domain/model/EnrichedCheckoutLineItem.java"
+        ],
+        "patterns": [
+          "Value Object",
+          "Enriched Read Model"
+        ],
+        "constraints": [
+          "Encapsulates comparison logic between original and current data",
+          "Implements 'smart cart display' metaphor",
+          "Run ./gradlew test-architecture to verify"
+        ]
+      },
+      "passes": false
+    },
+    {
+      "id": "US-92",
+      "epic": "enriched-cart-pattern",
+      "title": "CheckoutCart Domain Value Object",
+      "description": "Create the 'smart shopping cart' value object that contains enriched line items and provides business methods for validation and calculations. This is like a shopping cart with a display that shows running total, current prices, and alerts for price changes.\n\nBefore starting, check tasks/logs/ folder for US-91 result to understand the EnrichedCheckoutLineItem structure.",
+      "depends_on": [
+        "US-91"
+      ],
+      "acceptance_criteria": [
+        "CheckoutCart record in checkout/domain/model/",
+        "Fields: CartId cartId, CustomerId customerId, List<EnrichedCheckoutLineItem> items",
+        "Implements Value interface",
+        "Method: calculateCurrentSubtotal() returns Money",
+        "Method: calculateOriginalSubtotal() returns Money",
+        "Method: totalPriceDifference() returns Money",
+        "Method: hasAnyPriceChanges() returns boolean",
+        "Method: itemsWithPriceChanges() returns List<EnrichedCheckoutLineItem>",
+        "Method: isValidForCheckout() returns boolean",
+        "Method: invalidItems() returns List<EnrichedCheckoutLineItem>",
+        "Method: unavailableItems() returns List<EnrichedCheckoutLineItem>",
+        "Method: itemsWithInsufficientStock() returns List<EnrichedCheckoutLineItem>",
+        "Method: itemCount() and totalQuantity()",
+        "Architecture tests pass"
+      ],
+      "architectural_guidance": {
+        "affected_layers": [
+          "domain"
+        ],
+        "locations": [
+          "checkout/domain/model/CheckoutCart.java"
+        ],
+        "patterns": [
+          "Value Object",
+          "Enriched Read Model",
+          "Smart Cart Pattern"
+        ],
+        "constraints": [
+          "Not an Aggregate - just a read model Value Object",
+          "Business logic for checkout validation lives here",
+          "Run ./gradlew test-architecture to verify"
+        ]
+      },
+      "passes": false
+    },
+    {
+      "id": "US-93",
+      "epic": "enriched-cart-pattern",
+      "title": "CheckoutCartFactory",
+      "description": "Create factory to assemble CheckoutCart from checkout line items and article data. The factory encapsulates the complex assembly of enriched line items.\n\nBefore starting, check tasks/logs/ folder for US-92 result to understand the CheckoutCart structure.",
+      "depends_on": [
+        "US-92"
+      ],
+      "acceptance_criteria": [
+        "CheckoutCartFactory class in checkout/domain/model/",
+        "Implements Factory marker interface",
+        "Method: create(CartId, CustomerId, List<CheckoutLineItem>, Map<ProductId, CheckoutArticle>) returns CheckoutCart",
+        "Method: fromSession(CheckoutSession, Map<ProductId, CheckoutArticle>) returns CheckoutCart",
+        "Validates that all line items have corresponding article data",
+        "Throws IllegalArgumentException if article data missing for any line item",
+        "Framework-independent (no Spring annotations)",
+        "Architecture tests pass"
+      ],
+      "architectural_guidance": {
+        "affected_layers": [
+          "domain"
+        ],
+        "locations": [
+          "checkout/domain/model/CheckoutCartFactory.java"
+        ],
+        "patterns": [
+          "Factory Pattern (DDD)",
+          "Cross-Context Assembly"
+        ],
+        "constraints": [
+          "Factory is domain-level, not application-level",
+          "Application layer fetches data via ports, passes to factory",
+          "Run ./gradlew test-architecture to verify"
+        ]
+      },
+      "passes": false
+    },
+    {
+      "id": "US-94",
+      "epic": "enriched-cart-pattern",
+      "title": "Update CheckoutArticleDataPort to Return Domain Objects",
+      "description": "Refactor CheckoutArticleDataPort to return CheckoutArticle domain objects instead of nested ArticleData DTOs. Update the CompositeCheckoutArticleDataAdapter to return the new domain type.\n\nBefore starting, check tasks/logs/ folder for US-93 result to understand the factory pattern usage.",
+      "depends_on": [
+        "US-93"
+      ],
+      "acceptance_criteria": [
+        "CheckoutArticleDataPort returns Map<ProductId, CheckoutArticle>",
+        "Remove nested ArticleData record from CheckoutArticleDataPort",
+        "Update CompositeCheckoutArticleDataAdapter to build CheckoutArticle objects",
+        "Update StartCheckoutUseCase to use CheckoutArticle and CheckoutCartFactory",
+        "Update ConfirmCheckoutUseCase to use CheckoutArticle",
+        "Keep CheckoutArticlePriceResolver for backward compatibility with confirm() method",
+        "All tests pass: ./gradlew build",
+        "Architecture tests pass"
+      ],
+      "architectural_guidance": {
+        "affected_layers": [
+          "application",
+          "adapter"
+        ],
+        "locations": [
+          "checkout/application/shared/CheckoutArticleDataPort.java",
+          "checkout/adapter/outgoing/product/CompositeCheckoutArticleDataAdapter.java",
+          "checkout/application/startcheckout/StartCheckoutUseCase.java",
+          "checkout/application/confirmcheckout/ConfirmCheckoutUseCase.java"
+        ],
+        "patterns": [
+          "Output Port",
+          "Adapter Pattern"
+        ],
+        "constraints": [
+          "Ports should return domain objects, not DTOs",
+          "Adapter translates OHS data to domain value objects",
+          "Run ./gradlew test-architecture to verify"
+        ]
+      },
+      "passes": false
+    },
+    {
+      "id": "US-95",
+      "epic": "enriched-cart-pattern",
+      "title": "CartArticle Domain Value Object",
+      "description": "Create CartArticle domain value object in Cart context (mirroring CheckoutArticle). This promotes ArticleData from the ArticleDataPort to a proper domain concept.\n\nBefore starting, check tasks/logs/ folder for US-90 result to see the equivalent CheckoutArticle implementation as reference.",
+      "depends_on": [
+        "US-90"
+      ],
+      "acceptance_criteria": [
+        "CartArticle record in cart/domain/model/",
+        "Fields: ProductId productId, String name, Money currentPrice, int availableStock, boolean isAvailable",
+        "Implements Value interface",
+        "Method: hasStockFor(int quantity) returns boolean",
+        "Same structure as CheckoutArticle (context-specific ownership)",
+        "Architecture tests pass"
+      ],
+      "architectural_guidance": {
+        "affected_layers": [
+          "domain"
+        ],
+        "locations": [
+          "cart/domain/model/CartArticle.java"
+        ],
+        "patterns": [
+          "Value Object",
+          "Anti-Corruption Layer"
+        ],
+        "constraints": [
+          "Each bounded context owns its value object definition",
+          "Same structure as CheckoutArticle is intentional (context isolation)",
+          "Run ./gradlew test-architecture to verify"
+        ]
+      },
+      "passes": false
+    },
+    {
+      "id": "US-96",
+      "epic": "enriched-cart-pattern",
+      "title": "EnrichedCartItem Value Object",
+      "description": "Create value object that combines a CartItem with current CartArticle data in the Cart context.\n\nBefore starting, check tasks/logs/ folder for US-91 and US-95 results for reference.",
+      "depends_on": [
+        "US-95"
+      ],
+      "acceptance_criteria": [
+        "EnrichedCartItem record in cart/domain/model/",
+        "Fields: CartItem cartItem, CartArticle currentArticle",
+        "Implements Value interface",
+        "Method: currentLineTotal() returns Money",
+        "Method: originalLineTotal() returns Money (priceAtAddition * quantity)",
+        "Method: hasPriceChanged() returns boolean",
+        "Method: priceDifference() returns Money",
+        "Method: hasSufficientStock() returns boolean",
+        "Method: isValidForCheckout() returns boolean",
+        "Validation: productId must match",
+        "Architecture tests pass"
+      ],
+      "architectural_guidance": {
+        "affected_layers": [
+          "domain"
+        ],
+        "locations": [
+          "cart/domain/model/EnrichedCartItem.java"
+        ],
+        "patterns": [
+          "Value Object",
+          "Enriched Read Model"
+        ],
+        "constraints": [
+          "Mirror structure of EnrichedCheckoutLineItem",
+          "Run ./gradlew test-architecture to verify"
+        ]
+      },
+      "passes": false
+    },
+    {
+      "id": "US-97",
+      "epic": "enriched-cart-pattern",
+      "title": "EnrichedCart Domain Value Object",
+      "description": "Create the 'smart shopping cart' value object for Cart context with enriched items and business methods.\n\nBefore starting, check tasks/logs/ folder for US-92 and US-96 results for reference.",
+      "depends_on": [
+        "US-96"
+      ],
+      "acceptance_criteria": [
+        "EnrichedCart record in cart/domain/model/",
+        "Fields: CartId cartId, CustomerId customerId, List<EnrichedCartItem> items, CartStatus status",
+        "Implements Value interface",
+        "Method: calculateCurrentSubtotal() returns Money",
+        "Method: calculateOriginalSubtotal() returns Money",
+        "Method: totalPriceDifference() returns Money",
+        "Method: hasAnyPriceChanges() returns boolean",
+        "Method: itemsWithPriceChanges() returns List<EnrichedCartItem>",
+        "Method: isValidForCheckout() returns boolean",
+        "Method: invalidItems() returns List<EnrichedCartItem>",
+        "Architecture tests pass"
+      ],
+      "architectural_guidance": {
+        "affected_layers": [
+          "domain"
+        ],
+        "locations": [
+          "cart/domain/model/EnrichedCart.java"
+        ],
+        "patterns": [
+          "Value Object",
+          "Enriched Read Model",
+          "Smart Cart Pattern"
+        ],
+        "constraints": [
+          "Mirror structure of CheckoutCart",
+          "Not an Aggregate - read model only",
+          "Run ./gradlew test-architecture to verify"
+        ]
+      },
+      "passes": false
+    },
+    {
+      "id": "US-98",
+      "epic": "enriched-cart-pattern",
+      "title": "EnrichedCartFactory",
+      "description": "Create factory to assemble EnrichedCart from ShoppingCart and article data.\n\nBefore starting, check tasks/logs/ folder for US-93 and US-97 results for reference.",
+      "depends_on": [
+        "US-97"
+      ],
+      "acceptance_criteria": [
+        "EnrichedCartFactory class in cart/domain/model/",
+        "Implements Factory marker interface",
+        "Method: create(ShoppingCart, Map<ProductId, CartArticle>) returns EnrichedCart",
+        "Validates that all cart items have corresponding article data",
+        "Framework-independent",
+        "Architecture tests pass"
+      ],
+      "architectural_guidance": {
+        "affected_layers": [
+          "domain"
+        ],
+        "locations": [
+          "cart/domain/model/EnrichedCartFactory.java"
+        ],
+        "patterns": [
+          "Factory Pattern (DDD)"
+        ],
+        "constraints": [
+          "Mirror structure of CheckoutCartFactory",
+          "Run ./gradlew test-architecture to verify"
+        ]
+      },
+      "passes": false
+    },
+    {
+      "id": "US-99",
+      "epic": "enriched-cart-pattern",
+      "title": "Update ArticleDataPort to Return Domain Objects",
+      "description": "Refactor ArticleDataPort to return CartArticle domain objects. Update the CompositeArticleDataAdapter and use cases.\n\nBefore starting, check tasks/logs/ folder for US-94 and US-98 results for reference.",
+      "depends_on": [
+        "US-98"
+      ],
+      "acceptance_criteria": [
+        "ArticleDataPort returns Map<ProductId, CartArticle>",
+        "Remove nested ArticleData record from ArticleDataPort",
+        "Update CompositeArticleDataAdapter to build CartArticle objects",
+        "Update GetCartByIdUseCase to use CartArticle and EnrichedCartFactory",
+        "Update CheckoutCartUseCase to use EnrichedCart for validation",
+        "Keep ArticlePriceResolver for backward compatibility",
+        "All tests pass: ./gradlew build",
+        "Architecture tests pass"
+      ],
+      "architectural_guidance": {
+        "affected_layers": [
+          "application",
+          "adapter"
+        ],
+        "locations": [
+          "cart/application/shared/ArticleDataPort.java",
+          "cart/adapter/outgoing/product/CompositeArticleDataAdapter.java",
+          "cart/application/getcartbyid/GetCartByIdUseCase.java",
+          "cart/application/checkoutcart/CheckoutCartUseCase.java"
+        ],
+        "patterns": [
+          "Output Port",
+          "Adapter Pattern"
+        ],
+        "constraints": [
+          "Run ./gradlew test-architecture to verify"
+        ]
+      },
+      "passes": false
+    },
+    {
+      "id": "US-100",
+      "epic": "enriched-cart-pattern",
+      "title": "Document Enriched Cart Patterns",
+      "description": "Document the new patterns in architecture documentation: Composite Adapter, Enriched Read Model, Factory for Cross-Context Assembly.\n\nBefore starting, check tasks/logs/ folder for US-94 and US-99 results to see the completed implementations.",
+      "depends_on": [
+        "US-94",
+        "US-99"
+      ],
+      "acceptance_criteria": [
+        "Add 'Composite Adapter Pattern' section to architecture-principles.md",
+        "Add 'Enriched Read Model Pattern' section to architecture-principles.md",
+        "Add 'Factory for Cross-Context Assembly' section to architecture-principles.md",
+        "Include code examples from actual implementations",
+        "Update implementing-domain-centric-architecture/README.md if applicable",
+        "Documentation follows concise style (no bloat)"
+      ],
+      "architectural_guidance": {
+        "affected_layers": [
+          "documentation"
+        ],
+        "locations": [
+          "docs/architecture/architecture-principles.md",
+          "implementing-domain-centric-architecture/README.md"
+        ],
+        "patterns": [
+          "Documentation"
+        ],
+        "constraints": [
+          "Keep documentation concise and to the point",
+          "Include real code examples from implementation",
+          "Link to related docs instead of duplicating"
+        ]
+      },
+      "passes": false
     }
   ]
 }

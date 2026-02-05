@@ -1,0 +1,11 @@
+All tests pass. Let me verify the implementation meets all acceptance criteria:
+
+**Acceptance Criteria Checklist:**
+- ✅ CartArticle record in cart/domain/model/
+- ✅ Fields: ProductId productId, String name, Money currentPrice, int availableStock, boolean isAvailable
+- ✅ Implements Value interface
+- ✅ Method: hasStockFor(int quantity) returns boolean
+- ✅ Same structure as CheckoutArticle (context-specific ownership)
+- ✅ Architecture tests pass
+
+<promise>STORY_COMPLETE</promise>

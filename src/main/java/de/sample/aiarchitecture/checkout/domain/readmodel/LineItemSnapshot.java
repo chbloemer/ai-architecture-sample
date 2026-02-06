@@ -8,8 +8,7 @@ import de.sample.aiarchitecture.sharedkernel.marker.tactical.Value;
 /**
  * Read Model representing a line item snapshot from checkout state.
  *
- * <p>Contains the line item data as received via the Interest Interface Pattern
- * from the checkout session aggregate.
+ * <p>Contains the line item data extracted from the checkout session aggregate.
  */
 public record LineItemSnapshot(
     CheckoutLineItemId lineItemId,

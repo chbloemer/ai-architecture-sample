@@ -5,11 +5,17 @@ import de.sample.aiarchitecture.sharedkernel.domain.model.ProductId;
 import de.sample.aiarchitecture.sharedkernel.marker.tactical.Value;
 
 /**
- * Value Object representing an enriched product with pricing and stock data.
+ * Enriched Domain Model representing a product with pricing and stock data.
  *
- * <p>This read model combines product state from the Product aggregate with
- * external data from the Pricing and Inventory contexts. It provides a complete
- * view of a product for display purposes.
+ * <p>This domain concept combines product state from the Product aggregate with
+ * external data from the Pricing and Inventory contexts. It owns business logic
+ * that requires cross-context data, such as purchase eligibility and stock checks.
+ *
+ * <p><b>Responsibility Split:</b>
+ * <ul>
+ *   <li>Product aggregate: owns identity and descriptive data (mutations)</li>
+ *   <li>EnrichedProduct: owns cross-context business rules (evaluation)</li>
+ * </ul>
  *
  * @param productId the product identifier
  * @param sku the stock keeping unit
@@ -79,11 +85,58 @@ public record EnrichedProduct(
   }
 
   /**
+   * Creates an EnrichedProduct from a Product aggregate and external article data.
+   *
+   * <p>This factory method combines the product's state with external pricing and
+   * stock data to create an enriched read model for display.
+   *
+   * @param product the product aggregate
+   * @param article the external article data (pricing and stock)
+   * @return a new EnrichedProduct instance
+   */
+  public static EnrichedProduct from(final Product product, final ProductArticle article) {
+    if (product == null) {
+      throw new IllegalArgumentException("Product cannot be null");
+    }
+    if (article == null) {
+      throw new IllegalArgumentException("Article data cannot be null");
+    }
+    return new EnrichedProduct(
+        product.id(),
+        product.sku().value(),
+        product.name().value(),
+        product.description().value(),
+        product.category().name(),
+        article.currentPrice(),
+        article.stockQuantity(),
+        article.isAvailable());
+  }
+
+  /**
    * Checks if the product is in stock.
    *
    * @return true if stock quantity is greater than zero
    */
   public boolean isInStock() {
     return stockQuantity > 0;
+  }
+
+  /**
+   * Business rule: Product can be purchased if available and in stock.
+   *
+   * @return true if the product can be added to cart and purchased
+   */
+  public boolean canPurchase() {
+    return isAvailable && isInStock();
+  }
+
+  /**
+   * Business rule: Check if requested quantity can be fulfilled.
+   *
+   * @param requestedQuantity the quantity to check
+   * @return true if there is sufficient stock for the requested quantity
+   */
+  public boolean hasStockFor(final int requestedQuantity) {
+    return stockQuantity >= requestedQuantity;
   }
 }

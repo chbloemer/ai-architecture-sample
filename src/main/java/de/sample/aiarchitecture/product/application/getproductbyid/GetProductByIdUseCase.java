@@ -8,7 +8,6 @@ import de.sample.aiarchitecture.product.application.shared.ProductStockDataPort.
 import de.sample.aiarchitecture.product.domain.model.EnrichedProduct;
 import de.sample.aiarchitecture.product.domain.model.Product;
 import de.sample.aiarchitecture.product.domain.model.ProductArticle;
-import de.sample.aiarchitecture.product.domain.readmodel.EnrichedProductBuilder;
 import de.sample.aiarchitecture.sharedkernel.domain.model.Money;
 import de.sample.aiarchitecture.sharedkernel.domain.model.ProductId;
 import java.util.Currency;
@@ -20,10 +19,8 @@ import org.springframework.transaction.annotation.Transactional;
  * Use case for retrieving a product by its ID.
  *
  * <p>This is a query use case that retrieves product details without modifying state.
- * Uses the Interest Interface pattern to build an enriched read model that combines
- * aggregate state with external data from Pricing and Inventory contexts.
- *
- * <p><b>Pattern:</b> Aggregate.provideStateTo(Builder) → Builder.build() → Result(EnrichedProduct)
+ * Creates an enriched read model that combines aggregate state with external data
+ * from Pricing and Inventory contexts.
  *
  * <p><b>Hexagonal Architecture:</b> This class implements the {@link GetProductByIdInputPort}
  * interface, which is a primary/driving port in the application layer.
@@ -59,16 +56,12 @@ public class GetProductByIdUseCase implements GetProductByIdInputPort {
 
     final Product product = productOpt.get();
 
-    // Use builder pattern with Interest Interface
-    final EnrichedProductBuilder builder = new EnrichedProductBuilder();
-    product.provideStateTo(builder);
-
     // Build article data from external contexts
     final ProductArticle articleData = buildArticleData(productId);
-    builder.receiveArticleData(articleData);
 
-    // Build enriched product and wrap in result
-    final EnrichedProduct enrichedProduct = builder.build();
+    // Create enriched product using factory method
+    final EnrichedProduct enrichedProduct = EnrichedProduct.from(product, articleData);
+
     return GetProductByIdResult.found(enrichedProduct);
   }
 

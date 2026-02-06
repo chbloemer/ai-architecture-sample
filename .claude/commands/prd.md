@@ -14,7 +14,7 @@ $ARGUMENTS - The user story details. Can be:
 
 1. **Read the current PRD files:**
    - `tasks/prd.json` - structured data
-   - `tasks/prd-checkout.md` - human-readable format
+   - `tasks/prd.md` - human-readable format
 
 2. **Determine the next user story ID:**
    - Find the highest existing US-XX number
@@ -99,7 +99,7 @@ $ARGUMENTS - The user story details. Can be:
    }
    ```
 
-   **In prd-checkout.md:**
+   **In prd.md:**
    ```markdown
    ### US-XX: Story Title
    **Epic:** pricing-context

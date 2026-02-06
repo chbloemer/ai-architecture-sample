@@ -9,14 +9,14 @@ import de.sample.aiarchitecture.cart.domain.model.CartId;
 import de.sample.aiarchitecture.cart.domain.model.CartValidationResult;
 import de.sample.aiarchitecture.cart.domain.model.EnrichedCart;
 import de.sample.aiarchitecture.cart.domain.model.ShoppingCart;
-import de.sample.aiarchitecture.cart.domain.readmodel.EnrichedCartBuilder;
 import de.sample.aiarchitecture.sharedkernel.domain.model.Money;
 import de.sample.aiarchitecture.sharedkernel.domain.model.ProductId;
 import de.sample.aiarchitecture.sharedkernel.marker.port.out.DomainEventPublisher;
 import java.time.Instant;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -63,27 +63,20 @@ public class CheckoutCartUseCase implements CheckoutCartInputPort {
             .findById(cartId)
             .orElseThrow(() -> new IllegalArgumentException("Cart not found: " + input.cartId()));
 
-    // Use builder pattern with Interest Interface
-    final EnrichedCartBuilder builder = new EnrichedCartBuilder();
-    cart.provideStateTo(builder);
+    // Collect product IDs and fetch article data in batch
+    final Set<ProductId> productIds = cart.items().stream()
+        .map(item -> item.productId())
+        .collect(Collectors.toSet());
 
-    // Fetch and push current article data for each product (also cache for validation)
-    final Map<ProductId, CartArticle> articleCache = new HashMap<>();
-    for (final ProductId productId : builder.getCollectedProductIds()) {
-      final CartArticle article = articleDataPort.getArticleData(productId)
-          .orElseThrow(() -> new IllegalStateException(
-              "Article data not found for product: " + productId.value()));
-      articleCache.put(productId, article);
-      builder.receiveCurrentArticleData(productId, article);
-    }
+    final Map<ProductId, CartArticle> articleData = articleDataPort.getArticleData(productIds);
 
-    // Build enriched cart
-    final EnrichedCart enrichedCart = builder.build();
+    // Create enriched cart using factory method
+    final EnrichedCart enrichedCart = EnrichedCart.from(cart, articleData);
 
     // Validate cart using EnrichedCart domain methods
     if (!enrichedCart.isValidForCheckout()) {
-      // Build price resolver from cached article data for legacy validation result
-      final ArticlePriceResolver priceResolver = buildResolver(articleCache);
+      // Build price resolver from article data for legacy validation result
+      final ArticlePriceResolver priceResolver = buildResolver(articleData);
       final CartValidationResult validationResult = cart.validateForCheckout(priceResolver);
       throw new CartValidationException(validationResult);
     }

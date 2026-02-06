@@ -103,24 +103,4 @@ public final class Product extends BaseAggregateRoot<Product, ProductId> {
     }
     this.category = newCategory;
   }
-
-  /**
-   * Pushes product state to an interested party through the Interest Interface pattern.
-   *
-   * <p>This method enables the aggregate to control what state is exposed without
-   * exposing its internal structure. The interest receives state through callback
-   * methods, allowing it to build read models or projections.
-   *
-   * @param interest the interested party that will receive state
-   */
-  public void provideStateTo(final ProductStateInterest interest) {
-    if (interest == null) {
-      throw new IllegalArgumentException("Interest cannot be null");
-    }
-    interest.receiveProductId(this.id);
-    interest.receiveSku(this.sku.value());
-    interest.receiveName(this.name.value());
-    interest.receiveDescription(this.description.value());
-    interest.receiveCategory(this.category.name());
-  }
 }

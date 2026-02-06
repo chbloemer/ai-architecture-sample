@@ -2373,3 +2373,132 @@ Before starting, check tasks/logs/ folder for US-94 and US-99 results to see the
   - Controllers map Result -> ViewModel in adapter layer
 
 ---
+
+## Epic: Enriched Domain Model Pattern
+
+### US-124: Remove Interest Interface Pattern Infrastructure
+**Epic:** enriched-domain-model-pattern
+**Depends on:** -
+
+**Description:** Remove StateInterest and ReadModelBuilder marker interfaces and all related Interest interface implementations. Replace with simpler factory method approach.
+
+**Acceptance Criteria:**
+- StateInterest marker interface removed from sharedkernel/marker/tactical/
+- ReadModelBuilder marker interface removed from sharedkernel/marker/tactical/
+- CartStateInterest and EnrichedCartStateInterest removed
+- ProductStateInterest and EnrichedProductStateInterest removed
+- CheckoutStateInterest removed
+- EnrichedCartBuilder, EnrichedProductBuilder, CheckoutCartBuilder removed
+- provideStateTo() methods removed from aggregates
+- Package-info.java updated to remove references
+- Architecture tests pass: ./gradlew test-architecture
+
+**Architectural Guidance:**
+- **Affected Layers:** domain
+- **Locations:**
+  - `sharedkernel/marker/tactical/StateInterest.java` (deleted)
+  - `sharedkernel/marker/tactical/ReadModelBuilder.java` (deleted)
+  - `cart/domain/model/CartStateInterest.java` (deleted)
+  - `cart/domain/readmodel/EnrichedCartBuilder.java` (deleted)
+  - `product/domain/model/ProductStateInterest.java` (deleted)
+  - `product/domain/readmodel/EnrichedProductBuilder.java` (deleted)
+- **Patterns:** Enriched Domain Model Pattern
+- **Constraints:**
+  - No breaking changes to use cases
+  - Factory methods replace Interest Interface usage
+
+---
+
+### US-125: Add Factory Methods to Enriched Domain Models
+**Epic:** enriched-domain-model-pattern
+**Depends on:** US-124
+
+**Description:** Add static factory methods to enriched domain models that combine aggregate state with external context data. Factory methods replace the builder pattern from Interest Interface.
+
+**Acceptance Criteria:**
+- EnrichedCart.from(ShoppingCart, Map<ProductId, CartArticle>) factory method
+- EnrichedProduct.from(Product, ProductArticle) factory method
+- CheckoutCartSnapshot.from(CheckoutSession) factory method
+- Factory methods validate inputs (null checks)
+- Use cases updated to use factory methods
+- All tests pass: ./gradlew build
+
+**Architectural Guidance:**
+- **Affected Layers:** domain, application
+- **Locations:**
+  - `cart/domain/model/EnrichedCart.java`
+  - `product/domain/model/EnrichedProduct.java`
+  - `checkout/domain/readmodel/CheckoutCartSnapshot.java`
+  - `cart/application/getcartbyid/GetCartByIdUseCase.java`
+  - `cart/application/checkoutcart/CheckoutCartUseCase.java`
+  - `product/application/getproductbyid/GetProductByIdUseCase.java`
+- **Patterns:** Factory Method, Enriched Domain Model Pattern
+- **Constraints:**
+  - Factory methods are static
+  - Factory methods reside on the enriched model class itself
+
+---
+
+### US-126: Add Business Logic to Enriched Domain Models
+**Epic:** enriched-domain-model-pattern
+**Depends on:** US-125
+
+**Description:** Add business logic methods to enriched domain models for cross-context rules. Enriched models own business rules that require data from multiple bounded contexts.
+
+**Acceptance Criteria:**
+- EnrichedCart.isValidForCheckout() - checkout eligibility rule
+- EnrichedCart.hasAnyPriceChanges() - price change detection
+- EnrichedCart.calculateCurrentSubtotal() - calculation with current prices
+- EnrichedCartItem.isValidForCheckout() - item-level eligibility
+- EnrichedCartItem.hasPriceChanged() - price comparison
+- EnrichedCartItem.hasSufficientStock() - stock check
+- EnrichedProduct.canPurchase() - purchase eligibility
+- EnrichedProduct.hasStockFor(quantity) - quantity stock check
+- CheckoutCartUseCase uses enrichedCart.isValidForCheckout() for business decision
+- All tests pass: ./gradlew build
+
+**Architectural Guidance:**
+- **Affected Layers:** domain, application
+- **Locations:**
+  - `cart/domain/model/EnrichedCart.java`
+  - `cart/domain/model/EnrichedCartItem.java`
+  - `product/domain/model/EnrichedProduct.java`
+  - `cart/application/checkoutcart/CheckoutCartUseCase.java`
+- **Patterns:** Enriched Domain Model Pattern, Rich Domain Model
+- **Constraints:**
+  - Aggregates own mutations, Enriched Models own cross-context rules
+  - Business logic uses data from aggregate + external contexts
+  - No anemic domain models
+
+---
+
+### US-127: Document Enriched Domain Model Pattern
+**Epic:** enriched-domain-model-pattern
+**Depends on:** US-126
+
+**Description:** Update architecture documentation to describe Enriched Domain Model Pattern as the recommended approach. Move Interest Interface Pattern to advanced/optional section.
+
+**Acceptance Criteria:**
+- architecture-principles.md updated with Enriched Domain Model Pattern section
+- Pattern documented as first-class domain concept, not just read model
+- Responsibility split table: Aggregate owns mutations, Enriched Model owns cross-context rules
+- Code examples show business logic in enriched models
+- Interest Interface Pattern moved to Advanced section
+- When to use each pattern clearly documented
+- Table of contents updated
+- Key Concepts in References section updated
+- dto-vs-viewmodel-analysis.md references updated
+- package-structure.md updated
+
+**Architectural Guidance:**
+- **Affected Layers:** documentation
+- **Locations:**
+  - `docs/architecture/architecture-principles.md`
+  - `docs/architecture/dto-vs-viewmodel-analysis.md`
+  - `docs/architecture/package-structure.md`
+- **Patterns:** Enriched Domain Model Pattern
+- **Constraints:**
+  - Documentation matches actual code implementation
+  - Clear guidance on when to use each pattern
+
+---

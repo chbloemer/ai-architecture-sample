@@ -8,10 +8,8 @@ import de.sample.aiarchitecture.product.application.shared.ProductStockDataPort.
 import de.sample.aiarchitecture.product.domain.model.EnrichedProduct;
 import de.sample.aiarchitecture.product.domain.model.Product;
 import de.sample.aiarchitecture.product.domain.model.ProductArticle;
-import de.sample.aiarchitecture.product.domain.readmodel.EnrichedProductBuilder;
 import de.sample.aiarchitecture.sharedkernel.domain.model.Money;
 import de.sample.aiarchitecture.sharedkernel.domain.model.ProductId;
-import java.util.ArrayList;
 import java.util.Currency;
 import java.util.List;
 import java.util.Map;
@@ -22,10 +20,8 @@ import org.springframework.transaction.annotation.Transactional;
  * Use case for retrieving all products.
  *
  * <p>This is a query use case that retrieves all products without modifying state.
- * Uses the Interest Interface pattern to build enriched read models that combine
- * aggregate state with external data from Pricing and Inventory contexts.
- *
- * <p><b>Pattern:</b> Aggregate.provideStateTo(Builder) → Builder.build() → Result(EnrichedProduct list)
+ * Creates enriched read models that combine aggregate state with external data
+ * from Pricing and Inventory contexts.
  *
  * <p><b>Hexagonal Architecture:</b> This class implements the {@link GetAllProductsInputPort}
  * interface, which is a primary/driving port in the application layer.
@@ -60,23 +56,13 @@ public class GetAllProductsUseCase implements GetAllProductsInputPort {
     final Map<ProductId, PriceData> prices = pricingDataPort.getPrices(productIds);
     final Map<ProductId, StockData> stocks = productStockDataPort.getStockData(productIds);
 
-    // Use builder pattern with Interest Interface for each product
-    final List<EnrichedProduct> enrichedProducts = new ArrayList<>();
-    final EnrichedProductBuilder builder = new EnrichedProductBuilder();
-
-    for (final Product product : products) {
-      builder.reset();
-
-      // Aggregate pushes its state to the builder
-      product.provideStateTo(builder);
-
-      // Build article data from external contexts
-      final ProductArticle articleData = buildArticleData(product.id(), prices, stocks);
-      builder.receiveArticleData(articleData);
-
-      // Build enriched product and add to list
-      enrichedProducts.add(builder.build());
-    }
+    // Create enriched products using factory method
+    final List<EnrichedProduct> enrichedProducts = products.stream()
+        .map(product -> {
+          final ProductArticle articleData = buildArticleData(product.id(), prices, stocks);
+          return EnrichedProduct.from(product, articleData);
+        })
+        .toList();
 
     return new GetAllProductsResult(enrichedProducts);
   }

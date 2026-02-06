@@ -1,16 +1,24 @@
 package de.sample.aiarchitecture.cart.domain.model;
 
 import de.sample.aiarchitecture.sharedkernel.domain.model.Money;
+import de.sample.aiarchitecture.sharedkernel.domain.model.ProductId;
 import de.sample.aiarchitecture.sharedkernel.marker.tactical.Value;
 import java.util.Currency;
 import java.util.List;
+import java.util.Map;
 
 /**
- * Value Object representing a 'smart shopping cart' with enriched items and business methods.
+ * Enriched Domain Model representing a shopping cart with current article data.
  *
- * <p>Provides business methods for validation and calculations, including running totals,
- * current prices, and alerts for price changes. This is like a shopping cart display
- * that shows all relevant information for the customer.
+ * <p>This domain concept combines cart state from the ShoppingCart aggregate with
+ * external data from the Pricing and Inventory contexts. It owns business logic
+ * that requires cross-context data, such as checkout eligibility and price change detection.
+ *
+ * <p><b>Responsibility Split:</b>
+ * <ul>
+ *   <li>ShoppingCart aggregate: owns cart mutations (add/remove items, checkout)</li>
+ *   <li>EnrichedCart: owns cross-context business rules (validation, calculations)</li>
+ * </ul>
  */
 public record EnrichedCart(
     CartId cartId,
@@ -53,6 +61,41 @@ public record EnrichedCart(
       final List<EnrichedCartItem> items,
       final CartStatus status) {
     return new EnrichedCart(cartId, customerId, items, status);
+  }
+
+  /**
+   * Creates an EnrichedCart from a ShoppingCart aggregate and current article data.
+   *
+   * <p>This factory method combines the cart's state with fresh article data (pricing,
+   * availability, stock) to create an enriched read model suitable for display.
+   *
+   * @param cart the shopping cart aggregate
+   * @param articleData map of product IDs to current article data
+   * @return an enriched cart with current pricing and availability
+   * @throws IllegalArgumentException if article data is missing for any cart item
+   */
+  public static EnrichedCart from(
+      final ShoppingCart cart,
+      final Map<ProductId, CartArticle> articleData) {
+    if (cart == null) {
+      throw new IllegalArgumentException("Cart cannot be null");
+    }
+    if (articleData == null) {
+      throw new IllegalArgumentException("Article data cannot be null");
+    }
+
+    final List<EnrichedCartItem> enrichedItems = cart.items().stream()
+        .map(item -> {
+          final CartArticle article = articleData.get(item.productId());
+          if (article == null) {
+            throw new IllegalArgumentException(
+                "Article data not found for product: " + item.productId().value());
+          }
+          return EnrichedCartItem.of(item, article);
+        })
+        .toList();
+
+    return new EnrichedCart(cart.id(), cart.customerId(), enrichedItems, cart.status());
   }
 
   /**

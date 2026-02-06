@@ -7,7 +7,8 @@ This document describes the architectural patterns and principles used in the AI
 1. [Overview](#overview)
 2. [Domain-Driven Design (DDD)](#domain-driven-design-ddd)
    - [Tactical Patterns](#tactical-patterns)
-     - [Interest Interface Pattern (State Mediator)](#interest-interface-pattern-state-mediator)
+     - [Enriched Domain Model Pattern](#enriched-domain-model-pattern)
+     - [Interest Interface Pattern (Advanced)](#interest-interface-pattern-advanced)
 3. [Clean Architecture (Use Cases)](#clean-architecture-use-cases)
 4. [Hexagonal Architecture](#hexagonal-architecture)
    - [Advanced Adapter Patterns](#advanced-adapter-patterns)
@@ -697,206 +698,293 @@ public class ProductAvailableSpecification implements Specification<Product> {
 
 **Implementation:** See `de.sample.aiarchitecture.sharedkernel.domain.marker.Specification`
 
-#### Interest Interface Pattern (State Mediator)
+#### Enriched Domain Model Pattern
 
-The Interest Interface Pattern (also known as State Mediator) is a technique for exposing aggregate state without breaking encapsulation. Instead of using getters, aggregates "push" their state to interested parties through an interface.
+The Enriched Domain Model Pattern creates domain objects that combine aggregate state with external context data. These are **first-class domain concepts** that can contain business logic—not just presentation views.
 
-**Problem:**
-- Getters on aggregates expose internal structure
-- Clients become coupled to aggregate implementation details
-- Violates "Tell, Don't Ask" principle
-- Read model assembly happens outside the aggregate
+**Key Insight: Enriched Models Are Domain Concepts**
 
-**Solution:**
-- Aggregate provides a `provideStateTo(Interest interest)` method
-- Interest interface defines `receive*()` methods for states of interest
-- Aggregate calls these methods to push its state
-- Read Model builders implement the Interest interface
+When business rules require data from multiple bounded contexts (e.g., "can only checkout if items are in stock"), the aggregate alone cannot enforce these rules—it doesn't have access to external data.
 
-**Example: CartStateInterest Interface**
+The solution: **Enriched Domain Models** that combine aggregate state with external data and own cross-context business logic:
+
+```
+Aggregate (owns mutations)  +  External Data  →  Enriched Model (owns cross-context rules)
+```
+
+**Separation of Responsibilities:**
+
+| Concern | Owner | Example |
+|---------|-------|---------|
+| **State mutations** | Aggregate | `cart.addItem()`, `cart.removeItem()` |
+| **Aggregate invariants** | Aggregate | "quantity must be positive" |
+| **Cross-context rules** | Enriched Model | "can checkout if all items in stock" |
+| **Cross-context calculations** | Enriched Model | "current total with live prices" |
+
+**Example: EnrichedCart with Business Logic**
 
 ```java
-public interface CartStateInterest extends StateInterest {
-    void receiveCartId(CartId cartId);
-    void receiveCustomerId(CustomerId customerId);
-    void receiveLineItem(CartItemId lineItemId, ProductId productId,
-                         String name, Money price, int quantity);
-    void receiveItemCount(int itemCount);
-    void receiveSubtotal(Money subtotal);
-    void receiveStatus(CartStatus status);
+public record EnrichedCart(
+    CartId cartId,
+    CustomerId customerId,
+    List<EnrichedCartItem> items,
+    CartStatus status
+) implements Value {
+
+  /**
+   * Factory method combines aggregate state with external article data.
+   */
+  public static EnrichedCart from(
+      final ShoppingCart cart,
+      final Map<ProductId, CartArticle> articleData) {
+    // ... validation and assembly
+  }
+
+  // ========== BUSINESS LOGIC (cross-context rules) ==========
+
+  /**
+   * Business rule: Can only checkout if all items are available and in stock.
+   */
+  public boolean canCheckout() {
+    return !items.isEmpty()
+        && items.stream().allMatch(EnrichedCartItem::isAvailableForCheckout);
+  }
+
+  /**
+   * Business rule: Detect price changes since items were added.
+   */
+  public boolean hasAnyPriceChanges() {
+    return items.stream().anyMatch(EnrichedCartItem::hasPriceChanged);
+  }
+
+  /**
+   * Calculation requiring external data: current total with live prices.
+   */
+  public Money currentSubtotal() {
+    return items.stream()
+        .map(EnrichedCartItem::currentLineTotal)
+        .reduce(Money.zero(DEFAULT_CURRENCY), Money::add);
+  }
+}
+
+public record EnrichedCartItem(
+    CartItemId itemId,
+    ProductId productId,
+    String name,
+    Money priceAtAddition,    // From aggregate
+    Money currentPrice,        // From external context
+    int quantity,
+    int availableStock,
+    boolean isAvailable
+) implements Value {
+
+  public boolean hasPriceChanged() {
+    return !currentPrice.equals(priceAtAddition);
+  }
+
+  public boolean isAvailableForCheckout() {
+    return isAvailable && availableStock >= quantity;
+  }
+
+  public Money currentLineTotal() {
+    return currentPrice.multiply(quantity);
+  }
 }
 ```
 
-**Example: ShoppingCart Aggregate with provideStateTo()**
+**Example: EnrichedProduct with Business Logic**
 
 ```java
-public final class ShoppingCart extends BaseAggregateRoot<ShoppingCart, CartId> {
+public record EnrichedProduct(
+    ProductId productId,
+    String sku,
+    String name,
+    String description,
+    String category,
+    Money currentPrice,
+    int stockQuantity,
+    boolean isAvailable
+) implements Value {
 
-    /**
-     * Pushes cart state to an interested party through the Interest Interface pattern.
-     */
-    public void provideStateTo(CartStateInterest interest, ArticleInfoResolver resolver) {
-        interest.receiveCartId(this.id);
-        interest.receiveCustomerId(this.customerId);
+  public static EnrichedProduct from(final Product product, final ProductArticle article) {
+    // ... validation and assembly
+  }
 
-        for (CartItem item : this.items) {
-            ArticleInfo articleInfo = resolver.resolve(item.productId());
-            interest.receiveLineItem(
-                item.id(),
-                item.productId(),
-                articleInfo.name(),
-                item.priceAtAddition().value(),
-                item.quantity().value());
-        }
+  // ========== BUSINESS LOGIC ==========
 
-        interest.receiveItemCount(this.itemCount());
-        interest.receiveSubtotal(this.calculateTotal());
-        interest.receiveStatus(this.status);
-    }
+  /**
+   * Business rule: Product can be purchased if available and in stock.
+   */
+  public boolean canPurchase() {
+    return isAvailable && stockQuantity > 0;
+  }
+
+  /**
+   * Business rule: Check if requested quantity can be fulfilled.
+   */
+  public boolean hasStockFor(int requestedQuantity) {
+    return stockQuantity >= requestedQuantity;
+  }
 }
 ```
 
-**Example: EnrichedCartBuilder (Read Model Builder)**
-
-```java
-public class EnrichedCartBuilder implements EnrichedCartStateInterest, ReadModelBuilder {
-    private CartId cartId;
-    private CustomerId customerId;
-    private final List<LineItemSnapshot> lineItems = new ArrayList<>();
-    private final Map<ProductId, CartArticle> currentArticles = new HashMap<>();
-
-    @Override
-    public void receiveCartId(CartId cartId) { this.cartId = cartId; }
-
-    @Override
-    public void receiveCustomerId(CustomerId customerId) { this.customerId = customerId; }
-
-    @Override
-    public void receiveLineItem(CartItemId lineItemId, ProductId productId,
-                                String name, Money price, int quantity) {
-        lineItems.add(new LineItemSnapshot(lineItemId, productId, name, price, quantity));
-    }
-
-    @Override
-    public void receiveCurrentArticleData(ProductId productId, CartArticle cartArticle) {
-        currentArticles.put(productId, cartArticle);
-    }
-
-    public EnrichedCart build() {
-        // Combine snapshot state with current article data
-        List<EnrichedCartItem> enrichedItems = lineItems.stream()
-            .map(snapshot -> new EnrichedCartItem(snapshot, currentArticles.get(snapshot.productId())))
-            .toList();
-        return EnrichedCart.of(cartId, customerId, enrichedItems);
-    }
-}
-```
-
-**Example: Use Case using Interest Interface**
+**Example: Use Case Creating Enriched Model**
 
 ```java
 @Service
 @Transactional(readOnly = true)
 public class GetCartByIdUseCase implements GetCartByIdInputPort {
-    private final ShoppingCartRepository shoppingCartRepository;
-    private final ArticleDataPort articleDataPort;
+  private final ShoppingCartRepository shoppingCartRepository;
+  private final ArticleDataPort articleDataPort;
 
-    @Override
-    public GetCartByIdResult execute(GetCartByIdQuery input) {
-        ShoppingCart cart = shoppingCartRepository.findById(CartId.of(input.cartId()))
-            .orElseThrow(() -> new CartNotFoundException(input.cartId()));
-
-        // Use builder pattern with Interest Interface
-        EnrichedCartBuilder builder = new EnrichedCartBuilder();
-        cart.provideStateTo(builder, createResolver());
-
-        // Push current article data for each product
-        for (ProductId productId : builder.getCollectedProductIds()) {
-            CartArticle article = articleDataPort.getArticleData(productId)
-                .orElseThrow(() -> new ArticleNotFoundException(productId));
-            builder.receiveCurrentArticleData(productId, article);
-        }
-
-        EnrichedCart enrichedCart = builder.build();
-        return mapToResult(enrichedCart);
+  @Override
+  public GetCartByIdResult execute(final GetCartByIdQuery query) {
+    final ShoppingCart cart = shoppingCartRepository.findById(CartId.of(query.cartId()))
+        .orElse(null);
+    if (cart == null) {
+      return GetCartByIdResult.notFound();
     }
+
+    // Fetch external data from other bounded contexts
+    final Set<ProductId> productIds = cart.items().stream()
+        .map(item -> item.productId())
+        .collect(Collectors.toSet());
+    final Map<ProductId, CartArticle> articleData = articleDataPort.getArticleData(productIds);
+
+    // Create enriched domain model - contains business logic for cross-context rules
+    final EnrichedCart enrichedCart = EnrichedCart.from(cart, articleData);
+    return GetCartByIdResult.found(enrichedCart);
+  }
+}
+```
+
+**Example: Use Case Using Enriched Model for Business Decisions**
+
+```java
+@Service
+@Transactional
+public class CheckoutCartUseCase implements CheckoutCartInputPort {
+  private final ShoppingCartRepository cartRepository;
+  private final ArticleDataPort articleDataPort;
+
+  @Override
+  public CheckoutCartResult execute(final CheckoutCartCommand command) {
+    final ShoppingCart cart = cartRepository.findById(command.cartId())
+        .orElseThrow(() -> new CartNotFoundException(command.cartId()));
+
+    // Create enriched model to evaluate cross-context business rules
+    final Map<ProductId, CartArticle> articleData = articleDataPort.getArticleData(cart.productIds());
+    final EnrichedCart enrichedCart = EnrichedCart.from(cart, articleData);
+
+    // Business rule enforcement using enriched model
+    if (!enrichedCart.canCheckout()) {
+      return CheckoutCartResult.cannotCheckout(enrichedCart.getCheckoutBlockers());
+    }
+
+    // Proceed with checkout - aggregate handles state mutation
+    cart.checkout();
+    cartRepository.save(cart);
+
+    return CheckoutCartResult.success(enrichedCart.currentSubtotal());
+  }
 }
 ```
 
 **Rules:**
-1. Interest interfaces extend `StateInterest` marker interface
-2. Builders implement Interest interfaces and `ReadModelBuilder` marker
-3. Aggregate controls what state is exposed through `provideStateTo()`
-4. Method names follow `receive*()` convention
-5. Interest interfaces reside in `domain/model` package
-6. Builders reside in `domain/readmodel` package
+1. Enriched models are immutable Value Objects (use Java records)
+2. Factory methods combine aggregate state with external data
+3. Business logic for cross-context rules belongs in the enriched model
+4. Aggregates own state mutations; enriched models own cross-context evaluations
+5. Enriched models reside in `domain/model` package (they ARE domain concepts)
 
 **Benefits:**
-- **Encapsulation**: Aggregate controls what state is exposed, not clients
-- **Tell, Don't Ask**: Aggregate tells the builder what it needs to know
-- **Decoupling**: Clients depend on stable Interest interface, not aggregate internals
-- **Testability**: Easy to mock Interest interface for testing
-- **Evolution**: Aggregate internals can change without breaking clients
+- **Rich domain model**: Business logic lives in domain objects, not scattered in services
+- **Clear responsibility split**: Aggregate = mutations, Enriched Model = cross-context rules
+- **Testable**: Enriched models are pure functions, easy to unit test with different data combinations
+- **Encapsulated**: External code only sees enriched model, not aggregate internals
+- **Avoids anemic aggregates**: Business logic is in the domain, just distributed appropriately
 
-**Reference:** Vaughn Vernon's "Implementing Domain-Driven Design" (2013), Chapter 14: Application - State Mediator Pattern
+**When to Use:**
+- ✅ **When business rules require data from multiple bounded contexts**
+- ✅ When calculations need external data (current prices, stock levels)
+- ✅ When the aggregate alone cannot enforce all business rules
+- ✅ When team prefers straightforward, pragmatic solutions
+
+**Why Enriched Domain Model over Interest Interface for Cross-Context Data:**
+
+When business rules require data from multiple bounded contexts, the aggregate cannot enforce these rules alone. The Enriched Domain Model becomes the natural home for this business logic:
+
+```
+Aggregate + ExternalData  →  EnrichedModel.from(...)  →  Business Logic  →  ViewModel
+                                                         (in enriched model)
+```
+
+The enriched model isn't just for display—it's a domain concept that owns cross-context business rules.
+
+**Implementation:**
+- Product: `de.sample.aiarchitecture.product.domain.model.EnrichedProduct`
+- Cart: `de.sample.aiarchitecture.cart.domain.model.EnrichedCart`
+- Checkout: `de.sample.aiarchitecture.checkout.domain.readmodel.CheckoutCartSnapshot`
 
 #### Complete Data Flow: Use Case → ViewModel → Template
 
-The Interest Interface pattern integrates with the adapter layer through page-specific ViewModels:
+The Enriched Domain Model integrates with the adapter layer through page-specific ViewModels:
 
 ```
 Domain          Application          Adapter (incoming.web)       Template
 ────────        ───────────          ─────────────────────        ────────
-Aggregate   →   Use Case returns  →  Controller converts     →   Template
-provideStateTo  Result(Snapshot)     Snapshot → ViewModel        renders
+Aggregate   →   Use Case creates  →  Controller converts     →   Template
++ External      EnrichedModel        Model → ViewModel            renders
 ```
 
-**Example: GetCartByIdUseCase → CartPageController**
+**Example: CartPageController using EnrichedCart**
 
 ```java
-// 1. Use Case returns domain read model wrapped in Result
+// 1. Use Case creates enriched domain model with business logic
 @Service
 public class GetCartByIdUseCase implements GetCartByIdInputPort {
     @Override
     public GetCartByIdResult execute(GetCartByIdQuery query) {
-        EnrichedCartBuilder builder = new EnrichedCartBuilder();
-        cart.provideStateTo(builder, resolver);
-        EnrichedCart snapshot = builder.build();
-        return new GetCartByIdResult(true, snapshot);  // Result wraps snapshot
+        ShoppingCart cart = cartRepository.findById(query.cartId()).orElse(null);
+        if (cart == null) return GetCartByIdResult.notFound();
+
+        Map<ProductId, CartArticle> articleData = articleDataPort.getArticleData(cart.productIds());
+        EnrichedCart enrichedCart = EnrichedCart.from(cart, articleData);
+        return GetCartByIdResult.found(enrichedCart);
     }
 }
 
-// 2. Controller converts snapshot to page-specific ViewModel
+// 2. Controller converts enriched model to page-specific ViewModel
 @Controller
 public class CartPageController {
     @GetMapping("/cart")
     public String showCart(Model model) {
         GetCartByIdResult result = getCartByIdUseCase.execute(query);
 
-        // Convert domain snapshot → page ViewModel (primitives only)
-        CartPageViewModel viewModel = CartPageViewModel.fromEnrichedCart(result.cart());
+        // Convert enriched domain model → ViewModel (primitives only)
+        CartPageViewModel viewModel = CartPageViewModel.from(result.cart());
         model.addAttribute("shoppingCart", viewModel);
         return "cart/view";
     }
 }
 
-// 3. ViewModel contains primitives, no domain objects
+// 3. ViewModel exposes enriched model data as primitives
 public record CartPageViewModel(
-    String cartId,           // Not CartId
-    String status,           // Not CartStatus enum
+    String cartId,
     List<LineItemViewModel> lineItems,
-    int itemCount,
-    BigDecimal subtotal,
-    String currencyCode
+    BigDecimal currentSubtotal,
+    String currencyCode,
+    boolean canCheckout,           // From enriched model's business logic
+    boolean hasAnyPriceChanges     // From enriched model's business logic
 ) {
-    public static CartPageViewModel fromEnrichedCart(EnrichedCart cart) {
+    public static CartPageViewModel from(EnrichedCart cart) {
         return new CartPageViewModel(
             cart.cartId().value().toString(),
-            cart.status().name(),
             cart.items().stream().map(LineItemViewModel::from).toList(),
-            cart.itemCount(),
-            cart.totals().currentSubtotal().amount(),
-            cart.totals().currencyCode()
+            cart.currentSubtotal().amount(),
+            cart.currentSubtotal().currency().getCurrencyCode(),
+            cart.canCheckout(),         // Business logic result
+            cart.hasAnyPriceChanges()   // Business logic result
         );
     }
 }
@@ -905,26 +993,105 @@ public record CartPageViewModel(
 **ViewModel Rules:**
 1. Reside in `adapter.incoming.web` alongside the controller
 2. Use primitives only (`String`, `BigDecimal`, `int`, `boolean`)
-3. Named `{Page}ViewModel` (e.g., `CartPageViewModel`, `BuyerInfoPageViewModel`)
-4. Factory method converts domain snapshot to ViewModel
-5. Template attribute name matches purpose (e.g., `shoppingCart`, `orderReview`)
+3. Named `{Page}ViewModel` (e.g., `CartPageViewModel`, `ReviewPageViewModel`)
+4. Factory method converts enriched domain model to ViewModel
+5. Business logic results (e.g., `canCheckout`) are converted to primitive booleans
 
 See [dto-vs-viewmodel-analysis.md](dto-vs-viewmodel-analysis.md) for detailed patterns.
 
 **Implementation:**
-- Marker Interface: `de.sample.aiarchitecture.sharedkernel.marker.tactical.StateInterest`
-- Builder Marker: `de.sample.aiarchitecture.sharedkernel.marker.tactical.ReadModelBuilder`
-- Product Interest: `de.sample.aiarchitecture.product.domain.model.ProductStateInterest`
-- Product Builder: `de.sample.aiarchitecture.product.domain.readmodel.EnrichedProductBuilder`
-- Product Read Model: `de.sample.aiarchitecture.product.domain.model.EnrichedProduct`
-- Product ViewModels: `de.sample.aiarchitecture.product.adapter.incoming.web.ProductCatalogPageViewModel`, `ProductDetailPageViewModel`
-- Cart Interest: `de.sample.aiarchitecture.cart.domain.model.CartStateInterest`
-- Cart Builder: `de.sample.aiarchitecture.cart.domain.readmodel.EnrichedCartBuilder`
-- Cart Read Model: `de.sample.aiarchitecture.cart.domain.model.EnrichedCart`
-- Cart ViewModels: `de.sample.aiarchitecture.cart.adapter.incoming.web.CartPageViewModel`, `CartMergePageViewModel`
-- Checkout Interest: `de.sample.aiarchitecture.checkout.domain.model.CheckoutStateInterest`
-- Checkout Builder: `de.sample.aiarchitecture.checkout.domain.readmodel.CheckoutCartBuilder`
+- Product: `de.sample.aiarchitecture.product.domain.model.EnrichedProduct`
+- Product ViewModels: `ProductCatalogPageViewModel`, `ProductDetailPageViewModel`
+- Cart: `de.sample.aiarchitecture.cart.domain.model.EnrichedCart`
+- Cart ViewModels: `CartPageViewModel`, `CartMergePageViewModel`
+- Checkout: `de.sample.aiarchitecture.checkout.domain.readmodel.CheckoutCartSnapshot`
 - Checkout ViewModels: `BuyerInfoPageViewModel`, `DeliveryPageViewModel`, `PaymentPageViewModel`, `ReviewPageViewModel`, `ConfirmationPageViewModel`
+
+#### Interest Interface Pattern (Advanced)
+
+The Interest Interface Pattern (also known as State Mediator) is an **advanced technique** for scenarios where you need fine-grained control over state exposure. Instead of getters, aggregates "push" their state to interested parties through an interface.
+
+**When Interest Interface Makes Sense:**
+
+The pattern fits best when **aggregate state flows directly to the adapter layer without cross-context enrichment**. In this case, the ViewModel can implement the Interest interface:
+
+```
+Aggregate.provideStateTo(ViewModel)  →  Template
+```
+
+This keeps aggregate getters truly hidden—the ViewModel only knows about `receive*()` methods.
+
+**When to Consider:**
+- **No cross-context enrichment needed**—aggregate data is sufficient for display
+- ViewModel can directly implement the Interest interface
+- Complex aggregates where you want to expose only specific subsets of state
+- Scenarios requiring transformation during state extraction (not just mapping)
+- When aggregate internal structure is significantly different from read model structure
+- Teams familiar with Vernon's patterns who prefer explicit state mediation
+
+**When NOT to Use:**
+- ❌ When you need data from external contexts (pricing, inventory, etc.)—use Enriched Domain Model instead
+- ❌ When business rules require cross-context data—enriched model should own that logic
+
+**Trade-offs vs Enriched Domain Model:**
+| Aspect | Enriched Domain Model | Interest Interface |
+|--------|-----------------|-------------------|
+| **Complexity** | Simple | More complex |
+| **Code volume** | ~50 lines | ~500+ lines |
+| **Learning curve** | Low | Higher |
+| **Encapsulation** | Via read model abstraction | Via interface methods |
+| **Flexibility** | Good | Maximum |
+
+**Pattern Overview:**
+
+```java
+// 1. Interest interface defines what state can be received
+public interface CartStateInterest extends StateInterest {
+    void receiveCartId(CartId cartId);
+    void receiveCustomerId(CustomerId customerId);
+    void receiveLineItem(CartItemId lineItemId, ProductId productId,
+                         String name, Money price, int quantity);
+    void receiveStatus(CartStatus status);
+}
+
+// 2. Aggregate pushes state to interested parties
+public final class ShoppingCart extends BaseAggregateRoot<ShoppingCart, CartId> {
+    public void provideStateTo(CartStateInterest interest) {
+        interest.receiveCartId(this.id);
+        interest.receiveCustomerId(this.customerId);
+        for (CartItem item : this.items) {
+            interest.receiveLineItem(item.id(), item.productId(),
+                item.name(), item.price(), item.quantity());
+        }
+        interest.receiveStatus(this.status);
+    }
+}
+
+// 3. Builder implements interest interface and assembles read model
+public class EnrichedCartBuilder implements CartStateInterest, ReadModelBuilder {
+    private CartId cartId;
+    private CustomerId customerId;
+    private final List<LineItemSnapshot> lineItems = new ArrayList<>();
+
+    @Override
+    public void receiveCartId(CartId cartId) { this.cartId = cartId; }
+
+    @Override
+    public void receiveLineItem(...) { lineItems.add(new LineItemSnapshot(...)); }
+
+    public EnrichedCart build() { return new EnrichedCart(cartId, customerId, lineItems); }
+}
+```
+
+**Rules:**
+1. Interest interfaces extend `StateInterest` marker interface
+2. Builders implement Interest interfaces and `ReadModelBuilder` marker
+3. Aggregate controls what state is exposed through `provideStateTo()`
+4. Method names follow `receive*()` convention
+
+**Reference:** Vaughn Vernon's "Implementing Domain-Driven Design" (2013), Chapter 14: Application - State Mediator Pattern
+
+**Recommendation:** Start with the simpler Factory Pattern. Only consider the Interest Interface Pattern when you have a specific need that the factory approach cannot address cleanly
 
 #### Custom Annotations (Shared Kernel Common Layer)
 
@@ -2142,13 +2309,13 @@ All architectural rules are automatically tested and enforced using ArchUnit.
 
 - **Ubiquitous Language**: Shared language between developers and domain experts
 - **Bounded Context**: Explicit boundary for model validity
-- **Aggregate**: Cluster of objects treated as a unit
+- **Aggregate**: Cluster of objects treated as a unit, owns state mutations
 - **Repository**: Collection-like interface for aggregates
 - **Domain Event**: Something that happened in the domain
 - **Value Object**: Immutable descriptor without identity
 - **Entity**: Object with distinct identity
 - **Aggregate Root**: Entry point to aggregate
-- **Interest Interface (State Mediator)**: Aggregate pushes state to interested parties without exposing getters
+- **Enriched Domain Model**: Domain object combining aggregate state with external context data; owns cross-context business rules
 
 ### Design Principles
 

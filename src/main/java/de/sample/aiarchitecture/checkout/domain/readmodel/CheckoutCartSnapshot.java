@@ -2,6 +2,7 @@ package de.sample.aiarchitecture.checkout.domain.readmodel;
 
 import de.sample.aiarchitecture.checkout.domain.model.BuyerInfo;
 import de.sample.aiarchitecture.checkout.domain.model.CartId;
+import de.sample.aiarchitecture.checkout.domain.model.CheckoutSession;
 import de.sample.aiarchitecture.checkout.domain.model.CheckoutSessionId;
 import de.sample.aiarchitecture.checkout.domain.model.CheckoutSessionStatus;
 import de.sample.aiarchitecture.checkout.domain.model.CheckoutStep;
@@ -18,17 +19,12 @@ import org.jspecify.annotations.Nullable;
 /**
  * Read Model representing a snapshot of checkout session state.
  *
- * <p>This immutable read model is built by {@link CheckoutCartBuilder} using the
- * Interest Interface Pattern. It contains all state pushed from the
- * {@link de.sample.aiarchitecture.checkout.domain.model.CheckoutSession} aggregate
- * via the {@link de.sample.aiarchitecture.checkout.domain.model.CheckoutStateInterest}
- * interface.
+ * <p>This immutable read model contains all state from the
+ * {@link CheckoutSession} aggregate, providing a query-optimized view
+ * for display purposes.
  *
- * <p>Unlike the enriched {@link de.sample.aiarchitecture.checkout.domain.model.CheckoutCart},
- * this read model represents the aggregate's internal state snapshot without
- * additional enrichment from external services.
- *
- * @see CheckoutCartBuilder
+ * <p>Use the {@link #from(CheckoutSession)} factory method to create a snapshot
+ * from a checkout session aggregate.
  */
 public record CheckoutCartSnapshot(
     CheckoutSessionId sessionId,
@@ -70,6 +66,45 @@ public record CheckoutCartSnapshot(
     }
     // Make defensive copy
     lineItems = List.copyOf(lineItems);
+  }
+
+  /**
+   * Creates a CheckoutCartSnapshot from a CheckoutSession aggregate.
+   *
+   * <p>This factory method extracts all relevant state from the aggregate
+   * to create an immutable read model for display purposes.
+   *
+   * @param session the checkout session aggregate
+   * @return a snapshot of the session state
+   */
+  public static CheckoutCartSnapshot from(final CheckoutSession session) {
+    if (session == null) {
+      throw new IllegalArgumentException("Session cannot be null");
+    }
+
+    final List<LineItemSnapshot> lineItemSnapshots = session.lineItems().stream()
+        .map(item -> new LineItemSnapshot(
+            item.id(),
+            item.productId(),
+            item.productName(),
+            item.unitPrice(),
+            item.quantity()))
+        .toList();
+
+    return new CheckoutCartSnapshot(
+        session.id(),
+        session.cartId(),
+        session.customerId(),
+        session.currentStep(),
+        session.status(),
+        lineItemSnapshots,
+        session.totals().subtotal(),
+        session.totals(),
+        session.buyerInfo(),
+        session.deliveryAddress(),
+        session.shippingOption(),
+        session.paymentSelection(),
+        session.orderReference());
   }
 
   /**

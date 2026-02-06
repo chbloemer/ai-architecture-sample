@@ -73,7 +73,7 @@ Instructions:
 4. Run \`./gradlew build\` to verify
 5. When complete, tell me so I can mark it done
 
-Reference: tasks/prd-checkout.md for full PRD
+Reference: tasks/prd.md for full PRD
 Progress: tasks/progress.txt for learnings
 EOF
 

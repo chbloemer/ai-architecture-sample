@@ -42,7 +42,7 @@ brew install jq
 | File | Purpose |
 |------|---------|
 | `tasks/prd.json` | PRD with `passes` field for each story |
-| `tasks/prd-checkout.md` | Human-readable PRD |
+| `tasks/prd.md` | Human-readable PRD |
 | `tasks/progress.txt` | Learnings and iteration history |
 
 ## Workflow

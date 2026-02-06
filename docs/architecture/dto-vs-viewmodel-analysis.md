@@ -210,6 +210,6 @@ public static CartPageViewModel fromEnrichedCart(final EnrichedCart cart) {
 
 ## Related Documentation
 
-- [Architecture Principles](architecture-principles.md) - Interest Interface Pattern
+- [Architecture Principles](architecture-principles.md) - Enriched Domain Model Pattern
 - [Package Structure](package-structure.md) - ViewModel location
 - [Pug4j Integration](../integrations/pug4j-integration.md) - Template usage

@@ -37,12 +37,9 @@ de.sample.aiarchitecture
 │   │   │   ├── SKU, ProductName, ProductDescription
 │   │   │   ├── ProductStock, Category (Value Objects)
 │   │   │   ├── ProductFactory
-│   │   │   ├── ProductStateInterest (Interest Interface)
-│   │   │   ├── ProductArticle, EnrichedProduct (Read Models)
+│   │   │   ├── ProductArticle (external article data)
+│   │   │   ├── EnrichedProduct (Read Model with factory)
 │   │   │   └── ProductAvailabilitySpecification
-│   │   ├── readmodel              # Read Model Builders
-│   │   │   ├── EnrichedProductStateInterest
-│   │   │   └── EnrichedProductBuilder
 │   │   ├── service                # Domain Services
 │   │   │   └── PricingService
 │   │   └── event                  # Domain Events
@@ -185,8 +182,8 @@ Each bounded context (product, cart, checkout) follows the same internal structu
 ```
 {context}/
 ├── domain/             # Domain layer (innermost)
-│   ├── model/          # Aggregates, entities, value objects, Interest interfaces
-│   ├── readmodel/      # Domain read models (snapshots) and builders
+│   ├── model/          # Aggregates, entities, value objects, read models
+│   ├── readmodel/      # Optional: additional read model types (if needed)
 │   ├── service/        # Domain services
 │   └── event/          # Domain events
 ├── application/        # Application layer

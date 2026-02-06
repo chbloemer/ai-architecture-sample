@@ -112,8 +112,8 @@ class CheckoutFlowIntegrationTest {
         // Verify cart is ACTIVE with items
         GetCartByIdResult cartBefore = getCartByIdUseCase.execute(new GetCartByIdQuery(cartId));
         assertTrue(cartBefore.found(), "Cart should be found");
-        assertEquals("ACTIVE", cartBefore.cart().status().name(), "Cart should be ACTIVE before checkout");
-        assertFalse(cartBefore.cart().items().isEmpty(), "Cart should have items");
+        assertEquals("ACTIVE", cartBefore.cart().orElseThrow().status().name(), "Cart should be ACTIVE before checkout");
+        assertFalse(cartBefore.cart().orElseThrow().items().isEmpty(), "Cart should have items");
 
         // Step 2: Start checkout (cart remains ACTIVE - user can still modify it)
         StartCheckoutResult startResponse =
@@ -125,7 +125,7 @@ class CheckoutFlowIntegrationTest {
 
         // Verify cart remains ACTIVE during checkout (can still be modified)
         GetCartByIdResult cartAfterStart = getCartByIdUseCase.execute(new GetCartByIdQuery(cartId));
-        assertEquals("ACTIVE", cartAfterStart.cart().status().name(), "Cart should remain ACTIVE during checkout");
+        assertEquals("ACTIVE", cartAfterStart.cart().orElseThrow().status().name(), "Cart should remain ACTIVE during checkout");
 
         // Step 3: Submit buyer information
         submitBuyerInfoInputPort.execute(new SubmitBuyerInfoCommand(
@@ -182,7 +182,7 @@ class CheckoutFlowIntegrationTest {
         // Verify cart status is now COMPLETED (via CheckoutConfirmed event -> CompleteCart)
         // The CheckoutEventConsumer listens for CheckoutConfirmed and calls CompleteCartUseCase
         GetCartByIdResult cartAfterConfirm = getCartByIdUseCase.execute(new GetCartByIdQuery(cartId));
-        assertEquals("COMPLETED", cartAfterConfirm.cart().status().name(),
+        assertEquals("COMPLETED", cartAfterConfirm.cart().orElseThrow().status().name(),
             "Cart should be COMPLETED after checkout confirmation");
     }
 
@@ -228,6 +228,6 @@ class CheckoutFlowIntegrationTest {
 
         // Verify cart is still ACTIVE
         GetCartByIdResult cart = getCartByIdUseCase.execute(new GetCartByIdQuery(cartId));
-        assertEquals("ACTIVE", cart.cart().status().name(), "Cart should remain ACTIVE");
+        assertEquals("ACTIVE", cart.cart().orElseThrow().status().name(), "Cart should remain ACTIVE");
     }
 }

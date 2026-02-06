@@ -82,7 +82,7 @@ public class CartPageController {
     }
 
     // Convert to page-specific ViewModel
-    final CartPageViewModel viewModel = CartPageViewModel.fromEnrichedCart(result.cart());
+    final CartPageViewModel viewModel = CartPageViewModel.fromEnrichedCart(result.cart().orElseThrow());
 
     model.addAttribute("shoppingCart", viewModel);
     model.addAttribute("title", "Shopping Cart");

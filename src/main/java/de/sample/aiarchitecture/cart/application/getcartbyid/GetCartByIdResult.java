@@ -1,33 +1,46 @@
 package de.sample.aiarchitecture.cart.application.getcartbyid;
 
 import de.sample.aiarchitecture.cart.domain.model.EnrichedCart;
-import org.jspecify.annotations.Nullable;
+import java.util.Optional;
 
 /**
  * Output model for cart retrieval by ID.
  *
- * <p>Wraps the {@link EnrichedCart} read model. Check {@link #found()} to determine
- * if the cart exists before accessing {@link #cart()}.
+ * <p>Wraps the {@link EnrichedCart} read model in an Optional. Use {@link #found()}
+ * to check if the cart exists, or use {@link #cart()} directly with Optional methods.
  *
- * @param found whether the cart was found
- * @param cart the enriched cart read model (null if not found)
+ * @param cart the enriched cart read model wrapped in Optional
  */
 public record GetCartByIdResult(
-    boolean found,
-    @Nullable EnrichedCart cart
+    Optional<EnrichedCart> cart
 ) {
+
+  public GetCartByIdResult {
+    if (cart == null) {
+      throw new IllegalArgumentException("Cart optional cannot be null, use Optional.empty()");
+    }
+  }
+
+  /**
+   * Checks if the cart was found.
+   *
+   * @return true if the cart exists
+   */
+  public boolean found() {
+    return cart.isPresent();
+  }
 
   /**
    * Creates a result for a cart that was not found.
    */
   public static GetCartByIdResult notFound() {
-    return new GetCartByIdResult(false, null);
+    return new GetCartByIdResult(Optional.empty());
   }
 
   /**
    * Creates a result for a cart that was found.
    */
   public static GetCartByIdResult found(final EnrichedCart cart) {
-    return new GetCartByIdResult(true, cart);
+    return new GetCartByIdResult(Optional.of(cart));
   }
 }

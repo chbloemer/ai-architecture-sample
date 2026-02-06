@@ -342,7 +342,7 @@ class ArticleDataFlowIntegrationTest {
 
             // Then: Cart items should have current pricing from ArticleDataPort
             assertTrue(result.found(), "Cart should be found");
-            EnrichedCart cart = result.cart();
+            EnrichedCart cart = result.cart().orElseThrow();
             assertFalse(cart.items().isEmpty(), "Cart should have items");
 
             EnrichedCartItem item = cart.items().get(0);
@@ -367,7 +367,7 @@ class ArticleDataFlowIntegrationTest {
             GetCartByIdResult result = getCartByIdUseCase.execute(new GetCartByIdQuery(cartId));
 
             // Then: Item should have both price at addition and current price
-            EnrichedCartItem item = result.cart().items().get(0);
+            EnrichedCartItem item = result.cart().orElseThrow().items().get(0);
 
             assertNotNull(item.priceAtAddition(), "Price at addition should be set");
             assertNotNull(item.priceAtAddition().value().currency(), "Price at addition currency should be set");
@@ -395,7 +395,7 @@ class ArticleDataFlowIntegrationTest {
             GetCartByIdResult result = getCartByIdUseCase.execute(new GetCartByIdQuery(cartId));
 
             // Then: Price should not be marked as changed
-            EnrichedCartItem item = result.cart().items().get(0);
+            EnrichedCartItem item = result.cart().orElseThrow().items().get(0);
             assertFalse(item.hasPriceChanged(),
                 "Price should not be marked as changed when current equals original");
 
@@ -417,7 +417,7 @@ class ArticleDataFlowIntegrationTest {
 
             // Get initial cart state
             GetCartByIdResult initialResult = getCartByIdUseCase.execute(new GetCartByIdQuery(cartId));
-            EnrichedCartItem initialItem = initialResult.cart().items().get(0);
+            EnrichedCartItem initialItem = initialResult.cart().orElseThrow().items().get(0);
             BigDecimal originalPrice = initialItem.priceAtAddition().value().amount();
 
             // When: Price changes (update to a different price)
@@ -430,7 +430,7 @@ class ArticleDataFlowIntegrationTest {
 
             // Then: Getting cart should show price changed
             GetCartByIdResult updatedResult = getCartByIdUseCase.execute(new GetCartByIdQuery(cartId));
-            EnrichedCartItem updatedItem = updatedResult.cart().items().get(0);
+            EnrichedCartItem updatedItem = updatedResult.cart().orElseThrow().items().get(0);
 
             assertTrue(updatedItem.hasPriceChanged(),
                 "Price should be marked as changed after price update");
@@ -461,10 +461,10 @@ class ArticleDataFlowIntegrationTest {
 
             // Get initial prices
             GetCartByIdResult initialResult = getCartByIdUseCase.execute(new GetCartByIdQuery(cartId));
-            assertEquals(2, initialResult.cart().items().size(), "Cart should have 2 items");
+            assertEquals(2, initialResult.cart().orElseThrow().items().size(), "Cart should have 2 items");
 
             // Change price for only first product
-            EnrichedCartItem item1Initial = initialResult.cart().items().stream()
+            EnrichedCartItem item1Initial = initialResult.cart().orElseThrow().items().stream()
                 .filter(i -> i.productId().equals(product1Id))
                 .findFirst()
                 .orElseThrow();
@@ -480,12 +480,12 @@ class ArticleDataFlowIntegrationTest {
             GetCartByIdResult result = getCartByIdUseCase.execute(new GetCartByIdQuery(cartId));
 
             // Then: Only first product should show price change
-            EnrichedCartItem item1 = result.cart().items().stream()
+            EnrichedCartItem item1 = result.cart().orElseThrow().items().stream()
                 .filter(i -> i.productId().equals(product1Id))
                 .findFirst()
                 .orElseThrow();
 
-            EnrichedCartItem item2 = result.cart().items().stream()
+            EnrichedCartItem item2 = result.cart().orElseThrow().items().stream()
                 .filter(i -> i.productId().equals(product2Id))
                 .findFirst()
                 .orElseThrow();
@@ -513,7 +513,7 @@ class ArticleDataFlowIntegrationTest {
             // Step 1: Verify cart enrichment
             GetCartByIdResult cartResult = getCartByIdUseCase.execute(new GetCartByIdQuery(cartId));
             assertTrue(cartResult.found());
-            assertNotNull(cartResult.cart().items().get(0).currentArticle().currentPrice(),
+            assertNotNull(cartResult.cart().orElseThrow().items().get(0).currentArticle().currentPrice(),
                 "Cart should have fresh pricing from ArticleDataPort");
 
             // Step 2: Start checkout (uses CheckoutArticleDataPort for pricing)

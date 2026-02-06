@@ -86,7 +86,7 @@ public class ShoppingCartResource {
       return ResponseEntity.notFound().build();
     }
 
-    return ResponseEntity.ok(converter.toDto(result.cart()));
+    return ResponseEntity.ok(converter.toDto(result.cart().orElseThrow()));
   }
 
   @GetMapping("/customer/{customerId}/active")
@@ -100,7 +100,7 @@ public class ShoppingCartResource {
 
     // Fetch full cart with enriched data
     final GetCartByIdResult result = getCartByIdUseCase.execute(new GetCartByIdQuery(response.cartId()));
-    return ResponseEntity.ok(converter.toDto(result.cart()));
+    return ResponseEntity.ok(converter.toDto(result.cart().orElseThrow()));
   }
 
   @PostMapping("/{cartId}/items")

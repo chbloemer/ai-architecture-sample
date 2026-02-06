@@ -4,12 +4,14 @@ A comprehensive demonstration of **Domain-Driven Design (DDD)**, **Clean Archite
 
 ## Overview
 
-This project showcases best practices for structuring a Spring Boot application with clean architecture principles. It implements five bounded contexts:
-- **Product Catalog** - Product management with pricing and inventory
-- **Shopping Cart** - Customer shopping cart management
+This project showcases best practices for structuring a Spring Boot application with clean architecture principles. It implements seven bounded contexts:
+- **Product Catalog** - Product management with enriched views (pricing + stock from other contexts)
+- **Shopping Cart** - Customer shopping cart management with article price resolution
 - **Checkout** - Multi-step checkout flow with session management
 - **Account** - User registration and authentication
 - **Portal** - Application home page and navigation
+- **Inventory** - Stock level management (Open Host Service)
+- **Pricing** - Product pricing management (Open Host Service)
 
 ### Key Features
 
@@ -33,13 +35,13 @@ This project showcases best practices for structuring a Spring Boot application 
 - **Open Host Service**: ProductCatalogService provides cross-context API
 
 **Tactical Patterns:**
-- **Aggregates**: Product, ShoppingCart, CheckoutSession, Account
+- **Aggregates**: Product, ShoppingCart, CheckoutSession, Account, StockLevel, ProductPrice
 - **Entities**: CartItem, CheckoutLineItem
 - **Value Objects**: ProductId, SKU, Price, Money, Quantity, Category, BuyerInfo, DeliveryAddress, Email, HashedPassword, etc.
 - **Repositories**: Interfaces in application layer, implementations in adapters
 - **Domain Services**: PricingService, CartTotalCalculator, CheckoutStepValidator, PasswordHasher
-- **Domain Events**: ProductCreated, ProductPriceChanged, CartCheckedOut, CartItemAddedToCart, CartItemQuantityChanged, ProductRemovedFromCart, CartCleared, CheckoutSessionStarted, CheckoutConfirmed, AccountRegistered, etc.
-- **Factories**: ProductFactory
+- **Domain Events**: ProductCreated, CartCheckedOut, CartItemAddedToCart, CartItemQuantityChanged, ProductRemovedFromCart, CartCleared, CheckoutSessionStarted, CheckoutConfirmed, AccountRegistered, PriceChanged, StockChanged, etc.
+- **Factories**: ProductFactory, EnrichedCartFactory, CheckoutCartFactory
 - **Specifications**: ProductAvailabilitySpecification, CartSpecification (with Visitor pattern: ActiveCart, HasMinTotal, HasAnyAvailableItem, LastUpdatedBefore, CustomerAllowsMarketing)
 
 ### Clean Architecture
@@ -122,7 +124,9 @@ src/main/java/de/sample/aiarchitecture/
 │   │   │   ├── SKU.java                  # Value Objects
 │   │   │   ├── ProductName.java
 │   │   │   ├── ProductDescription.java
+│   │   │   ├── ProductArticle.java
 │   │   │   ├── ProductStock.java
+│   │   │   ├── EnrichedProduct.java       # Enriched read model
 │   │   │   ├── Category.java
 │   │   │   └── ProductFactory.java       # Factory
 │   │   ├── specification/                # Specifications
@@ -130,8 +134,7 @@ src/main/java/de/sample/aiarchitecture/
 │   │   ├── service/                      # Domain services
 │   │   │   └── PricingService.java
 │   │   └── event/                        # Domain events
-│   │       ├── ProductCreated.java
-│   │       └── ProductPriceChanged.java
+│   │       └── ProductCreated.java
 │   ├── application/                      # Application layer
 │   │   ├── createproduct/                # Use case: Create Product
 │   │   │   ├── CreateProductInputPort.java
@@ -148,18 +151,15 @@ src/main/java/de/sample/aiarchitecture/
 │   │   │   ├── GetProductByIdUseCase.java
 │   │   │   ├── GetProductByIdQuery.java
 │   │   │   └── GetProductByIdResult.java
-│   │   ├── updateproductprice/           # Use case: Update Product Price
-│   │   │   ├── UpdateProductPriceInputPort.java
-│   │   │   ├── UpdateProductPriceUseCase.java
-│   │   │   ├── UpdateProductPriceCommand.java
-│   │   │   └── UpdateProductPriceResult.java
 │   │   ├── reduceproductstock/           # Use case: Reduce Product Stock
 │   │   │   ├── ReduceProductStockInputPort.java
 │   │   │   ├── ReduceProductStockUseCase.java
 │   │   │   ├── ReduceProductStockCommand.java
 │   │   │   └── ReduceProductStockResult.java
 │   │   └── shared/                       # Shared output ports
-│   │       └── ProductRepository.java
+│   │       ├── ProductRepository.java
+│   │       ├── PricingDataPort.java       # Port for pricing data from Pricing context
+│   │       └── ProductStockDataPort.java  # Port for stock data from Inventory context
 │   └── adapter/                          # Adapters
 │       ├── incoming/                     # Incoming adapters (primary)
 │       │   ├── api/
@@ -170,7 +170,9 @@ src/main/java/de/sample/aiarchitecture/
 │       │   ├── mcp/
 │       │   │   └── ProductCatalogMcpToolProvider.java
 │       │   ├── web/
-│       │   │   └── ProductPageController.java
+│       │   │   ├── ProductPageController.java
+│       │   │   ├── ProductCatalogPageViewModel.java
+│       │   │   └── ProductDetailPageViewModel.java
 │       │   ├── openhost/
 │       │   │   └── ProductCatalogService.java    # Open Host Service
 │       │   └── event/
@@ -179,9 +181,12 @@ src/main/java/de/sample/aiarchitecture/
 │       │       └── acl/
 │       │           └── CheckoutEventTranslator.java  # Anti-corruption layer
 │       └── outgoing/                     # Outgoing adapters (secondary)
-│           └── persistence/
-│               ├── InMemoryProductRepository.java
-│               └── SampleDataInitializer.java
+│           ├── persistence/
+│           │   └── InMemoryProductRepository.java
+│           ├── pricing/
+│           │   └── PricingDataAdapter.java    # Adapter to Pricing context
+│           └── inventory/
+│               └── InventoryStockDataAdapter.java  # Adapter to Inventory context
 │
 ├── cart/                                 # Shopping Cart bounded context
 │   ├── domain/
@@ -192,7 +197,14 @@ src/main/java/de/sample/aiarchitecture/
 │   │   │   ├── CartItemId.java
 │   │   │   ├── CustomerId.java
 │   │   │   ├── Quantity.java
-│   │   │   └── CartStatus.java
+│   │   │   ├── CartStatus.java
+│   │   │   ├── ArticlePrice.java         # Price from Pricing context
+│   │   │   ├── ArticlePriceResolver.java # Resolver for fresh prices
+│   │   │   ├── CartArticle.java          # Article data for cart items
+│   │   │   ├── EnrichedCart.java          # Enriched read model
+│   │   │   ├── EnrichedCartFactory.java   # Factory for enriched carts
+│   │   │   ├── EnrichedCartItem.java      # Enriched cart item with prices
+│   │   │   └── CartValidationResult.java  # Validation result
 │   │   ├── specification/                # Cart specifications (Visitor pattern)
 │   │   │   ├── CartSpecification.java    # Base specification interface
 │   │   │   ├── CartSpecificationVisitor.java  # Visitor for database-agnostic filtering
@@ -268,7 +280,8 @@ src/main/java/de/sample/aiarchitecture/
 │   │   │   └── RecoverCartOnLoginResult.java
 │   │   └── shared/                       # Shared output ports
 │   │       ├── ShoppingCartRepository.java
-│   │       └── ProductDataPort.java      # Port for product data from other context
+│   │       ├── ArticleDataPort.java       # Port for article data (prices + stock)
+│   │       └── ProductDataPort.java       # Port for product data from other context
 │   └── adapter/                          # Adapters
 │       ├── incoming/                     # Incoming adapters
 │       │   ├── api/
@@ -280,13 +293,15 @@ src/main/java/de/sample/aiarchitecture/
 │       │   │   └── ShoppingCartDtoConverter.java
 │       │   ├── web/
 │       │   │   ├── CartPageController.java
-│       │   │   └── CartMergePageController.java
+│       │   │   ├── CartPageViewModel.java
+│       │   │   ├── CartMergePageController.java
+│       │   │   └── CartMergePageViewModel.java
 │       │   └── event/
 │       │       ├── CartEventConsumer.java
 │       │       └── CheckoutEventConsumer.java
 │       └── outgoing/                     # Outgoing adapters
 │           ├── product/
-│           │   └── ProductDataAdapter.java   # Adapter for product context
+│           │   └── CompositeArticleDataAdapter.java  # Composite adapter for article data
 │           └── persistence/
 │               ├── InMemoryShoppingCartRepository.java
 │               ├── JdbcShoppingCartRepository.java
@@ -309,13 +324,19 @@ src/main/java/de/sample/aiarchitecture/
 │   │   │   ├── CheckoutStep.java         # Enum: BUYER_INFO, DELIVERY, PAYMENT, REVIEW, CONFIRMATION
 │   │   │   ├── CheckoutSessionStatus.java
 │   │   │   ├── CheckoutTotals.java
+│   │   │   ├── CheckoutValidationResult.java
 │   │   │   ├── BuyerInfo.java
 │   │   │   ├── DeliveryAddress.java
 │   │   │   ├── ShippingOption.java
 │   │   │   ├── PaymentSelection.java
 │   │   │   ├── PaymentProviderId.java
 │   │   │   ├── CustomerId.java
-│   │   │   └── CartId.java
+│   │   │   ├── CartId.java
+│   │   │   ├── CheckoutArticle.java       # Article data for checkout
+│   │   │   ├── CheckoutArticlePriceResolver.java  # Price resolver
+│   │   │   ├── CheckoutCart.java           # Cart snapshot for checkout
+│   │   │   ├── CheckoutCartFactory.java    # Factory for checkout cart
+│   │   │   └── EnrichedCheckoutLineItem.java  # Enriched line item with prices
 │   │   ├── service/                      # Domain services
 │   │   │   └── CheckoutStepValidator.java
 │   │   └── event/                        # Domain events
@@ -387,6 +408,7 @@ src/main/java/de/sample/aiarchitecture/
 │   │       ├── CheckoutSessionRepository.java
 │   │       ├── CartDataPort.java
 │   │       ├── CartData.java
+│   │       ├── CheckoutArticleDataPort.java  # Port for article data (prices + stock)
 │   │       ├── ProductInfoPort.java
 │   │       ├── PaymentProvider.java
 │   │       └── PaymentProviderRegistry.java
@@ -395,10 +417,15 @@ src/main/java/de/sample/aiarchitecture/
 │       │   ├── web/
 │       │   │   ├── StartCheckoutPageController.java
 │       │   │   ├── BuyerInfoPageController.java
+│       │   │   ├── BuyerInfoPageViewModel.java
 │       │   │   ├── DeliveryPageController.java
+│       │   │   ├── DeliveryPageViewModel.java
 │       │   │   ├── PaymentPageController.java
+│       │   │   ├── PaymentPageViewModel.java
 │       │   │   ├── ReviewPageController.java
-│       │   │   └── ConfirmationPageController.java
+│       │   │   ├── ReviewPageViewModel.java
+│       │   │   ├── ConfirmationPageController.java
+│       │   │   └── ConfirmationPageViewModel.java
 │       │   └── event/
 │       │       └── CartChangeEventConsumer.java
 │       └── outgoing/                     # Outgoing adapters
@@ -407,6 +434,7 @@ src/main/java/de/sample/aiarchitecture/
 │           ├── cart/
 │           │   └── CartDataAdapter.java
 │           ├── product/
+│           │   ├── CompositeCheckoutArticleDataAdapter.java  # Composite adapter
 │           │   └── ProductInfoAdapter.java
 │           └── payment/
 │               ├── MockPaymentProvider.java
@@ -459,6 +487,77 @@ src/main/java/de/sample/aiarchitecture/
 │               ├── SpringSecurityPasswordHasher.java
 │               └── AccountBasedRegisteredUserValidator.java
 │
+├── inventory/                            # Inventory bounded context
+│   ├── domain/
+│   │   ├── model/                        # Domain model
+│   │   │   ├── StockLevel.java           # Aggregate Root
+│   │   │   ├── StockLevelId.java         # Value Objects
+│   │   │   └── StockQuantity.java
+│   │   └── event/                        # Domain events
+│   │       ├── StockLevelCreated.java
+│   │       ├── StockChanged.java
+│   │       ├── StockIncreased.java
+│   │       ├── StockDecreased.java
+│   │       └── StockReserved.java
+│   ├── application/                      # Application layer
+│   │   ├── setstocklevel/                # Use case: Set Stock Level
+│   │   │   ├── SetStockLevelInputPort.java
+│   │   │   ├── SetStockLevelUseCase.java
+│   │   │   ├── SetStockLevelCommand.java
+│   │   │   └── SetStockLevelResult.java
+│   │   ├── reducestock/                  # Use case: Reduce Stock
+│   │   │   ├── ReduceStockInputPort.java
+│   │   │   ├── ReduceStockUseCase.java
+│   │   │   ├── ReduceStockCommand.java
+│   │   │   └── ReduceStockResult.java
+│   │   ├── getstockforproducts/          # Use case: Get Stock for Products
+│   │   │   ├── GetStockForProductsInputPort.java
+│   │   │   ├── GetStockForProductsUseCase.java
+│   │   │   ├── GetStockForProductsQuery.java
+│   │   │   └── GetStockForProductsResult.java
+│   │   └── shared/                       # Shared output ports
+│   │       └── StockLevelRepository.java
+│   └── adapter/                          # Adapters
+│       ├── incoming/                     # Incoming adapters
+│       │   ├── openhost/
+│       │   │   └── InventoryService.java     # Open Host Service
+│       │   └── event/
+│       │       └── CheckoutConfirmedEventConsumer.java
+│       └── outgoing/                     # Outgoing adapters
+│           └── persistence/
+│               └── InMemoryStockLevelRepository.java
+│
+├── pricing/                              # Pricing bounded context
+│   ├── domain/
+│   │   ├── model/                        # Domain model
+│   │   │   ├── ProductPrice.java         # Aggregate Root
+│   │   │   └── PriceId.java             # Value Objects
+│   │   └── event/                        # Domain events
+│   │       ├── PriceCreated.java
+│   │       └── PriceChanged.java
+│   ├── application/                      # Application layer
+│   │   ├── setproductprice/              # Use case: Set Product Price
+│   │   │   ├── SetProductPriceInputPort.java
+│   │   │   ├── SetProductPriceUseCase.java
+│   │   │   ├── SetProductPriceCommand.java
+│   │   │   └── SetProductPriceResult.java
+│   │   ├── getpricesforproducts/         # Use case: Get Prices for Products
+│   │   │   ├── GetPricesForProductsInputPort.java
+│   │   │   ├── GetPricesForProductsUseCase.java
+│   │   │   ├── GetPricesForProductsQuery.java
+│   │   │   └── GetPricesForProductsResult.java
+│   │   └── shared/                       # Shared output ports
+│   │       └── ProductPriceRepository.java
+│   └── adapter/                          # Adapters
+│       ├── incoming/                     # Incoming adapters
+│       │   ├── openhost/
+│       │   │   └── PricingService.java       # Open Host Service
+│       │   └── event/
+│       │       └── ProductCreatedEventConsumer.java
+│       └── outgoing/                     # Outgoing adapters
+│           └── persistence/
+│               └── InMemoryProductPriceRepository.java
+│
 ├── portal/                               # Portal bounded context
 │   └── adapter/                          # Adapters
 │       └── incoming/                     # Incoming adapters
@@ -466,12 +565,15 @@ src/main/java/de/sample/aiarchitecture/
 │               └── HomePageController.java
 │
 └── infrastructure/                       # Infrastructure (cross-cutting)
+    ├── AiArchitectureApplication.java    # Spring Boot main class
     ├── config/                           # Spring @Configuration classes
     │   ├── SecurityConfiguration.java
     │   ├── TransactionConfiguration.java
     │   ├── AsyncConfiguration.java
     │   ├── DomainConfiguration.java
     │   └── Pug4jConfiguration.java
+    ├── init/                             # Initialization
+    │   └── SampleDataInitializer.java    # Sample data seeding
     ├── support/                          # Framework support components
     │   └── AsyncInitializationProcessor.java
     └── security/                         # Security infrastructure

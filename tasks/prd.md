@@ -700,7 +700,7 @@ Reference implementation demonstrating Domain-Centric Architecture with DDD, Hex
 - **Affected Layers:** infrastructure, domain, sharedkernel
 - **Locations:**
   - `infrastructure.security.jwt.JwtTokenService`
-  - `sharedkernel.domain.common.UserId`
+  - `sharedkernel.domain.model.UserId`
   - `account.domain.model.Account`
 - **Patterns:** Identity Continuity
 - **Constraints:**

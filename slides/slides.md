@@ -127,9 +127,9 @@ de.sample.aiarchitecture
 │   └── adapter/incoming/web/   # Cross-context UI
 │
 ├── sharedkernel/               # Shared Kernel
-│   ├── domain/marker/          # AggregateRoot, Entity, Value, DomainEvent
-│   ├── domain/common/          # Money, Price, ProductId
-│   └── application/marker/     # InputPort, OutputPort
+│   ├── marker/tactical/        # AggregateRoot, Entity, Value, DomainEvent
+│   ├── marker/port/            # InputPort, UseCase, OutputPort, Repository
+│   └── domain/model/           # Money, Price, ProductId
 │
 └── infrastructure/             # Global infrastructure
     ├── api/                    # SPI für Application Layer

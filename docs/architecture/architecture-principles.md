@@ -46,7 +46,7 @@ Domain-Driven Design is an approach to software development that centers the dev
 
 A bounded context is an explicit boundary within which a domain model is defined and applicable. Our e-commerce application has two bounded contexts plus a shared kernel:
 
-1. **Shared Kernel** (`de.sample.aiarchitecture.sharedkernel.domain.common`)
+1. **Shared Kernel** (`de.sample.aiarchitecture.sharedkernel.domain.model`)
    - Small, carefully curated domain model shared across contexts
    - Value Objects: `Money`, `ProductId`, `Price`
    - **Pattern**: Shared Kernel (Eric Evans, DDD Chapter 14)
@@ -147,7 +147,7 @@ public final class ShoppingCart extends BaseAggregateRoot<ShoppingCart, CartId> 
 3. Aggregates reference other aggregates by identity only (e.g., ShoppingCart references Product via ProductId)
 4. Aggregates raise domain events for important state changes
 
-**Implementation:** See `de.sample.aiarchitecture.sharedkernel.domain.marker.AggregateRoot`
+**Implementation:** See `de.sample.aiarchitecture.sharedkernel.marker.tactical.AggregateRoot`
 
 #### Entity
 
@@ -174,7 +174,7 @@ public final class CartItem implements Entity<CartItem, CartItemId> {
 2. Identity remains constant through state changes
 3. Equality based on identity, not attributes
 
-**Implementation:** See `de.sample.aiarchitecture.sharedkernel.domain.marker.Entity`
+**Implementation:** See `de.sample.aiarchitecture.sharedkernel.marker.tactical.Entity`
 
 #### Value Object
 
@@ -209,8 +209,8 @@ public record Money(@NonNull BigDecimal amount, @NonNull Currency currency) impl
 5. Universal value objects belong in Shared Kernel
 
 **Implementation:**
-- Interface: `de.sample.aiarchitecture.sharedkernel.domain.marker.Value`
-- Shared Value Objects: `de.sample.aiarchitecture.sharedkernel.domain.common.Money`, `ProductId`, `Price`
+- Interface: `de.sample.aiarchitecture.sharedkernel.marker.tactical.Value`
+- Shared Value Objects: `de.sample.aiarchitecture.sharedkernel.domain.model.Money`, `ProductId`, `Price`
 - Context-specific Value Objects: In their respective bounded contexts
 
 #### Repository
@@ -328,7 +328,7 @@ public class CartTotalCalculator implements DomainService {
 3. Operates on domain objects
 4. Named after activities, not entities
 
-**Implementation:** See `de.sample.aiarchitecture.sharedkernel.domain.marker.DomainService`
+**Implementation:** See `de.sample.aiarchitecture.sharedkernel.marker.tactical.DomainService`
 
 #### Domain Event
 
@@ -622,7 +622,7 @@ public class ProductStockEventListener {
 4. **Backward compatibility:** New fields must be optional
 
 **Implementation:**
-- Interface: `de.sample.aiarchitecture.sharedkernel.domain.marker.IntegrationEvent`
+- Interface: `de.sample.aiarchitecture.sharedkernel.marker.tactical.IntegrationEvent`
 - Example Event: `de.sample.aiarchitecture.cart.domain.event.CartCheckedOut`
 - ACL Example: `de.sample.aiarchitecture.product.adapter.incoming.event.acl.CartEventTranslator`
 - Consumer Example: `de.sample.aiarchitecture.product.adapter.incoming.event.ProductStockEventListener`
@@ -673,7 +673,7 @@ public class ProductFactory implements Factory {
 3. Framework-independent
 4. Stateless
 
-**Implementation:** See `de.sample.aiarchitecture.sharedkernel.domain.marker.Factory`
+**Implementation:** See `de.sample.aiarchitecture.sharedkernel.marker.tactical.Factory`
 
 #### Specification
 
@@ -696,7 +696,7 @@ public class ProductAvailableSpecification implements Specification<Product> {
 3. Framework-independent
 4. Reusable across use cases
 
-**Implementation:** See `de.sample.aiarchitecture.sharedkernel.domain.marker.Specification`
+**Implementation:** See `de.sample.aiarchitecture.sharedkernel.marker.tactical.Specification`
 
 #### Enriched Domain Model Pattern
 

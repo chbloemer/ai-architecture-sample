@@ -314,7 +314,7 @@ def "Repository Implementations must reside in adapter.outgoing package"() {
 | Use case | `{context}.application.usecase.{name}/` | `product.application.usecase.createproduct/CreateProductUseCase.java` |
 | Command/Query | `{context}.application.usecase.{name}/` | `product.application.usecase.createproduct/CreateProductCommand.java` |
 | Response | `{context}.application.usecase.{name}/` | `product.application.usecase.createproduct/CreateProductResponse.java` |
-| Shared value object | `sharedkernel.domain.common/` | `sharedkernel.domain.common/Money.java` |
+| Shared value object | `sharedkernel.domain.model/` | `sharedkernel.domain.model/Money.java` |
 
 ## Why This Structure?
 

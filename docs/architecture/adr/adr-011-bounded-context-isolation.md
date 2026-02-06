@@ -33,7 +33,7 @@ Without clear boundaries:
 ```
 de.sample.aiarchitecture/
 ├── sharedkernel/              ← Shared Kernel (cross-context)
-│   └── domain/common/
+│   └── domain/model/
 │       ├── ProductId          (shared ID)
 │       ├── Money              (shared value)
 │       └── Price              (shared value)
@@ -108,9 +108,9 @@ Each context has clear responsibility:
 
 ```java
 // cart/domain/model/CartItem.java
-import de.sample.aiarchitecture.sharedkernel.domain.common.ProductId;  // ← From Shared Kernel
-import de.sample.aiarchitecture.sharedkernel.domain.common.Price;     // ← From Shared Kernel
-import de.sample.aiarchitecture.sharedkernel.domain.common.Money;     // ← From Shared Kernel
+import de.sample.aiarchitecture.sharedkernel.domain.model.ProductId;  // ← From Shared Kernel
+import de.sample.aiarchitecture.sharedkernel.domain.model.Price;     // ← From Shared Kernel
+import de.sample.aiarchitecture.sharedkernel.domain.model.Money;     // ← From Shared Kernel
 
 public final class CartItem implements Entity<CartItem, CartItemId> {
 

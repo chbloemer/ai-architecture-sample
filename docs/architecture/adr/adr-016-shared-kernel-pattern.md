@@ -67,7 +67,7 @@ de.sample.aiarchitecture/
 │   │   │   ├── Value.java
 │   │   │   ├── Repository.java
 │   │   │   └── DomainEvent.java
-│   │   ├── common/                  (Cross-context value objects)
+│   │   ├── model/                   (Cross-context value objects)
 │   │   │   ├── Money.java          (universal monetary concept)
 │   │   │   ├── ProductId.java      (cross-context identifier)
 │   │   │   └── Price.java          (wraps Money with validation)
@@ -100,9 +100,9 @@ de.sample.aiarchitecture/
 ```java
 // ✅ ALLOWED: Both contexts access Shared Kernel
 package de.sample.aiarchitecture.cart.domain.model;
-import de.sample.aiarchitecture.sharedkernel.domain.common.Money;     // ✅
-import de.sample.aiarchitecture.sharedkernel.domain.common.ProductId; // ✅
-import de.sample.aiarchitecture.sharedkernel.domain.marker.Entity;    // ✅
+import de.sample.aiarchitecture.sharedkernel.domain.model.Money;     // ✅
+import de.sample.aiarchitecture.sharedkernel.domain.model.ProductId; // ✅
+import de.sample.aiarchitecture.sharedkernel.marker.tactical.Entity;    // ✅
 
 // ❌ FORBIDDEN: Direct access between contexts
 import de.sample.aiarchitecture.product.domain.model.Product;  // ❌
@@ -252,14 +252,14 @@ Shared Kernel becomes a versioned library.
 
 ### Shared Kernel Contents
 
-**Domain Marker Interfaces** (`sharedkernel.domain.marker`):
+**Tactical Marker Interfaces** (`sharedkernel.marker.tactical`):
 - `AggregateRoot`, `Entity`, `Value`, `Repository`, `DomainEvent`, `DomainService`, `Factory`, `Specification`
 
-**Cross-Context Value Objects** (`sharedkernel.domain.common`):
+**Cross-Context Value Objects** (`sharedkernel.domain.model`):
 
 **1. Money** - Universal monetary value
 ```java
-package de.sample.aiarchitecture.sharedkernel.domain.common;
+package de.sample.aiarchitecture.sharedkernel.domain.model;
 
 public record Money(@NonNull BigDecimal amount, @NonNull Currency currency) implements Value {
     // Universal monetary concept
@@ -269,7 +269,7 @@ public record Money(@NonNull BigDecimal amount, @NonNull Currency currency) impl
 
 **2. ProductId** - Cross-context identifier
 ```java
-package de.sample.aiarchitecture.sharedkernel.domain.common;
+package de.sample.aiarchitecture.sharedkernel.domain.model;
 
 public record ProductId(@NonNull String value) implements Id, Value {
     // Product identifier
@@ -279,7 +279,7 @@ public record ProductId(@NonNull String value) implements Id, Value {
 
 **3. Price** - Domain-specific monetary wrapper
 ```java
-package de.sample.aiarchitecture.sharedkernel.domain.common;
+package de.sample.aiarchitecture.sharedkernel.domain.model;
 
 public record Price(@NonNull Money value) implements Value {
     // Wraps Money with "price must be > 0" validation
@@ -293,9 +293,9 @@ public record Price(@NonNull Money value) implements Value {
 ### Migration Performed
 
 **Changes Made**:
-1. Created `sharedkernel` package with `domain.marker`, `domain.common`, `application.marker` sub-packages
-2. Moved DDD marker interfaces to `sharedkernel.domain.marker`
-3. Moved `Money`, `ProductId`, `Price` to `sharedkernel.domain.common`
+1. Created `sharedkernel` package with `marker.tactical`, `domain.model`, `marker.port` sub-packages
+2. Moved DDD marker interfaces to `sharedkernel.marker.tactical`
+3. Moved `Money`, `ProductId`, `Price` to `sharedkernel.domain.model`
 4. Moved use case patterns to `sharedkernel.application.port`
 5. Updated all files with correct imports
 6. Added ArchUnit tests for isolation
@@ -309,8 +309,8 @@ public record Price(@NonNull Money value) implements Value {
 - import de.sample.aiarchitecture.product.domain.model.ProductId;
 
 // AFTER: Cart imports from Shared Kernel (explicit)
-+ import de.sample.aiarchitecture.sharedkernel.domain.common.Money;
-+ import de.sample.aiarchitecture.sharedkernel.domain.common.ProductId;
++ import de.sample.aiarchitecture.sharedkernel.domain.model.Money;
++ import de.sample.aiarchitecture.sharedkernel.domain.model.ProductId;
 ```
 
 ### Verification

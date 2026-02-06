@@ -240,7 +240,7 @@ Repository interface is an **Output Port** (secondary port, defined by applicati
 ### Repository Interface (Application Layer - Output Port)
 
 ```java
-// sharedkernel/domain/marker/Repository.java (Base interface)
+// sharedkernel/marker/port/out/Repository.java (Base interface)
 public interface Repository<T extends AggregateRoot<T, ID>, ID extends Id> {
 
   void save(@NonNull T aggregate);

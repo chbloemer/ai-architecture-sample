@@ -179,7 +179,7 @@ Returns Cart with its CartId (but CartId never shown to user)
 
 ```
 sharedkernel/
-├── domain/common/
+├── domain/model/
 │   └── UserId.java                      # Shared identity value object
 └── application/port/security/
     ├── Identity.java                    # Current user's identity
@@ -244,7 +244,7 @@ public record HashedPassword(String hash) {
 
 ### Phase 1: SharedKernel Identity
 **Create:**
-- `sharedkernel/domain/common/UserId.java`
+- `sharedkernel/domain/model/UserId.java`
 - `sharedkernel/application/port/security/Identity.java`
 - `sharedkernel/application/port/security/IdentityProvider.java`
 - `sharedkernel/application/port/security/TokenService.java`

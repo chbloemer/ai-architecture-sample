@@ -4,6 +4,7 @@ import de.sample.aiarchitecture.checkout.domain.readmodel.CheckoutCartSnapshot;
 import de.sample.aiarchitecture.checkout.domain.readmodel.LineItemSnapshot;
 import java.math.BigDecimal;
 import java.util.List;
+import org.jspecify.annotations.Nullable;
 
 /**
  * ViewModel for the checkout review page.
@@ -16,9 +17,9 @@ public record ReviewPageViewModel(
     String currentStep,
     List<LineItemViewModel> lineItems,
     TotalsViewModel totals,
-    BuyerInfoViewModel buyerInfo,
-    DeliveryViewModel delivery,
-    PaymentViewModel payment
+    @Nullable BuyerInfoViewModel buyerInfo,
+    @Nullable DeliveryViewModel delivery,
+    @Nullable PaymentViewModel payment
 ) {
 
   /**
@@ -138,11 +139,11 @@ public record ReviewPageViewModel(
    */
   public record AddressViewModel(
       String street,
-      String streetLine2,
+      @Nullable String streetLine2,
       String city,
       String postalCode,
       String country,
-      String state
+      @Nullable String state
   ) {
     static AddressViewModel fromSnapshot(final CheckoutCartSnapshot snapshot) {
       final var addr = snapshot.deliveryAddress();
@@ -190,7 +191,7 @@ public record ReviewPageViewModel(
    */
   public record PaymentViewModel(
       String providerId,
-      String providerReference
+      @Nullable String providerReference
   ) {
     static PaymentViewModel fromSnapshot(final CheckoutCartSnapshot snapshot) {
       final var payment = snapshot.paymentSelection();

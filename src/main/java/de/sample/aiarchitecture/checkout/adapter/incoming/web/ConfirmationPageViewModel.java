@@ -18,7 +18,7 @@ public record ConfirmationPageViewModel(
     List<LineItemViewModel> lineItems,
     TotalsViewModel totals,
     BuyerInfoViewModel buyerInfo,
-    DeliveryViewModel delivery,
+    @Nullable DeliveryViewModel delivery,
     PaymentViewModel payment
 ) {
 

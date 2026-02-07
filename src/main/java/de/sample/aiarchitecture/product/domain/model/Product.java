@@ -39,18 +39,21 @@ public final class Product extends BaseAggregateRoot<Product, ProductId> {
   private ProductName name;
   private ProductDescription description;
   private Category category;
+  private ImageUrl imageUrl;
 
   public Product(
       final ProductId id,
       final SKU sku,
       final ProductName name,
       final ProductDescription description,
-      final Category category) {
+      final Category category,
+      final ImageUrl imageUrl) {
     this.id = id;
     this.sku = sku;
     this.name = name;
     this.description = description;
     this.category = category;
+    this.imageUrl = imageUrl;
   }
 
   @Override
@@ -72,6 +75,10 @@ public final class Product extends BaseAggregateRoot<Product, ProductId> {
 
   public Category category() {
     return category;
+  }
+
+  public ImageUrl imageUrl() {
+    return imageUrl;
   }
 
   /**

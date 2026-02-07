@@ -12,7 +12,7 @@ public class ProductCatalogPage extends BasePage {
 
   private static final String URL_PATTERN = "/products";
   private static final String PRODUCT_CARD = "product-card";
-  private static final String VIEW_DETAILS_LINK = "product-view-details-link";
+  private static final String VIEW_DETAILS_LINK = "view-product";
 
   /**
    * Creates a new ProductCatalogPage and waits for it to load.

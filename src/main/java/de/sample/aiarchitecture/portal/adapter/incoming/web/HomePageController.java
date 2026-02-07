@@ -7,8 +7,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 /**
  * MVC Controller for the application home/landing page.
  *
- * <p>This controller handles the root URL ("/") and displays a landing page
- * with navigation to the main features of the application.
+ * <p>This controller handles the root URL ("/") and displays the e-commerce
+ * landing page with navigation to products, cart, and checkout.
  *
  * <p><b>Bounded Context:</b> Portal - Entry point providing navigation to
  * Product Catalog, Shopping Cart, and other application features.
@@ -20,24 +20,14 @@ import org.springframework.web.bind.annotation.GetMapping;
 public class HomePageController {
 
   /**
-   * Displays the application landing page.
-   *
-   * <p>This page serves as the entry point to the application, providing
-   * links to:
-   * <ul>
-   *   <li>Product Catalog (web UI)</li>
-   *   <li>Shopping Cart (web UI)</li>
-   *   <li>REST API endpoints</li>
-   *   <li>Architecture documentation</li>
-   * </ul>
+   * Displays the e-commerce landing page.
    *
    * @param model Spring MVC model to pass data to the view
    * @return view name "home/index" which resolves to templates/home/index.pug
    */
   @GetMapping("/")
   public String showHomePage(final Model model) {
-    model.addAttribute("title", "AI Architecture Sample");
-    model.addAttribute("subtitle", "DDD, Hexagonal & Onion Architecture Demo");
+    model.addAttribute("title", "DCA Ecommerce");
 
     return "home/index";
   }

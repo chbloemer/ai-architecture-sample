@@ -1,52 +1,44 @@
 extends ../layout
 
 block content
-  h2= message
+  .sample-page
+    h2.sample-page__title= message
 
-  p.
-    This is a sample page demonstrating Pug4j template engine integration
-    with Spring Boot and Domain-Driven Design architecture.
+    p.sample-page__intro.
+      This is a sample page demonstrating Pug4j template engine integration
+      with Spring Boot and Domain-Driven Design architecture.
 
-  h3 Project Features
-  ul
-    each feature in features
-      li= feature
+    h3.sample-page__heading Project Features
+    ul.sample-page__list
+      each feature in features
+        li.sample-page__list-item= feature
 
-  h3 Architecture Patterns
-  ul
-    li Domain-Driven Design (DDD)
-      ul
-        li Aggregates, Entities, Value Objects
-        li Domain Events & Services
-        li Factories & Specifications
-    li Clean Architecture
-      ul
-        li Hexagonal Architecture (Ports & Adapters)
-        li Onion Architecture (Dependency Inversion)
-        li Framework-Independent Domain
-    li Testing
-      ul
-        li ArchUnit for Architecture Enforcement
-        li Comprehensive Test Coverage
+    h3.sample-page__heading Architecture Patterns
+    ul.sample-page__list
+      li.sample-page__list-item Domain-Driven Design (DDD)
+        ul.sample-page__list
+          li.sample-page__list-item Aggregates, Entities, Value Objects
+          li.sample-page__list-item Domain Events & Services
+          li.sample-page__list-item Factories & Specifications
+      li.sample-page__list-item Clean Architecture
+        ul.sample-page__list
+          li.sample-page__list-item Hexagonal Architecture (Ports & Adapters)
+          li.sample-page__list-item Onion Architecture (Dependency Inversion)
+          li.sample-page__list-item Framework-Independent Domain
+      li.sample-page__list-item Testing
+        ul.sample-page__list
+          li.sample-page__list-item ArchUnit for Architecture Enforcement
+          li.sample-page__list-item Comprehensive Test Coverage
 
-  h3 Template Engine
-  p.
-    This page is rendered using <strong>Pug4j</strong>, a Java implementation
-    of the Pug template engine (formerly Jade).
+    h3.sample-page__heading Template Engine
+    p.sample-page__intro.
+      This page is rendered using <strong>Pug4j</strong>, a Java implementation
+      of the Pug template engine (formerly Jade).
 
-  h4 Pug Features Demonstrated:
-  ul
-    li Variables: <code>title = "#{title}"</code>
-    li Iteration: Looping through features
-    li Template inheritance: This page extends layout.pug
-    li Attributes: Dynamic HTML attributes
-    li Mixins: Reusable template blocks
-
-  style.
-    h2 { color: #2c3e50; margin-bottom: 20px; }
-    h3 { color: #34495e; margin-top: 30px; border-bottom: 2px solid #3498db; padding-bottom: 10px; }
-    h4 { color: #7f8c8d; margin-top: 20px; }
-    ul { margin-left: 20px; }
-    li { margin-bottom: 8px; }
-    code { background: #f4f4f4; padding: 2px 6px; border-radius: 3px; font-family: monospace; }
-    p { line-height: 1.8; }
+    h4.sample-page__subheading Pug Features Demonstrated:
+    ul.sample-page__list
+      li.sample-page__list-item Variables: <code class="sample-page__code">title = "#{title}"</code>
+      li.sample-page__list-item Iteration: Looping through features
+      li.sample-page__list-item Template inheritance: This page extends layout.pug
+      li.sample-page__list-item Attributes: Dynamic HTML attributes
+      li.sample-page__list-item Mixins: Reusable template blocks

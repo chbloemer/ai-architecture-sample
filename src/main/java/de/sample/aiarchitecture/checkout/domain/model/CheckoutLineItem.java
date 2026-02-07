@@ -3,6 +3,7 @@ package de.sample.aiarchitecture.checkout.domain.model;
 import de.sample.aiarchitecture.sharedkernel.domain.model.Money;
 import de.sample.aiarchitecture.sharedkernel.domain.model.ProductId;
 import de.sample.aiarchitecture.sharedkernel.marker.tactical.Value;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Value Object representing a line item in the checkout.
@@ -15,7 +16,8 @@ public record CheckoutLineItem(
     ProductId productId,
     String productName,
     Money unitPrice,
-    int quantity)
+    int quantity,
+    @Nullable String imageUrl)
     implements Value {
 
   public CheckoutLineItem {
@@ -41,8 +43,9 @@ public record CheckoutLineItem(
       final ProductId productId,
       final String productName,
       final Money unitPrice,
-      final int quantity) {
-    return new CheckoutLineItem(id, productId, productName, unitPrice, quantity);
+      final int quantity,
+      @Nullable final String imageUrl) {
+    return new CheckoutLineItem(id, productId, productName, unitPrice, quantity, imageUrl);
   }
 
   public Money lineTotal() {
@@ -50,6 +53,6 @@ public record CheckoutLineItem(
   }
 
   public CheckoutLineItem withQuantity(final int newQuantity) {
-    return new CheckoutLineItem(id, productId, productName, unitPrice, newQuantity);
+    return new CheckoutLineItem(id, productId, productName, unitPrice, newQuantity, imageUrl);
   }
 }

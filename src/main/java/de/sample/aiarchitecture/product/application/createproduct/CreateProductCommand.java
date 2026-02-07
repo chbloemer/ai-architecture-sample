@@ -18,6 +18,7 @@ import java.math.BigDecimal;
  * @param sku the unique stock keeping unit
  * @param name the product name
  * @param description the product description
+ * @param imageUrl the product image URL
  * @param priceAmount the price amount (for Pricing context)
  * @param priceCurrency the price currency (e.g., "USD", "EUR")
  * @param category the product category
@@ -27,6 +28,7 @@ public record CreateProductCommand(
     String sku,
     String name,
     String description,
+    String imageUrl,
     BigDecimal priceAmount,
     String priceCurrency,
     String category,
@@ -40,10 +42,11 @@ public record CreateProductCommand(
       String sku,
       String name,
       String description,
+      String imageUrl,
       BigDecimal priceAmount,
       String priceCurrency,
       String category) {
-    this(sku, name, description, priceAmount, priceCurrency, category, 0);
+    this(sku, name, description, imageUrl, priceAmount, priceCurrency, category, 0);
   }
 
   /**
@@ -58,6 +61,9 @@ public record CreateProductCommand(
     }
     if (description == null) {
       throw new IllegalArgumentException("Description cannot be null");
+    }
+    if (imageUrl == null) {
+      throw new IllegalArgumentException("Image URL cannot be null");
     }
     if (priceAmount == null || priceAmount.compareTo(BigDecimal.ZERO) <= 0) {
       throw new IllegalArgumentException("Price amount must be positive");

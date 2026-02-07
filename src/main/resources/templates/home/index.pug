@@ -1,242 +1,60 @@
 extends ../layout
 
 block content
-  .hero
-    h2 Welcome to the E-Commerce Sample Application
-    p.subtitle= subtitle
-    p.description.
-      This is a comprehensive demonstration of #[strong Domain-Driven Design (DDD)],
-      #[strong Hexagonal Architecture], and #[strong Onion Architecture] patterns
-      using an e-commerce domain.
+  .container
+    section.hero(data-test="hero")
+      h1.hero__title Welcome to DCA Ecommerce
+      p.hero__subtitle Discover our curated collection of premium products
+      p.hero__description Shop with confidence. We bring you quality products with fast delivery, secure payments, and hassle-free returns.
+      .hero__actions
+        a.hero__cta.hero__cta--primary(href="/products" data-test="browse-products-link") Browse Products
+        a.hero__cta.hero__cta--secondary(href="/cart" data-test="view-cart-link") View Cart
 
-  .features
-    h3 Explore the Application
+    section.section(data-test="features")
+      h2.section__title Why Shop With Us
+      .feature-grid
+        .feature-card
+          .feature-card__icon 🚚
+          h3.feature-card__title Free Shipping
+          p.feature-card__description Enjoy free shipping on all orders over $50. Fast and reliable delivery straight to your door.
 
-    .feature-grid
-      .feature-card
-        .icon 🛍️
-        h4 Product Catalog
-        p Browse our sample product catalog with categories, pricing, and inventory management.
-        a.btn(href="/products") View Products
+        .feature-card
+          .feature-card__icon 🔒
+          h3.feature-card__title Secure Payments
+          p.feature-card__description Your transactions are protected with industry-leading encryption and fraud prevention.
 
-      .feature-card
-        .icon 🛒
-        h4 Shopping Cart
-        p Add products to your cart and experience the checkout process.
-        a.btn(href="/cart") View Cart
+        .feature-card
+          .feature-card__icon ✨
+          h3.feature-card__title Quality Products
+          p.feature-card__description Every item in our catalog is carefully selected and quality-tested before listing.
 
-      .feature-card
-        .icon 🔌
-        h4 REST API
-        p Access product data programmatically via RESTful JSON endpoints.
-        a.btn(href="/api/products" target="_blank") Explore API
+        .feature-card
+          .feature-card__icon 🔄
+          h3.feature-card__title Easy Returns
+          p.feature-card__description Not satisfied? Return any item within 30 days for a full refund, no questions asked.
 
-      .feature-card
-        .icon 🤖
-        h4 MCP Server
-        p AI-accessible product catalog via Model Context Protocol (MCP).
-        a.btn(href="/mcp" target="_blank") MCP Endpoint
+    section.section.section--muted(data-test="categories")
+      h2.section__title Popular Categories
+      .highlight-grid
+        .highlight-card
+          span.highlight-card__title Electronics
+          p.highlight-card__description Latest gadgets, accessories, and tech essentials for everyday life.
 
-  .architecture
-    h3 Architecture Highlights
+        .highlight-card
+          span.highlight-card__title Home & Living
+          p.highlight-card__description Furniture, decor, and everything you need to make your house a home.
 
-    .highlight-grid
-      .highlight-item
-        strong Framework-Independent Domain
-        p Business logic free from Spring/JPA dependencies
+        .highlight-card
+          span.highlight-card__title Fashion
+          p.highlight-card__description Trendy clothing, footwear, and accessories for every occasion.
 
-      .highlight-item
-        strong Bounded Contexts
-        p Product Catalog and Shopping Cart contexts with Shared Kernel
+        .highlight-card
+          span.highlight-card__title Sports & Outdoors
+          p.highlight-card__description Gear up for your next adventure with our outdoor and fitness collection.
 
-      .highlight-item
-        strong Architecture Testing
-        p 10 ArchUnit test suites enforcing architectural rules
-
-      .highlight-item
-        strong Design Documentation
-        p 16 Architecture Decision Records (ADRs)
-
-  .documentation
-    h3 Documentation
-
-    .doc-links
-      a.doc-link(href="https://github.com/chbloemer/ai-architecture-sample/blob/master/README.md" target="_blank")
-        span.doc-icon 📖
-        span README
-      a.doc-link(href="https://github.com/chbloemer/ai-architecture-sample/blob/master/docs/architecture/architecture-principles.md" target="_blank")
-        span.doc-icon 🏛️
-        span Architecture Principles
-      a.doc-link(href="https://github.com/chbloemer/ai-architecture-sample/blob/master/docs/architecture/adr/README.md" target="_blank")
-        span.doc-icon 📋
-        span ADRs
-      a.doc-link(href="https://github.com/chbloemer/ai-architecture-sample/blob/master/CLAUDE.md" target="_blank")
-        span.doc-icon 🤖
-        span Development Guidelines
-
-  style.
-    .hero {
-      text-align: center;
-      padding: 40px 20px;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      border-radius: 8px;
-      margin-bottom: 40px;
-    }
-    .hero h2 {
-      margin: 0 0 10px 0;
-      font-size: 2.2em;
-      color: white;
-    }
-    .subtitle {
-      font-size: 1.2em;
-      font-weight: 500;
-      margin-bottom: 20px;
-      opacity: 0.95;
-    }
-    .description {
-      font-size: 1.05em;
-      line-height: 1.7;
-      max-width: 800px;
-      margin: 0 auto;
-      opacity: 0.9;
-    }
-    .features {
-      margin-bottom: 50px;
-    }
-    .features h3 {
-      font-size: 1.8em;
-      color: #2c3e50;
-      margin-bottom: 30px;
-      text-align: center;
-    }
-    .feature-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 25px;
-      margin-bottom: 40px;
-    }
-    .feature-card {
-      background: #f8f9fa;
-      border: 2px solid #e9ecef;
-      border-radius: 10px;
-      padding: 30px;
-      text-align: center;
-      transition: all 0.3s ease;
-    }
-    .feature-card:hover {
-      border-color: #667eea;
-      transform: translateY(-5px);
-      box-shadow: 0 8px 20px rgba(102, 126, 234, 0.15);
-    }
-    .icon {
-      font-size: 3em;
-      margin-bottom: 15px;
-    }
-    .feature-card h4 {
-      margin: 0 0 15px 0;
-      color: #2c3e50;
-      font-size: 1.4em;
-    }
-    .feature-card p {
-      color: #7f8c8d;
-      margin-bottom: 20px;
-      line-height: 1.6;
-    }
-    .btn {
-      display: inline-block;
-      background: #667eea;
-      color: white;
-      padding: 12px 28px;
-      border-radius: 6px;
-      text-decoration: none;
-      font-weight: 600;
-      transition: all 0.2s;
-      position: relative;
-    }
-    .btn:hover {
-      background: #5568d3;
-      transform: scale(1.05);
-    }
-    .badge-info {
-      display: inline-block;
-      background: #f39c12;
-      color: white;
-      padding: 2px 8px;
-      border-radius: 12px;
-      font-size: 0.7em;
-      margin-left: 8px;
-      vertical-align: middle;
-    }
-    .architecture {
-      background: #f8f9fa;
-      padding: 40px;
-      border-radius: 8px;
-      margin-bottom: 40px;
-    }
-    .architecture h3 {
-      font-size: 1.8em;
-      color: #2c3e50;
-      margin-top: 0;
-      margin-bottom: 30px;
-      text-align: center;
-    }
-    .highlight-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 20px;
-    }
-    .highlight-item {
-      background: white;
-      padding: 20px;
-      border-radius: 6px;
-      border-left: 4px solid #667eea;
-    }
-    .highlight-item strong {
-      display: block;
-      color: #2c3e50;
-      font-size: 1.1em;
-      margin-bottom: 8px;
-    }
-    .highlight-item p {
-      color: #7f8c8d;
-      margin: 0;
-      font-size: 0.95em;
-      line-height: 1.5;
-    }
-    .documentation {
-      margin-top: 40px;
-    }
-    .documentation h3 {
-      font-size: 1.8em;
-      color: #2c3e50;
-      margin-bottom: 25px;
-      text-align: center;
-    }
-    .doc-links {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 15px;
-      justify-content: center;
-    }
-    .doc-link {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 12px 20px;
-      background: white;
-      border: 2px solid #e9ecef;
-      border-radius: 6px;
-      text-decoration: none;
-      color: #2c3e50;
-      font-weight: 500;
-      transition: all 0.2s;
-    }
-    .doc-link:hover {
-      border-color: #667eea;
-      color: #667eea;
-      transform: translateY(-2px);
-    }
-    .doc-icon {
-      font-size: 1.3em;
-    }
+    section.section(data-test="cta-section")
+      .hero(data-test="cta-banner")
+        h2.hero__title Ready to Start Shopping?
+        p.hero__subtitle Browse our full catalog and find something you love.
+        .hero__actions
+          a.hero__cta.hero__cta--primary(href="/products" data-test="shop-now-link") Shop Now

@@ -1,176 +1,52 @@
 extends ../layout
 
 block content
+  .breadcrumb(data-test="breadcrumb")
+    a.breadcrumb__link(href="/") Home
+    span.breadcrumb__separator /
+    a.breadcrumb__link(href="/products") Products
+    span.breadcrumb__separator /
+    span.breadcrumb__current #{productDetail.name()}
+
   .product-detail(data-test="product-detail")
-    .product-header
-      h2= productDetail.name()
+    .product-detail__header
+      h1.product-detail__title #{productDetail.name()}
       if productDetail.isAvailable()
-        span.badge.badge-success In Stock
+        span.badge.badge--success In Stock
       else
-        span.badge.badge-danger Out of Stock
+        span.badge.badge--danger Out of Stock
 
-    .product-content
-      .product-main
-        h3 Description
-        p= productDetail.description()
+    .product-detail__content
+      .product-detail__image
+        if productDetail.imageUrl() != null && productDetail.imageUrl() != ''
+          img(src=productDetail.imageUrl() alt=productDetail.name())
+        else
+          .product-card__image-placeholder.product-card__image-placeholder--large #{productDetail.name().charAt(0)}
 
-        h3 Pricing
-        .price-box
-          .price-main= productDetail.priceAmount() + " " + productDetail.priceCurrency()
-          .price-label Retail Price
+      .product-detail__info
+        .product-detail__price
+          span #{productDetail.priceAmount()} #{productDetail.priceCurrency()}
+          span.product-detail__price-label Retail Price
 
-      .product-sidebar
-        h3 Product Information
+        if productDetail.description() != null && productDetail.description() != ''
+          .product-detail__description
+            p #{productDetail.description()}
 
-        .info-section
-          .info-item
-            .info-label SKU
-            .info-value= productDetail.sku()
-
-          .info-item
-            .info-label Product ID
-            .info-value= productDetail.productId()
-
-          .info-item
-            .info-label Category
-            .info-value= productDetail.category()
-
-          .info-item
-            .info-label Stock Available
-            .info-value= productDetail.stockQuantity()
-
-          .info-item
-            .info-label Availability
+        .product-detail__meta
+          .product-detail__meta-item
+            span.product-detail__meta-label Category
+            span.product-detail__meta-value #{productDetail.category()}
+          .product-detail__meta-item
+            span.product-detail__meta-label Availability
             if productDetail.isAvailable()
-              .info-value.text-success ✓ Available for purchase
+              span.product-detail__meta-value.text-success #{productDetail.stockQuantity()} units available
             else
-              .info-value.text-danger ✗ Currently out of stock
+              span.product-detail__meta-value.text-danger Currently out of stock
 
-    .product-actions
-      a.btn.btn-secondary(href="/products" data-test="product-back-link") ← Back to Catalog
+    .product-detail__actions
       if productDetail.isAvailable()
-        form(method="post" action="/cart/add-product" style="display: inline;" data-test="product-add-to-cart-form")
+        form(method="post" action="/cart/add-product" data-test="product-add-to-cart-form")
           input(type="hidden" name="productId" value=productDetail.productId())
           input(type="hidden" name="quantity" value="1")
-          button.btn.btn-primary(type="submit" data-test="product-add-to-cart-button") Add to Cart
-
-  style.
-    .product-detail {
-      max-width: 900px;
-      margin: 0 auto;
-    }
-    .product-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 30px;
-      padding-bottom: 20px;
-      border-bottom: 2px solid #ecf0f1;
-    }
-    .product-header h2 {
-      margin: 0;
-      color: #2c3e50;
-      font-size: 2em;
-    }
-    .product-content {
-      display: grid;
-      grid-template-columns: 2fr 1fr;
-      gap: 30px;
-      margin-bottom: 30px;
-    }
-    .product-main h3 {
-      color: #34495e;
-      margin-top: 30px;
-      margin-bottom: 15px;
-      font-size: 1.3em;
-    }
-    .product-main h3:first-child {
-      margin-top: 0;
-    }
-    .price-box {
-      background: #ecf0f1;
-      padding: 20px;
-      border-radius: 8px;
-      text-align: center;
-    }
-    .price-main {
-      font-size: 2.5em;
-      font-weight: bold;
-      color: #27ae60;
-      margin-bottom: 10px;
-    }
-    .price-label {
-      color: #7f8c8d;
-      font-size: 0.9em;
-    }
-    .product-sidebar h3 {
-      color: #34495e;
-      margin-top: 0;
-      margin-bottom: 20px;
-      font-size: 1.2em;
-    }
-    .info-section {
-      background: #f8f9fa;
-      padding: 20px;
-      border-radius: 8px;
-    }
-    .info-item {
-      margin-bottom: 15px;
-      padding-bottom: 15px;
-      border-bottom: 1px solid #dee2e6;
-    }
-    .info-item:last-child {
-      margin-bottom: 0;
-      padding-bottom: 0;
-      border-bottom: none;
-    }
-    .info-label {
-      font-weight: 600;
-      color: #495057;
-      font-size: 0.85em;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      margin-bottom: 5px;
-    }
-    .info-value {
-      color: #212529;
-      font-size: 1em;
-    }
-    .text-success {
-      color: #27ae60 !important;
-    }
-    .text-danger {
-      color: #e74c3c !important;
-    }
-    .product-actions {
-      display: flex;
-      gap: 15px;
-      padding-top: 20px;
-      border-top: 2px solid #ecf0f1;
-    }
-    .btn {
-      padding: 12px 24px;
-      border-radius: 6px;
-      font-weight: 600;
-      text-decoration: none;
-      border: none;
-      cursor: pointer;
-      font-size: 1em;
-      transition: all 0.2s;
-    }
-    .btn-primary {
-      background: #3498db;
-      color: white;
-    }
-    .btn-primary:hover {
-      background: #2980b9;
-      transform: translateY(-2px);
-      box-shadow: 0 4px 8px rgba(52, 152, 219, 0.3);
-    }
-    .btn-secondary {
-      background: #95a5a6;
-      color: white;
-    }
-    .btn-secondary:hover {
-      background: #7f8c8d;
-    }
+          button.btn.btn--primary.btn--lg(type="submit" data-test="product-add-to-cart-button") Add to Cart
+      a.btn.btn--ghost(href="/products" data-test="product-back-link") Back to Products

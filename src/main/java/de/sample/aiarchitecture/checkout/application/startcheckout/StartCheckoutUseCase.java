@@ -102,7 +102,8 @@ public class StartCheckoutUseCase implements StartCheckoutInputPort {
                     cartItem.productId(),
                     article.name(),
                     article.currentPrice(),
-                    cartItem.quantity());
+                    cartItem.quantity(),
+                    article.imageUrl());
 
             lineItems.add(lineItem);
             subtotal = subtotal.add(lineItem.lineTotal());

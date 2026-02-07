@@ -4,6 +4,7 @@ import de.sample.aiarchitecture.checkout.domain.model.CheckoutLineItemId;
 import de.sample.aiarchitecture.sharedkernel.domain.model.Money;
 import de.sample.aiarchitecture.sharedkernel.domain.model.ProductId;
 import de.sample.aiarchitecture.sharedkernel.marker.tactical.Value;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Read Model representing a line item snapshot from checkout state.
@@ -15,7 +16,8 @@ public record LineItemSnapshot(
     ProductId productId,
     String name,
     Money price,
-    int quantity)
+    int quantity,
+    @Nullable String imageUrl)
     implements Value {
 
   public LineItemSnapshot {

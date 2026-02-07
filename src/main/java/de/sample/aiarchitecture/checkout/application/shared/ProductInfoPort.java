@@ -26,4 +26,12 @@ public interface ProductInfoPort extends OutputPort {
      * @return product name if found
      */
     Optional<String> getProductName(ProductId productId);
+
+    /**
+     * Retrieves the product image URL.
+     *
+     * @param productId the product ID
+     * @return product image URL if found
+     */
+    Optional<String> getProductImageUrl(ProductId productId);
 }

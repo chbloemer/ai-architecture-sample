@@ -8,6 +8,7 @@ import de.sample.aiarchitecture.product.application.shared.ProductRepository;
 import de.sample.aiarchitecture.product.domain.model.Category;
 import de.sample.aiarchitecture.product.domain.model.Product;
 import de.sample.aiarchitecture.product.domain.model.ProductDescription;
+import de.sample.aiarchitecture.product.domain.model.ImageUrl;
 import de.sample.aiarchitecture.product.domain.model.ProductFactory;
 import de.sample.aiarchitecture.product.domain.model.ProductName;
 import de.sample.aiarchitecture.product.domain.model.SKU;
@@ -55,7 +56,8 @@ public class SampleDataInitializer {
     createAndSaveProduct(
         "LAPTOP-001",
         "Professional Laptop",
-        "High-performance laptop with 16GB RAM and 512GB SSD",
+        "Unleash your productivity with this high-performance laptop featuring 16GB RAM, a blazing-fast 512GB SSD, and a stunning 15.6-inch Retina display. Built for professionals who demand power and portability, it delivers all-day battery life and whisper-quiet operation.",
+        "/images/products/laptop.svg",
         1299.99,
         Category.electronics(),
         15);
@@ -63,7 +65,8 @@ public class SampleDataInitializer {
     createAndSaveProduct(
         "PHONE-001",
         "Smartphone Pro",
-        "Latest smartphone with amazing camera and display",
+        "Capture every moment in breathtaking detail with our flagship smartphone. The triple-lens 108MP camera system, edge-to-edge AMOLED display, and 5G connectivity make this the ultimate mobile companion for work and play.",
+        "/images/products/smartphone.svg",
         899.99,
         Category.electronics(),
         25);
@@ -71,7 +74,8 @@ public class SampleDataInitializer {
     createAndSaveProduct(
         "TABLET-001",
         "Tablet Air",
-        "Lightweight tablet perfect for work and entertainment",
+        "The perfect blend of power and portability. This ultra-lightweight tablet features a vibrant 11-inch display, Apple M2 chip, and supports stylus input for creative professionals. Ideal for sketching, note-taking, and streaming on the go.",
+        "/images/products/tablet.svg",
         599.99,
         Category.electronics(),
         30);
@@ -80,7 +84,8 @@ public class SampleDataInitializer {
     createAndSaveProduct(
         "SHIRT-001",
         "Cotton T-Shirt",
-        "Comfortable cotton t-shirt in various colors",
+        "Made from 100% organic combed cotton, this premium t-shirt offers unmatched softness and breathability. Available in 12 vibrant colors with a modern relaxed fit that looks great whether you dress it up or keep it casual.",
+        "/images/products/tshirt.svg",
         29.99,
         Category.clothing(),
         100);
@@ -88,7 +93,8 @@ public class SampleDataInitializer {
     createAndSaveProduct(
         "JEANS-001",
         "Classic Jeans",
-        "Classic fit jeans made from premium denim",
+        "Crafted from premium selvedge denim with a classic straight-leg fit that never goes out of style. Features reinforced stitching, copper rivets, and a comfortable mid-rise waist. These jeans only get better with age.",
+        "/images/products/jeans.svg",
         79.99,
         Category.clothing(),
         50);
@@ -97,7 +103,8 @@ public class SampleDataInitializer {
     createAndSaveProduct(
         "BOOK-001",
         "Domain-Driven Design",
-        "Essential guide to DDD by Eric Evans",
+        "The seminal work by Eric Evans that introduced the software industry to Domain-Driven Design. This essential guide teaches you how to tackle complexity in the heart of software by connecting implementation to an evolving model of the business domain.",
+        "/images/products/ddd-book.svg",
         54.99,
         Category.books(),
         20);
@@ -105,7 +112,8 @@ public class SampleDataInitializer {
     createAndSaveProduct(
         "BOOK-002",
         "Clean Architecture",
-        "A craftsman's guide to software structure and design",
+        "Robert C. Martin's definitive guide to software structure and design. Learn the universal rules of software architecture that dramatically improve developer productivity throughout the life of any software system.",
+        "/images/products/clean-architecture-book.svg",
         39.99,
         Category.books(),
         35);
@@ -114,7 +122,8 @@ public class SampleDataInitializer {
     createAndSaveProduct(
         "CHAIR-001",
         "Ergonomic Office Chair",
-        "Comfortable chair with lumbar support",
+        "Designed in collaboration with orthopedic specialists, this premium office chair features adjustable lumbar support, breathable mesh back, and a 4D armrest system. Work in comfort for hours with proper spinal alignment and pressure distribution.",
+        "/images/products/office-chair.svg",
         299.99,
         Category.homeAndGarden(),
         12);
@@ -122,7 +131,8 @@ public class SampleDataInitializer {
     createAndSaveProduct(
         "DESK-001",
         "Standing Desk",
-        "Adjustable height standing desk",
+        "Transform your workspace with this electric height-adjustable standing desk. Smooth dual-motor system transitions between sitting and standing in seconds, with programmable memory presets. The spacious 60x30 inch bamboo surface provides plenty of room for dual monitors.",
+        "/images/products/standing-desk.svg",
         499.99,
         Category.homeAndGarden(),
         8);
@@ -131,7 +141,8 @@ public class SampleDataInitializer {
     createAndSaveProduct(
         "YOGA-001",
         "Yoga Mat Premium",
-        "Non-slip yoga mat with carrying strap",
+        "Elevate your practice with this professional-grade yoga mat. The dual-layer design provides superior cushioning and a non-slip surface that grips better the more you sweat. Includes a cotton carrying strap and is made from eco-friendly, biodegradable natural rubber.",
+        "/images/products/yoga-mat.svg",
         49.99,
         Category.sports(),
         40);
@@ -139,18 +150,20 @@ public class SampleDataInitializer {
     createAndSaveProduct(
         "DUMBBELL-001",
         "Adjustable Dumbbells Set",
-        "Space-saving adjustable dumbbell set 5-25kg",
+        "Replace an entire rack of weights with one smart set. These space-saving adjustable dumbbells let you switch between 5kg and 25kg in seconds with a simple twist-lock mechanism. Perfect for home workouts with professional-grade cast iron construction.",
+        "/images/products/dumbbells.svg",
         199.99,
         Category.sports(),
         18);
 
-    System.out.println("✓ Sample data initialized: " + productRepository.findAll().size() + " products loaded");
+    System.out.println("Sample data initialized: " + productRepository.findAll().size() + " products loaded");
   }
 
   private void createAndSaveProduct(
       final String sku,
       final String name,
       final String description,
+      final String imageUrl,
       final double price,
       final Category category,
       final int initialStock) {
@@ -164,6 +177,7 @@ public class SampleDataInitializer {
             ProductName.of(name),
             ProductDescription.of(description),
             category,
+            ImageUrl.of(imageUrl),
             initialPrice,
             initialStock);
 

@@ -1,291 +1,82 @@
 extends ../layout
 
 block content
-  h2 Shopping Cart
+  .cart
+    .cart__header
+      h2.cart__header-title Shopping Cart
 
-  if message
-    .success-message(data-test="cart-success-message")= message
+    if message
+      .alert.alert--success(data-test="cart-success-message")= message
 
-  if error
-    .error-message(data-test="cart-error-message")= error
+    if error
+      .alert.alert--error(data-test="cart-error-message")= error
 
-  .cart-summary
-    p Cart ID: #{shoppingCart.cartId()}
-    p Total Items: #{shoppingCart.itemCount()}
-    p Total Quantity: #{shoppingCart.totalQuantity()}
+    if shoppingCart.lineItems() && shoppingCart.lineItems().size() > 0
+      .cart__summary
+        .cart__summary-row
+          span Total Items: #{shoppingCart.itemCount()}
+          span Total Quantity: #{shoppingCart.totalQuantity()}
 
-  if shoppingCart.lineItems() && shoppingCart.lineItems().size() > 0
-    .cart-items(data-test="cart-items")
-      each item in shoppingCart.lineItems()
-        .cart-item(data-test="cart-item")
-          .item-details
-            h3= item.productName()
-            p.item-id Product ID: #{item.productId()} | Item ID: #{item.itemId()}
+      if shoppingCart.hasAnyPriceChanges()
+        .price-change-summary(data-test="price-change-summary")
+          | Some items have price changes since they were added to your cart.
 
-            .item-info
-              .info-row
-                span.label Quantity:
-                span.value= item.quantity()
-
-              .info-row
-                span.label Unit Price:
-                span.value= item.unitPrice() + " " + item.currencyCode()
-
-              .info-row
-                span.label Line Total:
-                span.value= item.lineTotal() + " " + item.currencyCode()
+      .cart__items(data-test="cart-items")
+        each item in shoppingCart.lineItems()
+          .cart__item(data-test="cart-item")
+            .cart__item-image
+              if item.imageUrl()
+                img(src=item.imageUrl() alt=item.productName())
+            .cart__item-details
+              .cart__item-name= item.productName()
+              .cart__item-info
+                .cart__item-row
+                  span.cart__item-label Quantity
+                  span.cart__item-value= item.quantity()
+                .cart__item-row
+                  span.cart__item-label Unit Price
+                  span.cart__item-value #{item.unitPrice()} #{item.currencyCode()}
+                .cart__item-row
+                  span.cart__item-label Line Total
+                  span.cart__item-price #{item.lineTotal()} #{item.currencyCode()}
 
               if item.hasPriceChanged() && item.priceChange()
-                .price-change-alert(data-test="price-change-alert")
-                  if item.priceChange().increased()
-                    span.price-increased Price increased by #{item.priceChange().difference()} #{item.priceChange().currencyCode()}
-                  else
-                    span.price-decreased Price decreased by #{item.priceChange().difference()} #{item.priceChange().currencyCode()}
+                if item.priceChange().increased()
+                  .price-change.price-change--increased(data-test="price-change-alert") Price increased by #{item.priceChange().difference()} #{item.priceChange().currencyCode()}
+                else
+                  .price-change.price-change--decreased(data-test="price-change-alert") Price decreased by #{item.priceChange().difference()} #{item.priceChange().currencyCode()}
 
               if !item.isAvailable()
-                .stock-alert.unavailable(data-test="stock-alert") Product no longer available
+                .stock-alert.stock-alert--danger(data-test="stock-alert") Product no longer available
               else if !item.hasSufficientStock()
-                .stock-alert.insufficient(data-test="stock-alert") Insufficient stock available
+                .stock-alert.stock-alert--warning(data-test="stock-alert") Insufficient stock available
 
-    .cart-total
-      .total-row
-        span.label Subtotal:
-        span.value= shoppingCart.totals().currentSubtotal() + " " + shoppingCart.totals().currencyCode()
+      .cart__total
+        .cart__total-row
+          span Subtotal
+          span #{shoppingCart.totals().currentSubtotal()} #{shoppingCart.totals().currencyCode()}
 
-    if shoppingCart.hasAnyPriceChanges()
-      .price-change-summary
-        p Some items have price changes since they were added to your cart.
-
-    .cart-actions
-      if shoppingCart.status() === 'ACTIVE'
-        if shoppingCart.canCheckout()
-          a.btn.btn-primary(href=`/checkout/start?cartId=${shoppingCart.cartId()}` data-test="cart-checkout-link") Proceed to Checkout
+      .cart__actions
+        if shoppingCart.status() === 'ACTIVE'
+          if shoppingCart.canCheckout()
+            a.btn.btn--primary.btn--lg(href='/checkout/start?cartId=' + shoppingCart.cartId() data-test="cart-checkout-link") Proceed to Checkout
+            .cart__actions-info
+              a(href="/products") Continue Shopping
+          else
+            button.btn.btn--disabled.btn--lg(disabled data-test="cart-checkout-disabled") Cannot Checkout
+            .cart__actions-warning Some items are unavailable or have insufficient stock
         else
-          button.btn.btn-disabled(disabled data-test="cart-checkout-disabled") Cannot Checkout
-          p.warning Some items are unavailable or have insufficient stock
-        p.info Use the REST API to add or remove items
-      else
-        .status-badge
-          if shoppingCart.status() === 'CHECKED_OUT'
-            span.badge.badge-success Checked Out
-          else if shoppingCart.status() === 'COMPLETED'
-            span.badge.badge-primary Order Completed
-          else if shoppingCart.status() === 'ABANDONED'
-            span.badge.badge-warning Abandoned
+          .status-badge
+            if shoppingCart.status() === 'CHECKED_OUT'
+              span.badge.badge--success Checked Out
+            else if shoppingCart.status() === 'COMPLETED'
+              span.badge.badge--info Order Completed
+            else if shoppingCart.status() === 'ABANDONED'
+              span.badge.badge--warning Abandoned
 
-  else
-    .empty-cart
-      p Your cart is empty
-      p.
-        #[a(href="/products") Browse products] to add items to your cart, or
-        use the #[a(href="/api/carts") REST API] to manage your cart.
-
-  .api-info
-    h3 API Endpoints
-    ul
-      li
-        strong POST /api/carts/#{shoppingCart.cartId()}/items
-        | - Add item to cart
-      li
-        strong DELETE /api/carts/#{shoppingCart.cartId()}/items/:productId
-        | - Remove item from cart
-      li
-        strong GET /api/carts/#{shoppingCart.cartId()}
-        | - Get cart details (JSON)
-
-  style.
-    .success-message {
-      background: #d4edda;
-      color: #155724;
-      padding: 15px;
-      border-radius: 6px;
-      border: 1px solid #c3e6cb;
-      margin-bottom: 20px;
-      font-weight: 500;
-    }
-    .error-message {
-      background: #f8d7da;
-      color: #721c24;
-      padding: 15px;
-      border-radius: 6px;
-      border: 1px solid #f5c6cb;
-      margin-bottom: 20px;
-      font-weight: 500;
-    }
-    .cart-summary {
-      background: #f0f4f8;
-      padding: 20px;
-      border-radius: 8px;
-      margin-bottom: 30px;
-    }
-    .cart-summary p {
-      margin: 8px 0;
-      font-size: 1.1em;
-      color: #2c3e50;
-    }
-    .cart-items {
-      margin-bottom: 30px;
-    }
-    .cart-item {
-      border: 1px solid #ddd;
-      border-radius: 8px;
-      padding: 20px;
-      margin-bottom: 15px;
-      background: #fafafa;
-      transition: box-shadow 0.2s;
-    }
-    .cart-item:hover {
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    }
-    .item-details h3 {
-      margin-top: 0;
-      color: #2c3e50;
-      font-size: 1.2em;
-    }
-    .item-id {
-      color: #95a5a6;
-      font-size: 0.9em;
-      margin-bottom: 15px;
-    }
-    .item-info {
-      background: white;
-      padding: 15px;
-      border-radius: 6px;
-    }
-    .info-row {
-      display: flex;
-      justify-content: space-between;
-      padding: 8px 0;
-      border-bottom: 1px solid #ecf0f1;
-    }
-    .info-row:last-child {
-      border-bottom: none;
-    }
-    .info-row .label {
-      font-weight: 600;
-      color: #34495e;
-    }
-    .info-row .value {
-      color: #7f8c8d;
-      font-weight: 500;
-    }
-    .price-change-alert {
-      margin-top: 10px;
-      padding: 10px;
-      border-radius: 4px;
-      font-size: 0.9em;
-    }
-    .price-increased {
-      background: #fff3cd;
-      color: #856404;
-    }
-    .price-decreased {
-      background: #d4edda;
-      color: #155724;
-    }
-    .stock-alert {
-      margin-top: 10px;
-      padding: 10px;
-      border-radius: 4px;
-      font-size: 0.9em;
-    }
-    .stock-alert.unavailable {
-      background: #f8d7da;
-      color: #721c24;
-    }
-    .stock-alert.insufficient {
-      background: #fff3cd;
-      color: #856404;
-    }
-    .cart-total {
-      background: #e8f4f8;
-      padding: 20px;
-      border-radius: 8px;
-      margin-bottom: 20px;
-    }
-    .total-row {
-      display: flex;
-      justify-content: space-between;
-      font-size: 1.3em;
-      font-weight: bold;
-      color: #2c3e50;
-    }
-    .price-change-summary {
-      background: #fff3cd;
-      padding: 15px;
-      border-radius: 6px;
-      margin-bottom: 20px;
-      color: #856404;
-    }
-    .cart-actions {
-      text-align: center;
-      padding: 20px;
-    }
-    .cart-actions .info {
-      margin-top: 15px;
-      color: #7f8c8d;
-      font-size: 0.95em;
-    }
-    .cart-actions .warning {
-      margin-top: 10px;
-      color: #856404;
-      font-size: 0.9em;
-    }
-    .btn {
-      display: inline-block;
-      padding: 12px 30px;
-      border-radius: 5px;
-      text-decoration: none;
-      font-weight: 500;
-      text-align: center;
-      transition: background 0.2s;
-      margin: 5px;
-    }
-    .btn-primary {
-      background: #3498db;
-      color: white;
-    }
-    .btn-primary:hover {
-      background: #2980b9;
-    }
-    .btn-disabled {
-      background: #bdc3c7;
-      color: white;
-      cursor: not-allowed;
-    }
-    .empty-cart {
-      text-align: center;
-      padding: 60px 20px;
-      color: #7f8c8d;
-    }
-    .empty-cart p {
-      font-size: 1.1em;
-      margin: 10px 0;
-    }
-    .status-badge {
-      text-align: center;
-      padding: 20px;
-    }
-    .api-info {
-      margin-top: 40px;
-      padding: 20px;
-      background: #f9f9f9;
-      border-radius: 8px;
-      border-left: 4px solid #3498db;
-    }
-    .api-info h3 {
-      margin-top: 0;
-      color: #2c3e50;
-    }
-    .api-info ul {
-      list-style: none;
-      padding-left: 0;
-    }
-    .api-info li {
-      padding: 8px 0;
-      color: #555;
-    }
-    .api-info strong {
-      color: #3498db;
-      font-family: monospace;
-    }
+    else
+      .empty-state
+        .empty-state__icon &#128722;
+        h3.empty-state__title Your cart is empty
+        p.empty-state__message Browse our products to find something you'll love.
+        a.btn.btn--primary(href="/products" data-test="cart-browse-link") Browse Products

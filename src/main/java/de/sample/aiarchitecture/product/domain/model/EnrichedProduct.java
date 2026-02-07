@@ -22,6 +22,7 @@ import de.sample.aiarchitecture.sharedkernel.marker.tactical.Value;
  * @param name the product name
  * @param description the product description
  * @param category the product category
+ * @param imageUrl the product image URL
  * @param currentPrice the current price from the Pricing context
  * @param stockQuantity the available stock from the Inventory context
  * @param isAvailable whether the product is available for purchase
@@ -32,6 +33,7 @@ public record EnrichedProduct(
     String name,
     String description,
     String category,
+    String imageUrl,
     Money currentPrice,
     int stockQuantity,
     boolean isAvailable
@@ -63,6 +65,7 @@ public record EnrichedProduct(
    * @param name the product name
    * @param description the product description
    * @param category the product category
+   * @param imageUrl the product image URL
    * @param article the external article data (pricing and stock)
    * @return a new EnrichedProduct instance
    */
@@ -72,6 +75,7 @@ public record EnrichedProduct(
       final String name,
       final String description,
       final String category,
+      final String imageUrl,
       final ProductArticle article) {
     return new EnrichedProduct(
         productId,
@@ -79,6 +83,7 @@ public record EnrichedProduct(
         name,
         description,
         category,
+        imageUrl,
         article.currentPrice(),
         article.stockQuantity(),
         article.isAvailable());
@@ -107,6 +112,7 @@ public record EnrichedProduct(
         product.name().value(),
         product.description().value(),
         product.category().name(),
+        product.imageUrl().value(),
         article.currentPrice(),
         article.stockQuantity(),
         article.isAvailable());

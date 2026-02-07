@@ -15,7 +15,8 @@ public record CartArticle(
     String name,
     Money currentPrice,
     int availableStock,
-    boolean isAvailable)
+    boolean isAvailable,
+    String imageUrl)
     implements Value {
 
   public CartArticle {
@@ -58,7 +59,8 @@ public record CartArticle(
       final String name,
       final Money currentPrice,
       final int availableStock,
-      final boolean isAvailable) {
-    return new CartArticle(productId, name, currentPrice, availableStock, isAvailable);
+      final boolean isAvailable,
+      final String imageUrl) {
+    return new CartArticle(productId, name, currentPrice, availableStock, isAvailable, imageUrl);
   }
 }

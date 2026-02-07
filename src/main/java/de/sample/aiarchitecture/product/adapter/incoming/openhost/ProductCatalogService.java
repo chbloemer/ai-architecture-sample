@@ -59,7 +59,8 @@ public class ProductCatalogService {
     public record ProductInfo(
         ProductId productId,
         String name,
-        String sku
+        String sku,
+        String imageUrl
     ) {}
 
     /**
@@ -80,7 +81,8 @@ public class ProductCatalogService {
         return Optional.of(new ProductInfo(
             product.productId(),
             product.name(),
-            product.sku()
+            product.sku(),
+            product.imageUrl()
         ));
     }
 
@@ -96,7 +98,8 @@ public class ProductCatalogService {
             .map(product -> new ProductInfo(
                 product.productId(),
                 product.name(),
-                product.sku()
+                product.sku(),
+                product.imageUrl()
             ))
             .toList();
     }

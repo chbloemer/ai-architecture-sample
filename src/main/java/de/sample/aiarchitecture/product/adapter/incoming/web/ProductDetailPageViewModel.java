@@ -17,6 +17,7 @@ import java.math.BigDecimal;
  * @param sku the SKU
  * @param name the product name
  * @param description the product description
+ * @param imageUrl the product image URL
  * @param priceAmount the price amount
  * @param priceCurrency the price currency code
  * @param category the product category
@@ -29,6 +30,7 @@ public record ProductDetailPageViewModel(
     String sku,
     String name,
     String description,
+    String imageUrl,
     BigDecimal priceAmount,
     String priceCurrency,
     String category,
@@ -56,6 +58,7 @@ public record ProductDetailPageViewModel(
         product.sku(),
         product.name(),
         product.description().isEmpty() ? "No description available." : product.description(),
+        product.imageUrl(),
         product.currentPrice().amount(),
         product.currentPrice().currency().getCurrencyCode(),
         product.category(),

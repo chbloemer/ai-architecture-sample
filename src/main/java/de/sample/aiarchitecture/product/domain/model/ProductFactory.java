@@ -27,6 +27,7 @@ public final class ProductFactory implements Factory {
    * @param name the product name
    * @param description the product description
    * @param category the product category
+   * @param imageUrl the product image URL
    * @param initialPrice the initial price (for Pricing context synchronization)
    * @param initialStock the initial stock quantity (for Inventory context synchronization)
    * @return a new Product aggregate
@@ -36,12 +37,13 @@ public final class ProductFactory implements Factory {
       final ProductName name,
       final ProductDescription description,
       final Category category,
+      final ImageUrl imageUrl,
       final Money initialPrice,
       final int initialStock) {
 
     final ProductId id = ProductId.generate();
 
-    final Product product = new Product(id, sku, name, description, category);
+    final Product product = new Product(id, sku, name, description, category, imageUrl);
 
     // Raise domain event with initial price for Pricing context and stock for Inventory context
     product.registerEvent(ProductCreated.now(id, sku, name, initialPrice, initialStock));
@@ -60,6 +62,7 @@ public final class ProductFactory implements Factory {
    * @param name the product name
    * @param description the product description
    * @param category the product category
+   * @param imageUrl the product image URL
    * @return a new Product aggregate
    */
   public Product createProductWithId(
@@ -67,9 +70,10 @@ public final class ProductFactory implements Factory {
       final SKU sku,
       final ProductName name,
       final ProductDescription description,
-      final Category category) {
+      final Category category,
+      final ImageUrl imageUrl) {
 
-    return new Product(id, sku, name, description, category);
+    return new Product(id, sku, name, description, category, imageUrl);
   }
 
   /**
@@ -89,6 +93,6 @@ public final class ProductFactory implements Factory {
       final Money initialPrice,
       final int initialStock) {
 
-    return createProduct(sku, name, ProductDescription.empty(), category, initialPrice, initialStock);
+    return createProduct(sku, name, ProductDescription.empty(), category, ImageUrl.empty(), initialPrice, initialStock);
   }
 }

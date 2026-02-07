@@ -2555,3 +2555,67 @@ Before starting, check tasks/logs/ folder for US-94 and US-99 results to see the
   - Documentation matches actual code implementation
 
 ---
+
+### US-129: Modern Storefront Redesign with Product Images
+**Epic:** storefront-redesign
+**Depends on:** US-128
+
+**As a** user of the DCA Ecommerce Sample shop
+**I want** a modern, visually consistent storefront with product images, clear navigation, and a mini basket
+**So that** I can browse products, manage my cart, and complete checkout with a polished user experience
+
+**Acceptance Criteria:**
+- BEM CSS stylesheet (main.css) replaces all inline styles across all Pug templates
+- Navigation header with mini basket displayed on all pages via @ControllerAdvice
+- MiniBasketControllerAdvice and MiniBasketItemViewModel added to cart bounded context
+- Product images (SVG) added for all 11 sample products
+- ImageUrl value object added to Product domain model
+- Product images displayed in catalog, detail, cart, checkout, and merge pages
+- CartArticle enriched with imageUrl field via CompositeArticleDataAdapter
+- CheckoutArticle and CheckoutLineItem enriched with imageUrl through entire checkout chain
+- LineItemSnapshot and CheckoutCartSnapshot include imageUrl
+- ProductInfoPort extended with getProductImageUrl method
+- GetCartMergeOptionsUseCase enriched with ArticleDataPort for product names and images
+- All 5 checkout ViewModels (Buyer, Delivery, Payment, Review, Confirmation) include imageUrl in LineItemViewModel
+- Order summary sections show product thumbnails (40x40) across all checkout pages
+- Merge options page shows product names and images instead of raw UUIDs
+- Consistent page widths aligned with 1200px header container
+- Removed individual max-width from page-level blocks (.product-detail, .cart, .checkout, etc.)
+- Removed Product IDs and API debug displays from user-facing pages
+- Shop branded as DCA Ecommerce Sample
+- Login and register pages redesigned with BEM CSS
+- 404 error page redesigned
+- Home page redesigned with featured products
+- All architecture tests pass: `./gradlew test-architecture`
+
+**Architectural Guidance:**
+- **Affected Layers:** Domain, Application, Adapter
+- **Locations:**
+  - `product/domain/model/ImageUrl` (new Value Object)
+  - `product/domain/model/Product, EnrichedProduct, ProductFactory` (imageUrl field)
+  - `product/adapter/incoming/openhost/ProductCatalogService` (imageUrl in ProductInfo)
+  - `product/adapter/incoming/web/*PageViewModel` (imageUrl fields)
+  - `product/adapter/incoming/api/ProductDto, CreateProductRequest` (imageUrl field)
+  - `cart/domain/model/CartArticle` (imageUrl field)
+  - `cart/adapter/incoming/web/MiniBasketControllerAdvice` (new @ControllerAdvice)
+  - `cart/adapter/incoming/web/MiniBasketItemViewModel` (new ViewModel)
+  - `cart/adapter/incoming/web/CartPageViewModel, CartMergePageViewModel` (imageUrl fields)
+  - `cart/application/getcartmergeoptions/GetCartMergeOptionsUseCase` (ArticleDataPort injection)
+  - `cart/application/getcartmergeoptions/GetCartMergeOptionsResult` (productName, imageUrl)
+  - `checkout/domain/model/CheckoutArticle, CheckoutLineItem` (imageUrl field)
+  - `checkout/domain/readmodel/LineItemSnapshot, CheckoutCartSnapshot` (imageUrl)
+  - `checkout/application/shared/ProductInfoPort` (getProductImageUrl method)
+  - `checkout/adapter/incoming/web/*PageViewModel` (imageUrl in LineItemViewModel, 5 files)
+  - `src/main/resources/static/css/main.css` (new BEM stylesheet)
+  - `src/main/resources/static/images/products/*.svg` (11 product images)
+  - `src/main/resources/templates/**/*.pug` (all templates redesigned)
+- **Patterns:** ViewModel Pattern, BEM CSS Methodology, ControllerAdvice, Open Host Service, Enriched Domain Model, Value Object
+- **Constraints:**
+  - Run `./gradlew test-architecture` to verify architectural compliance
+  - No Spring annotations in domain layer
+  - ImageUrl is a Value Object implementing Value marker interface
+  - MiniBasketControllerAdvice uses InputPort, not UseCase directly
+  - ViewModels reside in adapter/incoming/web/ per ADR-022
+  - Cross-context data flows through Open Host Service, not direct imports
+
+---

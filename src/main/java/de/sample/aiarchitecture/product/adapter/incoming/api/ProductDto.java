@@ -12,6 +12,7 @@ public record ProductDto(
     String sku,
     String name,
     String description,
+    String imageUrl,
     BigDecimal price,
     String currency,
     String category,

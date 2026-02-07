@@ -430,7 +430,8 @@ class CheckoutStepValidatorTest {
         ProductId.generate(),
         "Test Product",
         Money.of(BigDecimal.valueOf(100), EUR),
-        1);
+        1,
+        null);
   }
 
   private BuyerInfo createBuyerInfo() {

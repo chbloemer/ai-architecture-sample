@@ -27,4 +27,10 @@ public class ProductInfoAdapter implements ProductInfoPort {
         return productCatalogService.getProductInfo(productId)
             .map(ProductCatalogService.ProductInfo::name);
     }
+
+    @Override
+    public Optional<String> getProductImageUrl(ProductId productId) {
+        return productCatalogService.getProductInfo(productId)
+            .map(ProductCatalogService.ProductInfo::imageUrl);
+    }
 }

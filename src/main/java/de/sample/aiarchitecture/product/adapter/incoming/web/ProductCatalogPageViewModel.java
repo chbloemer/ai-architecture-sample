@@ -43,6 +43,8 @@ public record ProductCatalogPageViewModel(
    * @param productId the product ID
    * @param sku the SKU
    * @param name the product name
+   * @param description the product description
+   * @param imageUrl the product image URL
    * @param priceAmount the price amount
    * @param priceCurrency the price currency code
    * @param category the product category
@@ -53,6 +55,8 @@ public record ProductCatalogPageViewModel(
       String productId,
       String sku,
       String name,
+      String description,
+      String imageUrl,
       BigDecimal priceAmount,
       String priceCurrency,
       String category,
@@ -71,6 +75,8 @@ public record ProductCatalogPageViewModel(
           product.productId().value().toString(),
           product.sku(),
           product.name(),
+          product.description(),
+          product.imageUrl(),
           product.currentPrice().amount(),
           product.currentPrice().currency().getCurrencyCode(),
           product.category(),

@@ -19,6 +19,7 @@ import java.math.BigDecimal;
  * @param sku the product SKU
  * @param name the product name
  * @param description the product description
+ * @param imageUrl the product image URL
  * @param priceAmount the price amount
  * @param priceCurrency the price currency
  * @param category the product category
@@ -28,6 +29,7 @@ public record CreateProductResult(
     String sku,
     String name,
     String description,
+    String imageUrl,
     BigDecimal priceAmount,
     String priceCurrency,
     String category

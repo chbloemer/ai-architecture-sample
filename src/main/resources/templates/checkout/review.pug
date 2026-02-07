@@ -1,309 +1,99 @@
 extends ../layout
 
 block content
-  h2 Review Your Order
+  .checkout
+    .checkout__progress(data-test="checkout-progress")
+      .checkout__step.checkout__step--completed Buyer Info
+      .checkout__step.checkout__step--completed Delivery
+      .checkout__step.checkout__step--completed Payment
+      .checkout__step.checkout__step--active Review
 
-  if error
-    .error-message(data-test="review-error-message")= error
+    if error
+      .alert.alert--error(data-test="review-error-message")= error
 
-  .checkout-progress
-    span.step.completed Buyer Info
-    span.step.completed Delivery
-    span.step.completed Payment
-    span.step.active Confirmation
+    .review-sections(data-test="review-sections")
+      .review-section(data-test="review-buyer-section")
+        .review-section__header
+          h3.review-section__title Buyer Information
+          a.review-section__edit(href="/checkout/buyer" data-test="review-buyer-edit-link") Edit
+        if orderReview.buyerInfo()
+          .review-section__body
+            p #{orderReview.buyerInfo().firstName()} #{orderReview.buyerInfo().lastName()}
+            p #{orderReview.buyerInfo().email()}
+            p #{orderReview.buyerInfo().phone()}
+        else
+          .review-section__body.review-section__body--incomplete
+            p Buyer information not provided
+            a.btn.btn--sm(href="/checkout/buyer") Complete
 
-  .session-summary
-    p Session ID: #{orderReview.sessionId()}
+      .review-section(data-test="review-delivery-section")
+        .review-section__header
+          h3.review-section__title Delivery
+          a.review-section__edit(href="/checkout/delivery" data-test="review-delivery-edit-link") Edit
+        if orderReview.delivery()
+          .review-section__body
+            h4 Shipping Address
+            p #{orderReview.delivery().address().street()}
+            if orderReview.delivery().address().streetLine2()
+              p #{orderReview.delivery().address().streetLine2()}
+            p #{orderReview.delivery().address().city()}, #{orderReview.delivery().address().postalCode()}
+            if orderReview.delivery().address().state()
+              p #{orderReview.delivery().address().state()}, #{orderReview.delivery().address().country()}
+            else
+              p #{orderReview.delivery().address().country()}
 
-  .review-sections(data-test="review-sections")
-    //- Buyer Information Section
-    .review-section(data-test="review-buyer-section")
-      .section-header
-        h3 Buyer Information
-        a.edit-link(href="/checkout/buyer" data-test="review-buyer-edit-link") Edit
-      if orderReview.buyerInfo()
-        .section-content
-          p
-            strong Name:
-            | #{orderReview.buyerInfo().firstName()} #{orderReview.buyerInfo().lastName()}
-          p
-            strong Email:
-            | #{orderReview.buyerInfo().email()}
-          p
-            strong Phone:
-            | #{orderReview.buyerInfo().phone()}
-      else
-        .section-content.incomplete
-          p Buyer information not provided
-          a.btn.btn-small(href="/checkout/buyer") Complete
+            h4 Shipping Method
+            p #{orderReview.delivery().shippingOption().name()}
+            p Estimated Delivery: #{orderReview.delivery().shippingOption().estimatedDelivery()}
+            p Cost: #{orderReview.delivery().shippingOption().cost()} #{orderReview.delivery().shippingOption().currencyCode()}
+        else
+          .review-section__body.review-section__body--incomplete
+            p Delivery information not provided
+            a.btn.btn--sm(href="/checkout/delivery") Complete
 
-    //- Delivery Information Section
-    .review-section(data-test="review-delivery-section")
-      .section-header
-        h3 Delivery
-        a.edit-link(href="/checkout/delivery" data-test="review-delivery-edit-link") Edit
-      if orderReview.delivery()
-        .section-content
-          h4 Shipping Address
-          p #{orderReview.delivery().address().street()}
-          if orderReview.delivery().address().streetLine2()
-            p #{orderReview.delivery().address().streetLine2()}
-          p #{orderReview.delivery().address().city()}, #{orderReview.delivery().address().postalCode()}
-          if orderReview.delivery().address().state()
-            p #{orderReview.delivery().address().state()}, #{orderReview.delivery().address().country()}
-          else
-            p #{orderReview.delivery().address().country()}
+      .review-section(data-test="review-payment-section")
+        .review-section__header
+          h3.review-section__title Payment Method
+          a.review-section__edit(href="/checkout/payment" data-test="review-payment-edit-link") Edit
+        if orderReview.payment()
+          .review-section__body
+            p #{orderReview.payment().providerId()}
+            if orderReview.payment().providerReference()
+              p Reference: #{orderReview.payment().providerReference()}
+        else
+          .review-section__body.review-section__body--incomplete
+            p Payment method not selected
+            a.btn.btn--sm(href="/checkout/payment") Complete
 
-          h4 Shipping Method
-          p
-            strong #{orderReview.delivery().shippingOption().name()}
-          p Estimated Delivery: #{orderReview.delivery().shippingOption().estimatedDelivery()}
-          p Cost: #{orderReview.delivery().shippingOption().cost()} #{orderReview.delivery().shippingOption().currencyCode()}
-      else
-        .section-content.incomplete
-          p Delivery information not provided
-          a.btn.btn-small(href="/checkout/delivery") Complete
-
-    //- Payment Information Section
-    .review-section(data-test="review-payment-section")
-      .section-header
-        h3 Payment Method
-        a.edit-link(href="/checkout/payment" data-test="review-payment-edit-link") Edit
-      if orderReview.payment()
-        .section-content
-          p
-            strong Provider:
-            | #{orderReview.payment().providerId()}
-          if orderReview.payment().providerReference()
-            p
-              strong Reference:
-              | #{orderReview.payment().providerReference()}
-      else
-        .section-content.incomplete
-          p Payment method not selected
-          a.btn.btn-small(href="/checkout/payment") Complete
-
-  //- Order Summary
-  if orderReview.lineItems() && orderReview.lineItems().size() > 0
-    .order-summary
-      h3 Order Summary
-      .summary-items
+    if orderReview.lineItems() && orderReview.lineItems().size() > 0
+      .order-summary
+        h3.order-summary__title Order Items
         each item in orderReview.lineItems()
-          .summary-item
-            span.item-name #{item.productName()}
-            span.item-qty x#{item.quantity()}
-            span.item-price #{item.lineTotal()} #{item.currencyCode()}
+          .order-summary__item
+            .order-summary__item-image
+              if item.imageUrl()
+                img(src=item.imageUrl() alt=item.productName())
+            span.order-summary__item-name #{item.productName()}
+            span.order-summary__item-qty x#{item.quantity()}
+            span.order-summary__item-price #{item.lineTotal()} #{item.currencyCode()}
 
-      if orderReview.totals()
-        .summary-totals
-          .summary-line
-            span.label Subtotal:
-            span.value #{orderReview.totals().subtotal()} #{orderReview.totals().currencyCode()}
+        if orderReview.totals()
+          .order-summary__line
+            span Subtotal
+            span #{orderReview.totals().subtotal()} #{orderReview.totals().currencyCode()}
           if orderReview.totals().shipping()
-            .summary-line
-              span.label Shipping:
-              span.value #{orderReview.totals().shipping()} #{orderReview.totals().currencyCode()}
+            .order-summary__line
+              span Shipping
+              span #{orderReview.totals().shipping()} #{orderReview.totals().currencyCode()}
           if orderReview.totals().tax()
-            .summary-line
-              span.label Tax:
-              span.value #{orderReview.totals().tax()} #{orderReview.totals().currencyCode()}
-          .summary-grand-total
-            span.label Total:
-            span.value #{orderReview.totals().total()} #{orderReview.totals().currencyCode()}
+            .order-summary__line
+              span Tax
+              span #{orderReview.totals().tax()} #{orderReview.totals().currencyCode()}
+          .order-summary__total
+            span Total
+            span #{orderReview.totals().total()} #{orderReview.totals().currencyCode()}
 
-  .form-actions
-    a.btn.btn-secondary(href="/checkout/payment" data-test="review-back-link") Back
-    form(method="post" action="/checkout/confirm" style="display: inline" data-test="review-confirm-form")
-      button.btn.btn-primary(type="submit" data-test="review-place-order-button") Place Order
-
-  style.
-    .checkout-progress {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 30px;
-      padding: 20px;
-      background: #f0f4f8;
-      border-radius: 8px;
-    }
-    .checkout-progress .step {
-      padding: 10px 20px;
-      background: #e0e0e0;
-      border-radius: 4px;
-      color: #666;
-      font-weight: 500;
-    }
-    .checkout-progress .step.active {
-      background: #3498db;
-      color: white;
-    }
-    .checkout-progress .step.completed {
-      background: #27ae60;
-      color: white;
-    }
-    .session-summary {
-      background: #f9f9f9;
-      padding: 15px;
-      border-radius: 6px;
-      margin-bottom: 25px;
-      font-size: 0.9em;
-      color: #666;
-    }
-    .session-summary p {
-      margin: 5px 0;
-    }
-    .error-message {
-      background: #f8d7da;
-      color: #721c24;
-      padding: 15px;
-      border-radius: 6px;
-      border: 1px solid #f5c6cb;
-      margin-bottom: 20px;
-      font-weight: 500;
-    }
-    .review-sections {
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
-      max-width: 800px;
-    }
-    .review-section {
-      background: white;
-      border: 1px solid #ddd;
-      border-radius: 8px;
-      overflow: hidden;
-    }
-    .section-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 15px 20px;
-      background: #f8f9fa;
-      border-bottom: 1px solid #ddd;
-    }
-    .section-header h3 {
-      margin: 0;
-      color: #2c3e50;
-      font-size: 1.1em;
-    }
-    .edit-link {
-      color: #3498db;
-      text-decoration: none;
-      font-size: 0.9em;
-      font-weight: 500;
-    }
-    .edit-link:hover {
-      text-decoration: underline;
-    }
-    .section-content {
-      padding: 20px;
-    }
-    .section-content p {
-      margin: 8px 0;
-      color: #333;
-    }
-    .section-content h4 {
-      margin: 15px 0 10px 0;
-      color: #2c3e50;
-      font-size: 0.95em;
-    }
-    .section-content h4:first-child {
-      margin-top: 0;
-    }
-    .section-content.incomplete {
-      background: #fff3cd;
-      color: #856404;
-    }
-    .order-summary {
-      margin-top: 30px;
-      padding: 20px;
-      background: #f9f9f9;
-      border-radius: 8px;
-      border-left: 4px solid #3498db;
-      max-width: 800px;
-    }
-    .order-summary h3 {
-      margin: 0 0 15px 0;
-      color: #2c3e50;
-    }
-    .summary-items {
-      margin-bottom: 20px;
-    }
-    .summary-item {
-      display: flex;
-      justify-content: space-between;
-      padding: 10px 0;
-      border-bottom: 1px solid #eee;
-    }
-    .summary-item:last-child {
-      border-bottom: none;
-    }
-    .item-name {
-      flex: 2;
-      color: #333;
-    }
-    .item-qty {
-      flex: 1;
-      text-align: center;
-      color: #666;
-    }
-    .item-price {
-      flex: 1;
-      text-align: right;
-      font-weight: 500;
-    }
-    .summary-totals {
-      border-top: 1px solid #ddd;
-      padding-top: 15px;
-    }
-    .summary-line {
-      display: flex;
-      justify-content: space-between;
-      padding: 5px 0;
-      color: #666;
-    }
-    .summary-grand-total {
-      display: flex;
-      justify-content: space-between;
-      padding-top: 15px;
-      margin-top: 10px;
-      border-top: 2px solid #ddd;
-      font-weight: bold;
-      font-size: 1.2em;
-      color: #2c3e50;
-    }
-    .form-actions {
-      margin-top: 30px;
-      display: flex;
-      gap: 15px;
-      max-width: 800px;
-    }
-    .btn {
-      display: inline-block;
-      padding: 12px 30px;
-      border-radius: 5px;
-      text-decoration: none;
-      font-weight: 500;
-      text-align: center;
-      transition: background 0.2s;
-      border: none;
-      cursor: pointer;
-      font-size: 1em;
-    }
-    .btn-primary {
-      background: #27ae60;
-      color: white;
-    }
-    .btn-primary:hover {
-      background: #219a52;
-    }
-    .btn-secondary {
-      background: #95a5a6;
-      color: white;
-    }
-    .btn-secondary:hover {
-      background: #7f8c8d;
-    }
-    .btn-small {
-      padding: 8px 16px;
-      font-size: 0.9em;
-    }
+    .form__actions
+      a.btn.btn--secondary(href="/checkout/payment" data-test="review-back-link") Back
+      form(method="post" action="/checkout/confirm" data-test="review-confirm-form")
+        button.btn.btn--primary.btn--lg(type="submit" data-test="review-place-order-button") Place Order

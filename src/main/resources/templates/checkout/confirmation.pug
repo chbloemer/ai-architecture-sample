@@ -1,245 +1,82 @@
 extends ../layout
 
 block content
-  h2 Thank You for Your Order!
+  .confirmation
+    .checkout__progress(data-test="checkout-progress")
+      .checkout__step.checkout__step--completed Buyer Info
+      .checkout__step.checkout__step--completed Delivery
+      .checkout__step.checkout__step--completed Payment
+      .checkout__step.checkout__step--completed Confirmed
 
-  .checkout-progress
-    span.step.completed Buyer Info
-    span.step.completed Delivery
-    span.step.completed Payment
-    span.step.completed Confirmed
+    .confirmation__message(data-test="confirmation-message")
+      .confirmation__icon &#10003;
+      h3.confirmation__title(data-test="confirmation-title") Your order has been placed successfully
+      p.confirmation__reference Order Reference: #{orderConfirmation.sessionId()}
 
-  .confirmation-message(data-test="confirmation-message")
-    .success-icon
-      | &#10003;
-    h3(data-test="confirmation-title") Your order has been placed successfully
-    p Order Reference: #{orderConfirmation.sessionId()}
+    .confirmation__details
+      h3.confirmation__details-title Order Summary
 
-  .order-details
-    h3 Order Summary
+      if orderConfirmation.buyerInfo()
+        .confirmation__detail-section
+          h4 Contact Information
+          p #{orderConfirmation.buyerInfo().firstName()} #{orderConfirmation.buyerInfo().lastName()}
+          p #{orderConfirmation.buyerInfo().email()}
+          if orderConfirmation.buyerInfo().phone()
+            p #{orderConfirmation.buyerInfo().phone()}
 
-    if orderConfirmation.buyerInfo()
-      .detail-section
-        h4 Contact Information
-        p #{orderConfirmation.buyerInfo().firstName()} #{orderConfirmation.buyerInfo().lastName()}
-        p #{orderConfirmation.buyerInfo().email()}
-        if orderConfirmation.buyerInfo().phone()
-          p #{orderConfirmation.buyerInfo().phone()}
+      if orderConfirmation.delivery()
+        .confirmation__detail-section
+          h4 Delivery Address
+          p #{orderConfirmation.delivery().address().street()}
+          if orderConfirmation.delivery().address().streetLine2()
+            p #{orderConfirmation.delivery().address().streetLine2()}
+          p #{orderConfirmation.delivery().address().city()}, #{orderConfirmation.delivery().address().postalCode()}
+          if orderConfirmation.delivery().address().state()
+            p #{orderConfirmation.delivery().address().state()}, #{orderConfirmation.delivery().address().country()}
+          else
+            p #{orderConfirmation.delivery().address().country()}
 
-    if orderConfirmation.delivery()
-      .detail-section
-        h4 Delivery Address
-        p #{orderConfirmation.delivery().address().street()}
-        if orderConfirmation.delivery().address().streetLine2()
-          p #{orderConfirmation.delivery().address().streetLine2()}
-        p #{orderConfirmation.delivery().address().city()}, #{orderConfirmation.delivery().address().postalCode()}
-        if orderConfirmation.delivery().address().state()
-          p #{orderConfirmation.delivery().address().state()}, #{orderConfirmation.delivery().address().country()}
-        else
-          p #{orderConfirmation.delivery().address().country()}
+          h4 Shipping Method
+          p #{orderConfirmation.delivery().shippingOption().name()}
+          p Estimated Delivery: #{orderConfirmation.delivery().shippingOption().estimatedDelivery()}
 
-        h4 Shipping Method
-        p #{orderConfirmation.delivery().shippingOption().name()}
-        p Estimated Delivery: #{orderConfirmation.delivery().shippingOption().estimatedDelivery()}
+      if orderConfirmation.payment()
+        .confirmation__detail-section
+          h4 Payment Method
+          p #{orderConfirmation.payment().providerId()}
 
-    if orderConfirmation.payment()
-      .detail-section
-        h4 Payment Method
-        p #{orderConfirmation.payment().providerId()}
-
-    if orderConfirmation.lineItems() && orderConfirmation.lineItems().size() > 0
-      .detail-section
-        h4 Items Ordered
-        .order-items
+      if orderConfirmation.lineItems() && orderConfirmation.lineItems().size() > 0
+        .confirmation__detail-section
+          h4 Items Ordered
           each item in orderConfirmation.lineItems()
-            .order-item
-              span.item-name #{item.productName()}
-              span.item-qty x#{item.quantity()}
-              span.item-price #{item.lineTotal()} #{item.currencyCode()}
+            .order-summary__item
+              .order-summary__item-image
+                if item.imageUrl()
+                  img(src=item.imageUrl() alt=item.productName())
+              span.order-summary__item-name #{item.productName()}
+              span.order-summary__item-qty x#{item.quantity()}
+              span.order-summary__item-price #{item.lineTotal()} #{item.currencyCode()}
 
-    if orderConfirmation.totals()
-      .totals-section
-        .total-line
-          span.label Subtotal:
-          span.value #{orderConfirmation.totals().subtotal()} #{orderConfirmation.totals().currencyCode()}
-        if orderConfirmation.totals().shipping()
-          .total-line
-            span.label Shipping:
-            span.value #{orderConfirmation.totals().shipping()} #{orderConfirmation.totals().currencyCode()}
-        if orderConfirmation.totals().tax()
-          .total-line
-            span.label Tax:
-            span.value #{orderConfirmation.totals().tax()} #{orderConfirmation.totals().currencyCode()}
-        .grand-total
-          span.label Total Paid:
-          span.value #{orderConfirmation.totals().total()} #{orderConfirmation.totals().currencyCode()}
+      if orderConfirmation.totals()
+        .confirmation__detail-section
+          .order-summary__line
+            span Subtotal
+            span #{orderConfirmation.totals().subtotal()} #{orderConfirmation.totals().currencyCode()}
+          if orderConfirmation.totals().shipping()
+            .order-summary__line
+              span Shipping
+              span #{orderConfirmation.totals().shipping()} #{orderConfirmation.totals().currencyCode()}
+          if orderConfirmation.totals().tax()
+            .order-summary__line
+              span Tax
+              span #{orderConfirmation.totals().tax()} #{orderConfirmation.totals().currencyCode()}
+          .order-summary__total
+            span Total Paid
+            span #{orderConfirmation.totals().total()} #{orderConfirmation.totals().currencyCode()}
 
-  .next-steps
-    p We've sent a confirmation email to #{orderConfirmation.buyerInfo() ? orderConfirmation.buyerInfo().email() : 'your email address'}.
-    p You can track your order status using your order reference.
+    .confirmation__next-steps
+      p We've sent a confirmation email to #{orderConfirmation.buyerInfo() ? orderConfirmation.buyerInfo().email() : 'your email address'}.
+      p You can track your order status using your order reference.
 
-  .form-actions
-    a.btn.btn-primary(href="/" data-test="confirmation-continue-link") Continue Shopping
-
-  style.
-    .checkout-progress {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 30px;
-      padding: 20px;
-      background: #f0f4f8;
-      border-radius: 8px;
-    }
-    .checkout-progress .step {
-      padding: 10px 20px;
-      background: #e0e0e0;
-      border-radius: 4px;
-      color: #666;
-      font-weight: 500;
-    }
-    .checkout-progress .step.completed {
-      background: #27ae60;
-      color: white;
-    }
-    .confirmation-message {
-      text-align: center;
-      padding: 40px;
-      background: #d4edda;
-      border: 1px solid #c3e6cb;
-      border-radius: 8px;
-      margin-bottom: 30px;
-    }
-    .success-icon {
-      width: 80px;
-      height: 80px;
-      background: #27ae60;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin: 0 auto 20px auto;
-      font-size: 40px;
-      color: white;
-    }
-    .confirmation-message h3 {
-      color: #155724;
-      margin: 0 0 10px 0;
-    }
-    .confirmation-message p {
-      color: #155724;
-      margin: 0;
-      font-size: 0.95em;
-    }
-    .order-details {
-      background: white;
-      border: 1px solid #ddd;
-      border-radius: 8px;
-      padding: 25px;
-      margin-bottom: 25px;
-      max-width: 800px;
-    }
-    .order-details h3 {
-      margin: 0 0 20px 0;
-      color: #2c3e50;
-      border-bottom: 2px solid #3498db;
-      padding-bottom: 10px;
-    }
-    .detail-section {
-      margin-bottom: 25px;
-      padding-bottom: 20px;
-      border-bottom: 1px solid #eee;
-    }
-    .detail-section:last-of-type {
-      border-bottom: none;
-      margin-bottom: 0;
-      padding-bottom: 0;
-    }
-    .detail-section h4 {
-      color: #2c3e50;
-      margin: 0 0 10px 0;
-      font-size: 0.95em;
-    }
-    .detail-section p {
-      margin: 5px 0;
-      color: #555;
-    }
-    .order-items {
-      margin-top: 10px;
-    }
-    .order-item {
-      display: flex;
-      justify-content: space-between;
-      padding: 8px 0;
-      border-bottom: 1px solid #f0f0f0;
-    }
-    .order-item:last-child {
-      border-bottom: none;
-    }
-    .item-name {
-      flex: 2;
-      color: #333;
-    }
-    .item-qty {
-      flex: 1;
-      text-align: center;
-      color: #666;
-    }
-    .item-price {
-      flex: 1;
-      text-align: right;
-      font-weight: 500;
-    }
-    .totals-section {
-      margin-top: 20px;
-      padding-top: 15px;
-      border-top: 1px solid #ddd;
-    }
-    .total-line {
-      display: flex;
-      justify-content: space-between;
-      padding: 5px 0;
-      color: #666;
-    }
-    .grand-total {
-      display: flex;
-      justify-content: space-between;
-      padding-top: 15px;
-      margin-top: 10px;
-      border-top: 2px solid #ddd;
-      font-weight: bold;
-      font-size: 1.2em;
-      color: #27ae60;
-    }
-    .next-steps {
-      background: #f8f9fa;
-      padding: 20px;
-      border-radius: 8px;
-      margin-bottom: 25px;
-      max-width: 800px;
-    }
-    .next-steps p {
-      margin: 8px 0;
-      color: #555;
-    }
-    .form-actions {
-      max-width: 800px;
-    }
-    .btn {
-      display: inline-block;
-      padding: 12px 30px;
-      border-radius: 5px;
-      text-decoration: none;
-      font-weight: 500;
-      text-align: center;
-      transition: background 0.2s;
-      border: none;
-      cursor: pointer;
-      font-size: 1em;
-    }
-    .btn-primary {
-      background: #3498db;
-      color: white;
-    }
-    .btn-primary:hover {
-      background: #2980b9;
-    }
+    .form__actions
+      a.btn.btn--primary.btn--lg(href="/" data-test="confirmation-continue-link") Continue Shopping

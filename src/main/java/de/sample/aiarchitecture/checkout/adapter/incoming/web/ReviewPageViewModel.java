@@ -48,7 +48,8 @@ public record ReviewPageViewModel(
       int quantity,
       BigDecimal unitPrice,
       BigDecimal lineTotal,
-      String currencyCode
+      String currencyCode,
+      String imageUrl
   ) {
     static LineItemViewModel fromSnapshot(final LineItemSnapshot item) {
       return new LineItemViewModel(
@@ -57,7 +58,8 @@ public record ReviewPageViewModel(
           item.quantity(),
           item.price().amount(),
           item.lineTotal().amount(),
-          item.price().currency().getCurrencyCode()
+          item.price().currency().getCurrencyCode(),
+          item.imageUrl()
       );
     }
   }

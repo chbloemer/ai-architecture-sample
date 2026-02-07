@@ -102,6 +102,8 @@ public class CompositeCheckoutArticleDataAdapter implements CheckoutArticleDataP
         int availableStock = stockInfo != null ? stockInfo.availableStock() : 0;
         boolean isAvailable = stockInfo != null && stockInfo.isAvailable();
 
-        return CheckoutArticle.of(productId, name, currentPrice, availableStock, isAvailable);
+        String imageUrl = productInfo.imageUrl();
+
+        return CheckoutArticle.of(productId, name, currentPrice, availableStock, isAvailable, imageUrl);
     }
 }

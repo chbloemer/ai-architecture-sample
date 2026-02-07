@@ -1,11 +1,17 @@
 package de.sample.aiarchitecture.cart.application.getcartmergeoptions;
 
+import de.sample.aiarchitecture.cart.application.shared.ArticleDataPort;
 import de.sample.aiarchitecture.cart.application.shared.ShoppingCartRepository;
+import de.sample.aiarchitecture.cart.domain.model.CartArticle;
 import de.sample.aiarchitecture.cart.domain.model.CartItem;
 import de.sample.aiarchitecture.cart.domain.model.CustomerId;
 import de.sample.aiarchitecture.cart.domain.model.ShoppingCart;
 import de.sample.aiarchitecture.sharedkernel.domain.model.Money;
+import de.sample.aiarchitecture.sharedkernel.domain.model.ProductId;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,9 +30,13 @@ import org.springframework.transaction.annotation.Transactional;
 public class GetCartMergeOptionsUseCase implements GetCartMergeOptionsInputPort {
 
   private final ShoppingCartRepository shoppingCartRepository;
+  private final ArticleDataPort articleDataPort;
 
-  public GetCartMergeOptionsUseCase(final ShoppingCartRepository shoppingCartRepository) {
+  public GetCartMergeOptionsUseCase(
+      final ShoppingCartRepository shoppingCartRepository,
+      final ArticleDataPort articleDataPort) {
     this.shoppingCartRepository = shoppingCartRepository;
+    this.articleDataPort = articleDataPort;
   }
 
   @Override
@@ -52,10 +62,18 @@ public class GetCartMergeOptionsUseCase implements GetCartMergeOptionsInputPort 
     final boolean accountHasItems = accountCart.isPresent() && !accountCart.get().isEmpty();
 
     if (anonymousHasItems && accountHasItems) {
+      // Fetch article data for all products in both carts
+      final var allProductIds = Stream.concat(
+              anonymousCart.get().items().stream().map(CartItem::productId),
+              accountCart.get().items().stream().map(CartItem::productId))
+          .collect(Collectors.toSet());
+      final Map<ProductId, CartArticle> articleData =
+          articleDataPort.getArticleData(allProductIds);
+
       // Both carts have items - user must choose
       return GetCartMergeOptionsResult.mergeRequired(
-          toCartSummary(anonymousCart.get()),
-          toCartSummary(accountCart.get())
+          toCartSummary(anonymousCart.get(), articleData),
+          toCartSummary(accountCart.get(), articleData)
       );
     }
 
@@ -63,7 +81,9 @@ public class GetCartMergeOptionsUseCase implements GetCartMergeOptionsInputPort 
     return GetCartMergeOptionsResult.noMergeRequired();
   }
 
-  private GetCartMergeOptionsResult.CartSummary toCartSummary(final ShoppingCart cart) {
+  private GetCartMergeOptionsResult.CartSummary toCartSummary(
+      final ShoppingCart cart,
+      final Map<ProductId, CartArticle> articleData) {
     final Money total = cart.calculateTotal();
     return new GetCartMergeOptionsResult.CartSummary(
         cart.id().value(),
@@ -72,14 +92,21 @@ public class GetCartMergeOptionsUseCase implements GetCartMergeOptionsInputPort 
         total.amount(),
         total.currency().getCurrencyCode(),
         cart.items().stream()
-            .map(this::toItemSummary)
+            .map(item -> toItemSummary(item, articleData))
             .toList()
     );
   }
 
-  private GetCartMergeOptionsResult.CartItemSummary toItemSummary(final CartItem item) {
+  private GetCartMergeOptionsResult.CartItemSummary toItemSummary(
+      final CartItem item,
+      final Map<ProductId, CartArticle> articleData) {
+    final CartArticle article = articleData.get(item.productId());
+    final String name = article != null ? article.name() : item.productId().value();
+    final String imageUrl = article != null ? article.imageUrl() : null;
     return new GetCartMergeOptionsResult.CartItemSummary(
         item.productId().value(),
+        name,
+        imageUrl,
         item.quantity().value(),
         item.priceAtAddition().value().amount(),
         item.priceAtAddition().value().currency().getCurrencyCode()

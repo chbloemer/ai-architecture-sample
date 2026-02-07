@@ -5,6 +5,7 @@ import de.sample.aiarchitecture.product.application.shared.ProductRepository;
 import de.sample.aiarchitecture.product.domain.model.Category;
 import de.sample.aiarchitecture.product.domain.model.Product;
 import de.sample.aiarchitecture.product.domain.model.ProductDescription;
+import de.sample.aiarchitecture.product.domain.model.ImageUrl;
 import de.sample.aiarchitecture.product.domain.model.ProductFactory;
 import de.sample.aiarchitecture.product.domain.model.ProductName;
 import de.sample.aiarchitecture.product.domain.model.SKU;
@@ -60,12 +61,13 @@ public class CreateProductUseCase implements CreateProductInputPort {
     // Convert input to domain value objects
     final ProductName name = new ProductName(input.name());
     final ProductDescription description = new ProductDescription(input.description());
+    final ImageUrl imageUrl = new ImageUrl(input.imageUrl());
     final Money initialPrice = Money.of(input.priceAmount(), Currency.getInstance(input.priceCurrency()));
     final Category category = new Category(input.category());
 
     // Create product aggregate (initial price and stock included in ProductCreated event)
     final Product product = productFactory.createProduct(
-        sku, name, description, category, initialPrice, input.stockQuantity());
+        sku, name, description, category, imageUrl, initialPrice, input.stockQuantity());
 
     // Persist
     productRepository.save(product);
@@ -79,6 +81,7 @@ public class CreateProductUseCase implements CreateProductInputPort {
         product.sku().value(),
         product.name().value(),
         product.description().value(),
+        product.imageUrl().value(),
         input.priceAmount(),
         input.priceCurrency(),
         product.category().name()

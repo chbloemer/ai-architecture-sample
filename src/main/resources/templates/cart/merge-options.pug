@@ -1,215 +1,73 @@
 extends ../layout
 
 block content
-  h2 Your Cart Has Items
-
-  .merge-intro
-    p You have items in both your current browsing session and your account. How would you like to proceed?
-
-  if error
-    .error-message(data-test="merge-error-message")= error
-
-  .cart-comparison
-    .cart-box.anonymous-cart(data-test="anonymous-cart-summary")
-      h3 Current Session Cart
-      .cart-stats
-        p Items: #{cartMerge.anonymousCart().itemCount()}
-        p Total Quantity: #{cartMerge.anonymousCart().totalQuantity()}
-        p.total Total: #{cartMerge.anonymousCart().totalAmount()} #{cartMerge.anonymousCart().currencyCode()}
-
-      if cartMerge.anonymousCart().items() && cartMerge.anonymousCart().items().size() > 0
-        .cart-items-list
-          each item in cartMerge.anonymousCart().items()
-            .item-row
-              span.product Product: #{item.productId()}
-              span.qty Qty: #{item.quantity()}
-              span.price #{item.unitPrice()} #{item.currencyCode()}
-
-    .cart-box.account-cart(data-test="account-cart-summary")
-      h3 Account Cart
-      .cart-stats
-        p Items: #{cartMerge.accountCart().itemCount()}
-        p Total Quantity: #{cartMerge.accountCart().totalQuantity()}
-        p.total Total: #{cartMerge.accountCart().totalAmount()} #{cartMerge.accountCart().currencyCode()}
-
-      if cartMerge.accountCart().items() && cartMerge.accountCart().items().size() > 0
-        .cart-items-list
-          each item in cartMerge.accountCart().items()
-            .item-row
-              span.product Product: #{item.productId()}
-              span.qty Qty: #{item.quantity()}
-              span.price #{item.unitPrice()} #{item.currencyCode()}
-
   .merge-options
-    h3 Choose an Option
+    h2.merge-options__title Your Cart Has Items
+
+    p.merge-options__intro You have items in both your current browsing session and your account. How would you like to proceed?
+
+    if error
+      .alert.alert--error(data-test="merge-error-message")= error
+
+    .merge-options__comparison
+      .merge-options__cart-box(data-test="anonymous-cart-summary")
+        h3.merge-options__cart-title Current Session Cart
+        .merge-options__cart-stats
+          p Items: #{cartMerge.anonymousCart().itemCount()}
+          p Total Quantity: #{cartMerge.anonymousCart().totalQuantity()}
+          .merge-options__cart-total Total: #{cartMerge.anonymousCart().totalAmount()} #{cartMerge.anonymousCart().currencyCode()}
+
+        if cartMerge.anonymousCart().items() && cartMerge.anonymousCart().items().size() > 0
+          .merge-options__item-list
+            each item in cartMerge.anonymousCart().items()
+              .merge-options__item-row
+                .merge-options__item-image
+                  if item.imageUrl()
+                    img(src=item.imageUrl() alt=item.productName())
+                span.merge-options__item-name #{item.productName()}
+                span.merge-options__item-qty Qty: #{item.quantity()}
+                span.merge-options__item-price #{item.unitPrice()} #{item.currencyCode()}
+
+      .merge-options__cart-box(data-test="account-cart-summary")
+        h3.merge-options__cart-title Account Cart
+        .merge-options__cart-stats
+          p Items: #{cartMerge.accountCart().itemCount()}
+          p Total Quantity: #{cartMerge.accountCart().totalQuantity()}
+          .merge-options__cart-total Total: #{cartMerge.accountCart().totalAmount()} #{cartMerge.accountCart().currencyCode()}
+
+        if cartMerge.accountCart().items() && cartMerge.accountCart().items().size() > 0
+          .merge-options__item-list
+            each item in cartMerge.accountCart().items()
+              .merge-options__item-row
+                .merge-options__item-image
+                  if item.imageUrl()
+                    img(src=item.imageUrl() alt=item.productName())
+                span.merge-options__item-name #{item.productName()}
+                span.merge-options__item-qty Qty: #{item.quantity()}
+                span.merge-options__item-price #{item.unitPrice()} #{item.currencyCode()}
+
+    h3.merge-options__title Choose an Option
 
     form(method="POST" action="/cart/merge" data-test="merge-form")
       input(type="hidden" name="anonymousUserId" value=cartMerge.anonymousUserId())
       if cartMerge.returnUrl()
         input(type="hidden" name="returnUrl" value=cartMerge.returnUrl())
-      .option-cards
-        .option-card(data-test="merge-option-merge-both")
-          input#merge-both(type="radio" name="strategy" value="MERGE_BOTH" checked)
-          label(for="merge-both")
-            .option-title Merge Both Carts
-            .option-desc Combine all items from both carts. If the same product exists in both, quantities will be added together.
 
-        .option-card(data-test="merge-option-use-account")
-          input#use-account(type="radio" name="strategy" value="USE_ACCOUNT_CART")
-          label(for="use-account")
-            .option-title Use Account Cart Only
-            .option-desc Keep your account cart and discard the items from your current session.
+      .merge-options__cards
+        label.merge-options__card(data-test="merge-option-merge-both")
+          input(type="radio" name="strategy" value="MERGE_BOTH" checked)
+          .merge-options__card-title Merge Both Carts
+          .merge-options__card-description Combine all items from both carts. If the same product exists in both, quantities will be added together.
 
-        .option-card(data-test="merge-option-use-anonymous")
-          input#use-anonymous(type="radio" name="strategy" value="USE_ANONYMOUS_CART")
-          label(for="use-anonymous")
-            .option-title Use Current Session Cart Only
-            .option-desc Replace your account cart with the items from your current session.
+        label.merge-options__card(data-test="merge-option-use-account")
+          input(type="radio" name="strategy" value="USE_ACCOUNT_CART")
+          .merge-options__card-title Use Account Cart Only
+          .merge-options__card-description Keep your account cart and discard the items from your current session.
 
-      .form-actions
-        button.btn.btn-primary(type="submit" data-test="merge-submit-button") Continue
+        label.merge-options__card(data-test="merge-option-use-anonymous")
+          input(type="radio" name="strategy" value="USE_ANONYMOUS_CART")
+          .merge-options__card-title Use Current Session Cart Only
+          .merge-options__card-description Replace your account cart with the items from your current session.
 
-  style.
-    .merge-intro {
-      text-align: center;
-      margin-bottom: 30px;
-      color: #555;
-    }
-    .error-message {
-      background: #f8d7da;
-      color: #721c24;
-      padding: 15px;
-      border-radius: 6px;
-      border: 1px solid #f5c6cb;
-      margin-bottom: 20px;
-      font-weight: 500;
-    }
-    .cart-comparison {
-      display: flex;
-      gap: 30px;
-      margin-bottom: 40px;
-      flex-wrap: wrap;
-    }
-    .cart-box {
-      flex: 1;
-      min-width: 280px;
-      border: 1px solid #ddd;
-      border-radius: 8px;
-      padding: 20px;
-      background: #fafafa;
-    }
-    .cart-box h3 {
-      margin-top: 0;
-      color: #2c3e50;
-      border-bottom: 2px solid #3498db;
-      padding-bottom: 10px;
-    }
-    .cart-stats {
-      margin-bottom: 15px;
-    }
-    .cart-stats p {
-      margin: 5px 0;
-      color: #555;
-    }
-    .cart-stats .total {
-      font-weight: bold;
-      font-size: 1.2em;
-      color: #2c3e50;
-      margin-top: 10px;
-    }
-    .cart-items-list {
-      border-top: 1px solid #ddd;
-      padding-top: 15px;
-    }
-    .item-row {
-      display: flex;
-      justify-content: space-between;
-      padding: 8px 0;
-      border-bottom: 1px solid #eee;
-      font-size: 0.9em;
-    }
-    .item-row:last-child {
-      border-bottom: none;
-    }
-    .item-row .product {
-      flex: 2;
-      color: #555;
-    }
-    .item-row .qty {
-      flex: 1;
-      text-align: center;
-      color: #777;
-    }
-    .item-row .price {
-      flex: 1;
-      text-align: right;
-      color: #2c3e50;
-    }
-    .merge-options h3 {
-      text-align: center;
-      margin-bottom: 20px;
-      color: #2c3e50;
-    }
-    .option-cards {
-      display: flex;
-      flex-direction: column;
-      gap: 15px;
-      max-width: 600px;
-      margin: 0 auto;
-    }
-    .option-card {
-      border: 2px solid #ddd;
-      border-radius: 8px;
-      padding: 20px;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-    .option-card:hover {
-      border-color: #3498db;
-      background: #f8f9fa;
-    }
-    .option-card:has(input:checked) {
-      border-color: #3498db;
-      background: #e8f4f8;
-    }
-    .option-card input[type="radio"] {
-      display: none;
-    }
-    .option-card label {
-      display: block;
-      cursor: pointer;
-    }
-    .option-title {
-      font-weight: bold;
-      font-size: 1.1em;
-      color: #2c3e50;
-      margin-bottom: 8px;
-    }
-    .option-desc {
-      color: #666;
-      font-size: 0.95em;
-      line-height: 1.4;
-    }
-    .form-actions {
-      text-align: center;
-      margin-top: 30px;
-    }
-    .btn {
-      display: inline-block;
-      padding: 14px 40px;
-      border-radius: 5px;
-      text-decoration: none;
-      font-weight: 500;
-      text-align: center;
-      transition: background 0.2s;
-      cursor: pointer;
-      border: none;
-      font-size: 1.1em;
-    }
-    .btn-primary {
-      background: #3498db;
-      color: white;
-    }
-    .btn-primary:hover {
-      background: #2980b9;
-    }
+      .form__actions
+        button.btn.btn--primary.btn--lg(type="submit" data-test="merge-submit-button") Continue

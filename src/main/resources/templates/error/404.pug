@@ -2,64 +2,11 @@ extends ../layout
 
 block content
   .error-page
-    h1.error-code 404
-    h2.error-message Product Not Found
-
-    p.error-description.
+    .error-page__code 404
+    h2.error-page__title Product Not Found
+    p.error-page__message.
       The product you're looking for doesn't exist or has been removed
       from our catalog.
-
-    .error-actions
-      a.btn(href="/products") Browse All Products
-      a.btn.btn-secondary(href="/") Go to Homepage
-
-  style.
-    .error-page {
-      text-align: center;
-      padding: 60px 20px;
-    }
-    .error-code {
-      font-size: 6em;
-      margin: 0;
-      color: #e74c3c;
-      font-weight: bold;
-      text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
-    }
-    .error-message {
-      font-size: 2em;
-      color: #2c3e50;
-      margin: 20px 0;
-    }
-    .error-description {
-      color: #7f8c8d;
-      font-size: 1.1em;
-      max-width: 500px;
-      margin: 30px auto;
-      line-height: 1.6;
-    }
-    .error-actions {
-      margin-top: 40px;
-      display: flex;
-      gap: 15px;
-      justify-content: center;
-    }
-    .btn {
-      display: inline-block;
-      background: #3498db;
-      color: white;
-      padding: 12px 24px;
-      border-radius: 6px;
-      text-decoration: none;
-      font-weight: 600;
-      transition: all 0.2s;
-    }
-    .btn:hover {
-      background: #2980b9;
-      transform: translateY(-2px);
-    }
-    .btn-secondary {
-      background: #95a5a6;
-    }
-    .btn-secondary:hover {
-      background: #7f8c8d;
-    }
+    .error-page__action
+      a.btn.btn--primary(href="/products" data-test="error-browse-link") Browse All Products
+      a.btn.btn--secondary(href="/" data-test="error-home-link") Go to Homepage

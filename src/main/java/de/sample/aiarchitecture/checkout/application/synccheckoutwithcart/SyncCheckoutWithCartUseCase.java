@@ -101,13 +101,20 @@ public class SyncCheckoutWithCartUseCase implements SyncCheckoutWithCartInputPor
                             new IllegalArgumentException(
                                 "Product not found: " + cartItem.productId().value()));
 
+            // Load product image URL through output port
+            final String imageUrl =
+                productInfoPort
+                    .getProductImageUrl(cartItem.productId())
+                    .orElse(null);
+
             final CheckoutLineItem lineItem =
                 CheckoutLineItem.of(
                     CheckoutLineItemId.generate(),
                     cartItem.productId(),
                     productName,
                     cartItem.priceAtAddition().value(),
-                    cartItem.quantity());
+                    cartItem.quantity(),
+                    imageUrl);
 
             newLineItems.add(lineItem);
             subtotal = subtotal.add(lineItem.lineTotal());

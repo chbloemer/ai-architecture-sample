@@ -88,7 +88,8 @@ public record CheckoutCartSnapshot(
             item.productId(),
             item.productName(),
             item.unitPrice(),
-            item.quantity()))
+            item.quantity(),
+            item.imageUrl()))
         .toList();
 
     return new CheckoutCartSnapshot(

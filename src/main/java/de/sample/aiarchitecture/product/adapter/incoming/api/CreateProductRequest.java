@@ -7,6 +7,7 @@ public record CreateProductRequest(
     @NotBlank String sku,
     @NotBlank String name,
     String description,
+    String imageUrl,
     @NotNull @Positive BigDecimal price,
     @NotBlank String category,
     @NotNull @Min(0) Integer stock) {}

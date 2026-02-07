@@ -139,6 +139,8 @@ public class CompositeArticleDataAdapter implements ArticleDataPort {
         int availableStock = stockInfo != null ? stockInfo.availableStock() : 0;
         boolean isAvailable = stockInfo != null && stockInfo.isAvailable();
 
-        return CartArticle.of(productId, name, currentPrice, availableStock, isAvailable);
+        String imageUrl = productInfo.imageUrl();
+
+        return CartArticle.of(productId, name, currentPrice, availableStock, isAvailable, imageUrl);
     }
 }

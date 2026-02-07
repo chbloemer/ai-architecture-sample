@@ -67,6 +67,8 @@ public record CartMergePageViewModel(
    */
   public record CartItemViewModel(
       String productId,
+      String productName,
+      String imageUrl,
       int quantity,
       BigDecimal unitPrice,
       String currencyCode
@@ -75,6 +77,8 @@ public record CartMergePageViewModel(
         final GetCartMergeOptionsResult.CartItemSummary item) {
       return new CartItemViewModel(
           item.productId(),
+          item.productName(),
+          item.imageUrl(),
           item.quantity(),
           item.unitPriceAmount(),
           item.unitPriceCurrency()

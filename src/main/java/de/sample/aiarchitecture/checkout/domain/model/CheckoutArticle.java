@@ -3,6 +3,7 @@ package de.sample.aiarchitecture.checkout.domain.model;
 import de.sample.aiarchitecture.sharedkernel.domain.model.Money;
 import de.sample.aiarchitecture.sharedkernel.domain.model.ProductId;
 import de.sample.aiarchitecture.sharedkernel.marker.tactical.Value;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Value Object representing checkout's view of article data from external contexts.
@@ -15,7 +16,8 @@ public record CheckoutArticle(
     String name,
     Money currentPrice,
     int availableStock,
-    boolean isAvailable)
+    boolean isAvailable,
+    @Nullable String imageUrl)
     implements Value {
 
   public CheckoutArticle {
@@ -51,6 +53,7 @@ public record CheckoutArticle(
    * @param currentPrice the current price
    * @param availableStock the available stock quantity
    * @param isAvailable whether the product is available for purchase
+   * @param imageUrl the product image URL (nullable)
    * @return a new CheckoutArticle instance
    */
   public static CheckoutArticle of(
@@ -58,7 +61,8 @@ public record CheckoutArticle(
       final String name,
       final Money currentPrice,
       final int availableStock,
-      final boolean isAvailable) {
-    return new CheckoutArticle(productId, name, currentPrice, availableStock, isAvailable);
+      final boolean isAvailable,
+      @Nullable final String imageUrl) {
+    return new CheckoutArticle(productId, name, currentPrice, availableStock, isAvailable, imageUrl);
   }
 }

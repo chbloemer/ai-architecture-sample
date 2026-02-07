@@ -66,6 +66,8 @@ public record GetCartMergeOptionsResult(
    */
   public record CartItemSummary(
       String productId,
+      String productName,
+      String imageUrl,
       int quantity,
       BigDecimal unitPriceAmount,
       String unitPriceCurrency

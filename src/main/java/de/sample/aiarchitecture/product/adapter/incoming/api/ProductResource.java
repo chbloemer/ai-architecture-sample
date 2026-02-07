@@ -56,6 +56,7 @@ public class ProductResource {
         request.sku(),
         request.name(),
         request.description() != null ? request.description() : "",
+        request.imageUrl() != null ? request.imageUrl() : "",
         request.price(),
         "EUR", // Default currency
         request.category(),

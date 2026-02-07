@@ -45,14 +45,16 @@ public record PaymentPageViewModel(
       String productName,
       int quantity,
       BigDecimal lineTotal,
-      String currencyCode
+      String currencyCode,
+      String imageUrl
   ) {
     static LineItemViewModel fromSnapshot(final LineItemSnapshot item) {
       return new LineItemViewModel(
           item.name(),
           item.quantity(),
           item.lineTotal().amount(),
-          item.lineTotal().currency().getCurrencyCode()
+          item.lineTotal().currency().getCurrencyCode(),
+          item.imageUrl()
       );
     }
   }

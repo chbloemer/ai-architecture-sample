@@ -1,8 +1,10 @@
 package de.sample.aiarchitecture
 
 import com.tngtech.archunit.lang.syntax.ArchRuleDefinition
+import de.sample.aiarchitecture.sharedkernel.marker.port.out.OutputPort
 import de.sample.aiarchitecture.sharedkernel.marker.strategic.BoundedContext
 
+import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses
 
 /**
@@ -24,7 +26,7 @@ class HexagonalArchitectureArchUnitTest extends BaseArchUnitTest {
     expect:
     noClasses()
       .that().resideInAPackage(DOMAIN_MODEL_PACKAGE)
-      .should().accessClassesThat().resideInAPackage(PORTADAPTER_PACKAGE)
+      .should().accessClassesThat().resideInAPackage(ADAPTER_PACKAGE)
       .because("Domain should not depend on adapters (ports and adapters pattern)")
       .check(allClasses)
   }
@@ -33,8 +35,8 @@ class HexagonalArchitectureArchUnitTest extends BaseArchUnitTest {
     expect:
     noClasses()
       .that().resideInAPackage(APPLICATION_PACKAGE)
-      .should().accessClassesThat().resideInAPackage(PORTADAPTER_PACKAGE)
-      .because("Application services should only depend on domain and outbound ports (sharedkernel.application.port), not adapters")
+      .should().accessClassesThat().resideInAPackage(ADAPTER_PACKAGE)
+      .because("Application services should only depend on domain and outbound ports, not adapters")
       .check(allClasses)
   }
 
@@ -120,6 +122,16 @@ class HexagonalArchitectureArchUnitTest extends BaseArchUnitTest {
       .and().areNotInterfaces()
       .should().resideInAPackage(OUTGOING_ADAPTER_PACKAGE)
       .because("Repository implementations are secondary adapters (outgoing ports)")
+      .check(allClasses)
+  }
+
+  def "Output Ports in application.shared must extend OutputPort"() {
+    expect:
+    classes()
+      .that().resideInAPackage("..application.shared..")
+      .and().areInterfaces()
+      .should().beAssignableTo(OutputPort.class)
+      .because("Interfaces in application.shared are output ports and must extend OutputPort to be part of the port hierarchy")
       .check(allClasses)
   }
 }

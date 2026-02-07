@@ -133,7 +133,7 @@ class CheckoutLoginE2ETest extends BaseE2ETest {
     }
 
     // After login, should proceed to checkout
-    page.waitForTimeout(1000);
+    page.waitForURL(url -> url.contains("/checkout") || url.contains("/cart"));
     String path = getCurrentPath();
     assertTrue(path.contains("/checkout") || path.contains("/cart"),
         "Should be redirected to checkout or cart after login");

@@ -2502,3 +2502,56 @@ Before starting, check tasks/logs/ folder for US-94 and US-99 results to see the
   - Clear guidance on when to use each pattern
 
 ---
+
+### US-128: Architecture Alignment & Quality Fix Session
+**Epic:** code-quality
+**Depends on:** US-127
+
+**Description:** Comprehensive alignment session to upgrade dependencies, add missing domain events across bounded contexts, fix and extend ArchUnit tests, overhaul architecture documentation, add OutputPort markers, and improve E2E test reliability.
+
+**Acceptance Criteria:**
+- Spring Boot upgraded from 3.5.6 to 3.5.10
+- Spring AI upgraded from 1.1.0-M3 to 1.1.2 GA, milestone repository removed
+- Spring Cloud upgraded from 2025.0.0 to 2025.1.1
+- Domain events added to Product aggregate (ProductNameChanged, ProductDescriptionChanged, ProductCategoryChanged)
+- Domain events added to Account aggregate (AccountClosed, AccountLoggedIn, AccountPasswordChanged, AccountReactivated, AccountSuspended)
+- Domain events added to ShoppingCart aggregate (CartAbandoned, CartCompleted)
+- Domain event added to StockLevel aggregate (StockReleased)
+- PackageCyclesArchUnitTest rewritten with correct adapter.incoming/outgoing patterns
+- Previously @Ignored ArchUnit tests resolved (DomainEvent/DomainService naming rules enforce marker interfaces)
+- New ArchUnit rules added: OutputPort hierarchy, Enriched Model location, ViewModel location
+- OutputPort marker interface added to TokenService, IdentitySession, RegisteredUserValidator
+- ShoppingCartRepository Spring Data imports removed
+- PageResult and PagingRequest added to shared kernel domain model
+- 3 new ADRs created: ADR-021 (Enriched Domain Model), ADR-022 (ViewModel Pattern), ADR-023 (Optional Results)
+- package-structure.md fully overhauled with correct paths and all 7 bounded contexts
+- architecture-principles.md Interest Pattern section removed
+- E2E tests: screenshot-on-failure added, hard-coded waits replaced with explicit waits
+- Deprecated BaseArchUnitTest constants removed
+- README.md updated to reflect all changes (ADR count, bounded context list)
+- All architecture tests pass: `./gradlew test-architecture`
+
+**Architectural Guidance:**
+- **Affected Layers:** Domain, Application, Adapter, Infrastructure, Test, Documentation
+- **Locations:**
+  - `product/domain/event/ProductNameChanged, ProductDescriptionChanged, ProductCategoryChanged`
+  - `account/domain/event/AccountClosed, AccountLoggedIn, AccountPasswordChanged, AccountReactivated, AccountSuspended`
+  - `cart/domain/event/CartAbandoned, CartCompleted`
+  - `inventory/domain/event/StockReleased`
+  - `account/application/shared/TokenService, IdentitySession, RegisteredUserValidator`
+  - `cart/application/shared/ShoppingCartRepository`
+  - `sharedkernel/domain/model/PageResult, PagingRequest`
+  - `src/test-architecture/groovy/ (all 8 ArchUnit test files)`
+  - `docs/architecture/adr/adr-021, adr-022, adr-023`
+  - `docs/architecture/package-structure.md`
+  - `docs/architecture/architecture-principles.md`
+  - `src/test-e2e/ (BaseE2ETest, page objects)`
+- **Patterns:** Domain Events, Output Port, Enriched Domain Model, ViewModel Pattern, Architecture Testing
+- **Constraints:**
+  - Run `./gradlew test-architecture` to verify architectural compliance
+  - No Spring annotations in domain layer
+  - Domain events implement DomainEvent marker interface
+  - Output ports extend OutputPort marker interface
+  - Documentation matches actual code implementation
+
+---

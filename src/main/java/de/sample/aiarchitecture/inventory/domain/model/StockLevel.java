@@ -4,6 +4,7 @@ import de.sample.aiarchitecture.inventory.domain.event.StockChanged;
 import de.sample.aiarchitecture.inventory.domain.event.StockDecreased;
 import de.sample.aiarchitecture.inventory.domain.event.StockIncreased;
 import de.sample.aiarchitecture.inventory.domain.event.StockLevelCreated;
+import de.sample.aiarchitecture.inventory.domain.event.StockReleased;
 import de.sample.aiarchitecture.inventory.domain.event.StockReserved;
 import de.sample.aiarchitecture.sharedkernel.domain.model.ProductId;
 import de.sample.aiarchitecture.sharedkernel.marker.tactical.BaseAggregateRoot;
@@ -28,6 +29,7 @@ import de.sample.aiarchitecture.sharedkernel.marker.tactical.BaseAggregateRoot;
  *   <li>{@link StockIncreased} - when stock is increased
  *   <li>{@link StockDecreased} - when stock is decreased
  *   <li>{@link StockReserved} - when stock is reserved
+ *   <li>{@link StockReleased} - when reserved stock is released
  * </ul>
  */
 public final class StockLevel extends BaseAggregateRoot<StockLevel, StockLevelId> {
@@ -193,7 +195,13 @@ public final class StockLevel extends BaseAggregateRoot<StockLevel, StockLevelId
           "Cannot release " + amount + ", only " + this.reservedQuantity.value() + " reserved");
     }
 
+    final StockQuantity releasedQuantity = StockQuantity.of(amount);
     this.reservedQuantity = StockQuantity.of(this.reservedQuantity.value() - amount);
+
+    registerEvent(StockReleased.now(
+        this.id,
+        this.productId,
+        releasedQuantity));
   }
 
   /**

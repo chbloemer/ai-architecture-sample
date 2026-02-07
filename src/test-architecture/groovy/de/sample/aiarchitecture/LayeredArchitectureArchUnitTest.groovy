@@ -60,9 +60,9 @@ class LayeredArchitectureArchUnitTest extends BaseArchUnitTest {
   def "sharedkernel.application.port should only contain interfaces (Outbound Ports)"() {
     expect:
     classes()
-      .that().resideInAPackage(SHAREDKERNEL_APPLICATION_PORT_PACKAGE)
+      .that().resideInAPackage(SHAREDKERNEL_MARKER_PORT_OUT_PACKAGE)
       .should().beInterfaces()
-      .because("sharedkernel.application.port contains outbound ports (Repository, UseCase, DomainEventPublisher) " +
+      .because("sharedkernel.marker.port.out contains outbound port interfaces (Repository, OutputPort, DomainEventPublisher) " +
       "shared across all bounded contexts. These must be interfaces to ensure the application layer remains framework-independent " +
       "and follows the Dependency Inversion Principle. Implementations belong in infrastructure or adapter packages.")
       .allowEmptyShould(true)

@@ -25,11 +25,11 @@ Comprehensive architectural documentation for the AI Architecture Sample Project
 
 **Package Structure:**
 
-Each bounded context (product, cart, checkout) follows the same structure:
+Each bounded context (product, cart, checkout, account, inventory, pricing, portal) follows the same structure:
 ```
 {context}/
 ├── domain/             # Domain layer (innermost)
-│   ├── model/          # Aggregates, entities, value objects, Interest interfaces
+│   ├── model/          # Aggregates, entities, value objects, enriched models
 │   ├── readmodel/      # Domain read models (snapshots) and builders
 │   ├── service/        # Domain services
 │   └── event/          # Domain events
@@ -46,7 +46,7 @@ Each bounded context (product, cart, checkout) follows the same structure:
     │   ├── api/        # REST API (DTOs, *Resource)
     │   ├── web/        # Web MVC (*Controller, *ViewModel)
     │   ├── mcp/        # MCP server
-    │   └── event/      # Domain event listeners
+    │   └── event/      # Domain event consumers
     └── outgoing/       # Outgoing adapters (secondary/driven)
         └── persistence/ # Repository implementations
 ```

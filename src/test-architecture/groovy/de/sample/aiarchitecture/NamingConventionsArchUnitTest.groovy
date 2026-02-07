@@ -96,7 +96,7 @@ class NamingConventionsArchUnitTest extends BaseArchUnitTest {
     classes()
       .that().haveSimpleNameEndingWith("Dto")
       .and().resideInAnyPackage(BASE_PACKAGE + "..")
-      .should().resideInAPackage(PORTADAPTER_PACKAGE)
+      .should().resideInAPackage(ADAPTER_PACKAGE)
       .because("DTOs are adapter concerns (presentation or external API) - not in domain or application")
       .allowEmptyShould(true)
       .check(allClasses)
@@ -107,9 +107,19 @@ class NamingConventionsArchUnitTest extends BaseArchUnitTest {
     classes()
       .that().haveSimpleNameEndingWith("Converter")
       .and().resideInAnyPackage(BASE_PACKAGE + "..")
-      .should().resideInAPackage(PORTADAPTER_PACKAGE)
+      .should().resideInAPackage(ADAPTER_PACKAGE)
       .because("Converters/Mappers translate between layers and should be in adapters")
       .allowEmptyShould(true)
+      .check(allClasses)
+  }
+
+  def "ViewModels must reside in adapter.incoming.web packages"() {
+    expect:
+    classes()
+      .that().haveSimpleNameEndingWith("ViewModel")
+      .and().resideInAnyPackage(BASE_PACKAGE + "..")
+      .should().resideInAPackage("..adapter.incoming.web..")
+      .because("ViewModels are presentation concerns and must reside in incoming web adapter packages")
       .check(allClasses)
   }
 }

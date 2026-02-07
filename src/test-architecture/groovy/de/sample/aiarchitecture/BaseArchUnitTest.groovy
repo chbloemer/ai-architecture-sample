@@ -51,12 +51,6 @@ abstract class BaseArchUnitTest extends Specification {
   protected static final String SHAREDKERNEL_MARKER_PORT_IN_PACKAGE = "${BASE_PACKAGE}.sharedkernel.marker.port.in.."
   protected static final String SHAREDKERNEL_MARKER_PORT_OUT_PACKAGE = "${BASE_PACKAGE}.sharedkernel.marker.port.out.."
 
-  // Legacy package constants (for backward compatibility during migration)
-  @Deprecated
-  protected static final String SHAREDKERNEL_APPLICATION_PACKAGE = "${BASE_PACKAGE}.sharedkernel.application.."
-  @Deprecated
-  protected static final String SHAREDKERNEL_APPLICATION_PORT_PACKAGE = "${BASE_PACKAGE}.sharedkernel.application.port.."
-
   // Bounded Context packages (Strategic DDD)
   protected static final String PRODUCT_CONTEXT_PACKAGE = "${BASE_PACKAGE}.product.."
   protected static final String PRODUCT_DOMAIN_PACKAGE = "${BASE_PACKAGE}.product.domain.."
@@ -110,12 +104,6 @@ abstract class BaseArchUnitTest extends Specification {
 
   // Infrastructure package (shared across bounded contexts)
   protected static final String INFRASTRUCTURE_PACKAGE = "${BASE_PACKAGE}.infrastructure.."
-
-  // Legacy aliases for backward compatibility (deprecated)
-  @Deprecated
-  protected static final String PORTADAPTER_PACKAGE = "${BASE_PACKAGE}.*.adapter.."
-  @Deprecated
-  protected static final String SHARED_KERNEL_PACKAGE = "${SHAREDKERNEL_PACKAGE}"
 
   /**
    * Custom import option to exclude architecture test classes from being analyzed.

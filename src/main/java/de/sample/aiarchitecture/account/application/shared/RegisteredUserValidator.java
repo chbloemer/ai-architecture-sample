@@ -13,7 +13,7 @@ import de.sample.aiarchitecture.sharedkernel.domain.model.UserId;
  * <p>This interface belongs to the account bounded context because only the
  * account context knows about account existence.
  */
-public interface RegisteredUserValidator {
+public interface RegisteredUserValidator extends OutputPort {
 
   /**
    * Checks if a registered user account exists for the given user ID.

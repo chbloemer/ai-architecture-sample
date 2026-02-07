@@ -1,7 +1,9 @@
 package de.sample.aiarchitecture.cart.domain.model;
 
+import de.sample.aiarchitecture.cart.domain.event.CartAbandoned;
 import de.sample.aiarchitecture.cart.domain.event.CartCheckedOut;
 import de.sample.aiarchitecture.cart.domain.event.CartCleared;
+import de.sample.aiarchitecture.cart.domain.event.CartCompleted;
 import de.sample.aiarchitecture.cart.domain.event.CartItemAddedToCart;
 import de.sample.aiarchitecture.cart.domain.event.CartItemQuantityChanged;
 import de.sample.aiarchitecture.cart.domain.event.ProductRemovedFromCart;
@@ -35,6 +37,8 @@ import java.util.Optional;
  *   <li>{@link CartItemQuantityChanged} - when an item's quantity is updated
  *   <li>{@link CartCleared} - when all items are removed from the cart
  *   <li>{@link CartCheckedOut} - when the cart is checked out
+ *   <li>{@link CartAbandoned} - when the cart is abandoned
+ *   <li>{@link CartCompleted} - when the cart is completed after checkout confirmation
  * </ul>
  */
 public final class ShoppingCart extends BaseAggregateRoot<ShoppingCart, CartId> {
@@ -111,10 +115,16 @@ public final class ShoppingCart extends BaseAggregateRoot<ShoppingCart, CartId> 
   public void removeItem(final CartItemId itemId) {
     ensureCartIsActive();
 
-    final boolean removed = items.removeIf(item -> item.id().equals(itemId));
-    if (!removed) {
-      throw new IllegalArgumentException("Cart item not found: " + itemId.value());
-    }
+    final CartItem item =
+        findItemById(itemId)
+            .orElseThrow(
+                () -> new IllegalArgumentException("Cart item not found: " + itemId.value()));
+
+    final ProductId productId = item.productId();
+    items.remove(item);
+
+    // Raise domain event
+    registerEvent(ProductRemovedFromCart.now(this.id, productId));
   }
 
   /**
@@ -177,7 +187,12 @@ public final class ShoppingCart extends BaseAggregateRoot<ShoppingCart, CartId> 
             .orElseThrow(
                 () -> new IllegalArgumentException("Cart item not found: " + itemId.value()));
 
+    final Quantity oldQuantity = item.quantity();
     item.increaseQuantity();
+
+    // Raise domain event
+    registerEvent(CartItemQuantityChanged.now(
+        this.id, itemId, item.productId(), oldQuantity, item.quantity()));
   }
 
   /**
@@ -194,7 +209,12 @@ public final class ShoppingCart extends BaseAggregateRoot<ShoppingCart, CartId> 
             .orElseThrow(
                 () -> new IllegalArgumentException("Cart item not found: " + itemId.value()));
 
+    final Quantity oldQuantity = item.quantity();
     item.decreaseQuantity();
+
+    // Raise domain event
+    registerEvent(CartItemQuantityChanged.now(
+        this.id, itemId, item.productId(), oldQuantity, item.quantity()));
   }
 
   /**
@@ -239,9 +259,12 @@ public final class ShoppingCart extends BaseAggregateRoot<ShoppingCart, CartId> 
 
   /**
    * Marks the cart as abandoned.
+   *
+   * <p>Raises a {@link CartAbandoned} domain event.
    */
   public void abandon() {
     this.status = CartStatus.ABANDONED;
+    registerEvent(CartAbandoned.now(this.id));
   }
 
   /**
@@ -250,6 +273,8 @@ public final class ShoppingCart extends BaseAggregateRoot<ShoppingCart, CartId> 
    * <p>This method is called when the checkout process has been fully confirmed
    * (customer has completed payment/review steps). The cart can be completed
    * from either ACTIVE or CHECKED_OUT status.
+   *
+   * <p>Raises a {@link CartCompleted} domain event.
    *
    * @throws IllegalStateException if cart is already completed or abandoned
    */
@@ -261,6 +286,7 @@ public final class ShoppingCart extends BaseAggregateRoot<ShoppingCart, CartId> 
       throw new IllegalStateException("Cannot complete an abandoned cart");
     }
     this.status = CartStatus.COMPLETED;
+    registerEvent(CartCompleted.now(this.id));
   }
 
   /**

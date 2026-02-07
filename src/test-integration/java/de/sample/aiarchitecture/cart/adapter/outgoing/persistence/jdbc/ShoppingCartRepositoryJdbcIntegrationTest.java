@@ -10,14 +10,14 @@ import de.sample.aiarchitecture.cart.domain.specification.ComposedCartSpecificat
 import de.sample.aiarchitecture.cart.domain.specification.HasMinTotal;
 import de.sample.aiarchitecture.infrastructure.AiArchitectureApplication;
 import de.sample.aiarchitecture.sharedkernel.domain.model.Money;
+import de.sample.aiarchitecture.sharedkernel.domain.model.PagingRequest;
+import de.sample.aiarchitecture.sharedkernel.domain.model.PageResult;
 import de.sample.aiarchitecture.sharedkernel.domain.model.Price;
 import de.sample.aiarchitecture.sharedkernel.domain.model.ProductId;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 
 import java.util.Optional;
 
@@ -76,11 +76,11 @@ class ShoppingCartRepositoryJdbcIntegrationTest {
                 .and(new HasMinTotal(Money.euro(50.00)));
         var spec = new ComposedCartSpecification(composed);
 
-        Page<ShoppingCart> page = shoppingCartRepository.findBy(spec, PageRequest.of(0, 10));
+        PageResult<ShoppingCart> page = shoppingCartRepository.findBy(spec, PagingRequest.of(0, 10));
 
         // then: only the big cart should be returned
-        assertEquals(1, page.getTotalElements(), "Expected exactly one cart meeting the spec");
-        assertEquals(1, page.getContent().size(), "Expected a single cart in the first page");
-        assertEquals(big.id().value(), page.getContent().get(0).id().value());
+        assertEquals(1, page.totalElements(), "Expected exactly one cart meeting the spec");
+        assertEquals(1, page.content().size(), "Expected a single cart in the first page");
+        assertEquals(big.id().value(), page.content().get(0).id().value());
     }
 }

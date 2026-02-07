@@ -27,6 +27,9 @@ Architecture Decision Records capture important architectural decisions with con
 | [ADR-018](adr-018-page-object-pattern-e2e.md) | Page Object Pattern for E2E Tests | ✅ Accepted |
 | [ADR-019](adr-019-open-host-service-pattern.md) | Open Host Service Pattern for Cross-Context Communication | ✅ Accepted |
 | [ADR-020](adr-020-use-case-result-naming.md) | Use Case Output Naming Convention (*Result instead of *Response) | ✅ Accepted |
+| [ADR-021](adr-021-enriched-domain-model-pattern.md) | Enriched Domain Model Pattern | ✅ Accepted |
+| [ADR-022](adr-022-viewmodel-pattern.md) | ViewModel Pattern for Web Adapters | ✅ Accepted |
+| [ADR-023](adr-023-optional-results-not-found.md) | Optional Results for Not-Found Cases | ✅ Accepted |
 
 ### Proposed 🟡
 

@@ -6,6 +6,8 @@ import de.sample.aiarchitecture.cart.domain.model.*;
 import de.sample.aiarchitecture.sharedkernel.domain.model.Money;
 import de.sample.aiarchitecture.sharedkernel.domain.model.Price;
 import de.sample.aiarchitecture.sharedkernel.domain.model.ProductId;
+import de.sample.aiarchitecture.sharedkernel.domain.model.PagingRequest;
+import de.sample.aiarchitecture.sharedkernel.domain.model.PageResult;
 import de.sample.aiarchitecture.sharedkernel.domain.specification.CompositeSpecification;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -14,9 +16,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import javax.sql.DataSource;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
@@ -125,7 +124,7 @@ public class JdbcShoppingCartRepository implements ShoppingCartRepository {
 
   @Override
   @Transactional(readOnly = true)
-  public Page<ShoppingCart> findBy(final CompositeSpecification<ShoppingCart> specification, final Pageable pageable) {
+  public PageResult<ShoppingCart> findBy(final CompositeSpecification<ShoppingCart> specification, final PagingRequest pageQuery) {
     final CartSpecToJdbc translator = requireTranslator();
     final var pred = specification.accept(translator);
 
@@ -136,11 +135,11 @@ public class JdbcShoppingCartRepository implements ShoppingCartRepository {
     // Page content
     final String selectSql = "SELECT id, customer_id, status FROM carts c WHERE " + pred.sql() +
         " ORDER BY updated_at DESC LIMIT ? OFFSET ?";
-    final Object[] params = appendLimitOffset(pred.params().toArray(), pageable.getPageSize(), (int) pageable.getOffset());
+    final Object[] params = appendLimitOffset(pred.params().toArray(), pageQuery.pageSize(), (int) pageQuery.offset());
     final List<ShoppingCart> content = jdbcTemplate.query(selectSql, cartRowMapper(), params);
     content.forEach(c -> { loadItems(c); clearDomainEvents(c);} );
 
-    return new PageImpl<>(content, pageable, total);
+    return new PageResult<>(content, total, pageQuery.pageNumber(), pageQuery.pageSize());
   }
 
   private Object[] appendLimitOffset(final Object[] base, final int limit, final int offset) {

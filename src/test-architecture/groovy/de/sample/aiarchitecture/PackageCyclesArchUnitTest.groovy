@@ -6,10 +6,10 @@ import static com.tngtech.archunit.library.dependencies.SlicesRuleDefinition.sli
  * ArchUnit tests for Package Cycle Detection.
  *
  * Ensures no circular dependencies exist between packages:
- * - Domain model packages
- * - Application layer packages
- * - Primary adapter packages
- * - Secondary adapter packages
+ * - Domain model packages (per bounded context)
+ * - Application layer packages (per bounded context)
+ * - Incoming adapter packages (per bounded context)
+ * - Outgoing adapter packages (per bounded context)
  *
  * Circular dependencies lead to tight coupling and make refactoring difficult.
  *
@@ -20,9 +20,8 @@ class PackageCyclesArchUnitTest extends BaseArchUnitTest {
   def "Domain Packages must not have cyclic dependencies"() {
     expect:
     slices()
-      .matching("${BASE_PACKAGE}.domain.model.(*)..")
+      .matching("${BASE_PACKAGE}.(*).domain.model..")
       .should().beFreeOfCycles()
-      .allowEmptyShould(true)
       .because("Domain model packages should have clear boundaries and no cycles (Acyclic Dependencies Principle)")
       .check(allClasses)
   }
@@ -30,40 +29,27 @@ class PackageCyclesArchUnitTest extends BaseArchUnitTest {
   def "Application Layer must not have cyclic dependencies"() {
     expect:
     slices()
-      .matching("${BASE_PACKAGE}.application.(*)..")
+      .matching("${BASE_PACKAGE}.(*).application..")
       .should().beFreeOfCycles()
-      .allowEmptyShould(true)
       .because("Application services should have clear boundaries and no cycles")
       .check(allClasses)
   }
 
-  def "Secondary Adapter Packages must not have cyclic dependencies"() {
+  def "Outgoing Adapter Packages must not have cyclic dependencies"() {
     expect:
     slices()
-      .matching("${BASE_PACKAGE}.portadapter.secondary.(*)..")
+      .matching("${BASE_PACKAGE}.(*).adapter.outgoing..")
       .should().beFreeOfCycles()
-      .allowEmptyShould(true)
-      .because("Secondary adapters should have clear boundaries and no cycles")
+      .because("Outgoing adapters should have clear boundaries and no cycles")
       .check(allClasses)
   }
 
-  def "Primary Adapter Packages must not have cyclic dependencies"() {
+  def "Incoming Adapter Packages must not have cyclic dependencies"() {
     expect:
     slices()
-      .matching("${BASE_PACKAGE}.portadapter.primary.(*)..")
+      .matching("${BASE_PACKAGE}.(*).adapter.incoming..")
       .should().beFreeOfCycles()
-      .allowEmptyShould(true)
-      .because("Primary adapters should have clear boundaries and no cycles")
-      .check(allClasses)
-  }
-
-  def "Primary Web Sub-Packages must not have cyclic dependencies"() {
-    expect:
-    slices()
-      .matching("${BASE_PACKAGE}.portadapter.primary.web.(*)..")
-      .should().beFreeOfCycles()
-      .allowEmptyShould(true)
-      .because("Web adapter sub-packages should have clear boundaries and no cycles")
+      .because("Incoming adapters should have clear boundaries and no cycles")
       .check(allClasses)
   }
 }

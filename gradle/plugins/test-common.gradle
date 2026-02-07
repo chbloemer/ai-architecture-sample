@@ -1,7 +1,7 @@
 // Common test configuration and versions
 ext {
-  groovyVersion = '5.0.2'
-  springBootVersion = '3.5.6'
+  groovyVersion = '5.0.4'
+  springBootVersion = '3.5.10'
   spockVersion = '2.4-M6-groovy-4.0'
   archunitVersion = '1.4.1'
   byteBuddyVersion = '1.17.8'

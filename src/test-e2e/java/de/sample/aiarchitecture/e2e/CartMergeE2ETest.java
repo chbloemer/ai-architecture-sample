@@ -66,8 +66,8 @@ class CartMergeE2ETest extends BaseE2ETest {
     LoginPage login = LoginPage.navigateTo(page);
     login.login(uniqueEmail, TEST_PASSWORD);
 
-    // Give time for redirect to complete
-    page.waitForTimeout(2000);
+    // Wait for redirect after login to complete
+    page.waitForURL(url -> !url.contains("/login"));
 
     // Step 5: Check if we're on the merge page
     String currentPath = getCurrentPath();

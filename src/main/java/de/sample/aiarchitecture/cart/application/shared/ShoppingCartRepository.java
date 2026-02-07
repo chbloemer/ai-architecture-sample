@@ -3,13 +3,12 @@ package de.sample.aiarchitecture.cart.application.shared;
 import de.sample.aiarchitecture.cart.domain.model.CartId;
 import de.sample.aiarchitecture.cart.domain.model.CustomerId;
 import de.sample.aiarchitecture.cart.domain.model.ShoppingCart;
-import de.sample.aiarchitecture.sharedkernel.marker.port.out.Repository;
+import de.sample.aiarchitecture.sharedkernel.domain.model.PagingRequest;
+import de.sample.aiarchitecture.sharedkernel.domain.model.PageResult;
 import de.sample.aiarchitecture.sharedkernel.domain.specification.CompositeSpecification;
+import de.sample.aiarchitecture.sharedkernel.marker.port.out.Repository;
 import java.util.List;
 import java.util.Optional;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
 
 /**
  * Repository interface for ShoppingCart aggregate.
@@ -58,13 +57,13 @@ public interface ShoppingCartRepository extends Repository<ShoppingCart, CartId>
    * <p>Default implementation falls back to in-memory filtering and manual paging, so secondary
    * adapters can opt-in to DB pushdown progressively.
    */
-  default Page<ShoppingCart> findBy(CompositeSpecification<ShoppingCart> specification, Pageable pageable) {
+  default PageResult<ShoppingCart> findBy(CompositeSpecification<ShoppingCart> specification, PagingRequest pageQuery) {
     final List<ShoppingCart> filtered = findAll().stream()
         .filter(specification::isSatisfiedBy)
         .toList();
-    final int start = (int) pageable.getOffset();
-    final int end = Math.min(start + pageable.getPageSize(), filtered.size());
+    final int start = (int) pageQuery.offset();
+    final int end = Math.min(start + pageQuery.pageSize(), filtered.size());
     final List<ShoppingCart> content = start >= filtered.size() ? List.of() : filtered.subList(start, end);
-    return new PageImpl<>(content, pageable, filtered.size());
+    return new PageResult<>(content, filtered.size(), pageQuery.pageNumber(), pageQuery.pageSize());
   }
 }

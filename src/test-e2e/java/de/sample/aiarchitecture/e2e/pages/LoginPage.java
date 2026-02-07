@@ -72,7 +72,7 @@ public class LoginPage extends BasePage {
    */
   public void submit() {
     click(SUBMIT_BUTTON);
-    waitForTimeout(1000);
+    page.waitForURL(url -> !url.contains("/login"));
   }
 
   /**

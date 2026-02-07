@@ -114,7 +114,7 @@ public class CartMergePage extends BasePage {
    */
   public CartPage submitMerge() {
     click(MERGE_SUBMIT_BUTTON);
-    waitForTimeout(1000);
+    page.waitForURL(BASE_URL + "/cart");
     return new CartPage(page);
   }
 

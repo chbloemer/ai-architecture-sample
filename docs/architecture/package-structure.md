@@ -7,60 +7,61 @@ Package organization of the ai-architecture project.
 ```
 de.sample.aiarchitecture
 │
-├── sharedkernel                    # Shared Kernel (cross-context)
-│   ├── marker                     # Architectural Markers
+├── sharedkernel/                    # Shared Kernel (cross-context)
+│   ├── marker/                     # Architectural Markers
 │   │   ├── tactical/              # DDD Tactical Patterns
-│   │   │   ├── AggregateRoot, Entity, Value
+│   │   │   ├── Id, Entity, Value
+│   │   │   ├── AggregateRoot, BaseAggregateRoot
 │   │   │   ├── DomainService, Factory, Specification
 │   │   │   └── DomainEvent, IntegrationEvent
 │   │   ├── strategic/             # DDD Strategic Patterns
 │   │   │   └── BoundedContext, SharedKernel, OpenHostService
 │   │   ├── port/                  # Port Markers
 │   │   │   ├── in/                # Input Ports (InputPort, UseCase)
-│   │   │   └── out/               # Output Ports (OutputPort, Repository, DomainEventPublisher)
+│   │   │   └── out/               # Output Ports (OutputPort, Repository, DomainEventPublisher, IdentityProvider)
 │   │   └── infrastructure/        # Infrastructure Markers
 │   │       └── AsyncInitialize
-│   ├── domain
+│   ├── domain/
 │   │   ├── model/                 # Shared Value Objects
 │   │   │   └── Money, Price, ProductId, UserId
 │   │   └── specification/         # Shared Specification Patterns
-│   │       └── CompositeSpecification, AndSpecification, OrSpecification
-│   └── adapter
-│       └── outgoing
+│   │       └── CompositeSpecification, AndSpecification, OrSpecification, NotSpecification, SpecificationVisitor
+│   └── adapter/
+│       └── outgoing/
 │           └── event/
-│               └── SpringDomainEventPublisher  # Domain event publisher implementation
+│               └── SpringDomainEventPublisher
 │
-├── product                         # Product Bounded Context
-│   ├── domain
-│   │   ├── model                  # Domain Model
+├── product/                         # Product Catalog Bounded Context
+│   ├── domain/
+│   │   ├── model/                  # Domain Model
 │   │   │   ├── Product (Aggregate Root)
-│   │   │   ├── SKU, ProductName, ProductDescription
+│   │   │   ├── SKU, ProductName, ProductDescription (Value Objects)
 │   │   │   ├── ProductStock, Category (Value Objects)
 │   │   │   ├── ProductFactory
 │   │   │   ├── ProductArticle (external article data)
-│   │   │   ├── EnrichedProduct (Read Model with factory)
+│   │   │   └── EnrichedProduct (Enriched Domain Model with factory)
+│   │   ├── specification/
 │   │   │   └── ProductAvailabilitySpecification
-│   │   ├── service                # Domain Services
+│   │   ├── service/                # Domain Services
 │   │   │   └── PricingService
-│   │   └── event                  # Domain Events
-│   │       ├── ProductCreated
-│   │       └── ProductPriceChanged
-│   ├── application                # Application Layer
+│   │   └── event/                  # Domain Events
+│   │       └── ProductCreated
+│   ├── application/                # Application Layer
 │   │   ├── createproduct/         # Use case: Create Product
-│   │   │   ├── CreateProductInputPort (interface)
-│   │   │   ├── CreateProductUseCase (implementation)
+│   │   │   ├── CreateProductInputPort
+│   │   │   ├── CreateProductUseCase
 │   │   │   ├── CreateProductCommand
 │   │   │   └── CreateProductResult
 │   │   ├── getallproducts/        # Use case: Get All Products
 │   │   │   ├── GetAllProductsInputPort
 │   │   │   ├── GetAllProductsUseCase
 │   │   │   ├── GetAllProductsQuery
-│   │   │   └── GetAllProductsResult (wraps EnrichedProduct list)
+│   │   │   └── GetAllProductsResult
 │   │   ├── getproductbyid/        # Use case: Get Product By ID
 │   │   │   ├── GetProductByIdInputPort
 │   │   │   ├── GetProductByIdUseCase
 │   │   │   ├── GetProductByIdQuery
-│   │   │   └── GetProductByIdResult (wraps EnrichedProduct)
+│   │   │   └── GetProductByIdResult
 │   │   ├── reduceproductstock/    # Use case: Reduce Product Stock
 │   │   │   ├── ReduceProductStockInputPort
 │   │   │   ├── ReduceProductStockUseCase
@@ -72,118 +73,342 @@ de.sample.aiarchitecture
 │   │   │   ├── UpdateProductPriceCommand
 │   │   │   └── UpdateProductPriceResult
 │   │   └── shared/                # Shared output ports
-│   │       └── ProductRepository (interface)
-│   └── adapter                    # Adapters
-│       ├── incoming               # Incoming Adapters (Primary)
+│   │       ├── ProductRepository
+│   │       ├── PricingDataPort
+│   │       └── ProductStockDataPort
+│   └── adapter/
+│       ├── incoming/               # Incoming Adapters (Primary)
 │       │   ├── api/
 │       │   │   ├── ProductResource
+│       │   │   ├── CreateProductRequest
 │       │   │   ├── ProductDto, ProductDtoConverter
-│       │   │   └── CreateProductRequest
 │       │   ├── mcp/
-│       │   │   └── ProductCatalogMcpTools
+│       │   │   └── ProductCatalogMcpToolProvider
 │       │   ├── web/
 │       │   │   ├── ProductPageController
 │       │   │   ├── ProductCatalogPageViewModel
 │       │   │   └── ProductDetailPageViewModel
+│       │   ├── openhost/
+│       │   │   └── ProductCatalogService
 │       │   └── event/
-│       │       └── ProductEventListener
-│       └── outgoing               # Outgoing Adapters (Secondary)
-│           └── persistence/
-│               ├── InMemoryProductRepository
-│               └── SampleDataInitializer
+│       │       ├── ProductEventConsumer
+│       │       ├── CheckoutConfirmedEventListener
+│       │       └── acl/
+│       │           └── CheckoutEventTranslator
+│       └── outgoing/               # Outgoing Adapters (Secondary)
+│           ├── persistence/
+│           │   └── InMemoryProductRepository
+│           ├── pricing/
+│           │   └── PricingDataAdapter
+│           └── inventory/
+│               └── InventoryStockDataAdapter
 │
-├── cart                            # Cart Bounded Context
-│   ├── domain
-│   │   ├── model                  # Domain Model
+├── cart/                            # Shopping Cart Bounded Context
+│   ├── domain/
+│   │   ├── model/                  # Domain Model
 │   │   │   ├── ShoppingCart (Aggregate Root)
 │   │   │   ├── CartItem (Entity)
-│   │   │   ├── CartId, CartItemId (Value Objects)
-│   │   │   ├── CustomerId, Quantity
-│   │   │   └── CartStatus
-│   │   ├── service                # Domain Services
+│   │   │   ├── CartId, CartItemId, CustomerId, Quantity (Value Objects)
+│   │   │   ├── CartStatus
+│   │   │   ├── ArticlePrice, CartArticle, ArticlePriceResolver
+│   │   │   ├── CartValidationResult
+│   │   │   ├── EnrichedCart (Enriched Domain Model)
+│   │   │   ├── EnrichedCartItem
+│   │   │   └── EnrichedCartFactory
+│   │   ├── specification/          # Cart Specifications (Visitor pattern)
+│   │   │   ├── CartSpecification, CartSpecificationVisitor
+│   │   │   ├── ComposedCartSpecification
+│   │   │   ├── ActiveCart, HasMinTotal
+│   │   │   ├── HasAnyAvailableItem, LastUpdatedBefore
+│   │   │   └── CustomerAllowsMarketing
+│   │   ├── service/                # Domain Services
 │   │   │   └── CartTotalCalculator
-│   │   └── event                  # Domain Events
-│   │       ├── CartCheckedOut
-│   │       └── CartItemAddedToCart
-│   ├── application                # Application Layer
-│   │   ├── createcart/            # Use case: Create Cart
-│   │   │   ├── CreateCartInputPort (interface)
-│   │   │   ├── CreateCartUseCase (implementation)
-│   │   │   ├── CreateCartCommand
-│   │   │   └── CreateCartResponse
-│   │   ├── additemtocart/         # Use case: Add Item to Cart
-│   │   │   ├── AddItemToCartInputPort
-│   │   │   ├── AddItemToCartUseCase
-│   │   │   ├── AddItemToCartCommand
-│   │   │   └── AddItemToCartResponse
-│   │   ├── checkoutcart/          # Use case: Checkout Cart
-│   │   │   ├── CheckoutCartInputPort
-│   │   │   ├── CheckoutCartUseCase
-│   │   │   ├── CheckoutCartCommand
-│   │   │   └── CheckoutCartResponse
-│   │   ├── getallcarts/           # Use case: Get All Carts
-│   │   │   ├── GetAllCartsInputPort
-│   │   │   ├── GetAllCartsUseCase
-│   │   │   ├── GetAllCartsQuery
-│   │   │   └── GetAllCartsResponse
-│   │   ├── getcartbyid/           # Use case: Get Cart By ID
-│   │   │   ├── GetCartByIdInputPort
-│   │   │   ├── GetCartByIdUseCase
-│   │   │   ├── GetCartByIdQuery
-│   │   │   └── GetCartByIdResponse
-│   │   ├── getorcreateactivecart/ # Use case: Get or Create Active Cart
-│   │   │   ├── GetOrCreateActiveCartInputPort
-│   │   │   ├── GetOrCreateActiveCartUseCase
-│   │   │   ├── GetOrCreateActiveCartCommand
-│   │   │   └── GetOrCreateActiveCartResponse
-│   │   ├── removeitemfromcart/    # Use case: Remove Item from Cart
-│   │   │   ├── RemoveItemFromCartInputPort
-│   │   │   ├── RemoveItemFromCartUseCase
-│   │   │   ├── RemoveItemFromCartCommand
-│   │   │   └── RemoveItemFromCartResponse
-│   │   └── shared/                # Shared output ports
-│   │       └── ShoppingCartRepository (interface)
-│   └── adapter                    # Adapters
-│       ├── incoming               # Incoming Adapters
+│   │   └── event/                  # Domain Events
+│   │       ├── CartCheckedOut, CartItemAddedToCart
+│   │       ├── CartItemQuantityChanged, ProductRemovedFromCart
+│   │       └── CartCleared
+│   ├── application/                # Application Layer
+│   │   ├── createcart/
+│   │   │   ├── CreateCartInputPort, CreateCartUseCase
+│   │   │   ├── CreateCartCommand, CreateCartResult
+│   │   ├── additemtocart/
+│   │   │   ├── AddItemToCartInputPort, AddItemToCartUseCase
+│   │   │   ├── AddItemToCartCommand, AddItemToCartResult
+│   │   ├── checkoutcart/
+│   │   │   ├── CheckoutCartInputPort, CheckoutCartUseCase
+│   │   │   ├── CheckoutCartCommand, CheckoutCartResult
+│   │   ├── getallcarts/
+│   │   │   ├── GetAllCartsInputPort, GetAllCartsUseCase
+│   │   │   ├── GetAllCartsQuery, GetAllCartsResult
+│   │   ├── getcartbyid/
+│   │   │   ├── GetCartByIdInputPort, GetCartByIdUseCase
+│   │   │   ├── GetCartByIdQuery, GetCartByIdResult
+│   │   ├── getorcreateactivecart/
+│   │   │   ├── GetOrCreateActiveCartInputPort, GetOrCreateActiveCartUseCase
+│   │   │   ├── GetOrCreateActiveCartCommand, GetOrCreateActiveCartResult
+│   │   ├── removeitemfromcart/
+│   │   │   ├── RemoveItemFromCartInputPort, RemoveItemFromCartUseCase
+│   │   │   ├── RemoveItemFromCartCommand, RemoveItemFromCartResult
+│   │   ├── mergecarts/
+│   │   │   ├── MergeCartsInputPort, MergeCartsUseCase
+│   │   │   ├── MergeCartsCommand, MergeCartsResult
+│   │   ├── getcartmergeoptions/
+│   │   │   ├── GetCartMergeOptionsInputPort, GetCartMergeOptionsUseCase
+│   │   │   ├── GetCartMergeOptionsQuery, GetCartMergeOptionsResult
+│   │   ├── completecart/
+│   │   │   ├── CompleteCartInputPort, CompleteCartUseCase
+│   │   │   ├── CompleteCartCommand, CompleteCartResult
+│   │   ├── recovercart/
+│   │   │   ├── RecoverCartInputPort, RecoverCartUseCase
+│   │   │   ├── RecoverCartCommand, RecoverCartOnLoginResult
+│   │   └── shared/                 # Shared output ports
+│   │       ├── ShoppingCartRepository
+│   │       ├── ArticleDataPort
+│   │       └── ProductDataPort
+│   └── adapter/
+│       ├── incoming/
 │       │   ├── api/
 │       │   │   ├── ShoppingCartResource
-│       │   │   ├── ShoppingCartDto
 │       │   │   ├── AddToCartRequest
-│       │   │   └── ShoppingCartDtoConverter
+│       │   │   ├── ShoppingCartDto, ShoppingCartListDto
+│       │   │   ├── CartItemDto, ShoppingCartDtoConverter
+│       │   ├── web/
+│       │   │   ├── CartPageController, CartPageViewModel
+│       │   │   ├── CartMergePageController, CartMergePageViewModel
 │       │   └── event/
-│       │       └── CartEventListener
-│       └── outgoing               # Outgoing Adapters
+│       │       ├── CartEventConsumer
+│       │       └── CheckoutEventConsumer
+│       └── outgoing/
+│           ├── product/
+│           │   └── CompositeArticleDataAdapter
 │           └── persistence/
-│               └── InMemoryShoppingCartRepository
+│               ├── InMemoryShoppingCartRepository
+│               ├── JdbcShoppingCartRepository
+│               ├── jpa/
+│               │   ├── JpaShoppingCartRepository, CartJpaRepository
+│               │   ├── CartEntity, CartItemEntity
+│               │   └── CartSpecToJpa
+│               └── jdbc/
+│                   └── CartSpecToJdbc
 │
-├── portal                          # Portal Bounded Context
-│   └── adapter                    # Adapters
-│       └── incoming               # Incoming Adapters (Primary)
+├── checkout/                        # Checkout Bounded Context
+│   ├── domain/
+│   │   ├── model/                  # Domain Model
+│   │   │   ├── CheckoutSession (Aggregate Root)
+│   │   │   ├── CheckoutLineItem (Entity)
+│   │   │   ├── CheckoutSessionId, CheckoutLineItemId (Value Objects)
+│   │   │   ├── CheckoutStep, CheckoutSessionStatus
+│   │   │   ├── CheckoutTotals, CheckoutValidationResult
+│   │   │   ├── BuyerInfo, DeliveryAddress, ShippingOption
+│   │   │   ├── PaymentSelection, PaymentProviderId
+│   │   │   ├── CustomerId, CartId
+│   │   │   ├── CheckoutArticle, CheckoutArticlePriceResolver
+│   │   │   ├── CheckoutCart, CheckoutCartFactory
+│   │   │   └── EnrichedCheckoutLineItem
+│   │   ├── readmodel/              # Read Models
+│   │   │   ├── CheckoutCartSnapshot
+│   │   │   └── LineItemSnapshot
+│   │   ├── service/                # Domain Services
+│   │   │   └── CheckoutStepValidator
+│   │   └── event/                  # Domain Events
+│   │       ├── CheckoutSessionStarted, BuyerInfoSubmitted
+│   │       ├── DeliverySubmitted, PaymentSubmitted
+│   │       ├── CheckoutConfirmed, CheckoutCompleted
+│   │       └── CheckoutAbandoned, CheckoutExpired
+│   ├── application/                # Application Layer
+│   │   ├── startcheckout/
+│   │   │   ├── StartCheckoutInputPort, StartCheckoutUseCase
+│   │   │   ├── StartCheckoutCommand, StartCheckoutResult
+│   │   ├── submitbuyerinfo/
+│   │   │   ├── SubmitBuyerInfoInputPort, SubmitBuyerInfoUseCase
+│   │   │   ├── SubmitBuyerInfoCommand, SubmitBuyerInfoResult
+│   │   ├── submitdelivery/
+│   │   │   ├── SubmitDeliveryInputPort, SubmitDeliveryUseCase
+│   │   │   ├── SubmitDeliveryCommand, SubmitDeliveryResult
+│   │   ├── submitpayment/
+│   │   │   ├── SubmitPaymentInputPort, SubmitPaymentUseCase
+│   │   │   ├── SubmitPaymentCommand, SubmitPaymentResult
+│   │   ├── confirmcheckout/
+│   │   │   ├── ConfirmCheckoutInputPort, ConfirmCheckoutUseCase
+│   │   │   ├── ConfirmCheckoutCommand, ConfirmCheckoutResult
+│   │   ├── getcheckoutsession/
+│   │   │   ├── GetCheckoutSessionInputPort, GetCheckoutSessionUseCase
+│   │   │   ├── GetCheckoutSessionQuery, GetCheckoutSessionResult
+│   │   ├── getactivecheckoutsession/
+│   │   │   ├── GetActiveCheckoutSessionInputPort, GetActiveCheckoutSessionUseCase
+│   │   │   ├── GetActiveCheckoutSessionQuery, GetActiveCheckoutSessionResult
+│   │   ├── getconfirmedcheckoutsession/
+│   │   │   ├── GetConfirmedCheckoutSessionInputPort, GetConfirmedCheckoutSessionUseCase
+│   │   │   ├── GetConfirmedCheckoutSessionQuery, GetConfirmedCheckoutSessionResult
+│   │   ├── getshippingoptions/
+│   │   │   ├── GetShippingOptionsInputPort, GetShippingOptionsUseCase
+│   │   │   ├── GetShippingOptionsQuery, GetShippingOptionsResult
+│   │   ├── getpaymentproviders/
+│   │   │   ├── GetPaymentProvidersInputPort, GetPaymentProvidersUseCase
+│   │   │   ├── GetPaymentProvidersQuery, GetPaymentProvidersResult
+│   │   ├── synccheckoutwithcart/
+│   │   │   ├── SyncCheckoutWithCartInputPort, SyncCheckoutWithCartUseCase
+│   │   │   ├── SyncCheckoutWithCartCommand, SyncCheckoutWithCartResult
+│   │   └── shared/                 # Shared output ports
+│   │       ├── CheckoutSessionRepository
+│   │       ├── CartDataPort, CartData
+│   │       ├── CheckoutArticleDataPort
+│   │       ├── ProductInfoPort
+│   │       ├── PaymentProvider, PaymentProviderRegistry
+│   └── adapter/
+│       ├── incoming/
+│       │   ├── web/
+│       │   │   ├── StartCheckoutPageController
+│       │   │   ├── BuyerInfoPageController, BuyerInfoPageViewModel
+│       │   │   ├── DeliveryPageController, DeliveryPageViewModel
+│       │   │   ├── PaymentPageController, PaymentPageViewModel
+│       │   │   ├── ReviewPageController, ReviewPageViewModel
+│       │   │   └── ConfirmationPageController, ConfirmationPageViewModel
+│       │   └── event/
+│       │       └── CartChangeEventConsumer
+│       └── outgoing/
+│           ├── persistence/
+│           │   └── InMemoryCheckoutSessionRepository
+│           ├── cart/
+│           │   └── CartDataAdapter
+│           ├── product/
+│           │   ├── CompositeCheckoutArticleDataAdapter
+│           │   └── ProductInfoAdapter
+│           └── payment/
+│               ├── MockPaymentProvider
+│               └── InMemoryPaymentProviderRegistry
+│
+├── account/                         # Account Bounded Context
+│   ├── domain/
+│   │   ├── model/
+│   │   │   ├── Account (Aggregate Root)
+│   │   │   ├── AccountId, Email, HashedPassword (Value Objects)
+│   │   │   └── AccountStatus
+│   │   ├── service/
+│   │   │   └── PasswordHasher
+│   │   └── event/
+│   │       ├── AccountRegistered
+│   │       └── AccountLinkedToIdentity
+│   ├── application/
+│   │   ├── registeraccount/
+│   │   │   ├── RegisterAccountInputPort, RegisterAccountUseCase
+│   │   │   ├── RegisterAccountCommand, RegisterAccountResult
+│   │   ├── authenticateaccount/
+│   │   │   ├── AuthenticateAccountInputPort, AuthenticateAccountUseCase
+│   │   │   ├── AuthenticateAccountCommand, AuthenticateAccountResult
+│   │   └── shared/
+│   │       ├── AccountRepository
+│   │       ├── RegisteredUserValidator, TokenService
+│   │       └── IdentitySession
+│   └── adapter/
+│       ├── incoming/
+│       │   ├── api/
+│       │   │   ├── AuthResource
+│       │   │   ├── LoginRequest, LoginResponse
+│       │   │   └── RegisterRequest, RegisterResponse
+│       │   └── web/
+│       │       ├── LoginPageController
+│       │       └── RegisterPageController
+│       └── outgoing/
+│           ├── persistence/
+│           │   └── InMemoryAccountRepository
+│           └── security/
+│               ├── SpringSecurityPasswordHasher
+│               └── AccountBasedRegisteredUserValidator
+│
+├── inventory/                       # Inventory Bounded Context
+│   ├── domain/
+│   │   ├── model/
+│   │   │   ├── StockLevel (Aggregate Root)
+│   │   │   ├── StockLevelId, StockQuantity (Value Objects)
+│   │   └── event/
+│   │       ├── StockLevelCreated, StockChanged
+│   │       ├── StockIncreased, StockDecreased
+│   │       └── StockReserved
+│   ├── application/
+│   │   ├── setstocklevel/
+│   │   │   ├── SetStockLevelInputPort, SetStockLevelUseCase
+│   │   │   ├── SetStockLevelCommand, SetStockLevelResult
+│   │   ├── reducestock/
+│   │   │   ├── ReduceStockInputPort, ReduceStockUseCase
+│   │   │   ├── ReduceStockCommand, ReduceStockResult
+│   │   ├── getstockforproducts/
+│   │   │   ├── GetStockForProductsInputPort, GetStockForProductsUseCase
+│   │   │   ├── GetStockForProductsQuery, GetStockForProductsResult
+│   │   └── shared/
+│   │       └── StockLevelRepository
+│   └── adapter/
+│       ├── incoming/
+│       │   ├── openhost/
+│       │   │   └── InventoryService
+│       │   └── event/
+│       │       └── CheckoutConfirmedEventConsumer
+│       └── outgoing/
+│           └── persistence/
+│               └── InMemoryStockLevelRepository
+│
+├── pricing/                         # Pricing Bounded Context
+│   ├── domain/
+│   │   ├── model/
+│   │   │   ├── ProductPrice (Aggregate Root)
+│   │   │   └── PriceId (Value Object)
+│   │   └── event/
+│   │       ├── PriceCreated
+│   │       └── PriceChanged
+│   ├── application/
+│   │   ├── setproductprice/
+│   │   │   ├── SetProductPriceInputPort, SetProductPriceUseCase
+│   │   │   ├── SetProductPriceCommand, SetProductPriceResult
+│   │   ├── getpricesforproducts/
+│   │   │   ├── GetPricesForProductsInputPort, GetPricesForProductsUseCase
+│   │   │   ├── GetPricesForProductsQuery, GetPricesForProductsResult
+│   │   └── shared/
+│   │       └── ProductPriceRepository
+│   └── adapter/
+│       ├── incoming/
+│       │   ├── openhost/
+│       │   │   └── PricingService
+│       │   └── event/
+│       │       └── ProductCreatedEventConsumer
+│       └── outgoing/
+│           └── persistence/
+│               └── InMemoryProductPriceRepository
+│
+├── portal/                          # Portal Bounded Context
+│   └── adapter/
+│       └── incoming/
 │           └── web/
 │               └── HomePageController
 │
-└── infrastructure                  # Infrastructure (cross-cutting)
+└── infrastructure/                  # Infrastructure (cross-cutting)
+    ├── AiArchitectureApplication
     ├── config/                    # Spring @Configuration classes
-    │   ├── SecurityConfiguration
-    │   ├── TransactionConfiguration
-    │   ├── AsyncConfiguration
-    │   └── DomainConfiguration
-    ├── support/                   # Framework support components
+    │   ├── SecurityConfiguration, TransactionConfiguration
+    │   ├── AsyncConfiguration, DomainConfiguration
+    │   └── Pug4jConfiguration
+    ├── init/
+    │   └── SampleDataInitializer
+    ├── support/
     │   └── AsyncInitializationProcessor
-    └── security/                  # Security infrastructure
+    └── security/
+        ├── SpringSecurityIdentityProvider
+        ├── JwtIdentity, JwtIdentityType
         └── jwt/
-            └── JwtTokenService, JwtAuthenticationFilter
+            ├── JwtTokenService, JwtIdentitySession
+            ├── JwtProperties
+            └── JwtAuthenticationFilter
 ```
 
 ## Bounded Context Organization
 
-Each bounded context (product, cart, checkout) follows the same internal structure:
+Each bounded context follows the same internal structure:
 
 ```
 {context}/
 ├── domain/             # Domain layer (innermost)
-│   ├── model/          # Aggregates, entities, value objects, read models
-│   ├── readmodel/      # Optional: additional read model types (if needed)
+│   ├── model/          # Aggregates, entities, value objects, enriched models
+│   ├── readmodel/      # Optional: read model types (e.g., CheckoutCartSnapshot)
+│   ├── specification/  # Optional: specifications
 │   ├── service/        # Domain services
 │   └── event/          # Domain events
 ├── application/        # Application layer
@@ -191,14 +416,15 @@ Each bounded context (product, cart, checkout) follows the same internal structu
 │   │   ├── *InputPort.java    # Input port interface
 │   │   ├── *UseCase.java      # Use case implementation
 │   │   ├── *Query.java/*Command.java  # Input model
-│   │   └── *Result.java       # Output model (wraps domain read model)
-│   └── shared/         # Shared output ports (repositories, external services)
+│   │   └── *Result.java       # Output model
+│   └── shared/         # Shared output ports (repositories, data ports)
 └── adapter/            # Adapter layer (outermost)
     ├── incoming/       # Incoming adapters (primary/driving)
     │   ├── api/        # REST API (DTOs, Resources)
     │   ├── web/        # Web MVC (Controllers, ViewModels)
-    │   ├── mcp/        # MCP server
-    │   └── event/      # Domain event listeners
+    │   ├── mcp/        # MCP server (McpToolProviders)
+    │   ├── openhost/   # Open Host Services
+    │   └── event/      # Domain event consumers
     └── outgoing/       # Outgoing adapters (secondary/driven)
         └── persistence/ # Repository implementations
 ```
@@ -208,7 +434,7 @@ Each bounded context (product, cart, checkout) follows the same internal structu
 | Aspect | API (`adapter.incoming.api`) | Web (`adapter.incoming.web`) | MCP (`adapter.incoming.mcp`) | Event (`adapter.incoming.event`) |
 |--------|-------------|--------------|--------------|--------------|
 | **Annotation** | `@RestController` | `@Controller` | `@Component` | `@Component` |
-| **Naming** | `*Resource` | `*PageController` | `*McpTools` | `*EventListener` |
+| **Naming** | `*Resource` | `*PageController` | `*McpToolProvider` | `*EventConsumer` |
 | **Returns** | JSON/XML (DTOs) | HTML (templates) | DTOs (JSON-RPC) | void |
 | **URL** | `/api/*` | `/*` | `/mcp` | N/A |
 | **Content-Type** | `application/json` | `text/html` | `application/json` | N/A |
@@ -230,12 +456,12 @@ MVC Controllers use page-specific ViewModels to pass data to templates:
 **ViewModel Pattern:**
 - Each page has its own ViewModel tailored to that page's data needs
 - ViewModels use only primitives (`String`, `BigDecimal`, `int`, `boolean`)
-- Factory method converts domain read model → ViewModel
+- Factory method converts domain read model -> ViewModel
 - Template attribute name matches the ViewModel purpose
 
 **Example:**
 ```java
-// Controller converts Result → ViewModel
+// Controller converts Result -> ViewModel
 CartPageViewModel viewModel = CartPageViewModel.fromEnrichedCart(result.cart());
 model.addAttribute("shoppingCart", viewModel);  // Attribute name = "shoppingCart"
 ```
@@ -263,14 +489,11 @@ def "MVC Controllers must end with 'Controller'"() {
     .check(allClasses)
 }
 
-def "Repository Interfaces must reside in application output port package"() {
+def "Repository Interfaces must reside in application shared package"() {
   classes()
     .that().implement(Repository.class)
     .and().areInterfaces()
-    .should().resideInAnyPackage(
-      "..product.application.port.out..",
-      "..cart.application.port.out.."
-    )
+    .should().resideInAnyPackage("..application.shared..")
     .check(allClasses)
 }
 
@@ -278,10 +501,7 @@ def "Repository Implementations must reside in adapter.outgoing package"() {
   classes()
     .that().implement(Repository.class)
     .and().areNotInterfaces()
-    .should().resideInAnyPackage(
-      "..product.adapter.outgoing..",
-      "..cart.adapter.outgoing.."
-    )
+    .should().resideInAnyPackage("..adapter.outgoing..")
     .check(allClasses)
 }
 ```
@@ -297,52 +517,36 @@ def "Repository Implementations must reside in adapter.outgoing package"() {
 
 | File Type | Location | Example |
 |-----------|----------|---------|
-| REST controller | `{context}.adapter.incoming.api/` | `product.adapter.incoming.api/ProductResource.java` |
-| MVC controller | `{context}.adapter.incoming.web/` | `product.adapter.incoming.web/ProductPageController.java` |
-| MCP tool | `{context}.adapter.incoming.mcp/` | `product.adapter.incoming.mcp/ProductCatalogMcpTools.java` |
-| DTO | `{context}.adapter.incoming.api/` | `product.adapter.incoming.api/ProductDto.java` |
-| DTO converter | `{context}.adapter.incoming.api/` | `product.adapter.incoming.api/ProductDtoConverter.java` |
-| Request DTO | `{context}.adapter.incoming.api/` | `product.adapter.incoming.api/CreateProductRequest.java` |
+| REST controller | `{context}.adapter.incoming.api/` | `ProductResource.java` |
+| MVC controller | `{context}.adapter.incoming.web/` | `ProductPageController.java` |
+| MCP tool provider | `{context}.adapter.incoming.mcp/` | `ProductCatalogMcpToolProvider.java` |
+| Open Host Service | `{context}.adapter.incoming.openhost/` | `ProductCatalogService.java` |
+| Event consumer | `{context}.adapter.incoming.event/` | `ProductEventConsumer.java` |
+| DTO | `{context}.adapter.incoming.api/` | `ProductDto.java` |
+| ViewModel | `{context}.adapter.incoming.web/` | `ProductCatalogPageViewModel.java` |
+| Request DTO | `{context}.adapter.incoming.api/` | `CreateProductRequest.java` |
 | Pug template | `resources/templates/{context}/` | `templates/product/catalog.pug` |
-| Domain aggregate | `{context}.domain.model/` | `product.domain.model/Product.java` |
-| Value object | `{context}.domain.model/` | `product.domain.model/SKU.java` |
-| Domain event | `{context}.domain.event/` | `product.domain.event/ProductCreated.java` |
-| Domain service | `{context}.domain.service/` | `product.domain.service/PricingService.java` |
-| Factory | `{context}.domain.model/` | `product.domain.model/ProductFactory.java` |
-| Repository interface | `{context}.application.port.out/` | `product.application.port.out/ProductRepository.java` |
-| Repository impl | `{context}.adapter.outgoing.persistence/` | `product.adapter.outgoing.persistence/InMemoryProductRepository.java` |
-| Use case | `{context}.application.usecase.{name}/` | `product.application.usecase.createproduct/CreateProductUseCase.java` |
-| Command/Query | `{context}.application.usecase.{name}/` | `product.application.usecase.createproduct/CreateProductCommand.java` |
-| Response | `{context}.application.usecase.{name}/` | `product.application.usecase.createproduct/CreateProductResponse.java` |
-| Shared value object | `sharedkernel.domain.model/` | `sharedkernel.domain.model/Money.java` |
+| Domain aggregate | `{context}.domain.model/` | `Product.java` |
+| Value object | `{context}.domain.model/` | `SKU.java` |
+| Enriched model | `{context}.domain.model/` | `EnrichedProduct.java` |
+| Domain event | `{context}.domain.event/` | `ProductCreated.java` |
+| Domain service | `{context}.domain.service/` | `PricingService.java` |
+| Factory | `{context}.domain.model/` | `ProductFactory.java` |
+| Repository interface | `{context}.application.shared/` | `ProductRepository.java` |
+| Output port | `{context}.application.shared/` | `PricingDataPort.java` |
+| Repository impl | `{context}.adapter.outgoing.persistence/` | `InMemoryProductRepository.java` |
+| Use case | `{context}.application.{name}/` | `createproduct/CreateProductUseCase.java` |
+| Command/Query | `{context}.application.{name}/` | `createproduct/CreateProductCommand.java` |
+| Result | `{context}.application.{name}/` | `createproduct/CreateProductResult.java` |
+| Shared value object | `sharedkernel.domain.model/` | `Money.java` |
 
-## Why This Structure?
+## Hexagonal Architecture (Ports & Adapters)
 
-**Bounded Context per Package:**
-- Each bounded context is a self-contained package
-- Clear ownership and boundaries
-- Independent evolution of contexts
-- Enables future extraction to microservices
-
-**Separation by Interface Type:**
-- REST APIs (`adapter.incoming.api/`) - Machine-to-machine
-- Web Pages (`adapter.incoming.web/`) - Human-to-machine
-- MCP Server (`adapter.incoming.mcp/`) - AI-to-machine
-
-**Hexagonal Architecture (Ports & Adapters):**
-- Input ports defined in application.usecase (use case interfaces)
-- Output ports defined in application.port.out (repository interfaces)
+- Input ports defined in `application.{usecasename}/` (use case interfaces)
+- Output ports defined in `application.shared/` (repository and data port interfaces)
 - Incoming adapters implement/use input ports
 - Outgoing adapters implement output ports
 - Dependencies point inward toward domain
-
-**Benefits:**
-- Clear intent from package name
-- Bounded contexts are isolated
-- Independent evolution of each context and interface
-- Different security policies per interface type
-- Framework-independent domain layer
-- Team ownership per bounded context
 
 See [ADR-001: API/Web Package Separation](adr/adr-001-api-web-package-separation.md)
 

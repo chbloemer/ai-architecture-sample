@@ -31,8 +31,7 @@ public class ProductDetailPage extends BasePage {
    */
   public CartPage addToCart() {
     click(ADD_TO_CART_BUTTON);
-    // Brief wait for cart to update
-    waitForTimeout(500);
+    page.waitForURL(BASE_URL + "/cart**");
     return new CartPage(page);
   }
 
@@ -44,7 +43,7 @@ public class ProductDetailPage extends BasePage {
    */
   public ProductDetailPage addToCartAndStay() {
     click(ADD_TO_CART_BUTTON);
-    waitForTimeout(500);
+    page.waitForURL(BASE_URL + "/cart**");
     return this;
   }
 

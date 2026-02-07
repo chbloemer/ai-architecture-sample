@@ -2,7 +2,7 @@ plugins {
   id 'java'
   id 'groovy'
   id 'idea'
-  id 'org.springframework.boot' version '3.5.6'
+  id 'org.springframework.boot' version '3.5.10'
   id 'io.spring.dependency-management' version '1.1.7'
   id 'io.franzbecker.gradle-lombok' version '5.0.0'
 }
@@ -51,14 +51,13 @@ repositories {
   // Prefer locally installed SNAPSHOTs first
   mavenLocal()
   mavenCentral()
-  maven { url 'https://repo.spring.io/milestone' }
   // Sonatype snapshots for pug4j 3.0.0-SNAPSHOT
   maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
 }
 
 ext {
-  set('springCloudVersion', "2025.0.0")
-  set('springAiVersion', "1.1.0-M3")
+  set('springCloudVersion', "2025.1.1")
+  set('springAiVersion', "1.1.2")
 }
 
 // Dependencies
@@ -74,9 +73,9 @@ dependencies {
   compileOnly 'org.springframework.boot:spring-boot-configuration-processor'
 
   // JWT
-  implementation 'io.jsonwebtoken:jjwt-api:0.12.3'
-  runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.3'
-  runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.3'
+  implementation 'io.jsonwebtoken:jjwt-api:0.12.6'
+  runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.6'
+  runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.6'
 
   // Lombok
   compileOnly 'org.projectlombok:lombok'

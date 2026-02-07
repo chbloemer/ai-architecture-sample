@@ -11,6 +11,7 @@ import de.sample.aiarchitecture.checkout.domain.model.CheckoutLineItemId;
 import de.sample.aiarchitecture.checkout.domain.model.CheckoutSession;
 import de.sample.aiarchitecture.sharedkernel.domain.model.Money;
 import de.sample.aiarchitecture.sharedkernel.domain.model.ProductId;
+import de.sample.aiarchitecture.sharedkernel.marker.port.out.DomainEventPublisher;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -45,14 +46,17 @@ public class StartCheckoutUseCase implements StartCheckoutInputPort {
     private final CartDataPort cartDataPort;
     private final CheckoutArticleDataPort checkoutArticleDataPort;
     private final CheckoutSessionRepository checkoutSessionRepository;
+    private final DomainEventPublisher domainEventPublisher;
 
     public StartCheckoutUseCase(
         final CartDataPort cartDataPort,
         final CheckoutArticleDataPort checkoutArticleDataPort,
-        final CheckoutSessionRepository checkoutSessionRepository) {
+        final CheckoutSessionRepository checkoutSessionRepository,
+        final DomainEventPublisher domainEventPublisher) {
         this.cartDataPort = cartDataPort;
         this.checkoutArticleDataPort = checkoutArticleDataPort;
         this.checkoutSessionRepository = checkoutSessionRepository;
+        this.domainEventPublisher = domainEventPublisher;
     }
 
     @Override
@@ -110,6 +114,9 @@ public class StartCheckoutUseCase implements StartCheckoutInputPort {
 
         // Save checkout session
         checkoutSessionRepository.save(session);
+
+        // Publish domain events (e.g., CheckoutSessionStarted)
+        domainEventPublisher.publishAndClearEvents(session);
 
         // Cart remains ACTIVE during checkout - user can still modify it
         // Cart only transitions to COMPLETED when checkout is confirmed

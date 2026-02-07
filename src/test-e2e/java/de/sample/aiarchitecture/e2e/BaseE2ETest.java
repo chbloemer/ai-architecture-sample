@@ -5,10 +5,14 @@ import com.microsoft.playwright.BrowserContext;
 import com.microsoft.playwright.BrowserType;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.Playwright;
+import java.nio.file.Paths;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.extension.ExtensionContext;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.api.extension.TestWatcher;
 
 /**
  * Base class for E2E tests using Playwright.
@@ -44,6 +48,19 @@ public abstract class BaseE2ETest {
 
   protected BrowserContext context;
   protected Page page;
+
+  @RegisterExtension
+  final TestWatcher screenshotOnFailure = new TestWatcher() {
+    @Override
+    public void testFailed(ExtensionContext context, Throwable cause) {
+      if (page != null) {
+        String testName = context.getDisplayName().replaceAll("[^a-zA-Z0-9_-]", "_");
+        page.screenshot(new Page.ScreenshotOptions()
+            .setPath(Paths.get("build/reports/test-e2e/screenshots/" + testName + ".png"))
+            .setFullPage(true));
+      }
+    }
+  };
 
   @BeforeAll
   static void launchBrowser() {

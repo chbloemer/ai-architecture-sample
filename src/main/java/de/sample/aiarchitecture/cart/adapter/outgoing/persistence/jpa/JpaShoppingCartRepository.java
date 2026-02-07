@@ -5,6 +5,8 @@ import de.sample.aiarchitecture.cart.domain.model.*;
 import de.sample.aiarchitecture.sharedkernel.domain.model.Money;
 import de.sample.aiarchitecture.sharedkernel.domain.model.Price;
 import de.sample.aiarchitecture.sharedkernel.domain.model.ProductId;
+import de.sample.aiarchitecture.sharedkernel.domain.model.PagingRequest;
+import de.sample.aiarchitecture.sharedkernel.domain.model.PageResult;
 import de.sample.aiarchitecture.sharedkernel.domain.specification.CompositeSpecification;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -13,8 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.context.annotation.Primary;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -59,10 +60,12 @@ public class JpaShoppingCartRepository implements ShoppingCartRepository {
 
   @Override
   @Transactional(readOnly = true)
-  public Page<ShoppingCart> findBy(final CompositeSpecification<ShoppingCart> specification, final Pageable pageable) {
+  public PageResult<ShoppingCart> findBy(final CompositeSpecification<ShoppingCart> specification, final PagingRequest pageQuery) {
     final CartSpecToJpa translator = requireTranslator();
     final Specification<CartEntity> jpaSpec = specification.accept(translator);
-    return cartRepo.findAll(jpaSpec, pageable).map(this::toDomain);
+    final var pageable = PageRequest.of(pageQuery.pageNumber(), pageQuery.pageSize());
+    final var page = cartRepo.findAll(jpaSpec, pageable).map(this::toDomain);
+    return new PageResult<>(page.getContent(), page.getTotalElements(), pageQuery.pageNumber(), pageQuery.pageSize());
   }
 
   @Override

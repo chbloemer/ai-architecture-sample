@@ -1,7 +1,12 @@
 package de.sample.aiarchitecture.account.domain.model;
 
+import de.sample.aiarchitecture.account.domain.event.AccountClosed;
 import de.sample.aiarchitecture.account.domain.event.AccountLinkedToIdentity;
+import de.sample.aiarchitecture.account.domain.event.AccountLoggedIn;
+import de.sample.aiarchitecture.account.domain.event.AccountPasswordChanged;
+import de.sample.aiarchitecture.account.domain.event.AccountReactivated;
 import de.sample.aiarchitecture.account.domain.event.AccountRegistered;
+import de.sample.aiarchitecture.account.domain.event.AccountSuspended;
 import de.sample.aiarchitecture.account.domain.service.PasswordHasher;
 import de.sample.aiarchitecture.sharedkernel.domain.model.UserId;
 import de.sample.aiarchitecture.sharedkernel.marker.tactical.BaseAggregateRoot;
@@ -35,6 +40,11 @@ import java.util.Set;
  * <ul>
  *   <li>{@link AccountRegistered} - when account is created</li>
  *   <li>{@link AccountLinkedToIdentity} - when UserId is linked</li>
+ *   <li>{@link AccountLoggedIn} - when a user logs in</li>
+ *   <li>{@link AccountPasswordChanged} - when password is changed</li>
+ *   <li>{@link AccountSuspended} - when account is suspended</li>
+ *   <li>{@link AccountReactivated} - when account is reactivated</li>
+ *   <li>{@link AccountClosed} - when account is permanently closed</li>
  * </ul>
  */
 public final class Account extends BaseAggregateRoot<Account, AccountId> {
@@ -203,6 +213,7 @@ public final class Account extends BaseAggregateRoot<Account, AccountId> {
       throw new IllegalStateException("Cannot login with account status: " + status);
     }
     this.lastLoginAt = Instant.now();
+    registerEvent(AccountLoggedIn.now(this.id));
   }
 
   /**
@@ -220,6 +231,7 @@ public final class Account extends BaseAggregateRoot<Account, AccountId> {
       throw new IllegalStateException("Cannot change password on closed account");
     }
     this.password = HashedPassword.fromPlaintext(newPlainPassword, passwordHasher);
+    registerEvent(AccountPasswordChanged.now(this.id));
   }
 
   /**
@@ -232,6 +244,7 @@ public final class Account extends BaseAggregateRoot<Account, AccountId> {
       throw new IllegalStateException("Cannot suspend closed account");
     }
     this.status = AccountStatus.SUSPENDED;
+    registerEvent(AccountSuspended.now(this.id));
   }
 
   /**
@@ -244,6 +257,7 @@ public final class Account extends BaseAggregateRoot<Account, AccountId> {
       throw new IllegalStateException("Can only reactivate suspended accounts");
     }
     this.status = AccountStatus.ACTIVE;
+    registerEvent(AccountReactivated.now(this.id));
   }
 
   /**
@@ -256,6 +270,7 @@ public final class Account extends BaseAggregateRoot<Account, AccountId> {
       throw new IllegalStateException("Account is already closed");
     }
     this.status = AccountStatus.CLOSED;
+    registerEvent(AccountClosed.now(this.id));
   }
 
   /**

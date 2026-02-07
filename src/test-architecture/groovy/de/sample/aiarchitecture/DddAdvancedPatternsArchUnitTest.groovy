@@ -17,8 +17,6 @@ import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZonedDateTime
 
-import spock.lang.Ignore
-
 /**
  * ArchUnit tests for Advanced DDD Patterns.
  *
@@ -38,15 +36,13 @@ class DddAdvancedPatternsArchUnitTest extends BaseArchUnitTest {
   // DOMAIN EVENTS PATTERN
   // ============================================================================
 
-  @Ignore("Pending decision: ProductPriceChanged and ProductCreated need to be renamed")
-  def "Domain Events should implement DomainEvent Marker Interface"() {
+  def "Domain Events must implement DomainEvent Marker Interface and be records"() {
     expect:
-    // NOTE: This is a SHOULD rule for new code - existing events may not implement it yet
     classes()
       .that().implement(DomainEvent.class)
-      .should().haveSimpleNameEndingWith("Event")
-      .because("Classes implementing DomainEvent should end with 'Event' in their name")
-      .allowEmptyShould(true)
+      .and().areNotInterfaces()
+      .should().beRecords()
+      .because("Domain events should be immutable records implementing DomainEvent (named in past tense, e.g., ProductCreated, CartCleared)")
       .check(allClasses)
   }
 
@@ -123,15 +119,13 @@ class DddAdvancedPatternsArchUnitTest extends BaseArchUnitTest {
   // DOMAIN SERVICES PATTERN
   // ============================================================================
 
-  @Ignore("Pending decision: CartTotalCalculator and PricingService need to be renamed")
-  def "Domain Services should implement DomainService Marker Interface"() {
+  def "Domain Services must implement DomainService Marker Interface and reside in domain.service"() {
     expect:
-    // NOTE: This is a SHOULD rule for new code - existing domain services may not implement it yet
     classes()
       .that().implement(DomainService.class)
-      .should().haveSimpleNameEndingWith("DomainService")
-      .because("Classes implementing DomainService marker should have 'DomainService' in their name")
-      .allowEmptyShould(true)
+      .and().areNotInterfaces()
+      .should().resideInAPackage("..domain.service..")
+      .because("Domain services implement DomainService marker and reside in domain.service packages (named descriptively, e.g., PricingService, CartTotalCalculator)")
       .check(allClasses)
   }
 

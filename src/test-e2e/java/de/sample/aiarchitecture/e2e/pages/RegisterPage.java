@@ -56,15 +56,13 @@ public class RegisterPage extends BasePage {
   }
 
   /**
-   * Fills the confirm password field if it exists.
+   * Fills the confirm password field.
    *
    * @param password the password to confirm
    * @return this page for method chaining
    */
   public RegisterPage fillConfirmPassword(String password) {
-    if (exists(CONFIRM_PASSWORD_INPUT)) {
-      fill("confirmPassword", password);
-    }
+    fill("confirmPassword", password);
     return this;
   }
 
@@ -87,7 +85,7 @@ public class RegisterPage extends BasePage {
    */
   public void submit() {
     click(SUBMIT_BUTTON);
-    waitForTimeout(1000);
+    page.waitForURL(url -> !url.contains("/register"));
   }
 
   /**

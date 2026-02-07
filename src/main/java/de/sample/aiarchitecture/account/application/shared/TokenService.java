@@ -1,6 +1,7 @@
 package de.sample.aiarchitecture.account.application.shared;
 
 import de.sample.aiarchitecture.sharedkernel.domain.model.UserId;
+import de.sample.aiarchitecture.sharedkernel.marker.port.out.OutputPort;
 import java.util.Set;
 
 /**
@@ -35,7 +36,7 @@ import java.util.Set;
  * @see de.sample.aiarchitecture.sharedkernel.marker.port.out.IdentityProvider for reading identity
  * @see IdentitySession for managing identity cookies/sessions
  */
-public interface TokenService {
+public interface TokenService extends OutputPort {
 
   /**
    * Generates a token for a registered user.

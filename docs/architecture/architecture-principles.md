@@ -8,7 +8,6 @@ This document describes the architectural patterns and principles used in the AI
 2. [Domain-Driven Design (DDD)](#domain-driven-design-ddd)
    - [Tactical Patterns](#tactical-patterns)
      - [Enriched Domain Model Pattern](#enriched-domain-model-pattern)
-     - [Interest Interface Pattern (Advanced)](#interest-interface-pattern-advanced)
 3. [Clean Architecture (Use Cases)](#clean-architecture-use-cases)
 4. [Hexagonal Architecture](#hexagonal-architecture)
    - [Advanced Adapter Patterns](#advanced-adapter-patterns)
@@ -418,7 +417,7 @@ eventPublisher.publishAndClearEvents(product);
 
 ```java
 @Component
-public class ProductEventListener {
+public class ProductEventConsumer {
     @EventListener
     public void onProductPriceChanged(ProductPriceChanged event) {
         // Handle cross-aggregate coordination
@@ -585,7 +584,7 @@ public class CartEventTranslator {
 
 ```java
 @Component
-public class ProductStockEventListener {
+public class CheckoutConfirmedEventListener {
     private final ReduceProductStockUseCase reduceProductStockUseCase;
     private final CartEventTranslator cartEventTranslator;  // ACL
 
@@ -624,8 +623,8 @@ public class ProductStockEventListener {
 **Implementation:**
 - Interface: `de.sample.aiarchitecture.sharedkernel.marker.tactical.IntegrationEvent`
 - Example Event: `de.sample.aiarchitecture.cart.domain.event.CartCheckedOut`
-- ACL Example: `de.sample.aiarchitecture.product.adapter.incoming.event.acl.CartEventTranslator`
-- Consumer Example: `de.sample.aiarchitecture.product.adapter.incoming.event.ProductStockEventListener`
+- ACL Example: `de.sample.aiarchitecture.product.adapter.incoming.event.acl.CheckoutEventTranslator`
+- Consumer Example: `de.sample.aiarchitecture.product.adapter.incoming.event.CheckoutConfirmedEventListener`
 - Schema Documentation: `docs/events/cart-checked-out.yaml`
 
 **When to Use Integration Events:**
@@ -910,16 +909,16 @@ public class CheckoutCartUseCase implements CheckoutCartInputPort {
 - ✅ When the aggregate alone cannot enforce all business rules
 - ✅ When team prefers straightforward, pragmatic solutions
 
-**Why Enriched Domain Model over Interest Interface for Cross-Context Data:**
+**Why Enriched Domain Model for Cross-Context Business Rules:**
 
-When business rules require data from multiple bounded contexts, the aggregate cannot enforce these rules alone. The Enriched Domain Model becomes the natural home for this business logic:
+When business rules require data from multiple bounded contexts, the aggregate cannot enforce these rules alone. The Enriched Domain Model becomes the natural home for this logic:
 
 ```
 Aggregate + ExternalData  →  EnrichedModel.from(...)  →  Business Logic  →  ViewModel
                                                          (in enriched model)
 ```
 
-The enriched model isn't just for display—it's a domain concept that owns cross-context business rules.
+The enriched model is not just for display -- it is a domain concept that owns cross-context business rules. See [ADR-021](adr/adr-021-enriched-domain-model-pattern.md) for the full decision record.
 
 **Implementation:**
 - Product: `de.sample.aiarchitecture.product.domain.model.EnrichedProduct`
@@ -1007,91 +1006,6 @@ See [dto-vs-viewmodel-analysis.md](dto-vs-viewmodel-analysis.md) for detailed pa
 - Checkout: `de.sample.aiarchitecture.checkout.domain.readmodel.CheckoutCartSnapshot`
 - Checkout ViewModels: `BuyerInfoPageViewModel`, `DeliveryPageViewModel`, `PaymentPageViewModel`, `ReviewPageViewModel`, `ConfirmationPageViewModel`
 
-#### Interest Interface Pattern (Advanced)
-
-The Interest Interface Pattern (also known as State Mediator) is an **advanced technique** for scenarios where you need fine-grained control over state exposure. Instead of getters, aggregates "push" their state to interested parties through an interface.
-
-**When Interest Interface Makes Sense:**
-
-The pattern fits best when **aggregate state flows directly to the adapter layer without cross-context enrichment**. In this case, the ViewModel can implement the Interest interface:
-
-```
-Aggregate.provideStateTo(ViewModel)  →  Template
-```
-
-This keeps aggregate getters truly hidden—the ViewModel only knows about `receive*()` methods.
-
-**When to Consider:**
-- **No cross-context enrichment needed**—aggregate data is sufficient for display
-- ViewModel can directly implement the Interest interface
-- Complex aggregates where you want to expose only specific subsets of state
-- Scenarios requiring transformation during state extraction (not just mapping)
-- When aggregate internal structure is significantly different from read model structure
-- Teams familiar with Vernon's patterns who prefer explicit state mediation
-
-**When NOT to Use:**
-- ❌ When you need data from external contexts (pricing, inventory, etc.)—use Enriched Domain Model instead
-- ❌ When business rules require cross-context data—enriched model should own that logic
-
-**Trade-offs vs Enriched Domain Model:**
-| Aspect | Enriched Domain Model | Interest Interface |
-|--------|-----------------|-------------------|
-| **Complexity** | Simple | More complex |
-| **Code volume** | ~50 lines | ~500+ lines |
-| **Learning curve** | Low | Higher |
-| **Encapsulation** | Via read model abstraction | Via interface methods |
-| **Flexibility** | Good | Maximum |
-
-**Pattern Overview:**
-
-```java
-// 1. Interest interface defines what state can be received
-public interface CartStateInterest extends StateInterest {
-    void receiveCartId(CartId cartId);
-    void receiveCustomerId(CustomerId customerId);
-    void receiveLineItem(CartItemId lineItemId, ProductId productId,
-                         String name, Money price, int quantity);
-    void receiveStatus(CartStatus status);
-}
-
-// 2. Aggregate pushes state to interested parties
-public final class ShoppingCart extends BaseAggregateRoot<ShoppingCart, CartId> {
-    public void provideStateTo(CartStateInterest interest) {
-        interest.receiveCartId(this.id);
-        interest.receiveCustomerId(this.customerId);
-        for (CartItem item : this.items) {
-            interest.receiveLineItem(item.id(), item.productId(),
-                item.name(), item.price(), item.quantity());
-        }
-        interest.receiveStatus(this.status);
-    }
-}
-
-// 3. Builder implements interest interface and assembles read model
-public class EnrichedCartBuilder implements CartStateInterest, ReadModelBuilder {
-    private CartId cartId;
-    private CustomerId customerId;
-    private final List<LineItemSnapshot> lineItems = new ArrayList<>();
-
-    @Override
-    public void receiveCartId(CartId cartId) { this.cartId = cartId; }
-
-    @Override
-    public void receiveLineItem(...) { lineItems.add(new LineItemSnapshot(...)); }
-
-    public EnrichedCart build() { return new EnrichedCart(cartId, customerId, lineItems); }
-}
-```
-
-**Rules:**
-1. Interest interfaces extend `StateInterest` marker interface
-2. Builders implement Interest interfaces and `ReadModelBuilder` marker
-3. Aggregate controls what state is exposed through `provideStateTo()`
-4. Method names follow `receive*()` convention
-
-**Reference:** Vaughn Vernon's "Implementing Domain-Driven Design" (2013), Chapter 14: Application - State Mediator Pattern
-
-**Recommendation:** Start with the simpler Factory Pattern. Only consider the Interest Interface Pattern when you have a specific need that the factory approach cannot address cleanly
 
 #### Custom Annotations (Shared Kernel Common Layer)
 
@@ -1453,26 +1367,26 @@ public class UpdateProductPriceUseCase implements UpdateProductPriceInputPort {
 
 ### Implementation
 
-**Base Interface:** `de.sample.aiarchitecture.sharedkernel.application.port.UseCase<INPUT, OUTPUT>`
+**Base Interface:** `de.sample.aiarchitecture.sharedkernel.marker.port.in.UseCase<INPUT, OUTPUT>`
 
 **Product Use Cases:**
-- Input Port: `CreateProductInputPort extends InputPort<CreateProductCommand, CreateProductResponse>`
+- Input Port: `CreateProductInputPort extends UseCase<CreateProductCommand, CreateProductResult>`
 - Implementation: `CreateProductUseCase implements CreateProductInputPort`
-- Input Port: `UpdateProductPriceInputPort extends InputPort<UpdateProductPriceCommand, UpdateProductPriceResponse>`
+- Input Port: `UpdateProductPriceInputPort extends UseCase<UpdateProductPriceCommand, UpdateProductPriceResult>`
 - Implementation: `UpdateProductPriceUseCase implements UpdateProductPriceInputPort`
-- Input Port: `GetProductByIdInputPort extends InputPort<GetProductByIdQuery, GetProductByIdResponse>`
+- Input Port: `GetProductByIdInputPort extends UseCase<GetProductByIdQuery, GetProductByIdResult>`
 - Implementation: `GetProductByIdUseCase implements GetProductByIdInputPort`
-- Input Port: `GetAllProductsInputPort extends InputPort<GetAllProductsQuery, GetAllProductsResponse>`
+- Input Port: `GetAllProductsInputPort extends UseCase<GetAllProductsQuery, GetAllProductsResult>`
 - Implementation: `GetAllProductsUseCase implements GetAllProductsInputPort`
 
 **Shopping Cart Use Cases:**
-- Input Port: `CreateCartInputPort extends InputPort<CreateCartCommand, CreateCartResponse>`
+- Input Port: `CreateCartInputPort extends UseCase<CreateCartCommand, CreateCartResult>`
 - Implementation: `CreateCartUseCase implements CreateCartInputPort`
-- Input Port: `AddItemToCartInputPort extends InputPort<AddItemToCartCommand, AddItemToCartResponse>`
+- Input Port: `AddItemToCartInputPort extends UseCase<AddItemToCartCommand, AddItemToCartResult>`
 - Implementation: `AddItemToCartUseCase implements AddItemToCartInputPort`
-- Input Port: `CheckoutCartInputPort extends InputPort<CheckoutCartCommand, CheckoutCartResponse>`
+- Input Port: `CheckoutCartInputPort extends UseCase<CheckoutCartCommand, CheckoutCartResult>`
 - Implementation: `CheckoutCartUseCase implements CheckoutCartInputPort`
-- Input Port: `GetCartByIdInputPort extends InputPort<GetCartByIdQuery, GetCartByIdResponse>`
+- Input Port: `GetCartByIdInputPort extends UseCase<GetCartByIdQuery, GetCartByIdResult>`
 - Implementation: `GetCartByIdUseCase implements GetCartByIdInputPort`
 
 **Naming Convention:**
@@ -1480,8 +1394,8 @@ public class UpdateProductPriceUseCase implements UpdateProductPriceInputPort {
 - Use case implementation classes end with "UseCase"
 - Command input models end with "Command" (for write operations)
 - Query input models end with "Query" (for read operations)
-- Output models end with "Response"
-- All input ports extend `InputPort<INPUT, OUTPUT>`
+- Output models end with "Result" (see [ADR-020](adr/adr-020-use-case-result-naming.md))
+- All input ports extend `UseCase<INPUT, OUTPUT>`
 - All use cases implement their corresponding input port interface
 
 ### Organization by Bounded Context
@@ -1495,17 +1409,17 @@ application/
 │   ├── CreateProductInputPort        # Input port interface
 │   ├── CreateProductUseCase          # Use case implementation
 │   ├── CreateProductCommand          # Input model
-│   └── CreateProductResponse         # Output model
+│   └── CreateProductResult           # Output model
 ├── updateproductprice/               # Use case: Update Product Price
 │   ├── UpdateProductPriceInputPort
 │   ├── UpdateProductPriceUseCase
 │   ├── UpdateProductPriceCommand
-│   └── UpdateProductPriceResponse
+│   └── UpdateProductPriceResult
 ├── additemtocart/                    # Use case: Add Item to Cart
 │   ├── AddItemToCartInputPort
 │   ├── AddItemToCartUseCase
 │   ├── AddItemToCartCommand
-│   └── AddItemToCartResponse
+│   └── AddItemToCartResult
 └── shared/                           # Shared output ports
     ├── ProductRepository             # Product repository interface
     └── ShoppingCartRepository        # Cart repository interface

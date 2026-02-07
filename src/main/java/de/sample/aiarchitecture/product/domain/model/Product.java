@@ -1,5 +1,8 @@
 package de.sample.aiarchitecture.product.domain.model;
 
+import de.sample.aiarchitecture.product.domain.event.ProductCategoryChanged;
+import de.sample.aiarchitecture.product.domain.event.ProductDescriptionChanged;
+import de.sample.aiarchitecture.product.domain.event.ProductNameChanged;
 import de.sample.aiarchitecture.sharedkernel.marker.tactical.BaseAggregateRoot;
 import de.sample.aiarchitecture.sharedkernel.domain.model.ProductId;
 
@@ -20,6 +23,9 @@ import de.sample.aiarchitecture.sharedkernel.domain.model.ProductId;
  * <p><b>Domain Events:</b>
  * <ul>
  *   <li>{@link ProductCreated} - when a new product is created
+ *   <li>{@link ProductNameChanged} - when the product name is updated
+ *   <li>{@link ProductDescriptionChanged} - when the product description is updated
+ *   <li>{@link ProductCategoryChanged} - when the product category is updated
  * </ul>
  *
  * <p><b>Note:</b> Pricing is managed by the Pricing bounded context. Use PricingService
@@ -77,7 +83,9 @@ public final class Product extends BaseAggregateRoot<Product, ProductId> {
     if (newName == null) {
       throw new IllegalArgumentException("New name cannot be null");
     }
+    final ProductName oldName = this.name;
     this.name = newName;
+    registerEvent(ProductNameChanged.now(this.id, oldName, newName));
   }
 
   /**
@@ -89,7 +97,9 @@ public final class Product extends BaseAggregateRoot<Product, ProductId> {
     if (newDescription == null) {
       throw new IllegalArgumentException("New description cannot be null");
     }
+    final ProductDescription oldDescription = this.description;
     this.description = newDescription;
+    registerEvent(ProductDescriptionChanged.now(this.id, oldDescription, newDescription));
   }
 
   /**
@@ -101,6 +111,8 @@ public final class Product extends BaseAggregateRoot<Product, ProductId> {
     if (newCategory == null) {
       throw new IllegalArgumentException("New category cannot be null");
     }
+    final Category oldCategory = this.category;
     this.category = newCategory;
+    registerEvent(ProductCategoryChanged.now(this.id, oldCategory, newCategory));
   }
 }

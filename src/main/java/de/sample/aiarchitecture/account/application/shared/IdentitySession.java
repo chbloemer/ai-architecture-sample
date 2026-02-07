@@ -1,5 +1,7 @@
 package de.sample.aiarchitecture.account.application.shared;
 
+import de.sample.aiarchitecture.sharedkernel.marker.port.out.OutputPort;
+
 /**
  * Port for managing user identity sessions.
  *
@@ -41,7 +43,7 @@ package de.sample.aiarchitecture.account.application.shared;
  * @see TokenService for generating tokens
  * @see de.sample.aiarchitecture.sharedkernel.marker.port.out.IdentityProvider for reading identity
  */
-public interface IdentitySession {
+public interface IdentitySession extends OutputPort {
 
   /**
    * Sets the identity cookie for a registered user.

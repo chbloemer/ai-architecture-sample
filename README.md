@@ -17,7 +17,7 @@ This project showcases best practices for structuring a Spring Boot application 
 
 - **AI-Accessible Product Catalog** via MCP server (Spring AI 1.1.0-M3)
 - **Complete Architecture Testing** with ArchUnit (10 test suites)
-- **17 Architecture Decision Records** documenting design choices
+- **23 Architecture Decision Records** documenting design choices
 - **Shared Kernel** pattern for cross-context value objects
 - **Framework-Independent Domain** layer (no Spring/JPA in core)
 - **Multi-step Checkout Flow** with 5 steps and session management
@@ -29,7 +29,7 @@ This project showcases best practices for structuring a Spring Boot application 
 ### Domain-Driven Design (DDD)
 
 **Strategic Patterns:**
-- **Bounded Contexts**: Product Catalog, Shopping Cart, Checkout, Account, Portal
+- **Bounded Contexts**: Product Catalog, Shopping Cart, Checkout, Account, Portal, Inventory, Pricing
 - **Shared Kernel**: Cross-context value objects (Money, Price, ProductId, UserId)
 - **Context Mapping**: Contexts communicate via shared kernel and domain events
 - **Open Host Service**: ProductCatalogService provides cross-context API
@@ -337,6 +337,9 @@ src/main/java/de/sample/aiarchitecture/
 │   │   │   ├── CheckoutCart.java           # Cart snapshot for checkout
 │   │   │   ├── CheckoutCartFactory.java    # Factory for checkout cart
 │   │   │   └── EnrichedCheckoutLineItem.java  # Enriched line item with prices
+│   │   ├── readmodel/                    # Read Models
+│   │   │   ├── CheckoutCartSnapshot.java  # Cart snapshot for display
+│   │   │   └── LineItemSnapshot.java      # Line item snapshot for display
 │   │   ├── service/                      # Domain services
 │   │   │   └── CheckoutStepValidator.java
 │   │   └── event/                        # Domain events
@@ -474,9 +477,9 @@ src/main/java/de/sample/aiarchitecture/
 │       │   ├── api/
 │       │   │   ├── AuthResource.java
 │       │   │   ├── LoginRequest.java
-│       │   │   ├── LoginApiResult.java
+│       │   │   ├── LoginResponse.java
 │       │   │   ├── RegisterRequest.java
-│       │   │   └── RegisterApiResult.java
+│       │   │   └── RegisterResponse.java
 │       │   └── web/
 │       │       ├── LoginPageController.java
 │       │       └── RegisterPageController.java
@@ -847,7 +850,7 @@ These tests verify:
 12. **OpenHost Service Pattern**: ProductCatalogService provides cross-context API for checkout
 13. **UserId Continuity on Registration**: When a user registers, their anonymous UserId is preserved
 
-**Architecture Decision Records:** See [docs/architecture/adr/README.md](docs/architecture/adr/README.md) for 17 documented architectural decisions.
+**Architecture Decision Records:** See [docs/architecture/adr/README.md](docs/architecture/adr/README.md) for 23 documented architectural decisions.
 
 ## Business Rules Demonstrated
 

@@ -18,7 +18,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  */
 @SpringBootApplication(scanBasePackages = "de.sample.aiarchitecture")
 @org.springframework.data.jpa.repository.config.EnableJpaRepositories(basePackages = "de.sample.aiarchitecture")
-@org.springframework.boot.autoconfigure.domain.EntityScan(basePackages = "de.sample.aiarchitecture")
+@org.springframework.boot.persistence.autoconfigure.EntityScan(basePackages = "de.sample.aiarchitecture")
 public class AiArchitectureApplication {
 
   public static void main(final String[] args) {

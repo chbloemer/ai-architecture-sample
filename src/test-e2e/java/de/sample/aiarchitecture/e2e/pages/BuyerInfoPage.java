@@ -98,10 +98,16 @@ public class BuyerInfoPage extends BasePage {
   /**
    * Clicks the continue button, expecting to stay on the same page due to validation errors.
    *
+   * <p>Handles both HTML5 client-side validation (which prevents form submission)
+   * and server-side validation (which redirects back with error flash attributes).
+   *
    * @return this page for method chaining
    */
   public BuyerInfoPage submitWithErrors() {
     click(CONTINUE_BUTTON);
+    // Brief wait: HTML5 validation prevents submission (no navigation),
+    // server-side validation triggers a redirect back to this page.
+    page.waitForTimeout(500);
     return this;
   }
 
@@ -135,12 +141,28 @@ public class BuyerInfoPage extends BasePage {
   }
 
   /**
-   * Checks if the page contains validation error text.
+   * Checks if the page contains validation error text or HTML5 validation failures.
+   *
+   * <p>Detects three types of validation:
+   * <ul>
+   *   <li>Server-side errors rendered via data-test="buyer-error-message"</li>
+   *   <li>Server-side error text in the page body</li>
+   *   <li>HTML5 constraint validation on the buyer form inputs</li>
+   * </ul>
    *
    * @return true if validation errors are shown
    */
   public boolean hasValidationErrors() {
-    return hasErrorMessage() || pageContains("valid email") || pageContains("error");
+    return hasErrorMessage()
+        || pageContains("valid email")
+        || pageContains("error")
+        || hasHtml5ValidationErrors();
+  }
+
+  private boolean hasHtml5ValidationErrors() {
+    return (boolean) page.evaluate(
+        "() => { const form = document.querySelector('[data-test=\"buyer-form\"]'); "
+            + "return form != null && !form.checkValidity(); }");
   }
 
   /**

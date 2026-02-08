@@ -32,11 +32,13 @@ spring:
   ai:
     mcp:
       server:
-        protocol: streamable
-        type: sync
+        protocol: STREAMABLE
+        type: SYNC
         stdio: false
         name: ai-architecture-mcp-server
         version: 1.0.0
+        annotation-scanner:
+          enabled: true
         streamable-http:
           mcp-endpoint: /mcp
 

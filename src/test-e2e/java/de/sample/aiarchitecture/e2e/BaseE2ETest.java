@@ -53,11 +53,15 @@ public abstract class BaseE2ETest {
   final TestWatcher screenshotOnFailure = new TestWatcher() {
     @Override
     public void testFailed(ExtensionContext context, Throwable cause) {
-      if (page != null) {
-        String testName = context.getDisplayName().replaceAll("[^a-zA-Z0-9_-]", "_");
-        page.screenshot(new Page.ScreenshotOptions()
-            .setPath(Paths.get("build/reports/test-e2e/screenshots/" + testName + ".png"))
-            .setFullPage(true));
+      if (page != null && !page.isClosed()) {
+        try {
+          String testName = context.getDisplayName().replaceAll("[^a-zA-Z0-9_-]", "_");
+          page.screenshot(new Page.ScreenshotOptions()
+              .setPath(Paths.get("build/reports/test-e2e/screenshots/" + testName + ".png"))
+              .setFullPage(true));
+        } catch (Exception e) {
+          // Browser context may already be closed by @AfterEach
+        }
       }
     }
   };

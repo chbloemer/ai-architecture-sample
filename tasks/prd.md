@@ -2619,3 +2619,51 @@ Before starting, check tasks/logs/ folder for US-94 and US-99 results to see the
   - Cross-context data flows through Open Host Service, not direct imports
 
 ---
+
+### US-130: Upgrade to Spring Boot 4.0.2, JDK 25, and Gradle 9.3.1
+**Epic:** platform-upgrade
+**Depends on:** (none)
+
+**As a** developer
+**I want** the application upgraded to Spring Boot 4.0.2, JDK 25, and Gradle 9.3.1
+**So that** the project uses the latest LTS platform with Spring Framework 7, Jakarta EE 11, and Hibernate 7
+
+**Acceptance Criteria:**
+- Spring Boot upgraded from 3.5.10 to 4.0.2
+- JDK toolchain upgraded from 21 to 25
+- Gradle wrapper upgraded from 9.1.0 to 9.3.1
+- Spring AI upgraded from 1.1.2 to 2.0.0-M2 with milestone repo
+- Spock upgraded from 2.4-M6-groovy-4.0 to 2.4-groovy-5.0 (GA)
+- Byte Buddy upgraded from 1.17.8 to 1.18.4 (JDK 25 bytecode support)
+- JUnit version managed by Boot BOM (6.0.2) instead of hardcoded 5.11.4
+- Spring `@NonNull` replaced with JSpecify `@NonNull` in JwtAuthenticationFilter and AsyncConfiguration
+- `@EntityScan` import migrated to `org.springframework.boot.persistence.autoconfigure`
+- Spring AI MCP properties updated to uppercase enum values (SYNC, STREAMABLE)
+- Spring AI annotation-scanner enabled for 2.0 compatibility
+- E2E BaseE2ETest screenshot-on-failure hardened against closed browser context
+- E2E BuyerInfoPage validation detection extended with HTML5 Constraint Validation API
+- All unit tests pass: `./gradlew test`
+- All architecture tests pass: `./gradlew test-architecture`
+- All integration tests pass: `./gradlew test-integration`
+- Application starts successfully: `./gradlew bootRun`
+
+**Architectural Guidance:**
+- **Affected Layers:** Infrastructure, Adapter
+- **Locations:**
+  - `build.gradle` (Boot 4.0.2, JDK 25, Spring AI 2.0.0-M2)
+  - `gradle/plugins/test-common.gradle` (Spock 2.4-groovy-5.0, Byte Buddy 1.18.4)
+  - `gradle/plugins/test-e2e.gradle` (JUnit managed by BOM)
+  - `gradle/wrapper/gradle-wrapper.properties` (Gradle 9.3.1)
+  - `infrastructure/AiArchitectureApplication.java` (@EntityScan import)
+  - `infrastructure/config/AsyncConfiguration.java` (JSpecify @NonNull)
+  - `infrastructure/security/jwt/JwtAuthenticationFilter.java` (JSpecify @NonNull)
+  - `src/main/resources/application.yml` (MCP properties)
+  - `src/test-e2e` (BaseE2ETest, BuyerInfoPage)
+- **Patterns:** Infrastructure Configuration, Platform Migration
+- **Constraints:**
+  - Run `./gradlew test-architecture` to verify architectural compliance
+  - No domain layer changes required for this upgrade
+  - Spring AI 2.0.0-M2 requires repo.spring.io/milestone repository
+  - JJWT 0.12.6 uses Jackson 2 internally - compatible but may need future update for Jackson 3
+
+---

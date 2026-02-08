@@ -434,7 +434,7 @@
       "acceptance_criteria": [
         "./gradlew build passes",
         "Application starts successfully",
-        "Complete flow: Buyer \u2192 Delivery \u2192 Payment \u2192 Review \u2192 Confirm",
+        "Complete flow: Buyer → Delivery → Payment → Review → Confirm",
         "Cart status is CHECKED_OUT after completion"
       ],
       "passes": true
@@ -3616,7 +3616,7 @@
           "Documentation matches actual code implementation"
         ]
       },
-      "passes": false
+      "passes": true
     },
     {
       "id": "US-129",
@@ -3705,7 +3705,7 @@
           "Cross-context data flows through Open Host Service, not direct imports"
         ]
       },
-      "passes": false
+      "passes": true
     },
     {
       "id": "US-130",
@@ -3759,7 +3759,49 @@
           "JJWT 0.12.6 uses Jackson 2 internally - compatible but may need future update for Jackson 3"
         ]
       },
-      "passes": false
+      "passes": true
+    },
+    {
+      "id": "US-131",
+      "epic": "code-quality",
+      "title": "Sprint Skill — Native Agent Team PRD Orchestration",
+      "description": "Replace external RALPH/Gastown scripts with a native Claude Code /sprint skill that reads tasks/prd.json, creates an Agent Team, assigns stories to specialized agents (ddd-expert, spring-boot-specialist, arch-compliance, frontend-developer, e2e-tester, dca-guardian, general-purpose), and orchestrates wave-based execution respecting story dependencies. Also converts /prd command to a proper skill.",
+      "depends_on": [],
+      "acceptance_criteria": [
+        "SKILL.md created at .claude/skills/sprint/SKILL.md with YAML frontmatter (name, description, argument-hint, disable-model-invocation)",
+        "Sprint skill supports flags: --all, --epic, --stories, --next N, --dry-run (combinable)",
+        "Phase 1: Reads tasks/prd.json, filters by arguments, builds dependency graph, classifies stories as ready/blocked",
+        "Phase 2: Maps stories to specialist agents using architectural_guidance signals",
+        "Phase 3: Creates Agent Team (sprint-YYYYMMDD), tasks for ready and blocked stories with dependencies",
+        "Phase 4: Spawns max 4 concurrent agents, one instance per agent type",
+        "Phase 5: Wave-based execution loop — completes stories, updates prd.json passes:true, unblocks dependents, spawns next wave",
+        "Phase 6: Quality verification — ./gradlew clean build && test-architecture",
+        "Phase 7: Commits all changes with story IDs in message",
+        "Phase 8: Shuts down agents, deletes team, prints summary",
+        "Supporting prompt.md at .claude/skills/sprint/prompt.md with project conventions (tech stack, package structure, naming, DDD markers, quality commands, agent work protocol)",
+        "/prd command converted from .claude/commands/prd.md to .claude/skills/prd/SKILL.md with proper frontmatter",
+        "Old .claude/commands/prd.md removed"
+      ],
+      "architectural_guidance": {
+        "affected_layers": [
+          "documentation"
+        ],
+        "locations": [
+          ".claude/skills/sprint/SKILL.md",
+          ".claude/skills/sprint/prompt.md",
+          ".claude/skills/prd/SKILL.md"
+        ],
+        "patterns": [
+          "Agent Team Orchestration",
+          "Skills Configuration"
+        ],
+        "constraints": [
+          "SKILL.md must have valid YAML frontmatter",
+          "prompt.md must be self-contained (no dependency on scripts/ralph/)",
+          "Naming conventions in prompt.md must match project conventions (*Result not *Response, *EventConsumer not *EventListener)"
+        ]
+      },
+      "passes": true
     }
   ]
 }

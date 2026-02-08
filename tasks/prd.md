@@ -2667,3 +2667,35 @@ Before starting, check tasks/logs/ folder for US-94 and US-99 results to see the
   - JJWT 0.12.6 uses Jackson 2 internally - compatible but may need future update for Jackson 3
 
 ---
+
+### US-131: Sprint Skill — Native Agent Team PRD Orchestration ✅
+**Epic:** code-quality
+**Depends on:** —
+
+**As a** developer
+**I want** a native `/sprint` skill that orchestrates Agent Teams from PRD stories
+**So that** I can execute stories without external RALPH/Gastown scripts
+
+**Acceptance Criteria:**
+- SKILL.md created at `.claude/skills/sprint/SKILL.md` with YAML frontmatter
+- Sprint skill supports flags: `--all`, `--epic`, `--stories`, `--next N`, `--dry-run` (combinable)
+- Phase 1-8 orchestration lifecycle: read PRD, assign agents, create team, spawn agents, wave execution, quality verification, commit, cleanup
+- Maps stories to specialist agents using `architectural_guidance` signals (ddd-expert, spring-boot-specialist, arch-compliance, frontend-developer, e2e-tester, dca-guardian, general-purpose)
+- Wave-based execution loop respecting story dependencies
+- Supporting `prompt.md` with self-contained project conventions
+- `/prd` command converted from `.claude/commands/prd.md` to `.claude/skills/prd/SKILL.md`
+- Old `.claude/commands/prd.md` removed
+
+**Architectural Guidance:**
+- **Affected Layers:** Documentation
+- **Locations:**
+  - `.claude/skills/sprint/SKILL.md`
+  - `.claude/skills/sprint/prompt.md`
+  - `.claude/skills/prd/SKILL.md`
+- **Patterns:** Agent Team Orchestration, Skills Configuration
+- **Constraints:**
+  - SKILL.md must have valid YAML frontmatter
+  - prompt.md must be self-contained (no dependency on scripts/ralph/)
+  - Naming conventions in prompt.md must match project conventions
+
+---

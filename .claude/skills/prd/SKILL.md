@@ -1,3 +1,9 @@
+---
+name: prd
+description: Add a new user story to the PRD in tasks/prd.json and tasks/prd.md with architectural guidance.
+argument-hint: "[story details or title]"
+---
+
 # Add User Story to PRD
 
 Add a new user story to the PRD document in the `tasks/` folder.
@@ -29,14 +35,13 @@ $ARGUMENTS - The user story details. Can be:
 
 4. **Determine the epic:**
    - Check existing epics in prd.json: `jq -r '[.stories[].epic // empty] | unique | .[]' tasks/prd.json`
-   - Existing epics: `pricing-context`, `inventory-context`, `cart-resolver`, `checkout-resolver`, `data-migration`
    - If the story fits an existing epic, use it
    - If creating a new feature area, create a new epic name (lowercase, hyphenated)
-   - Stories without an epic get `"epic": null` (works with all epics in RALPH/Gastown)
+   - Stories without an epic get `"epic": null`
 
 5. **Determine dependencies (`depends_on`):**
    - List story IDs that MUST pass before this story can be started
-   - Used by `ralph.sh` and `gastown.sh` to order work
+   - Used by `/sprint` to order work
    - If no dependencies, use empty array: `"depends_on": []`
    - Example: A repository implementation depends on the aggregate being created first
 
@@ -50,12 +55,12 @@ $ARGUMENTS - The user story details. Can be:
 
    **For Use Case changes:**
    - Location: `{context}.application.{usecasename}/` (lowercase folder)
-   - Files: `*InputPort.java`, `*UseCase.java`, `*Command.java` or `*Query.java`, `*Response.java`
+   - Files: `*InputPort.java`, `*UseCase.java`, `*Command.java` or `*Query.java`, `*Result.java`
    - Use Case must implement InputPort, be annotated with `@Service`
    - Input/Output models use primitives only (no domain objects)
 
    **For Event Consumer changes (cross-context integration):**
-   - Location: `{context}.adapter.incoming.event/*EventListener.java`
+   - Location: `{context}.adapter.incoming.event/*EventConsumer.java`
    - Must call Use Case via InputPort (never domain directly)
    - Use `@EventListener` or `@TransactionalEventListener(phase = AFTER_COMMIT)`
    - Create Anti-Corruption Layer if translating external events
@@ -67,7 +72,7 @@ $ARGUMENTS - The user story details. Can be:
 
    **For Controller changes:**
    - REST: `{context}.adapter.incoming.api/*Resource.java`
-   - MVC: `{context}.adapter.incoming.web/*Controller.java`
+   - MVC: `{context}.adapter.incoming.web/*PageController.java`
    - Must call InputPort (not UseCase directly)
 
 7. **Add the new user story to both files:**
@@ -87,12 +92,12 @@ $ARGUMENTS - The user story details. Can be:
      "architectural_guidance": {
        "affected_layers": ["domain", "application", "adapter"],
        "locations": [
-         "{context}.adapter.incoming.event/*EventListener"
+         "{context}.adapter.incoming.event/*EventConsumer"
        ],
        "patterns": ["Event Consumer", "Anti-Corruption Layer"],
        "constraints": [
          "No direct imports from other bounded context domains",
-         "Event listener calls use case via InputPort"
+         "Event consumer calls use case via InputPort"
        ]
      },
      "passes": false
@@ -116,11 +121,11 @@ $ARGUMENTS - The user story details. Can be:
    **Architectural Guidance:**
    - **Affected Layers:** Domain, Application, Adapter
    - **Locations:**
-     - `{context}.adapter.incoming.event/*EventListener`
+     - `{context}.adapter.incoming.event/*EventConsumer`
    - **Patterns:** Event Consumer, Anti-Corruption Layer
    - **Constraints:**
      - No direct imports from other bounded context domains
-     - Event listener calls use case via InputPort
+     - Event consumer calls use case via InputPort
      - Run `./gradlew test-architecture` to verify
 
    ---
@@ -148,12 +153,13 @@ $ARGUMENTS - The user story details. Can be:
 | Use Case | `{context}.application.{usecasename}/*UseCase` |
 | Input Port | `{context}.application.{usecasename}/*InputPort` |
 | Command/Query | `{context}.application.{usecasename}/*Command` or `*Query` |
-| Response | `{context}.application.{usecasename}/*Response` |
+| Result | `{context}.application.{usecasename}/*Result` |
 | Repository Interface | `{context}.application.shared/*Repository` |
 | Repository Impl | `{context}.adapter.outgoing.persistence/*` |
 | REST Controller | `{context}.adapter.incoming.api/*Resource` |
-| MVC Controller | `{context}.adapter.incoming.web/*Controller` |
-| Event Listener | `{context}.adapter.incoming.event/*EventListener` |
+| MVC Controller | `{context}.adapter.incoming.web/*PageController` |
+| Event Consumer | `{context}.adapter.incoming.event/*EventConsumer` |
+| MCP Tool Provider | `{context}.adapter.incoming.mcp/*McpToolProvider` |
 
 ## Example Usage
 
@@ -162,16 +168,3 @@ $ARGUMENTS - The user story details. Can be:
 /prd US-25: Add Payment Validation | Validate payment tokens before processing | Token format validation, Expiry check
 /prd US-90: Price History | Track price changes over time | Store old prices, Query history | epic:pricing-context | depends:US-53
 ```
-
-## Integration with RALPH and Gastown
-
-The `epic` and `depends_on` fields are used by automation scripts:
-
-- **RALPH (`scripts/ralph/ralph.sh`):** Single-agent loop that processes stories sequentially
-  - `--epic <name>` flag to focus on one epic
-  - Only starts stories whose dependencies have `passes: true`
-
-- **Gastown (`scripts/gastown/gastown.sh`):** Multi-agent orchestration
-  - Creates convoys from epics (groups related work)
-  - Sets up bead dependencies from `depends_on` field
-  - Enables parallel execution across epics

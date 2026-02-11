@@ -8,8 +8,8 @@ import java.util.Set;
 /**
  * JWT-based implementation of Identity.
  *
- * <p>This is an immutable record that carries identity information throughout
- * a request. It is available via {@link IdentityProvider#getCurrentIdentity()}.
+ * <p>This is an immutable record that carries identity information throughout a request. It is
+ * available via {@link IdentityProvider#getCurrentIdentity()}.
  *
  * @param userId the user's unique identifier (always present)
  * @param type the identity type (ANONYMOUS or REGISTERED)
@@ -17,10 +17,8 @@ import java.util.Set;
  * @param roles the user's roles (typically empty for anonymous, contains CUSTOMER for registered)
  */
 public record JwtIdentity(
-    UserId userId,
-    JwtIdentityType type,
-    Optional<String> email,
-    Set<String> roles) implements IdentityProvider.Identity {
+    UserId userId, JwtIdentityType type, Optional<String> email, Set<String> roles)
+    implements IdentityProvider.Identity {
 
   public JwtIdentity {
     if (userId == null) {
@@ -56,9 +54,7 @@ public record JwtIdentity(
    * @return a new registered identity
    */
   public static JwtIdentity registered(
-      final UserId userId,
-      final String email,
-      final Set<String> roles) {
+      final UserId userId, final String email, final Set<String> roles) {
     return new JwtIdentity(userId, JwtIdentityType.REGISTERED, Optional.of(email), roles);
   }
 

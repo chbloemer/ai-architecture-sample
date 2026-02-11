@@ -45,8 +45,7 @@ public class PricingService {
    * @param currentPrice the current price
    * @param effectiveFrom when the price became effective
    */
-  public record PriceInfo(
-      ProductId productId, Money currentPrice, Instant effectiveFrom) {}
+  public record PriceInfo(ProductId productId, Money currentPrice, Instant effectiveFrom) {}
 
   /**
    * Retrieves prices for multiple products.

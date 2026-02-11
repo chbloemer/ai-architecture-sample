@@ -9,8 +9,7 @@ import java.util.Currency;
  *
  * <p>Contains subtotal, shipping, tax, and grand total amounts.
  */
-public record CheckoutTotals(
-    Money subtotal, Money shipping, Money tax, Money total)
+public record CheckoutTotals(Money subtotal, Money shipping, Money tax, Money total)
     implements Value {
 
   public CheckoutTotals {

@@ -5,8 +5,7 @@ import com.microsoft.playwright.Page;
 /**
  * Page object for the product catalog page.
  *
- * <p>Provides methods to interact with the product listing, including
- * viewing product details.
+ * <p>Provides methods to interact with the product listing, including viewing product details.
  */
 public class ProductCatalogPage extends BasePage {
 

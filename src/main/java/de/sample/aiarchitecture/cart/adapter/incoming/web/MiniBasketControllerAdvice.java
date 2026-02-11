@@ -20,17 +20,18 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 /**
  * Provides mini basket data and identity information to all Pug templates.
  *
- * <p>This {@code @ControllerAdvice} adds the following model attributes
- * to every web request, making them available in the layout template:
+ * <p>This {@code @ControllerAdvice} adds the following model attributes to every web request,
+ * making them available in the layout template:
+ *
  * <ul>
- *   <li>{@code miniBasketItemCount} - number of distinct items in the cart</li>
- *   <li>{@code miniBasketTotal} - formatted cart total (e.g., "49.97 EUR")</li>
- *   <li>{@code miniBasketItems} - list of {@link MiniBasketItemViewModel} for the dropdown</li>
- *   <li>{@code identity} - the current user's {@link IdentityProvider.Identity}</li>
+ *   <li>{@code miniBasketItemCount} - number of distinct items in the cart
+ *   <li>{@code miniBasketTotal} - formatted cart total (e.g., "49.97 EUR")
+ *   <li>{@code miniBasketItems} - list of {@link MiniBasketItemViewModel} for the dropdown
+ *   <li>{@code identity} - the current user's {@link IdentityProvider.Identity}
  * </ul>
  *
- * <p>Errors are handled gracefully: if the cart cannot be loaded, the mini
- * basket shows zero items and an empty total.
+ * <p>Errors are handled gracefully: if the cart cannot be loaded, the mini basket shows zero items
+ * and an empty total.
  */
 @ControllerAdvice
 public class MiniBasketControllerAdvice {
@@ -50,9 +51,7 @@ public class MiniBasketControllerAdvice {
     this.identityProvider = identityProvider;
   }
 
-  /**
-   * Adds mini basket data and identity to the model for every request.
-   */
+  /** Adds mini basket data and identity to the model for every request. */
   @ModelAttribute
   public void addMiniBasketAndIdentity(final Model model) {
     final IdentityProvider.Identity identity = identityProvider.getCurrentIdentity();
@@ -83,17 +82,14 @@ public class MiniBasketControllerAdvice {
   }
 
   private void populateMiniBasket(final Model model, final EnrichedCart cart) {
-    final int itemCount = cart.items().stream()
-        .mapToInt(item -> item.quantity().value())
-        .sum();
+    final int itemCount = cart.items().stream().mapToInt(item -> item.quantity().value()).sum();
 
     final var subtotal = cart.calculateCurrentSubtotal();
-    final String formattedTotal = subtotal.amount().toPlainString()
-        + " " + subtotal.currency().getCurrencyCode();
+    final String formattedTotal =
+        subtotal.amount().toPlainString() + " " + subtotal.currency().getCurrencyCode();
 
-    final List<MiniBasketItemViewModel> items = cart.items().stream()
-        .map(this::toMiniBasketItem)
-        .toList();
+    final List<MiniBasketItemViewModel> items =
+        cart.items().stream().map(this::toMiniBasketItem).toList();
 
     model.addAttribute("miniBasketItemCount", itemCount);
     model.addAttribute("miniBasketTotal", formattedTotal);
@@ -102,12 +98,10 @@ public class MiniBasketControllerAdvice {
 
   private MiniBasketItemViewModel toMiniBasketItem(final EnrichedCartItem item) {
     final var lineTotal = item.currentLineTotal();
-    final String formattedPrice = lineTotal.amount().toPlainString()
-        + " " + lineTotal.currency().getCurrencyCode();
+    final String formattedPrice =
+        lineTotal.amount().toPlainString() + " " + lineTotal.currency().getCurrencyCode();
 
     return new MiniBasketItemViewModel(
-        item.currentArticle().name(),
-        item.quantity().value(),
-        formattedPrice);
+        item.currentArticle().name(), item.quantity().value(), formattedPrice);
   }
 }

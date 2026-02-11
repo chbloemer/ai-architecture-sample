@@ -5,9 +5,9 @@ import de.sample.aiarchitecture.sharedkernel.marker.tactical.Specification;
 /**
  * Generic, framework-agnostic Specification interface for domain use.
  *
- * <p>This extends the marker {@link Specification} interface with composition
- * and visitor support. Prefer this interface for new, composable specifications
- * that can be translated by adapters (e.g., to JPA predicates).
+ * <p>This extends the marker {@link Specification} interface with composition and visitor support.
+ * Prefer this interface for new, composable specifications that can be translated by adapters
+ * (e.g., to JPA predicates).
  */
 public interface CompositeSpecification<T> extends Specification<T> {
 
@@ -15,8 +15,8 @@ public interface CompositeSpecification<T> extends Specification<T> {
   boolean isSatisfiedBy(T candidate);
 
   /**
-   * Accepts a visitor to translate this specification into another representation (e.g.,
-   * a JPA Specification for pushdown or a Mongo filter).
+   * Accepts a visitor to translate this specification into another representation (e.g., a JPA
+   * Specification for pushdown or a Mongo filter).
    */
   <R> R accept(SpecificationVisitor<T, R> visitor);
 

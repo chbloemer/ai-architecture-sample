@@ -26,11 +26,11 @@ import org.springframework.web.bind.annotation.*;
 /**
  * REST API Resource for Shopping Cart operations.
  *
- * <p>This is a primary adapter (incoming) in Hexagonal Architecture that exposes
- * shopping cart functionality via REST API using Clean Architecture use cases.
+ * <p>This is a primary adapter (incoming) in Hexagonal Architecture that exposes shopping cart
+ * functionality via REST API using Clean Architecture use cases.
  *
- * <p><b>Clean Architecture:</b> This controller depends on use case interfaces (input ports)
- * for all cart operations, following the Dependency Inversion Principle.
+ * <p><b>Clean Architecture:</b> This controller depends on use case interfaces (input ports) for
+ * all cart operations, following the Dependency Inversion Principle.
  */
 @RestController
 @RequestMapping("/api/carts")
@@ -39,7 +39,9 @@ public class ShoppingCartResource {
   private final CreateCartUseCase createCartUseCase;
   private final GetAllCartsUseCase getAllCartsUseCase;
   private final GetCartByIdUseCase getCartByIdUseCase;
-  private final de.sample.aiarchitecture.cart.application.getorcreateactivecart.GetOrCreateActiveCartUseCase getOrCreateActiveCartUseCase;
+  private final de.sample.aiarchitecture.cart.application.getorcreateactivecart
+          .GetOrCreateActiveCartUseCase
+      getOrCreateActiveCartUseCase;
   private final AddItemToCartUseCase addItemToCartUseCase;
   private final RemoveItemFromCartUseCase removeItemFromCartUseCase;
   private final CheckoutCartUseCase checkoutCartUseCase;
@@ -49,7 +51,9 @@ public class ShoppingCartResource {
       final CreateCartUseCase createCartUseCase,
       final GetAllCartsUseCase getAllCartsUseCase,
       final GetCartByIdUseCase getCartByIdUseCase,
-      final de.sample.aiarchitecture.cart.application.getorcreateactivecart.GetOrCreateActiveCartUseCase getOrCreateActiveCartUseCase,
+      final de.sample.aiarchitecture.cart.application.getorcreateactivecart
+              .GetOrCreateActiveCartUseCase
+          getOrCreateActiveCartUseCase,
       final AddItemToCartUseCase addItemToCartUseCase,
       final RemoveItemFromCartUseCase removeItemFromCartUseCase,
       final CheckoutCartUseCase checkoutCartUseCase,
@@ -90,16 +94,20 @@ public class ShoppingCartResource {
   }
 
   @GetMapping("/customer/{customerId}/active")
-  public ResponseEntity<ShoppingCartDto> getOrCreateActiveCart(@PathVariable final String customerId) {
+  public ResponseEntity<ShoppingCartDto> getOrCreateActiveCart(
+      @PathVariable final String customerId) {
     if (customerId == null || customerId.isBlank()) {
       return ResponseEntity.badRequest().build();
     }
 
-    final var response = getOrCreateActiveCartUseCase
-        .execute(new de.sample.aiarchitecture.cart.application.getorcreateactivecart.GetOrCreateActiveCartCommand(customerId));
+    final var response =
+        getOrCreateActiveCartUseCase.execute(
+            new de.sample.aiarchitecture.cart.application.getorcreateactivecart
+                .GetOrCreateActiveCartCommand(customerId));
 
     // Fetch full cart with enriched data
-    final GetCartByIdResult result = getCartByIdUseCase.execute(new GetCartByIdQuery(response.cartId()));
+    final GetCartByIdResult result =
+        getCartByIdUseCase.execute(new GetCartByIdQuery(response.cartId()));
     return ResponseEntity.ok(converter.toDto(result.cart().orElseThrow()));
   }
 
@@ -107,11 +115,8 @@ public class ShoppingCartResource {
   public ResponseEntity<ShoppingCartDto> addItemToCart(
       @PathVariable final String cartId, @Valid @RequestBody final AddToCartRequest request) {
 
-    final AddItemToCartCommand input = new AddItemToCartCommand(
-        cartId,
-        request.productId(),
-        request.quantity()
-    );
+    final AddItemToCartCommand input =
+        new AddItemToCartCommand(cartId, request.productId(), request.quantity());
 
     try {
       final AddItemToCartResult output = addItemToCartUseCase.execute(input);

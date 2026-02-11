@@ -1,20 +1,22 @@
 /**
  * Input Ports (Driving/Primary Ports).
  *
- * <p>Input ports are the entry points to the application layer. They define how
- * the outside world (driving adapters) can interact with the application.
+ * <p>Input ports are the entry points to the application layer. They define how the outside world
+ * (driving adapters) can interact with the application.
  *
  * <p><b>Driving Adapters that use Input Ports:</b>
+ *
  * <ul>
- *   <li>REST Controllers</li>
- *   <li>GraphQL Resolvers</li>
- *   <li>CLI Command Handlers</li>
- *   <li>Event Consumers</li>
- *   <li>Scheduled Tasks</li>
- *   <li>MCP Tool Providers</li>
+ *   <li>REST Controllers
+ *   <li>GraphQL Resolvers
+ *   <li>CLI Command Handlers
+ *   <li>Event Consumers
+ *   <li>Scheduled Tasks
+ *   <li>MCP Tool Providers
  * </ul>
  *
  * <p><b>Port Hierarchy:</b>
+ *
  * <pre>
  * InputPort (marker)
  *   └── UseCase&lt;INPUT, OUTPUT&gt;

@@ -15,6 +15,7 @@ import java.util.Optional;
  * Implementation resides in the secondary adapter layer.
  *
  * <p>Extends the base {@link Repository} interface which provides common methods:
+ *
  * <ul>
  *   <li>{@code findById(CheckoutSessionId)} - inherited from base interface
  *   <li>{@code save(CheckoutSession)} - inherited from base interface
@@ -46,8 +47,8 @@ public interface CheckoutSessionRepository extends Repository<CheckoutSession, C
   /**
    * Finds an active checkout session for a customer.
    *
-   * <p>A customer can have at most one active checkout session at a time.
-   * Active means the session status is ACTIVE (not confirmed, completed, abandoned, or expired).
+   * <p>A customer can have at most one active checkout session at a time. Active means the session
+   * status is ACTIVE (not confirmed, completed, abandoned, or expired).
    *
    * @param customerId the customer ID
    * @return the active checkout session if found, empty otherwise
@@ -57,8 +58,8 @@ public interface CheckoutSessionRepository extends Repository<CheckoutSession, C
   /**
    * Finds all checkout sessions that have expired.
    *
-   * <p>A session is considered expired when its status is EXPIRED. This method
-   * is typically used by cleanup processes or for reporting purposes.
+   * <p>A session is considered expired when its status is EXPIRED. This method is typically used by
+   * cleanup processes or for reporting purposes.
    *
    * @return list of expired checkout sessions
    */

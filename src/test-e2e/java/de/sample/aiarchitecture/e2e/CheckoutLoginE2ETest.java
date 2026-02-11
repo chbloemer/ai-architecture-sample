@@ -1,32 +1,35 @@
 package de.sample.aiarchitecture.e2e;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 import de.sample.aiarchitecture.e2e.pages.*;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * E2E tests for the checkout flow with authenticated users.
  *
  * <p>Tests the checkout process for logged-in users including:
+ *
  * <ul>
- *   <li>User registration and login</li>
- *   <li>Cart recovery after login (guest cart merged with user cart)</li>
- *   <li>Pre-filled buyer information from user profile</li>
- *   <li>Complete checkout flow for authenticated users</li>
+ *   <li>User registration and login
+ *   <li>Cart recovery after login (guest cart merged with user cart)
+ *   <li>Pre-filled buyer information from user profile
+ *   <li>Complete checkout flow for authenticated users
  * </ul>
  *
  * <p>Prerequisites:
+ *
  * <ul>
- *   <li>Application running at configured base URL</li>
- *   <li>Sample products loaded in database</li>
+ *   <li>Application running at configured base URL
+ *   <li>Sample products loaded in database
  * </ul>
  */
 @DisplayName("Authenticated Checkout E2E Tests")
 class CheckoutLoginE2ETest extends BaseE2ETest {
 
-  private static final String TEST_EMAIL = "testuser-" + System.currentTimeMillis() + "@example.com";
+  private static final String TEST_EMAIL =
+      "testuser-" + System.currentTimeMillis() + "@example.com";
   private static final String TEST_PASSWORD = "SecurePassword123!";
 
   @Test
@@ -45,20 +48,18 @@ class CheckoutLoginE2ETest extends BaseE2ETest {
     BuyerInfoPage buyer = cart.proceedToCheckout();
 
     // Step 4: Fill buyer info
-    DeliveryPage delivery = buyer
-        .fillBuyerInfo(TEST_EMAIL, "Test", "User", "+1-555-0199")
-        .continueToDelivery();
+    DeliveryPage delivery =
+        buyer.fillBuyerInfo(TEST_EMAIL, "Test", "User", "+1-555-0199").continueToDelivery();
 
     // Step 5: Fill delivery information
-    PaymentPage payment = delivery
-        .fillAddress("456 Oak Avenue", "Chicago", "60601", "United States", "IL")
-        .selectFirstShippingOption()
-        .continueToPayment();
+    PaymentPage payment =
+        delivery
+            .fillAddress("456 Oak Avenue", "Chicago", "60601", "United States", "IL")
+            .selectFirstShippingOption()
+            .continueToPayment();
 
     // Step 6: Select payment method
-    ReviewPage review = payment
-        .selectFirstPaymentProvider()
-        .continueToReview();
+    ReviewPage review = payment.selectFirstPaymentProvider().continueToReview();
 
     // Step 7: Verify and place order
     assertTrue(review.showsEmail(TEST_EMAIL), "Review page should show user email");
@@ -135,21 +136,18 @@ class CheckoutLoginE2ETest extends BaseE2ETest {
     // After login, should proceed to checkout
     page.waitForURL(url -> url.contains("/checkout") || url.contains("/cart"));
     String path = getCurrentPath();
-    assertTrue(path.contains("/checkout") || path.contains("/cart"),
+    assertTrue(
+        path.contains("/checkout") || path.contains("/cart"),
         "Should be redirected to checkout or cart after login");
   }
 
-  /**
-   * Helper method to register a new user with default credentials.
-   */
+  /** Helper method to register a new user with default credentials. */
   private void registerNewUser() {
     RegisterPage register = RegisterPage.navigateTo(page);
     register.register(TEST_EMAIL, TEST_PASSWORD);
   }
 
-  /**
-   * Helper method to add a product to the cart.
-   */
+  /** Helper method to add a product to the cart. */
   private void addProductToCart() {
     ProductCatalogPage catalog = ProductCatalogPage.navigateTo(page);
     ProductDetailPage detail = catalog.viewFirstProduct();

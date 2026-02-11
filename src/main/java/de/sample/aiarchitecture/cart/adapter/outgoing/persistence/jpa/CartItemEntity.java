@@ -26,16 +26,51 @@ public class CartItemEntity {
   @Column(name = "price_currency", nullable = false, length = 3)
   private String priceCurrency;
 
-  public String getId() { return id; }
-  public void setId(String id) { this.id = id; }
-  public CartEntity getCart() { return cart; }
-  public void setCart(CartEntity cart) { this.cart = cart; }
-  public String getProductId() { return productId; }
-  public void setProductId(String productId) { this.productId = productId; }
-  public int getQuantity() { return quantity; }
-  public void setQuantity(int quantity) { this.quantity = quantity; }
-  public java.math.BigDecimal getPriceAmount() { return priceAmount; }
-  public void setPriceAmount(java.math.BigDecimal priceAmount) { this.priceAmount = priceAmount; }
-  public String getPriceCurrency() { return priceCurrency; }
-  public void setPriceCurrency(String priceCurrency) { this.priceCurrency = priceCurrency; }
+  public String getId() {
+    return id;
+  }
+
+  public void setId(String id) {
+    this.id = id;
+  }
+
+  public CartEntity getCart() {
+    return cart;
+  }
+
+  public void setCart(CartEntity cart) {
+    this.cart = cart;
+  }
+
+  public String getProductId() {
+    return productId;
+  }
+
+  public void setProductId(String productId) {
+    this.productId = productId;
+  }
+
+  public int getQuantity() {
+    return quantity;
+  }
+
+  public void setQuantity(int quantity) {
+    this.quantity = quantity;
+  }
+
+  public java.math.BigDecimal getPriceAmount() {
+    return priceAmount;
+  }
+
+  public void setPriceAmount(java.math.BigDecimal priceAmount) {
+    this.priceAmount = priceAmount;
+  }
+
+  public String getPriceCurrency() {
+    return priceCurrency;
+  }
+
+  public void setPriceCurrency(String priceCurrency) {
+    this.priceCurrency = priceCurrency;
+  }
 }

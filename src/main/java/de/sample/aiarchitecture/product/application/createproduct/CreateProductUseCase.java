@@ -1,15 +1,15 @@
 package de.sample.aiarchitecture.product.application.createproduct;
 
-import de.sample.aiarchitecture.sharedkernel.marker.port.out.DomainEventPublisher;
 import de.sample.aiarchitecture.product.application.shared.ProductRepository;
 import de.sample.aiarchitecture.product.domain.model.Category;
+import de.sample.aiarchitecture.product.domain.model.ImageUrl;
 import de.sample.aiarchitecture.product.domain.model.Product;
 import de.sample.aiarchitecture.product.domain.model.ProductDescription;
-import de.sample.aiarchitecture.product.domain.model.ImageUrl;
 import de.sample.aiarchitecture.product.domain.model.ProductFactory;
 import de.sample.aiarchitecture.product.domain.model.ProductName;
 import de.sample.aiarchitecture.product.domain.model.SKU;
 import de.sample.aiarchitecture.sharedkernel.domain.model.Money;
+import de.sample.aiarchitecture.sharedkernel.marker.port.out.DomainEventPublisher;
 import java.util.Currency;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,16 +18,17 @@ import org.springframework.transaction.annotation.Transactional;
  * Use case for creating a new product.
  *
  * <p>This use case orchestrates the creation of a new product by:
+ *
  * <ol>
- *   <li>Validating business rules (SKU uniqueness)</li>
- *   <li>Creating the product aggregate using the factory</li>
- *   <li>Persisting the product via repository</li>
- *   <li>Publishing domain events (for Pricing and Inventory contexts)</li>
+ *   <li>Validating business rules (SKU uniqueness)
+ *   <li>Creating the product aggregate using the factory
+ *   <li>Persisting the product via repository
+ *   <li>Publishing domain events (for Pricing and Inventory contexts)
  * </ol>
  *
- * <p><b>Note:</b> The product aggregate only stores identity and description data.
- * The initial price and stock are included in the ProductCreated event for
- * synchronization with the Pricing and Inventory bounded contexts respectively.
+ * <p><b>Note:</b> The product aggregate only stores identity and description data. The initial
+ * price and stock are included in the ProductCreated event for synchronization with the Pricing and
+ * Inventory bounded contexts respectively.
  *
  * <p><b>Hexagonal Architecture:</b> This class implements the {@link CreateProductInputPort}
  * interface, which is a primary/driving port in the application layer.
@@ -62,12 +63,14 @@ public class CreateProductUseCase implements CreateProductInputPort {
     final ProductName name = new ProductName(input.name());
     final ProductDescription description = new ProductDescription(input.description());
     final ImageUrl imageUrl = new ImageUrl(input.imageUrl());
-    final Money initialPrice = Money.of(input.priceAmount(), Currency.getInstance(input.priceCurrency()));
+    final Money initialPrice =
+        Money.of(input.priceAmount(), Currency.getInstance(input.priceCurrency()));
     final Category category = new Category(input.category());
 
     // Create product aggregate (initial price and stock included in ProductCreated event)
-    final Product product = productFactory.createProduct(
-        sku, name, description, category, imageUrl, initialPrice, input.stockQuantity());
+    final Product product =
+        productFactory.createProduct(
+            sku, name, description, category, imageUrl, initialPrice, input.stockQuantity());
 
     // Persist
     productRepository.save(product);
@@ -84,7 +87,6 @@ public class CreateProductUseCase implements CreateProductInputPort {
         product.imageUrl().value(),
         input.priceAmount(),
         input.priceCurrency(),
-        product.category().name()
-    );
+        product.category().name());
   }
 }

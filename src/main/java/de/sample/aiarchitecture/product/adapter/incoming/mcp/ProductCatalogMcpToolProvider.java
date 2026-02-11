@@ -15,18 +15,19 @@ import org.springframework.stereotype.Component;
 /**
  * MCP Tools for Product Catalog operations.
  *
- * <p>This class exposes product catalog functionality as MCP tools that can be invoked by AI
- * models through the Model Context Protocol. These tools provide read-only access to the product
- * catalog, allowing AI assistants to query products and retrieve product details.
+ * <p>This class exposes product catalog functionality as MCP tools that can be invoked by AI models
+ * through the Model Context Protocol. These tools provide read-only access to the product catalog,
+ * allowing AI assistants to query products and retrieve product details.
  *
  * <p><b>Primary Adapter:</b> This is a primary (incoming) adapter in the Hexagonal Architecture
- * pattern, exposing domain functionality through the MCP protocol. It uses Clean Architecture
- * use cases (input ports) to access domain logic.
+ * pattern, exposing domain functionality through the MCP protocol. It uses Clean Architecture use
+ * cases (input ports) to access domain logic.
  *
- * <p><b>Clean Architecture:</b> This adapter depends on use case interfaces rather than
- * application services, following the Dependency Inversion Principle.
+ * <p><b>Clean Architecture:</b> This adapter depends on use case interfaces rather than application
+ * services, following the Dependency Inversion Principle.
  *
  * <p><b>Available Tools:</b>
+ *
  * <ul>
  *   <li>{@link #getAllProducts()} - Retrieve all products in the catalog
  *   <li>{@link #getProductById(String)} - Get detailed product information by ID
@@ -56,13 +57,14 @@ public class ProductCatalogMcpToolProvider {
    *
    * @return list of all products as DTOs
    */
-  @McpTool(name="all-products",description = "Get all products in the catalog. Returns complete product information including SKU, name, price, category, and available stock.")
+  @McpTool(
+      name = "all-products",
+      description =
+          "Get all products in the catalog. Returns complete product information including SKU, name, price, category, and available stock.")
   public List<ProductDto> getAllProducts() {
     final GetAllProductsResult output = getAllProductsUseCase.execute(new GetAllProductsQuery());
 
-    return output.products().stream()
-        .map(productDtoConverter::toDto)
-        .toList();
+    return output.products().stream().map(productDtoConverter::toDto).toList();
   }
 
   /**
@@ -75,7 +77,10 @@ public class ProductCatalogMcpToolProvider {
    * @return product information if found, or null if not found
    * @throws IllegalArgumentException if ID format is invalid
    */
-  @McpTool(name="product-by-id", description = "Get detailed product information by product ID. Requires the internal product UUID. Returns complete product details including all attributes.")
+  @McpTool(
+      name = "product-by-id",
+      description =
+          "Get detailed product information by product ID. Requires the internal product UUID. Returns complete product details including all attributes.")
   public ProductDto getProductById(final String id) {
     final GetProductByIdResult output = getProductByIdUseCase.execute(new GetProductByIdQuery(id));
 

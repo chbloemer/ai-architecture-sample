@@ -1,4 +1,5 @@
 package de.sample.aiarchitecture.checkout.application.submitpayment;
+
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -9,13 +10,9 @@ import org.jspecify.annotations.Nullable;
  * @param providerReference optional provider-specific reference (e.g., payment intent ID)
  */
 public record SubmitPaymentCommand(
-    String sessionId,
-    String providerId,
-    @Nullable String providerReference) {
+    String sessionId, String providerId, @Nullable String providerReference) {
 
-  /**
-   * Compact constructor with validation.
-   */
+  /** Compact constructor with validation. */
   public SubmitPaymentCommand {
     if (sessionId == null || sessionId.isBlank()) {
       throw new IllegalArgumentException("Session ID cannot be null or blank");

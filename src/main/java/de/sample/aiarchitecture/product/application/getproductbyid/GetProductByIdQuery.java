@@ -7,9 +7,7 @@ package de.sample.aiarchitecture.product.application.getproductbyid;
  */
 public record GetProductByIdQuery(String productId) {
 
-  /**
-   * Compact constructor with validation.
-   */
+  /** Compact constructor with validation. */
   public GetProductByIdQuery {
     if (productId == null || productId.isBlank()) {
       throw new IllegalArgumentException("Product ID cannot be null or blank");

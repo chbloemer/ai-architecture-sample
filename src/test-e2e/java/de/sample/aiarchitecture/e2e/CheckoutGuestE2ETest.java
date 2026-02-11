@@ -1,28 +1,30 @@
 package de.sample.aiarchitecture.e2e;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 import de.sample.aiarchitecture.e2e.pages.*;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * E2E tests for the guest checkout flow.
  *
  * <p>Tests the complete checkout process for a guest user (not logged in):
+ *
  * <ul>
- *   <li>Adding products to cart</li>
- *   <li>Starting checkout</li>
- *   <li>Entering buyer information</li>
- *   <li>Entering delivery information</li>
- *   <li>Selecting payment method</li>
- *   <li>Reviewing and confirming order</li>
+ *   <li>Adding products to cart
+ *   <li>Starting checkout
+ *   <li>Entering buyer information
+ *   <li>Entering delivery information
+ *   <li>Selecting payment method
+ *   <li>Reviewing and confirming order
  * </ul>
  *
  * <p>Prerequisites:
+ *
  * <ul>
- *   <li>Application running at configured base URL</li>
- *   <li>Sample products loaded in database</li>
+ *   <li>Application running at configured base URL
+ *   <li>Sample products loaded in database
  * </ul>
  */
 @DisplayName("Guest Checkout E2E Tests")
@@ -42,20 +44,20 @@ class CheckoutGuestE2ETest extends BaseE2ETest {
 
     // Step 3: Start checkout and fill buyer information
     BuyerInfoPage buyer = cart.proceedToCheckout();
-    DeliveryPage delivery = buyer
-        .fillBuyerInfo("guest@example.com", "Test", "Guest", "+1-555-0100")
-        .continueToDelivery();
+    DeliveryPage delivery =
+        buyer
+            .fillBuyerInfo("guest@example.com", "Test", "Guest", "+1-555-0100")
+            .continueToDelivery();
 
     // Step 4: Fill delivery information
-    PaymentPage payment = delivery
-        .fillAddress("123 Main Street", "Springfield", "12345", "United States", "IL")
-        .selectFirstShippingOption()
-        .continueToPayment();
+    PaymentPage payment =
+        delivery
+            .fillAddress("123 Main Street", "Springfield", "12345", "United States", "IL")
+            .selectFirstShippingOption()
+            .continueToPayment();
 
     // Step 5: Select payment method
-    ReviewPage review = payment
-        .selectFirstPaymentProvider()
-        .continueToReview();
+    ReviewPage review = payment.selectFirstPaymentProvider().continueToReview();
 
     // Step 6: Verify order details and place order
     assertTrue(review.showsEmail("guest@example.com"), "Review page should show buyer email");
@@ -91,8 +93,7 @@ class CheckoutGuestE2ETest extends BaseE2ETest {
     BuyerInfoPage buyer = cart.proceedToCheckout();
 
     // Submit form with invalid email
-    buyer.fillBuyerInfo("invalid-email", "Test", "User", "")
-        .submitWithErrors();
+    buyer.fillBuyerInfo("invalid-email", "Test", "User", "").submitWithErrors();
 
     // Should show validation error and stay on buyer info page
     assertTrue(buyer.hasValidationErrors(), "Should show email validation error");
@@ -112,9 +113,10 @@ class CheckoutGuestE2ETest extends BaseE2ETest {
     BuyerInfoPage buyer = cart.proceedToCheckout();
 
     // Fill buyer info and continue
-    DeliveryPage delivery = buyer
-        .fillBuyerInfo("guest@example.com", "Test", "Guest", "+1-555-0100")
-        .continueToDelivery();
+    DeliveryPage delivery =
+        buyer
+            .fillBuyerInfo("guest@example.com", "Test", "Guest", "+1-555-0100")
+            .continueToDelivery();
 
     // On delivery page, click back if available
     if (delivery.hasBackLink()) {
@@ -122,5 +124,4 @@ class CheckoutGuestE2ETest extends BaseE2ETest {
       assertTrue(backToBuyer.isOnPage(), "Should navigate back to buyer info");
     }
   }
-
 }

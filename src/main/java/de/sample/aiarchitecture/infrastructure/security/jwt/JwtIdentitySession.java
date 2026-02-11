@@ -9,16 +9,17 @@ import org.springframework.web.context.annotation.RequestScope;
 /**
  * JWT-based implementation of IdentitySession.
  *
- * <p>This component manages user session identity via HTTP cookies. It is request-scoped
- * because it needs access to the current HTTP response to set/clear cookies.
+ * <p>This component manages user session identity via HTTP cookies. It is request-scoped because it
+ * needs access to the current HTTP response to set/clear cookies.
  *
  * <p><b>Cookie Settings:</b>
+ *
  * <ul>
- *   <li>HttpOnly: true (prevents XSS attacks)</li>
- *   <li>Secure: false for local development (should be true in production)</li>
- *   <li>SameSite: Lax (CSRF protection)</li>
- *   <li>Path: / (accessible site-wide)</li>
- *   <li>MaxAge: configured via JwtProperties</li>
+ *   <li>HttpOnly: true (prevents XSS attacks)
+ *   <li>Secure: false for local development (should be true in production)
+ *   <li>SameSite: Lax (CSRF protection)
+ *   <li>Path: / (accessible site-wide)
+ *   <li>MaxAge: configured via JwtProperties
  * </ul>
  */
 @Component
@@ -28,9 +29,7 @@ public class JwtIdentitySession implements IdentitySession {
   private final JwtProperties jwtProperties;
   private final HttpServletResponse response;
 
-  public JwtIdentitySession(
-      final JwtProperties jwtProperties,
-      final HttpServletResponse response) {
+  public JwtIdentitySession(final JwtProperties jwtProperties, final HttpServletResponse response) {
     this.jwtProperties = jwtProperties;
     this.response = response;
   }

@@ -19,12 +19,11 @@ import org.jspecify.annotations.Nullable;
 /**
  * Read Model representing a snapshot of checkout session state.
  *
- * <p>This immutable read model contains all state from the
- * {@link CheckoutSession} aggregate, providing a query-optimized view
- * for display purposes.
+ * <p>This immutable read model contains all state from the {@link CheckoutSession} aggregate,
+ * providing a query-optimized view for display purposes.
  *
- * <p>Use the {@link #from(CheckoutSession)} factory method to create a snapshot
- * from a checkout session aggregate.
+ * <p>Use the {@link #from(CheckoutSession)} factory method to create a snapshot from a checkout
+ * session aggregate.
  */
 public record CheckoutCartSnapshot(
     CheckoutSessionId sessionId,
@@ -71,8 +70,8 @@ public record CheckoutCartSnapshot(
   /**
    * Creates a CheckoutCartSnapshot from a CheckoutSession aggregate.
    *
-   * <p>This factory method extracts all relevant state from the aggregate
-   * to create an immutable read model for display purposes.
+   * <p>This factory method extracts all relevant state from the aggregate to create an immutable
+   * read model for display purposes.
    *
    * @param session the checkout session aggregate
    * @return a snapshot of the session state
@@ -82,15 +81,18 @@ public record CheckoutCartSnapshot(
       throw new IllegalArgumentException("Session cannot be null");
     }
 
-    final List<LineItemSnapshot> lineItemSnapshots = session.lineItems().stream()
-        .map(item -> new LineItemSnapshot(
-            item.id(),
-            item.productId(),
-            item.productName(),
-            item.unitPrice(),
-            item.quantity(),
-            item.imageUrl()))
-        .toList();
+    final List<LineItemSnapshot> lineItemSnapshots =
+        session.lineItems().stream()
+            .map(
+                item ->
+                    new LineItemSnapshot(
+                        item.id(),
+                        item.productId(),
+                        item.productName(),
+                        item.unitPrice(),
+                        item.quantity(),
+                        item.imageUrl()))
+            .toList();
 
     return new CheckoutCartSnapshot(
         session.id(),
@@ -123,9 +125,7 @@ public record CheckoutCartSnapshot(
    * @return the sum of all item quantities
    */
   public int totalQuantity() {
-    return lineItems.stream()
-        .mapToInt(LineItemSnapshot::quantity)
-        .sum();
+    return lineItems.stream().mapToInt(LineItemSnapshot::quantity).sum();
   }
 
   /**

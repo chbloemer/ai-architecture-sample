@@ -23,17 +23,17 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 /**
  * MVC Controller for order confirmation in checkout.
  *
- * <p>This controller handles the confirmation step of checkout where the customer
- * confirms their order and views the thank you page.
+ * <p>This controller handles the confirmation step of checkout where the customer confirms their
+ * order and views the thank you page.
  *
- * <p>The checkout session is identified via JWT identity, removing the need
- * for session IDs in URLs.
+ * <p>The checkout session is identified via JWT identity, removing the need for session IDs in
+ * URLs.
  *
  * <p><b>Clean Architecture:</b> This controller depends on use case interfaces (input ports)
  * instead of application services, following the Dependency Inversion Principle.
  *
- * <p><b>Naming Convention:</b> MVC controllers use {@code @Controller} annotation and
- * end with "Controller" suffix.
+ * <p><b>Naming Convention:</b> MVC controllers use {@code @Controller} annotation and end with
+ * "Controller" suffix.
  */
 @Controller
 @RequestMapping("/checkout")
@@ -61,9 +61,8 @@ public class ConfirmationPageController {
   /**
    * Confirms the checkout and places the order.
    *
-   * <p>This endpoint finds the active checkout session for the current user
-   * (via JWT identity), processes the order confirmation, and redirects
-   * to the confirmation page on success.
+   * <p>This endpoint finds the active checkout session for the current user (via JWT identity),
+   * processes the order confirmation, and redirects to the confirmation page on success.
    *
    * @param redirectAttributes for passing flash messages
    * @return redirect to confirmation page or back to review on error
@@ -100,9 +99,9 @@ public class ConfirmationPageController {
   /**
    * Displays the order confirmation (thank you) page.
    *
-   * <p>This endpoint shows the confirmation page after a successful order.
-   * It looks up the confirmed/completed session for the current user
-   * (via JWT identity). It is only accessible after the checkout has been confirmed.
+   * <p>This endpoint shows the confirmation page after a successful order. It looks up the
+   * confirmed/completed session for the current user (via JWT identity). It is only accessible
+   * after the checkout has been confirmed.
    *
    * @param model the Spring MVC model
    * @param redirectAttributes for passing flash messages on error
@@ -110,8 +109,7 @@ public class ConfirmationPageController {
    */
   @GetMapping("/confirmation")
   public String showConfirmationPage(
-      final Model model,
-      final RedirectAttributes redirectAttributes) {
+      final Model model, final RedirectAttributes redirectAttributes) {
 
     // Get customer ID from JWT identity
     final IdentityProvider.Identity identity = identityProvider.getCurrentIdentity();

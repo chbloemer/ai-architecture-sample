@@ -7,8 +7,4 @@ package de.sample.aiarchitecture.cart.application.getorcreateactivecart;
  * @param customerId the customer ID
  * @param wasCreated whether a new cart was created (true) or existing was found (false)
  */
-public record GetOrCreateActiveCartResult(
-    String cartId,
-    String customerId,
-    boolean wasCreated
-) {}
+public record GetOrCreateActiveCartResult(String cartId, String customerId, boolean wasCreated) {}

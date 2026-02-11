@@ -8,9 +8,9 @@ import org.springframework.stereotype.Component;
 /**
  * Implementation of RegisteredUserValidator that checks account existence.
  *
- * <p>This secondary adapter validates that a registered user's account exists
- * in the repository. It is used by the security infrastructure to detect
- * stale JWT tokens after application restart (when in-memory accounts are lost).
+ * <p>This secondary adapter validates that a registered user's account exists in the repository. It
+ * is used by the security infrastructure to detect stale JWT tokens after application restart (when
+ * in-memory accounts are lost).
  */
 @Component
 public class AccountBasedRegisteredUserValidator implements RegisteredUserValidator {

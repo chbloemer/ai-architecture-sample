@@ -10,8 +10,7 @@ import org.jspecify.annotations.Nullable;
 /**
  * Domain Event indicating that a checkout was successfully completed.
  *
- * <p>This event is raised when payment has been processed and the order
- * is finalized.
+ * <p>This event is raised when payment has been processed and the order is finalized.
  */
 public record CheckoutCompleted(
     UUID eventId,

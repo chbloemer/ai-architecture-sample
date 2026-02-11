@@ -26,6 +26,5 @@ public interface SetProductPriceInputPort
    * @throws IllegalArgumentException if price amount is not greater than zero
    */
   @Override
-  
   SetProductPriceResult execute(SetProductPriceCommand command);
 }

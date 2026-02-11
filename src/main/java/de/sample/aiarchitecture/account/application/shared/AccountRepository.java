@@ -3,21 +3,22 @@ package de.sample.aiarchitecture.account.application.shared;
 import de.sample.aiarchitecture.account.domain.model.Account;
 import de.sample.aiarchitecture.account.domain.model.AccountId;
 import de.sample.aiarchitecture.account.domain.model.Email;
-import de.sample.aiarchitecture.sharedkernel.marker.port.out.Repository;
 import de.sample.aiarchitecture.sharedkernel.domain.model.UserId;
+import de.sample.aiarchitecture.sharedkernel.marker.port.out.Repository;
 import java.util.Optional;
 
 /**
  * Repository interface for Account aggregate.
  *
- * <p>Provides collection-like access to Account aggregates using domain language.
- * Implementation resides in the secondary adapter layer.
+ * <p>Provides collection-like access to Account aggregates using domain language. Implementation
+ * resides in the secondary adapter layer.
  *
  * <p>Extends the base {@link Repository} interface which provides:
+ *
  * <ul>
- *   <li>{@code findById(AccountId)} - find by aggregate ID</li>
- *   <li>{@code save(Account)} - persist an account</li>
- *   <li>{@code deleteById(AccountId)} - remove an account</li>
+ *   <li>{@code findById(AccountId)} - find by aggregate ID
+ *   <li>{@code save(Account)} - persist an account
+ *   <li>{@code deleteById(AccountId)} - remove an account
  * </ul>
  */
 public interface AccountRepository extends Repository<Account, AccountId> {

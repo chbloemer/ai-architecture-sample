@@ -28,10 +28,8 @@ public class GetPricesForProductsUseCase implements GetPricesForProductsInputPor
   }
 
   @Override
-  public GetPricesForProductsResult execute(
-      final GetPricesForProductsQuery query) {
-    final List<ProductPrice> prices =
-        productPriceRepository.findByProductIds(query.productIds());
+  public GetPricesForProductsResult execute(final GetPricesForProductsQuery query) {
+    final List<ProductPrice> prices = productPriceRepository.findByProductIds(query.productIds());
 
     final Map<ProductId, GetPricesForProductsResult.PriceData> priceMap =
         prices.stream()

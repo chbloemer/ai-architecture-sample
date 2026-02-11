@@ -11,8 +11,8 @@ import java.util.UUID;
 /**
  * Domain Event indicating that the quantity of a cart item was changed.
  *
- * <p>This event is raised when a customer increases or decreases the quantity
- * of an existing item in their shopping cart.
+ * <p>This event is raised when a customer increases or decreases the quantity of an existing item
+ * in their shopping cart.
  */
 public record CartItemQuantityChanged(
     UUID eventId,

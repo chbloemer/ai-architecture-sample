@@ -39,10 +39,11 @@ public class CartEventConsumer {
   /**
    * Handles CartItemAddedToCart events after transaction commit.
    *
-   * <p>This handler only executes after the transaction commits successfully, ensuring the
-   * cart item was actually added before processing the event.
+   * <p>This handler only executes after the transaction commits successfully, ensuring the cart
+   * item was actually added before processing the event.
    *
    * <p>This is where you might:
+   *
    * <ul>
    *   <li>Update cart abandonment tracking
    *   <li>Trigger product recommendation engine
@@ -74,11 +75,11 @@ public class CartEventConsumer {
   /**
    * Handles CartCheckedOut events after transaction commit.
    *
-   * <p>This handler only executes after the transaction commits successfully, ensuring the
-   * checkout was actually completed before triggering downstream operations.
+   * <p>This handler only executes after the transaction commits successfully, ensuring the checkout
+   * was actually completed before triggering downstream operations.
    *
-   * <p>This is the key integration point for eventual consistency across bounded contexts.
-   * When a cart is checked out, we need to coordinate with other aggregates/contexts:
+   * <p>This is the key integration point for eventual consistency across bounded contexts. When a
+   * cart is checked out, we need to coordinate with other aggregates/contexts:
    *
    * <ul>
    *   <li>Reserve inventory (Product context)

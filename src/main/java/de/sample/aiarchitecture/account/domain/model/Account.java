@@ -17,34 +17,37 @@ import java.util.Set;
 /**
  * Account Aggregate Root.
  *
- * <p>Represents a registered user account with credentials and profile information.
- * An Account is linked to a UserId which is shared across all bounded contexts.
+ * <p>Represents a registered user account with credentials and profile information. An Account is
+ * linked to a UserId which is shared across all bounded contexts.
  *
  * <p><b>Key Concepts:</b>
+ *
  * <ul>
- *   <li>AccountId - The aggregate root identity (internal)</li>
- *   <li>UserId - The cross-context identity (shared, in JWT)</li>
- *   <li>Email - The login credential (unique)</li>
- *   <li>HashedPassword - BCrypt hashed password (never stored as plaintext)</li>
+ *   <li>AccountId - The aggregate root identity (internal)
+ *   <li>UserId - The cross-context identity (shared, in JWT)
+ *   <li>Email - The login credential (unique)
+ *   <li>HashedPassword - BCrypt hashed password (never stored as plaintext)
  * </ul>
  *
  * <p><b>Business Rules:</b>
+ *
  * <ul>
- *   <li>Email must be unique across all accounts</li>
- *   <li>Password must meet strength requirements (validated by domain)</li>
- *   <li>Each account is linked to exactly one UserId</li>
- *   <li>Cannot login if account is suspended or closed</li>
+ *   <li>Email must be unique across all accounts
+ *   <li>Password must meet strength requirements (validated by domain)
+ *   <li>Each account is linked to exactly one UserId
+ *   <li>Cannot login if account is suspended or closed
  * </ul>
  *
  * <p><b>Domain Events:</b>
+ *
  * <ul>
- *   <li>{@link AccountRegistered} - when account is created</li>
- *   <li>{@link AccountLinkedToIdentity} - when UserId is linked</li>
- *   <li>{@link AccountLoggedIn} - when a user logs in</li>
- *   <li>{@link AccountPasswordChanged} - when password is changed</li>
- *   <li>{@link AccountSuspended} - when account is suspended</li>
- *   <li>{@link AccountReactivated} - when account is reactivated</li>
- *   <li>{@link AccountClosed} - when account is permanently closed</li>
+ *   <li>{@link AccountRegistered} - when account is created
+ *   <li>{@link AccountLinkedToIdentity} - when UserId is linked
+ *   <li>{@link AccountLoggedIn} - when a user logs in
+ *   <li>{@link AccountPasswordChanged} - when password is changed
+ *   <li>{@link AccountSuspended} - when account is suspended
+ *   <li>{@link AccountReactivated} - when account is reactivated
+ *   <li>{@link AccountClosed} - when account is permanently closed
  * </ul>
  */
 public final class Account extends BaseAggregateRoot<Account, AccountId> {
@@ -77,16 +80,17 @@ public final class Account extends BaseAggregateRoot<Account, AccountId> {
    * Factory method to register a new account.
    *
    * <p>This method:
+   *
    * <ol>
-   *   <li>Validates password strength</li>
-   *   <li>Hashes the password</li>
-   *   <li>Generates a new AccountId</li>
-   *   <li>Links the existing UserId (preserving cart and checkout session)</li>
-   *   <li>Raises AccountRegistered and AccountLinkedToIdentity events</li>
+   *   <li>Validates password strength
+   *   <li>Hashes the password
+   *   <li>Generates a new AccountId
+   *   <li>Links the existing UserId (preserving cart and checkout session)
+   *   <li>Raises AccountRegistered and AccountLinkedToIdentity events
    * </ol>
    *
-   * <p>The UserId remains unchanged during registration. This ensures continuity
-   * of cart items and checkout session for users who register during checkout.
+   * <p>The UserId remains unchanged during registration. This ensures continuity of cart items and
+   * checkout session for users who register during checkout.
    *
    * @param email the user's email address (login credential)
    * @param plainPassword the plaintext password (will be validated and hashed)
@@ -101,15 +105,16 @@ public final class Account extends BaseAggregateRoot<Account, AccountId> {
       final UserId currentUserId,
       final PasswordHasher passwordHasher) {
 
-    final HashedPassword hashedPassword = HashedPassword.fromPlaintext(plainPassword, passwordHasher);
+    final HashedPassword hashedPassword =
+        HashedPassword.fromPlaintext(plainPassword, passwordHasher);
     final AccountId accountId = AccountId.generate();
 
     // UserId remains unchanged - no prefix conversion needed
     // This preserves cart and checkout session data
     final Set<String> defaultRoles = Set.of("CUSTOMER");
 
-    final Account account = new Account(
-        accountId, email, currentUserId, hashedPassword, defaultRoles);
+    final Account account =
+        new Account(accountId, email, currentUserId, hashedPassword, defaultRoles);
 
     // Raise domain events
     account.registerEvent(AccountRegistered.now(accountId, email, currentUserId));
@@ -195,9 +200,7 @@ public final class Account extends BaseAggregateRoot<Account, AccountId> {
    * @param passwordHasher the password hasher domain service
    * @return true if the password matches
    */
-  public boolean checkPassword(
-      final String plainPassword,
-      final PasswordHasher passwordHasher) {
+  public boolean checkPassword(final String plainPassword, final PasswordHasher passwordHasher) {
     return password.matches(plainPassword, passwordHasher);
   }
 
@@ -224,9 +227,7 @@ public final class Account extends BaseAggregateRoot<Account, AccountId> {
    * @throws IllegalStateException if the account is closed
    * @throws IllegalArgumentException if the password doesn't meet requirements
    */
-  public void changePassword(
-      final String newPlainPassword,
-      final PasswordHasher passwordHasher) {
+  public void changePassword(final String newPlainPassword, final PasswordHasher passwordHasher) {
     if (status.isTerminal()) {
       throw new IllegalStateException("Cannot change password on closed account");
     }

@@ -9,8 +9,8 @@ import org.springframework.transaction.annotation.Transactional;
 /**
  * Use case for completing a shopping cart after checkout confirmation.
  *
- * <p>This use case is triggered when a checkout is confirmed (CheckoutConfirmed event),
- * marking the cart as completed to indicate the order has been placed.
+ * <p>This use case is triggered when a checkout is confirmed (CheckoutConfirmed event), marking the
+ * cart as completed to indicate the order has been placed.
  *
  * <p><b>Hexagonal Architecture:</b> This class implements the {@link CompleteCartInputPort}
  * interface, which is a primary/driving port in the application layer.
@@ -41,9 +41,6 @@ public class CompleteCartUseCase implements CompleteCartInputPort {
     // Persist
     shoppingCartRepository.save(cart);
 
-    return new CompleteCartResult(
-        cart.id().value().toString(),
-        cart.status().name()
-    );
+    return new CompleteCartResult(cart.id().value().toString(), cart.status().name());
   }
 }

@@ -20,9 +20,5 @@ public record GetShippingOptionsResult(List<ShippingOptionData> shippingOptions)
    * @param currencyCode the currency code (e.g., "EUR")
    */
   public record ShippingOptionData(
-      String id,
-      String name,
-      String estimatedDelivery,
-      BigDecimal cost,
-      String currencyCode) {}
+      String id, String name, String estimatedDelivery, BigDecimal cost, String currencyCode) {}
 }

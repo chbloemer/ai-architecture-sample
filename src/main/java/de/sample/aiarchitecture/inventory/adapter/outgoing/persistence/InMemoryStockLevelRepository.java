@@ -16,8 +16,8 @@ import org.springframework.stereotype.Repository;
  * <p>This secondary adapter provides a thread-safe in-memory storage for stock levels using
  * ConcurrentHashMap. A secondary index on ProductId enables efficient lookups by product.
  *
- * <p>Stock levels are created via SampleDataInitializer which coordinates initialization
- * across all bounded contexts (Product, Pricing, Inventory).
+ * <p>Stock levels are created via SampleDataInitializer which coordinates initialization across all
+ * bounded contexts (Product, Pricing, Inventory).
  *
  * <p>In a production system, this would be replaced with a database implementation.
  */
@@ -25,7 +25,8 @@ import org.springframework.stereotype.Repository;
 public class InMemoryStockLevelRepository implements StockLevelRepository {
 
   private final ConcurrentHashMap<StockLevelId, StockLevel> stockLevels = new ConcurrentHashMap<>();
-  private final ConcurrentHashMap<ProductId, StockLevelId> productIdIndex = new ConcurrentHashMap<>();
+  private final ConcurrentHashMap<ProductId, StockLevelId> productIdIndex =
+      new ConcurrentHashMap<>();
 
   @Override
   public Optional<StockLevel> findById(final StockLevelId id) {

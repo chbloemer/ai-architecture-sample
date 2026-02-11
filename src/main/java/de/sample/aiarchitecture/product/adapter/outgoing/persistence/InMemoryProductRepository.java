@@ -1,11 +1,11 @@
 package de.sample.aiarchitecture.product.adapter.outgoing.persistence;
 
 import de.sample.aiarchitecture.product.application.shared.ProductRepository;
+import de.sample.aiarchitecture.product.domain.model.Category;
 import de.sample.aiarchitecture.product.domain.model.Product;
 import de.sample.aiarchitecture.product.domain.model.SKU;
-import de.sample.aiarchitecture.product.domain.model.Category;
-import de.sample.aiarchitecture.sharedkernel.marker.infrastructure.AsyncInitialize;
 import de.sample.aiarchitecture.sharedkernel.domain.model.ProductId;
+import de.sample.aiarchitecture.sharedkernel.marker.infrastructure.AsyncInitialize;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
@@ -18,12 +18,11 @@ import org.springframework.stereotype.Repository;
  * In-memory implementation of ProductRepository.
  *
  * <p>This secondary adapter provides a thread-safe in-memory storage for products using
- * ConcurrentHashMap. In a production system, this would be replaced with a database
- * implementation.
+ * ConcurrentHashMap. In a production system, this would be replaced with a database implementation.
  *
  * <p><b>Async Initialization:</b> This repository uses {@link AsyncInitialize} to perform
- * non-blocking cache warmup. The {@code asyncInitialize()} method is invoked asynchronously
- * after bean initialization, allowing the application to start without waiting for cache warmup.
+ * non-blocking cache warmup. The {@code asyncInitialize()} method is invoked asynchronously after
+ * bean initialization, allowing the application to start without waiting for cache warmup.
  *
  * @see AsyncInitialize
  */

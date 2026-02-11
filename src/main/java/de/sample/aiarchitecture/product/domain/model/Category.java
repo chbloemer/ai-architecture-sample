@@ -2,9 +2,7 @@ package de.sample.aiarchitecture.product.domain.model;
 
 import de.sample.aiarchitecture.sharedkernel.marker.tactical.Value;
 
-/**
- * Value Object representing a Product's category.
- */
+/** Value Object representing a Product's category. */
 public record Category(String name) implements Value {
 
   public Category {

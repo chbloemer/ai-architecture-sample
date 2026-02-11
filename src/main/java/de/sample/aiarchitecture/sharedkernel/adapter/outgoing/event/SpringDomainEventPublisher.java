@@ -16,6 +16,7 @@ import org.springframework.stereotype.Component;
  * handlers while keeping the application layer framework-independent.
  *
  * <p><b>Implementation Details:</b>
+ *
  * <ul>
  *   <li>Uses Spring's ApplicationEventPublisher for event distribution
  *   <li>Events are published synchronously by default
@@ -27,9 +28,9 @@ import org.springframework.stereotype.Component;
  * implementations such as message broker integration, in-memory publishing for testing, or custom
  * event buses.
  *
- * <p><b>Architectural Location:</b> This class is an outgoing adapter that implements the
- * {@link DomainEventPublisher} output port. It resides in the shared kernel because event
- * publishing is a cross-cutting concern used by all bounded contexts.
+ * <p><b>Architectural Location:</b> This class is an outgoing adapter that implements the {@link
+ * DomainEventPublisher} output port. It resides in the shared kernel because event publishing is a
+ * cross-cutting concern used by all bounded contexts.
  */
 @Component
 public class SpringDomainEventPublisher implements DomainEventPublisher {

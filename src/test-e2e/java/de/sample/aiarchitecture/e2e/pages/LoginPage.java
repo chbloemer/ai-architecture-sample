@@ -67,8 +67,8 @@ public class LoginPage extends BasePage {
   }
 
   /**
-   * Submits the login form.
-   * After successful login, caller should create the appropriate page object.
+   * Submits the login form. After successful login, caller should create the appropriate page
+   * object.
    */
   public void submit() {
     click(SUBMIT_BUTTON);

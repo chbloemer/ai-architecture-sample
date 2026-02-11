@@ -18,12 +18,12 @@ import org.springframework.web.bind.annotation.*;
 /**
  * REST API Resource for Product operations.
  *
- * <p>This is a primary adapter (incoming) in Hexagonal Architecture that exposes
- * product functionality via REST API. It uses Clean Architecture use cases instead
- * of directly accessing domain services.
+ * <p>This is a primary adapter (incoming) in Hexagonal Architecture that exposes product
+ * functionality via REST API. It uses Clean Architecture use cases instead of directly accessing
+ * domain services.
  *
- * <p><b>Clean Architecture:</b> This controller depends on use case interfaces (input ports)
- * rather than application services, following the Dependency Inversion Principle.
+ * <p><b>Clean Architecture:</b> This controller depends on use case interfaces (input ports) rather
+ * than application services, following the Dependency Inversion Principle.
  *
  * <p><b>RESTful Design:</b> Follows REST best practices with proper HTTP methods and status codes.
  */
@@ -52,16 +52,16 @@ public class ProductResource {
       @Valid @RequestBody final CreateProductRequest request) {
 
     // Convert REST request to use case input
-    final CreateProductCommand input = new CreateProductCommand(
-        request.sku(),
-        request.name(),
-        request.description() != null ? request.description() : "",
-        request.imageUrl() != null ? request.imageUrl() : "",
-        request.price(),
-        "EUR", // Default currency
-        request.category(),
-        request.stock()
-    );
+    final CreateProductCommand input =
+        new CreateProductCommand(
+            request.sku(),
+            request.name(),
+            request.description() != null ? request.description() : "",
+            request.imageUrl() != null ? request.imageUrl() : "",
+            request.price(),
+            "EUR", // Default currency
+            request.category(),
+            request.stock());
 
     // Execute use case
     final CreateProductResult output = createProductUseCase.execute(input);
@@ -74,9 +74,7 @@ public class ProductResource {
   public ResponseEntity<List<ProductDto>> getAllProducts() {
     final GetAllProductsResult output = getAllProductsUseCase.execute(new GetAllProductsQuery());
 
-    final List<ProductDto> products = output.products().stream()
-        .map(converter::toDto)
-        .toList();
+    final List<ProductDto> products = output.products().stream().map(converter::toDto).toList();
 
     return ResponseEntity.ok(products);
   }
@@ -92,7 +90,8 @@ public class ProductResource {
     return ResponseEntity.ok(converter.toDto(output));
   }
 
-  // Note: The following endpoints don't have corresponding use cases yet in the current implementation
+  // Note: The following endpoints don't have corresponding use cases yet in the current
+  // implementation
   // They would need to be added if needed:
   // - GetProductBySkuUseCase
   // - DeleteProductUseCase

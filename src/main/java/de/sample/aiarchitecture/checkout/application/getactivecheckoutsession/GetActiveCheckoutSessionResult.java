@@ -1,4 +1,5 @@
 package de.sample.aiarchitecture.checkout.application.getactivecheckoutsession;
+
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -9,22 +10,15 @@ import org.jspecify.annotations.Nullable;
  * @param customerId the customer ID (null if not found)
  */
 public record GetActiveCheckoutSessionResult(
-    boolean found,
-    @Nullable String sessionId,
-    @Nullable String customerId) {
+    boolean found, @Nullable String sessionId, @Nullable String customerId) {
 
-  /**
-   * Creates a response indicating no active session was found.
-   */
+  /** Creates a response indicating no active session was found. */
   public static GetActiveCheckoutSessionResult notFound() {
     return new GetActiveCheckoutSessionResult(false, null, null);
   }
 
-  /**
-   * Creates a response with the found session.
-   */
-  public static GetActiveCheckoutSessionResult of(
-      final String sessionId, final String customerId) {
+  /** Creates a response with the found session. */
+  public static GetActiveCheckoutSessionResult of(final String sessionId, final String customerId) {
     return new GetActiveCheckoutSessionResult(true, sessionId, customerId);
   }
 }

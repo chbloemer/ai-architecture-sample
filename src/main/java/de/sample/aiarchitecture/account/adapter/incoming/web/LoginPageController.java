@@ -3,10 +3,10 @@ package de.sample.aiarchitecture.account.adapter.incoming.web;
 import de.sample.aiarchitecture.account.application.authenticateaccount.AuthenticateAccountCommand;
 import de.sample.aiarchitecture.account.application.authenticateaccount.AuthenticateAccountInputPort;
 import de.sample.aiarchitecture.account.application.authenticateaccount.AuthenticateAccountResult;
-import de.sample.aiarchitecture.sharedkernel.domain.model.UserId;
-import de.sample.aiarchitecture.sharedkernel.marker.port.out.IdentityProvider;
 import de.sample.aiarchitecture.account.application.shared.IdentitySession;
 import de.sample.aiarchitecture.account.application.shared.TokenService;
+import de.sample.aiarchitecture.sharedkernel.domain.model.UserId;
+import de.sample.aiarchitecture.sharedkernel.marker.port.out.IdentityProvider;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import org.springframework.stereotype.Controller;
@@ -22,10 +22,9 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
  *
  * <p>This controller handles server-side rendered login pages using Pug templates.
  *
- * <p><b>Clean Architecture:</b> This controller only depends on its own bounded context
- * (account). After successful login, it redirects to the cart merge page with URL parameters,
- * allowing the cart context to decide if a merge is actually needed. This avoids cross-context
- * dependencies.
+ * <p><b>Clean Architecture:</b> This controller only depends on its own bounded context (account).
+ * After successful login, it redirects to the cart merge page with URL parameters, allowing the
+ * cart context to decide if a merge is actually needed. This avoids cross-context dependencies.
  *
  * <p><b>Template Location:</b> {@code src/main/resources/templates/account/login.pug}
  */
@@ -58,8 +57,7 @@ public class LoginPageController {
    */
   @GetMapping
   public String showLoginPage(
-      final Model model,
-      @RequestParam(required = false) final String returnUrl) {
+      final Model model, @RequestParam(required = false) final String returnUrl) {
 
     model.addAttribute("title", "Login");
     model.addAttribute("returnUrl", returnUrl);
@@ -69,9 +67,9 @@ public class LoginPageController {
   /**
    * Handles login form submission.
    *
-   * <p>After successful login, always redirects to the cart merge page with the anonymous
-   * user ID as a URL parameter. The cart context will determine if a merge is actually
-   * required and redirect appropriately if not.
+   * <p>After successful login, always redirects to the cart merge page with the anonymous user ID
+   * as a URL parameter. The cart context will determine if a merge is actually required and
+   * redirect appropriately if not.
    *
    * @param email the user's email
    * @param password the user's password
@@ -105,10 +103,9 @@ public class LoginPageController {
 
       final String registeredUserId = result.userId();
 
-      final String token = tokenService.generateRegisteredToken(
-          UserId.of(registeredUserId),
-          result.email(),
-          result.roles());
+      final String token =
+          tokenService.generateRegisteredToken(
+              UserId.of(registeredUserId), result.email(), result.roles());
 
       identitySession.setRegisteredIdentity(token);
 

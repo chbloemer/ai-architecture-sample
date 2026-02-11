@@ -13,8 +13,8 @@ import org.springframework.transaction.annotation.Transactional;
 /**
  * Use case for retrieving stock levels for multiple products.
  *
- * <p>This use case provides bulk stock lookup for Cart/Checkout to efficiently
- * check availability for multiple products in a single database call.
+ * <p>This use case provides bulk stock lookup for Cart/Checkout to efficiently check availability
+ * for multiple products in a single database call.
  *
  * <p><b>Hexagonal Architecture:</b> This class implements the {@link GetStockForProductsInputPort}
  * interface, which is a primary/driving port in the application layer.
@@ -31,12 +31,12 @@ public class GetStockForProductsUseCase implements GetStockForProductsInputPort 
 
   @Override
   public GetStockForProductsResult execute(final GetStockForProductsQuery query) {
-    final List<StockLevel> stockLevels =
-        stockLevelRepository.findByProductIds(query.productIds());
+    final List<StockLevel> stockLevels = stockLevelRepository.findByProductIds(query.productIds());
 
-    final Map<ProductId, StockData> stocks = stockLevels.stream()
-        .map(this::mapToStockData)
-        .collect(Collectors.toMap(StockData::productId, data -> data));
+    final Map<ProductId, StockData> stocks =
+        stockLevels.stream()
+            .map(this::mapToStockData)
+            .collect(Collectors.toMap(StockData::productId, data -> data));
 
     return new GetStockForProductsResult(stocks);
   }
@@ -44,9 +44,6 @@ public class GetStockForProductsUseCase implements GetStockForProductsInputPort 
   private StockData mapToStockData(final StockLevel stockLevel) {
     final int availableStock =
         stockLevel.availableQuantity().value() - stockLevel.reservedQuantity().value();
-    return new StockData(
-        stockLevel.productId(),
-        availableStock,
-        stockLevel.isAvailable());
+    return new StockData(stockLevel.productId(), availableStock, stockLevel.isAvailable());
   }
 }

@@ -7,9 +7,7 @@ import de.sample.aiarchitecture.sharedkernel.marker.tactical.DomainEvent;
 import java.time.Instant;
 import java.util.UUID;
 
-/**
- * Domain Event indicating that stock was decreased for a product.
- */
+/** Domain Event indicating that stock was decreased for a product. */
 public record StockDecreased(
     UUID eventId,
     StockLevelId stockLevelId,

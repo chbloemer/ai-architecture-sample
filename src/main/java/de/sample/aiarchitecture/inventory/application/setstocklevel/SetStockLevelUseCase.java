@@ -30,8 +30,7 @@ public class SetStockLevelUseCase implements SetStockLevelInputPort {
   private final DomainEventPublisher eventPublisher;
 
   public SetStockLevelUseCase(
-      final StockLevelRepository stockLevelRepository,
-      final DomainEventPublisher eventPublisher) {
+      final StockLevelRepository stockLevelRepository, final DomainEventPublisher eventPublisher) {
     this.stockLevelRepository = stockLevelRepository;
     this.eventPublisher = eventPublisher;
   }

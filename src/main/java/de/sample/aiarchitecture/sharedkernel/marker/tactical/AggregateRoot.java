@@ -6,8 +6,8 @@ import java.util.List;
  * Marker interface for Aggregate Roots.
  *
  * <p>An aggregate root is the entry point to an aggregate - a cluster of domain objects that are
- * treated as a single unit. The aggregate root is responsible for maintaining invariants within
- * the aggregate and collecting domain events that occur during state changes.
+ * treated as a single unit. The aggregate root is responsible for maintaining invariants within the
+ * aggregate and collecting domain events that occur during state changes.
  *
  * <p><b>Domain Events:</b>
  *

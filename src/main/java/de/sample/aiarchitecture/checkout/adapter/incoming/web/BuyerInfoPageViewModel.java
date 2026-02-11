@@ -15,76 +15,49 @@ public record BuyerInfoPageViewModel(
     String sessionId,
     List<LineItemViewModel> lineItems,
     TotalsViewModel totals,
-    @Nullable BuyerInfoViewModel existingBuyerInfo
-) {
+    @Nullable BuyerInfoViewModel existingBuyerInfo) {
 
-  /**
-   * Creates a BuyerInfoPageViewModel from a CheckoutCartSnapshot.
-   */
+  /** Creates a BuyerInfoPageViewModel from a CheckoutCartSnapshot. */
   public static BuyerInfoPageViewModel fromSnapshot(final CheckoutCartSnapshot snapshot) {
     return new BuyerInfoPageViewModel(
         snapshot.sessionId().value(),
-        snapshot.lineItems().stream()
-            .map(LineItemViewModel::fromSnapshot)
-            .toList(),
+        snapshot.lineItems().stream().map(LineItemViewModel::fromSnapshot).toList(),
         TotalsViewModel.fromSnapshot(snapshot),
-        snapshot.buyerInfo() != null ? BuyerInfoViewModel.fromBuyerInfo(snapshot.buyerInfo()) : null
-    );
+        snapshot.buyerInfo() != null
+            ? BuyerInfoViewModel.fromBuyerInfo(snapshot.buyerInfo())
+            : null);
   }
 
-  /**
-   * Line item for cart summary display.
-   */
+  /** Line item for cart summary display. */
   public record LineItemViewModel(
       String productName,
       int quantity,
       BigDecimal lineTotal,
       String currencyCode,
-      String imageUrl
-  ) {
+      String imageUrl) {
     static LineItemViewModel fromSnapshot(final LineItemSnapshot item) {
       return new LineItemViewModel(
           item.name(),
           item.quantity(),
           item.lineTotal().amount(),
           item.lineTotal().currency().getCurrencyCode(),
-          item.imageUrl()
-      );
+          item.imageUrl());
     }
   }
 
-  /**
-   * Order totals for cart summary.
-   */
-  public record TotalsViewModel(
-      BigDecimal subtotal,
-      String currencyCode
-  ) {
+  /** Order totals for cart summary. */
+  public record TotalsViewModel(BigDecimal subtotal, String currencyCode) {
     static TotalsViewModel fromSnapshot(final CheckoutCartSnapshot snapshot) {
       return new TotalsViewModel(
-          snapshot.subtotal().amount(),
-          snapshot.subtotal().currency().getCurrencyCode()
-      );
+          snapshot.subtotal().amount(), snapshot.subtotal().currency().getCurrencyCode());
     }
   }
 
-  /**
-   * Existing buyer info for pre-filling the form.
-   */
-  public record BuyerInfoViewModel(
-      String email,
-      String firstName,
-      String lastName,
-      String phone
-  ) {
+  /** Existing buyer info for pre-filling the form. */
+  public record BuyerInfoViewModel(String email, String firstName, String lastName, String phone) {
     static BuyerInfoViewModel fromBuyerInfo(
         final de.sample.aiarchitecture.checkout.domain.model.BuyerInfo info) {
-      return new BuyerInfoViewModel(
-          info.email(),
-          info.firstName(),
-          info.lastName(),
-          info.phone()
-      );
+      return new BuyerInfoViewModel(info.email(), info.firstName(), info.lastName(), info.phone());
     }
   }
 }

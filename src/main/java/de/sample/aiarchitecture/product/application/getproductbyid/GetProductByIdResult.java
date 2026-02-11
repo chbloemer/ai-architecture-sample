@@ -6,22 +6,18 @@ import org.jspecify.annotations.Nullable;
 /**
  * Output model for product retrieval by ID.
  *
- * <p>This result wraps an {@link EnrichedProduct} domain read model that combines
- * product state from the Product aggregate with external data from the Pricing and
- * Inventory bounded contexts.
+ * <p>This result wraps an {@link EnrichedProduct} domain read model that combines product state
+ * from the Product aggregate with external data from the Pricing and Inventory bounded contexts.
  *
- * <p>Check {@link #found()} to determine if the product exists before accessing
- * the enriched product.
+ * <p>Check {@link #found()} to determine if the product exists before accessing the enriched
+ * product.
  *
  * <p><b>Pattern:</b> Use Case → Result(EnrichedProduct) → Controller → ViewModel → Template
  *
  * @param found whether the product was found
  * @param product the enriched product (null if not found)
  */
-public record GetProductByIdResult(
-    boolean found,
-    @Nullable EnrichedProduct product
-) {
+public record GetProductByIdResult(boolean found, @Nullable EnrichedProduct product) {
 
   /**
    * Creates a result for a product that was not found.

@@ -2,9 +2,9 @@ package de.sample.aiarchitecture.cart.adapter.outgoing.persistence;
 
 import de.sample.aiarchitecture.cart.application.shared.ShoppingCartRepository;
 import de.sample.aiarchitecture.cart.domain.model.CartId;
+import de.sample.aiarchitecture.cart.domain.model.CartStatus;
 import de.sample.aiarchitecture.cart.domain.model.CustomerId;
 import de.sample.aiarchitecture.cart.domain.model.ShoppingCart;
-import de.sample.aiarchitecture.cart.domain.model.CartStatus;
 import de.sample.aiarchitecture.sharedkernel.marker.infrastructure.AsyncInitialize;
 import java.util.List;
 import java.util.Optional;
@@ -43,9 +43,7 @@ public class InMemoryShoppingCartRepository implements ShoppingCartRepository {
 
   @Override
   public List<ShoppingCart> findByCustomerId(final CustomerId customerId) {
-    return carts.values().stream()
-        .filter(cart -> cart.customerId().equals(customerId))
-        .toList();
+    return carts.values().stream().filter(cart -> cart.customerId().equals(customerId)).toList();
   }
 
   @Override

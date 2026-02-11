@@ -6,9 +6,7 @@ import de.sample.aiarchitecture.sharedkernel.domain.specification.AndSpecificati
 import de.sample.aiarchitecture.sharedkernel.domain.specification.SpecificationVisitor;
 import java.util.Objects;
 
-/**
- * Cart total (sum of item price * quantity) is greater than or equal to the given minimum.
- */
+/** Cart total (sum of item price * quantity) is greater than or equal to the given minimum. */
 public record HasMinTotal(Money minimum) implements CartSpecification {
   public HasMinTotal {
     Objects.requireNonNull(minimum, "minimum must not be null");

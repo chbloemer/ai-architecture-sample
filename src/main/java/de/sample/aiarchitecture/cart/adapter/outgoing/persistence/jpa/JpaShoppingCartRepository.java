@@ -3,10 +3,10 @@ package de.sample.aiarchitecture.cart.adapter.outgoing.persistence.jpa;
 import de.sample.aiarchitecture.cart.application.shared.ShoppingCartRepository;
 import de.sample.aiarchitecture.cart.domain.model.*;
 import de.sample.aiarchitecture.sharedkernel.domain.model.Money;
+import de.sample.aiarchitecture.sharedkernel.domain.model.PageResult;
+import de.sample.aiarchitecture.sharedkernel.domain.model.PagingRequest;
 import de.sample.aiarchitecture.sharedkernel.domain.model.Price;
 import de.sample.aiarchitecture.sharedkernel.domain.model.ProductId;
-import de.sample.aiarchitecture.sharedkernel.domain.model.PagingRequest;
-import de.sample.aiarchitecture.sharedkernel.domain.model.PageResult;
 import de.sample.aiarchitecture.sharedkernel.domain.specification.CompositeSpecification;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -27,7 +27,8 @@ public class JpaShoppingCartRepository implements ShoppingCartRepository {
   private final CartJpaRepository cartRepo;
   private final CartSpecToJpa specTranslator;
 
-  public JpaShoppingCartRepository(final CartJpaRepository cartRepo, final CartSpecToJpa specTranslator) {
+  public JpaShoppingCartRepository(
+      final CartJpaRepository cartRepo, final CartSpecToJpa specTranslator) {
     this.cartRepo = cartRepo;
     this.specTranslator = specTranslator;
   }
@@ -48,7 +49,8 @@ public class JpaShoppingCartRepository implements ShoppingCartRepository {
   @Transactional(readOnly = true)
   public Optional<ShoppingCart> findActiveCartByCustomerId(final CustomerId customerId) {
     return cartRepo
-        .findFirstByCustomerIdAndStatusOrderByUpdatedAtDesc(customerId.value(), CartStatus.ACTIVE.name())
+        .findFirstByCustomerIdAndStatusOrderByUpdatedAtDesc(
+            customerId.value(), CartStatus.ACTIVE.name())
         .map(this::toDomain);
   }
 
@@ -60,12 +62,14 @@ public class JpaShoppingCartRepository implements ShoppingCartRepository {
 
   @Override
   @Transactional(readOnly = true)
-  public PageResult<ShoppingCart> findBy(final CompositeSpecification<ShoppingCart> specification, final PagingRequest pageQuery) {
+  public PageResult<ShoppingCart> findBy(
+      final CompositeSpecification<ShoppingCart> specification, final PagingRequest pageQuery) {
     final CartSpecToJpa translator = requireTranslator();
     final Specification<CartEntity> jpaSpec = specification.accept(translator);
     final var pageable = PageRequest.of(pageQuery.pageNumber(), pageQuery.pageSize());
     final var page = cartRepo.findAll(jpaSpec, pageable).map(this::toDomain);
-    return new PageResult<>(page.getContent(), page.getTotalElements(), pageQuery.pageNumber(), pageQuery.pageSize());
+    return new PageResult<>(
+        page.getContent(), page.getTotalElements(), pageQuery.pageNumber(), pageQuery.pageSize());
   }
 
   @Override
@@ -91,7 +95,8 @@ public class JpaShoppingCartRepository implements ShoppingCartRepository {
   }
 
   private ShoppingCart toDomain(final CartEntity entity) {
-    final ShoppingCart cart = new ShoppingCart(CartId.of(entity.getId()), CustomerId.of(entity.getCustomerId()));
+    final ShoppingCart cart =
+        new ShoppingCart(CartId.of(entity.getId()), CustomerId.of(entity.getCustomerId()));
     setStatus(cart, CartStatus.valueOf(entity.getStatus()));
 
     if (entity.getItems() != null && !entity.getItems().isEmpty()) {
@@ -110,7 +115,10 @@ public class JpaShoppingCartRepository implements ShoppingCartRepository {
           final CartItemId itemId = CartItemId.of(it.getId());
           final ProductId productId = ProductId.of(it.getProductId());
           final Quantity quantity = Quantity.of(it.getQuantity());
-          final Price price = Price.of(Money.of(it.getPriceAmount(), java.util.Currency.getInstance(it.getPriceCurrency())));
+          final Price price =
+              Price.of(
+                  Money.of(
+                      it.getPriceAmount(), java.util.Currency.getInstance(it.getPriceCurrency())));
           final CartItem item = ctor.newInstance(itemId, productId, quantity, price);
           items.add(item);
         }

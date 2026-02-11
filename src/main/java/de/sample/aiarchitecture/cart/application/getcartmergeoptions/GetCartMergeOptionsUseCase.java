@@ -18,9 +18,9 @@ import org.springframework.transaction.annotation.Transactional;
 /**
  * Use case for checking if cart merge options should be presented.
  *
- * <p>When a user logs in, this use case determines if both the anonymous session
- * and the registered account have active carts with items. If so, the user should
- * be presented with options to choose how to handle the cart conflict.
+ * <p>When a user logs in, this use case determines if both the anonymous session and the registered
+ * account have active carts with items. If so, the user should be presented with options to choose
+ * how to handle the cart conflict.
  *
  * <p><b>Hexagonal Architecture:</b> This class implements the {@link GetCartMergeOptionsInputPort}
  * interface, which is a primary/driving port in the application layer.
@@ -33,8 +33,7 @@ public class GetCartMergeOptionsUseCase implements GetCartMergeOptionsInputPort 
   private final ArticleDataPort articleDataPort;
 
   public GetCartMergeOptionsUseCase(
-      final ShoppingCartRepository shoppingCartRepository,
-      final ArticleDataPort articleDataPort) {
+      final ShoppingCartRepository shoppingCartRepository, final ArticleDataPort articleDataPort) {
     this.shoppingCartRepository = shoppingCartRepository;
     this.articleDataPort = articleDataPort;
   }
@@ -63,18 +62,17 @@ public class GetCartMergeOptionsUseCase implements GetCartMergeOptionsInputPort 
 
     if (anonymousHasItems && accountHasItems) {
       // Fetch article data for all products in both carts
-      final var allProductIds = Stream.concat(
-              anonymousCart.get().items().stream().map(CartItem::productId),
-              accountCart.get().items().stream().map(CartItem::productId))
-          .collect(Collectors.toSet());
-      final Map<ProductId, CartArticle> articleData =
-          articleDataPort.getArticleData(allProductIds);
+      final var allProductIds =
+          Stream.concat(
+                  anonymousCart.get().items().stream().map(CartItem::productId),
+                  accountCart.get().items().stream().map(CartItem::productId))
+              .collect(Collectors.toSet());
+      final Map<ProductId, CartArticle> articleData = articleDataPort.getArticleData(allProductIds);
 
       // Both carts have items - user must choose
       return GetCartMergeOptionsResult.mergeRequired(
           toCartSummary(anonymousCart.get(), articleData),
-          toCartSummary(accountCart.get(), articleData)
-      );
+          toCartSummary(accountCart.get(), articleData));
     }
 
     // No merge required - either one or both carts are empty
@@ -82,8 +80,7 @@ public class GetCartMergeOptionsUseCase implements GetCartMergeOptionsInputPort 
   }
 
   private GetCartMergeOptionsResult.CartSummary toCartSummary(
-      final ShoppingCart cart,
-      final Map<ProductId, CartArticle> articleData) {
+      final ShoppingCart cart, final Map<ProductId, CartArticle> articleData) {
     final Money total = cart.calculateTotal();
     return new GetCartMergeOptionsResult.CartSummary(
         cart.id().value(),
@@ -91,15 +88,11 @@ public class GetCartMergeOptionsUseCase implements GetCartMergeOptionsInputPort 
         cart.totalQuantity(),
         total.amount(),
         total.currency().getCurrencyCode(),
-        cart.items().stream()
-            .map(item -> toItemSummary(item, articleData))
-            .toList()
-    );
+        cart.items().stream().map(item -> toItemSummary(item, articleData)).toList());
   }
 
   private GetCartMergeOptionsResult.CartItemSummary toItemSummary(
-      final CartItem item,
-      final Map<ProductId, CartArticle> articleData) {
+      final CartItem item, final Map<ProductId, CartArticle> articleData) {
     final CartArticle article = articleData.get(item.productId());
     final String name = article != null ? article.name() : item.productId().value();
     final String imageUrl = article != null ? article.imageUrl() : null;
@@ -109,7 +102,6 @@ public class GetCartMergeOptionsUseCase implements GetCartMergeOptionsInputPort 
         imageUrl,
         item.quantity().value(),
         item.priceAtAddition().value().amount(),
-        item.priceAtAddition().value().currency().getCurrencyCode()
-    );
+        item.priceAtAddition().value().currency().getCurrencyCode());
   }
 }

@@ -12,8 +12,8 @@ import org.springframework.transaction.annotation.Transactional;
 /**
  * Use case for reducing stock of a product.
  *
- * <p>This use case is invoked when an order is confirmed to reduce the available
- * stock for the ordered products. It publishes domain events for stock changes.
+ * <p>This use case is invoked when an order is confirmed to reduce the available stock for the
+ * ordered products. It publishes domain events for stock changes.
  *
  * <p><b>Hexagonal Architecture:</b> This class implements the {@link ReduceStockInputPort}
  * interface, which is a primary/driving port in the application layer.
@@ -28,8 +28,7 @@ public class ReduceStockUseCase implements ReduceStockInputPort {
   private final DomainEventPublisher eventPublisher;
 
   public ReduceStockUseCase(
-      final StockLevelRepository stockLevelRepository,
-      final DomainEventPublisher eventPublisher) {
+      final StockLevelRepository stockLevelRepository, final DomainEventPublisher eventPublisher) {
     this.stockLevelRepository = stockLevelRepository;
     this.eventPublisher = eventPublisher;
   }
@@ -43,8 +42,7 @@ public class ReduceStockUseCase implements ReduceStockInputPort {
     if (stockLevelOpt.isEmpty()) {
       logger.warn("Stock level not found for product: {}", command.productId());
       return ReduceStockResult.failure(
-          command.productId(),
-          "Stock level not found for product: " + command.productId());
+          command.productId(), "Stock level not found for product: " + command.productId());
     }
 
     final StockLevel stockLevel = stockLevelOpt.get();
@@ -68,9 +66,7 @@ public class ReduceStockUseCase implements ReduceStockInputPort {
 
     } catch (IllegalArgumentException e) {
       logger.error(
-          "Failed to reduce stock for product {}: {}",
-          command.productId(),
-          e.getMessage());
+          "Failed to reduce stock for product {}: {}", command.productId(), e.getMessage());
       return ReduceStockResult.failure(command.productId(), e.getMessage());
     }
   }

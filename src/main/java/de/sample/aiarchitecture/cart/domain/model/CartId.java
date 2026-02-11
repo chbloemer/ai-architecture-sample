@@ -4,9 +4,7 @@ import de.sample.aiarchitecture.sharedkernel.marker.tactical.Id;
 import de.sample.aiarchitecture.sharedkernel.marker.tactical.Value;
 import java.util.UUID;
 
-/**
- * Value Object representing a Shopping Cart's unique identifier.
- */
+/** Value Object representing a Shopping Cart's unique identifier. */
 public record CartId(String value) implements Id, Value {
 
   public CartId {

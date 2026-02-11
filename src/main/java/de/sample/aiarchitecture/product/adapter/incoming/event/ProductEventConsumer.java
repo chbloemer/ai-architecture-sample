@@ -33,12 +33,11 @@ import org.springframework.transaction.event.TransactionalEventListener;
  *   <li>Coordinating with other bounded contexts
  * </ul>
  *
- * <p><b>Note:</b> In a production system, you might want to use {@code @Async} to handle
- * events asynchronously and avoid blocking the main transaction.
+ * <p><b>Note:</b> In a production system, you might want to use {@code @Async} to handle events
+ * asynchronously and avoid blocking the main transaction.
  *
- * <p><b>Note:</b> Price change events are now handled by the Pricing bounded context.
- * See {@code de.sample.aiarchitecture.pricing.adapter.incoming.event} for pricing-related
- * event consumers.
+ * <p><b>Note:</b> Price change events are now handled by the Pricing bounded context. See {@code
+ * de.sample.aiarchitecture.pricing.adapter.incoming.event} for pricing-related event consumers.
  */
 @Component
 public class ProductEventConsumer {
@@ -48,10 +47,11 @@ public class ProductEventConsumer {
   /**
    * Handles ProductCreated events after transaction commit.
    *
-   * <p>This handler only executes after the transaction commits successfully, ensuring the
-   * product was actually persisted before processing the event.
+   * <p>This handler only executes after the transaction commits successfully, ensuring the product
+   * was actually persisted before processing the event.
    *
    * <p>This is where you might:
+   *
    * <ul>
    *   <li>Send notification to inventory team
    *   <li>Update search index for product catalog

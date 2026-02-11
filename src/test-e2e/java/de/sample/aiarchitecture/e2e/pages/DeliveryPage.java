@@ -88,7 +88,8 @@ public class DeliveryPage extends BasePage {
    * @param state the state or province
    * @return this page for method chaining
    */
-  public DeliveryPage fillAddress(String street, String city, String postalCode, String country, String state) {
+  public DeliveryPage fillAddress(
+      String street, String city, String postalCode, String country, String state) {
     return fillStreet(street)
         .fillCity(city)
         .fillPostalCode(postalCode)

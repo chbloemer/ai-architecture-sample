@@ -9,11 +9,11 @@ import java.util.Optional;
 /**
  * Output port for accessing stock data from the Inventory context.
  *
- * <p>This port allows Product use cases to fetch stock information without
- * directly depending on the Inventory bounded context.
+ * <p>This port allows Product use cases to fetch stock information without directly depending on
+ * the Inventory bounded context.
  *
- * <p><b>Hexagonal Architecture:</b> This is a secondary/driven port that defines what
- * the Product application layer needs from external stock data sources.
+ * <p><b>Hexagonal Architecture:</b> This is a secondary/driven port that defines what the Product
+ * application layer needs from external stock data sources.
  */
 public interface ProductStockDataPort extends OutputPort {
 

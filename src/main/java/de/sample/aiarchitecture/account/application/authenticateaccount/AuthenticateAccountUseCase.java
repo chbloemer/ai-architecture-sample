@@ -14,26 +14,29 @@ import org.springframework.transaction.annotation.Transactional;
  * Use case for authenticating an account (login).
  *
  * <p>This use case:
+ *
  * <ol>
- *   <li>Looks up the account by email</li>
- *   <li>Verifies the password (delegated to domain)</li>
- *   <li>Checks the account is active</li>
- *   <li>Records the login time</li>
- *   <li>Returns information needed to issue a new JWT</li>
+ *   <li>Looks up the account by email
+ *   <li>Verifies the password (delegated to domain)
+ *   <li>Checks the account is active
+ *   <li>Records the login time
+ *   <li>Returns information needed to issue a new JWT
  * </ol>
  *
  * <p><b>Security Notes:</b>
+ *
  * <ul>
- *   <li>Generic error messages prevent email enumeration</li>
- *   <li>Password comparison is timing-safe (BCrypt)</li>
- *   <li>Failed attempts are logged for security monitoring</li>
+ *   <li>Generic error messages prevent email enumeration
+ *   <li>Password comparison is timing-safe (BCrypt)
+ *   <li>Failed attempts are logged for security monitoring
  * </ul>
  *
  * <p>After authentication, the controller should:
+ *
  * <ol>
- *   <li>Generate a new registered JWT with the returned userId, email, and roles</li>
- *   <li>Set the JWT cookie (replacing any anonymous token)</li>
- *   <li>Optionally handle cart recovery/merge</li>
+ *   <li>Generate a new registered JWT with the returned userId, email, and roles
+ *   <li>Set the JWT cookie (replacing any anonymous token)
+ *   <li>Optionally handle cart recovery/merge
  * </ol>
  */
 @Service
@@ -47,15 +50,13 @@ public class AuthenticateAccountUseCase implements AuthenticateAccountInputPort 
   private final PasswordHasher passwordHasher;
 
   public AuthenticateAccountUseCase(
-      final AccountRepository accountRepository,
-      final PasswordHasher passwordHasher) {
+      final AccountRepository accountRepository, final PasswordHasher passwordHasher) {
     this.accountRepository = accountRepository;
     this.passwordHasher = passwordHasher;
   }
 
   @Override
   @Transactional
-  
   public AuthenticateAccountResult execute(final AuthenticateAccountCommand command) {
     final Email email;
     try {
@@ -95,8 +96,6 @@ public class AuthenticateAccountUseCase implements AuthenticateAccountInputPort 
     LOG.info("Successful login for user: {}", account.linkedUserId().value());
 
     return AuthenticateAccountResult.success(
-        account.linkedUserId().value(),
-        account.email().value(),
-        account.roles());
+        account.linkedUserId().value(), account.email().value(), account.roles());
   }
 }

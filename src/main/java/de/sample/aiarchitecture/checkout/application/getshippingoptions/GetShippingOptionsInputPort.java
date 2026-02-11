@@ -5,8 +5,8 @@ import de.sample.aiarchitecture.sharedkernel.marker.port.in.UseCase;
 /**
  * Input port for retrieving available shipping options.
  *
- * <p>This port defines the contract for querying shipping methods.
- * Primary adapters (REST controllers, etc.) depend on this interface.
+ * <p>This port defines the contract for querying shipping methods. Primary adapters (REST
+ * controllers, etc.) depend on this interface.
  *
  * <p><b>Hexagonal Architecture:</b> This is a driving/primary port for read operations.
  *

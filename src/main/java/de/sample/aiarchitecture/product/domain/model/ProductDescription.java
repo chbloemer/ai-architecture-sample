@@ -2,9 +2,7 @@ package de.sample.aiarchitecture.product.domain.model;
 
 import de.sample.aiarchitecture.sharedkernel.marker.tactical.Value;
 
-/**
- * Value Object representing a Product's description.
- */
+/** Value Object representing a Product's description. */
 public record ProductDescription(String value) implements Value {
 
   public ProductDescription {

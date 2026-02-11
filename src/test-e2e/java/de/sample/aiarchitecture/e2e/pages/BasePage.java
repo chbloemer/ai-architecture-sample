@@ -6,15 +6,17 @@ import com.microsoft.playwright.Page;
  * Base class for all page objects, providing common methods for page interactions.
  *
  * <p>Encapsulates Playwright interactions and provides a consistent API for:
+ *
  * <ul>
- *   <li>Element interactions via data-test attributes</li>
- *   <li>Form field operations</li>
- *   <li>Navigation and URL validation</li>
+ *   <li>Element interactions via data-test attributes
+ *   <li>Form field operations
+ *   <li>Navigation and URL validation
  * </ul>
  */
 public abstract class BasePage {
 
-  protected static final String BASE_URL = System.getProperty("e2e.baseUrl", "http://localhost:8080");
+  protected static final String BASE_URL =
+      System.getProperty("e2e.baseUrl", "http://localhost:8080");
   protected final Page page;
 
   /**
@@ -29,8 +31,8 @@ public abstract class BasePage {
   }
 
   /**
-   * Creates a new page object without URL validation.
-   * Use this when the page might not be loaded yet.
+   * Creates a new page object without URL validation. Use this when the page might not be loaded
+   * yet.
    *
    * @param page the Playwright page instance
    */

@@ -6,9 +6,9 @@ import java.util.List;
 /**
  * Output model for retrieving all products.
  *
- * <p>This result wraps a list of {@link EnrichedProduct} domain read models that combine
- * product state from the Product aggregate with external data from the Pricing and
- * Inventory bounded contexts.
+ * <p>This result wraps a list of {@link EnrichedProduct} domain read models that combine product
+ * state from the Product aggregate with external data from the Pricing and Inventory bounded
+ * contexts.
  *
  * <p><b>Pattern:</b> Use Case → Result(EnrichedProduct list) → Controller → ViewModel → Template
  *

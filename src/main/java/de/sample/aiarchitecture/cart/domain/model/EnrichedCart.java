@@ -10,21 +10,19 @@ import java.util.Map;
 /**
  * Enriched Domain Model representing a shopping cart with current article data.
  *
- * <p>This domain concept combines cart state from the ShoppingCart aggregate with
- * external data from the Pricing and Inventory contexts. It owns business logic
- * that requires cross-context data, such as checkout eligibility and price change detection.
+ * <p>This domain concept combines cart state from the ShoppingCart aggregate with external data
+ * from the Pricing and Inventory contexts. It owns business logic that requires cross-context data,
+ * such as checkout eligibility and price change detection.
  *
  * <p><b>Responsibility Split:</b>
+ *
  * <ul>
- *   <li>ShoppingCart aggregate: owns cart mutations (add/remove items, checkout)</li>
- *   <li>EnrichedCart: owns cross-context business rules (validation, calculations)</li>
+ *   <li>ShoppingCart aggregate: owns cart mutations (add/remove items, checkout)
+ *   <li>EnrichedCart: owns cross-context business rules (validation, calculations)
  * </ul>
  */
 public record EnrichedCart(
-    CartId cartId,
-    CustomerId customerId,
-    List<EnrichedCartItem> items,
-    CartStatus status)
+    CartId cartId, CustomerId customerId, List<EnrichedCartItem> items, CartStatus status)
     implements Value {
 
   private static final Currency DEFAULT_CURRENCY = Currency.getInstance("EUR");
@@ -75,8 +73,7 @@ public record EnrichedCart(
    * @throws IllegalArgumentException if article data is missing for any cart item
    */
   public static EnrichedCart from(
-      final ShoppingCart cart,
-      final Map<ProductId, CartArticle> articleData) {
+      final ShoppingCart cart, final Map<ProductId, CartArticle> articleData) {
     if (cart == null) {
       throw new IllegalArgumentException("Cart cannot be null");
     }
@@ -84,16 +81,18 @@ public record EnrichedCart(
       throw new IllegalArgumentException("Article data cannot be null");
     }
 
-    final List<EnrichedCartItem> enrichedItems = cart.items().stream()
-        .map(item -> {
-          final CartArticle article = articleData.get(item.productId());
-          if (article == null) {
-            throw new IllegalArgumentException(
-                "Article data not found for product: " + item.productId().value());
-          }
-          return EnrichedCartItem.of(item, article);
-        })
-        .toList();
+    final List<EnrichedCartItem> enrichedItems =
+        cart.items().stream()
+            .map(
+                item -> {
+                  final CartArticle article = articleData.get(item.productId());
+                  if (article == null) {
+                    throw new IllegalArgumentException(
+                        "Article data not found for product: " + item.productId().value());
+                  }
+                  return EnrichedCartItem.of(item, article);
+                })
+            .toList();
 
     return new EnrichedCart(cart.id(), cart.customerId(), enrichedItems, cart.status());
   }
@@ -151,16 +150,14 @@ public record EnrichedCart(
    * @return list of items with price changes
    */
   public List<EnrichedCartItem> itemsWithPriceChanges() {
-    return items.stream()
-        .filter(EnrichedCartItem::hasPriceChanged)
-        .toList();
+    return items.stream().filter(EnrichedCartItem::hasPriceChanged).toList();
   }
 
   /**
    * Checks if all items in the cart are valid for checkout.
    *
-   * <p>A cart is valid for checkout if it is active, not empty, and all items
-   * are available with sufficient stock.
+   * <p>A cart is valid for checkout if it is active, not empty, and all items are available with
+   * sufficient stock.
    *
    * @return true if the cart can proceed to checkout
    */
@@ -176,8 +173,6 @@ public record EnrichedCart(
    * @return list of items that cannot proceed to checkout
    */
   public List<EnrichedCartItem> invalidItems() {
-    return items.stream()
-        .filter(item -> !item.isValidForCheckout())
-        .toList();
+    return items.stream().filter(item -> !item.isValidForCheckout()).toList();
   }
 }

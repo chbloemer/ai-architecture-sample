@@ -7,10 +7,10 @@ import de.sample.aiarchitecture.cart.domain.model.CartId;
 import de.sample.aiarchitecture.cart.domain.model.CustomerId;
 import de.sample.aiarchitecture.cart.domain.model.Quantity;
 import de.sample.aiarchitecture.cart.domain.model.ShoppingCart;
-import de.sample.aiarchitecture.sharedkernel.marker.port.out.DomainEventPublisher;
 import de.sample.aiarchitecture.sharedkernel.domain.model.Money;
 import de.sample.aiarchitecture.sharedkernel.domain.model.Price;
 import de.sample.aiarchitecture.sharedkernel.domain.model.ProductId;
+import de.sample.aiarchitecture.sharedkernel.marker.port.out.DomainEventPublisher;
 import de.sample.aiarchitecture.sharedkernel.marker.tactical.AggregateRoot;
 import de.sample.aiarchitecture.sharedkernel.marker.tactical.DomainEvent;
 import java.math.BigDecimal;
@@ -29,10 +29,11 @@ import org.junit.jupiter.api.Test;
  * Integration tests for MergeCartsUseCase.
  *
  * <p>Tests the use case orchestration for all 3 merge strategies:
+ *
  * <ul>
- *   <li>MERGE_BOTH - combines items from both carts</li>
- *   <li>USE_ACCOUNT_CART - keeps account cart, discards anonymous</li>
- *   <li>USE_ANONYMOUS_CART - replaces account cart with anonymous items</li>
+ *   <li>MERGE_BOTH - combines items from both carts
+ *   <li>USE_ACCOUNT_CART - keeps account cart, discards anonymous
+ *   <li>USE_ANONYMOUS_CART - replaces account cart with anonymous items
  * </ul>
  */
 @DisplayName("MergeCartsUseCase")
@@ -73,11 +74,9 @@ class MergeCartsUseCaseTest {
       accountCart.addItem(product2, Quantity.of(3), price);
       repository.save(accountCart);
 
-      MergeCartsCommand command = new MergeCartsCommand(
-          ANONYMOUS_USER_ID,
-          REGISTERED_USER_ID,
-          CartMergeStrategy.MERGE_BOTH
-      );
+      MergeCartsCommand command =
+          new MergeCartsCommand(
+              ANONYMOUS_USER_ID, REGISTERED_USER_ID, CartMergeStrategy.MERGE_BOTH);
 
       // Act
       MergeCartsResult response = useCase.execute(command);
@@ -90,7 +89,8 @@ class MergeCartsUseCaseTest {
       assertTrue(response.anonymousCartDeleted());
 
       // Verify anonymous cart was deleted
-      assertFalse(repository.findActiveCartByCustomerId(CustomerId.of(ANONYMOUS_USER_ID)).isPresent());
+      assertFalse(
+          repository.findActiveCartByCustomerId(CustomerId.of(ANONYMOUS_USER_ID)).isPresent());
     }
 
     @Test
@@ -108,11 +108,9 @@ class MergeCartsUseCaseTest {
       accountCart.addItem(sharedProduct, Quantity.of(3), price);
       repository.save(accountCart);
 
-      MergeCartsCommand command = new MergeCartsCommand(
-          ANONYMOUS_USER_ID,
-          REGISTERED_USER_ID,
-          CartMergeStrategy.MERGE_BOTH
-      );
+      MergeCartsCommand command =
+          new MergeCartsCommand(
+              ANONYMOUS_USER_ID, REGISTERED_USER_ID, CartMergeStrategy.MERGE_BOTH);
 
       // Act
       MergeCartsResult response = useCase.execute(command);
@@ -135,11 +133,9 @@ class MergeCartsUseCaseTest {
       accountCart.addItem(product, Quantity.of(2), price);
       repository.save(accountCart);
 
-      MergeCartsCommand command = new MergeCartsCommand(
-          ANONYMOUS_USER_ID,
-          REGISTERED_USER_ID,
-          CartMergeStrategy.MERGE_BOTH
-      );
+      MergeCartsCommand command =
+          new MergeCartsCommand(
+              ANONYMOUS_USER_ID, REGISTERED_USER_ID, CartMergeStrategy.MERGE_BOTH);
 
       // Act
       MergeCartsResult response = useCase.execute(command);
@@ -171,11 +167,9 @@ class MergeCartsUseCaseTest {
       accountCart.addItem(accountProduct, Quantity.of(2), price);
       repository.save(accountCart);
 
-      MergeCartsCommand command = new MergeCartsCommand(
-          ANONYMOUS_USER_ID,
-          REGISTERED_USER_ID,
-          CartMergeStrategy.USE_ACCOUNT_CART
-      );
+      MergeCartsCommand command =
+          new MergeCartsCommand(
+              ANONYMOUS_USER_ID, REGISTERED_USER_ID, CartMergeStrategy.USE_ACCOUNT_CART);
 
       // Act
       MergeCartsResult response = useCase.execute(command);
@@ -205,11 +199,9 @@ class MergeCartsUseCaseTest {
       accountCart.addItem(product, Quantity.of(1), price);
       repository.save(accountCart);
 
-      MergeCartsCommand command = new MergeCartsCommand(
-          ANONYMOUS_USER_ID,
-          REGISTERED_USER_ID,
-          CartMergeStrategy.USE_ACCOUNT_CART
-      );
+      MergeCartsCommand command =
+          new MergeCartsCommand(
+              ANONYMOUS_USER_ID, REGISTERED_USER_ID, CartMergeStrategy.USE_ACCOUNT_CART);
 
       // Act
       useCase.execute(command);
@@ -229,11 +221,9 @@ class MergeCartsUseCaseTest {
       accountCart.addItem(product, Quantity.of(2), price);
       repository.save(accountCart);
 
-      MergeCartsCommand command = new MergeCartsCommand(
-          ANONYMOUS_USER_ID,
-          REGISTERED_USER_ID,
-          CartMergeStrategy.USE_ACCOUNT_CART
-      );
+      MergeCartsCommand command =
+          new MergeCartsCommand(
+              ANONYMOUS_USER_ID, REGISTERED_USER_ID, CartMergeStrategy.USE_ACCOUNT_CART);
 
       // Act
       MergeCartsResult response = useCase.execute(command);
@@ -265,11 +255,9 @@ class MergeCartsUseCaseTest {
       accountCart.addItem(accountProduct, Quantity.of(2), price);
       repository.save(accountCart);
 
-      MergeCartsCommand command = new MergeCartsCommand(
-          ANONYMOUS_USER_ID,
-          REGISTERED_USER_ID,
-          CartMergeStrategy.USE_ANONYMOUS_CART
-      );
+      MergeCartsCommand command =
+          new MergeCartsCommand(
+              ANONYMOUS_USER_ID, REGISTERED_USER_ID, CartMergeStrategy.USE_ANONYMOUS_CART);
 
       // Act
       MergeCartsResult response = useCase.execute(command);
@@ -300,11 +288,9 @@ class MergeCartsUseCaseTest {
       accountCart.addItem(product, Quantity.of(1), price);
       repository.save(accountCart);
 
-      MergeCartsCommand command = new MergeCartsCommand(
-          ANONYMOUS_USER_ID,
-          REGISTERED_USER_ID,
-          CartMergeStrategy.USE_ANONYMOUS_CART
-      );
+      MergeCartsCommand command =
+          new MergeCartsCommand(
+              ANONYMOUS_USER_ID, REGISTERED_USER_ID, CartMergeStrategy.USE_ANONYMOUS_CART);
 
       // Act
       useCase.execute(command);
@@ -331,11 +317,9 @@ class MergeCartsUseCaseTest {
       accountCart.addItem(accountProduct2, Quantity.of(1), price);
       repository.save(accountCart);
 
-      MergeCartsCommand command = new MergeCartsCommand(
-          ANONYMOUS_USER_ID,
-          REGISTERED_USER_ID,
-          CartMergeStrategy.USE_ANONYMOUS_CART
-      );
+      MergeCartsCommand command =
+          new MergeCartsCommand(
+              ANONYMOUS_USER_ID, REGISTERED_USER_ID, CartMergeStrategy.USE_ANONYMOUS_CART);
 
       // Act
       MergeCartsResult response = useCase.execute(command);
@@ -356,11 +340,9 @@ class MergeCartsUseCaseTest {
       accountCart.addItem(product, Quantity.of(2), price);
       repository.save(accountCart);
 
-      MergeCartsCommand command = new MergeCartsCommand(
-          ANONYMOUS_USER_ID,
-          REGISTERED_USER_ID,
-          CartMergeStrategy.USE_ANONYMOUS_CART
-      );
+      MergeCartsCommand command =
+          new MergeCartsCommand(
+              ANONYMOUS_USER_ID, REGISTERED_USER_ID, CartMergeStrategy.USE_ANONYMOUS_CART);
 
       // Act
       MergeCartsResult response = useCase.execute(command);
@@ -385,11 +367,9 @@ class MergeCartsUseCaseTest {
       anonymousCart.addItem(product, Quantity.of(3), price);
       repository.save(anonymousCart);
 
-      MergeCartsCommand command = new MergeCartsCommand(
-          ANONYMOUS_USER_ID,
-          REGISTERED_USER_ID,
-          CartMergeStrategy.MERGE_BOTH
-      );
+      MergeCartsCommand command =
+          new MergeCartsCommand(
+              ANONYMOUS_USER_ID, REGISTERED_USER_ID, CartMergeStrategy.MERGE_BOTH);
 
       // Act
       MergeCartsResult response = useCase.execute(command);
@@ -420,9 +400,7 @@ class MergeCartsUseCaseTest {
 
     @Override
     public List<ShoppingCart> findByCustomerId(CustomerId customerId) {
-      return carts.values().stream()
-          .filter(cart -> cart.customerId().equals(customerId))
-          .toList();
+      return carts.values().stream().filter(cart -> cart.customerId().equals(customerId)).toList();
     }
 
     @Override

@@ -24,13 +24,14 @@ import org.springframework.transaction.annotation.Transactional;
  * Use case for checking out a shopping cart.
  *
  * <p>This use case orchestrates the checkout process by:
+ *
  * <ol>
- *   <li>Retrieving the cart</li>
- *   <li>Fetching fresh article data for all cart items</li>
- *   <li>Validating the cart with current availability and stock</li>
- *   <li>Checking out (business logic in aggregate validates rules)</li>
- *   <li>Persisting the updated cart</li>
- *   <li>Publishing domain events</li>
+ *   <li>Retrieving the cart
+ *   <li>Fetching fresh article data for all cart items
+ *   <li>Validating the cart with current availability and stock
+ *   <li>Checking out (business logic in aggregate validates rules)
+ *   <li>Persisting the updated cart
+ *   <li>Publishing domain events
  * </ol>
  *
  * <p><b>Hexagonal Architecture:</b> This class implements the {@link CheckoutCartInputPort}
@@ -64,9 +65,8 @@ public class CheckoutCartUseCase implements CheckoutCartInputPort {
             .orElseThrow(() -> new IllegalArgumentException("Cart not found: " + input.cartId()));
 
     // Collect product IDs and fetch article data in batch
-    final Set<ProductId> productIds = cart.items().stream()
-        .map(item -> item.productId())
-        .collect(Collectors.toSet());
+    final Set<ProductId> productIds =
+        cart.items().stream().map(item -> item.productId()).collect(Collectors.toSet());
 
     final Map<ProductId, CartArticle> articleData = articleDataPort.getArticleData(productIds);
 
@@ -91,15 +91,17 @@ public class CheckoutCartUseCase implements CheckoutCartInputPort {
     eventPublisher.publishAndClearEvents(cart);
 
     // Map to output using enriched cart items
-    final List<CheckoutCartResult.CartItemSummary> items = enrichedCart.items().stream()
-        .map(item -> new CheckoutCartResult.CartItemSummary(
-            item.cartItemId().value().toString(),
-            item.productId().value().toString(),
-            item.quantity().value(),
-            item.currentArticle().currentPrice().amount(),
-            item.currentArticle().currentPrice().currency().getCurrencyCode()
-        ))
-        .toList();
+    final List<CheckoutCartResult.CartItemSummary> items =
+        enrichedCart.items().stream()
+            .map(
+                item ->
+                    new CheckoutCartResult.CartItemSummary(
+                        item.cartItemId().value().toString(),
+                        item.productId().value().toString(),
+                        item.quantity().value(),
+                        item.currentArticle().currentPrice().amount(),
+                        item.currentArticle().currentPrice().currency().getCurrencyCode()))
+            .toList();
 
     final Money total = enrichedCart.calculateCurrentSubtotal();
 
@@ -110,12 +112,12 @@ public class CheckoutCartUseCase implements CheckoutCartInputPort {
         total.amount(),
         total.currency().getCurrencyCode(),
         Instant.now() // Note: In production, this should come from the aggregate or an event
-    );
+        );
   }
 
   /**
-   * Builds an ArticlePriceResolver from the fetched article data.
-   * Kept for backward compatibility with CartValidationResult.
+   * Builds an ArticlePriceResolver from the fetched article data. Kept for backward compatibility
+   * with CartValidationResult.
    *
    * @param articleDataMap the map of product IDs to CartArticle
    * @return a resolver that provides pricing information
@@ -127,13 +129,12 @@ public class CheckoutCartUseCase implements CheckoutCartInputPort {
         // Product not found - treat as unavailable
         return new ArticlePrice(Money.euro(0.0), false, 0);
       }
-      return new ArticlePrice(article.currentPrice(), article.isAvailable(), article.availableStock());
+      return new ArticlePrice(
+          article.currentPrice(), article.isAvailable(), article.availableStock());
     };
   }
 
-  /**
-   * Exception thrown when cart validation fails during checkout.
-   */
+  /** Exception thrown when cart validation fails during checkout. */
   public static class CartValidationException extends RuntimeException {
     private final CartValidationResult validationResult;
 

@@ -11,11 +11,12 @@ import org.springframework.transaction.annotation.Transactional;
 /**
  * Use case for getting or creating an active cart for a customer.
  *
- * <p>This use case either retrieves an existing active cart for the customer
- * or creates a new one if no active cart exists.
+ * <p>This use case either retrieves an existing active cart for the customer or creates a new one
+ * if no active cart exists.
  *
- * <p><b>Hexagonal Architecture:</b> This class implements the {@link GetOrCreateActiveCartInputPort}
- * interface, which is a primary/driving port in the application layer.
+ * <p><b>Hexagonal Architecture:</b> This class implements the {@link
+ * GetOrCreateActiveCartInputPort} interface, which is a primary/driving port in the application
+ * layer.
  */
 @Service
 @Transactional
@@ -32,15 +33,13 @@ public class GetOrCreateActiveCartUseCase implements GetOrCreateActiveCartInputP
     final CustomerId customerId = CustomerId.of(input.customerId());
 
     // Try to find existing active cart
-    final Optional<ShoppingCart> existingCart = shoppingCartRepository.findActiveCartByCustomerId(customerId);
+    final Optional<ShoppingCart> existingCart =
+        shoppingCartRepository.findActiveCartByCustomerId(customerId);
 
     if (existingCart.isPresent()) {
       // Return existing cart
       return new GetOrCreateActiveCartResult(
-          existingCart.get().id().value(),
-          customerId.value(),
-          false
-      );
+          existingCart.get().id().value(), customerId.value(), false);
     }
 
     // Create new cart
@@ -48,10 +47,6 @@ public class GetOrCreateActiveCartUseCase implements GetOrCreateActiveCartInputP
     final ShoppingCart newCart = new ShoppingCart(newCartId, customerId);
     shoppingCartRepository.save(newCart);
 
-    return new GetOrCreateActiveCartResult(
-        newCartId.value(),
-        customerId.value(),
-        true
-    );
+    return new GetOrCreateActiveCartResult(newCartId.value(), customerId.value(), true);
   }
 }

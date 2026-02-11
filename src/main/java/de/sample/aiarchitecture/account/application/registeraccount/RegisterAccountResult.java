@@ -11,10 +11,7 @@ import java.util.Set;
  * @param roles the user's roles
  */
 public record RegisterAccountResult(
-    String accountId,
-    String userId,
-    String email,
-    Set<String> roles) {
+    String accountId, String userId, String email, Set<String> roles) {
 
   /**
    * Creates a successful registration response.
@@ -26,10 +23,7 @@ public record RegisterAccountResult(
    * @return a new response
    */
   public static RegisterAccountResult of(
-      final String accountId,
-      final String userId,
-      final String email,
-      final Set<String> roles) {
+      final String accountId, final String userId, final String email, final Set<String> roles) {
     return new RegisterAccountResult(accountId, userId, email, roles);
   }
 }

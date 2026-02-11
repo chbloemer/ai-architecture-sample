@@ -19,8 +19,5 @@ public record GetPricesForProductsResult(Map<ProductId, PriceData> prices) {
    * @param currentPrice the current price
    * @param effectiveFrom when the price became effective
    */
-  public record PriceData(
-      ProductId productId,
-      Money currentPrice,
-      Instant effectiveFrom) {}
+  public record PriceData(ProductId productId, Money currentPrice, Instant effectiveFrom) {}
 }

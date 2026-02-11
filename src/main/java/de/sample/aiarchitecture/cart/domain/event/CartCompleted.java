@@ -5,14 +5,8 @@ import de.sample.aiarchitecture.sharedkernel.marker.tactical.DomainEvent;
 import java.time.Instant;
 import java.util.UUID;
 
-/**
- * Domain Event indicating that a shopping cart was completed after checkout confirmation.
- */
-public record CartCompleted(
-    UUID eventId,
-    CartId cartId,
-    Instant occurredOn,
-    int version)
+/** Domain Event indicating that a shopping cart was completed after checkout confirmation. */
+public record CartCompleted(UUID eventId, CartId cartId, Instant occurredOn, int version)
     implements DomainEvent {
 
   public static CartCompleted now(final CartId cartId) {

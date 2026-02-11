@@ -26,6 +26,5 @@ public record GetAllCartsResult(List<CartSummary> carts) {
       String status,
       int itemCount,
       BigDecimal totalAmount,
-      String totalCurrency
-  ) {}
+      String totalCurrency) {}
 }

@@ -7,9 +7,7 @@ package de.sample.aiarchitecture.cart.application.createcart;
  */
 public record CreateCartCommand(String customerId) {
 
-  /**
-   * Compact constructor with validation.
-   */
+  /** Compact constructor with validation. */
   public CreateCartCommand {
     if (customerId == null || customerId.isBlank()) {
       throw new IllegalArgumentException("Customer ID cannot be null or blank");

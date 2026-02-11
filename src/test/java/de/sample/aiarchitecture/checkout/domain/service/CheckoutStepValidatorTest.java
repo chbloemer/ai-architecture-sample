@@ -4,11 +4,11 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import de.sample.aiarchitecture.checkout.domain.model.BuyerInfo;
 import de.sample.aiarchitecture.checkout.domain.model.CartId;
-import de.sample.aiarchitecture.checkout.domain.model.CustomerId;
 import de.sample.aiarchitecture.checkout.domain.model.CheckoutLineItem;
 import de.sample.aiarchitecture.checkout.domain.model.CheckoutLineItemId;
 import de.sample.aiarchitecture.checkout.domain.model.CheckoutSession;
 import de.sample.aiarchitecture.checkout.domain.model.CheckoutStep;
+import de.sample.aiarchitecture.checkout.domain.model.CustomerId;
 import de.sample.aiarchitecture.checkout.domain.model.DeliveryAddress;
 import de.sample.aiarchitecture.checkout.domain.model.PaymentProviderId;
 import de.sample.aiarchitecture.checkout.domain.model.PaymentSelection;
@@ -214,9 +214,10 @@ class CheckoutStepValidatorTest {
     void completedSessionRedirectsOtherStepsToConfirmation() {
       CheckoutSession session = createCompletedSession();
 
-      for (CheckoutStep step : List.of(
-          CheckoutStep.BUYER_INFO, CheckoutStep.DELIVERY,
-          CheckoutStep.PAYMENT, CheckoutStep.REVIEW)) {
+      for (CheckoutStep step :
+          List.of(
+              CheckoutStep.BUYER_INFO, CheckoutStep.DELIVERY,
+              CheckoutStep.PAYMENT, CheckoutStep.REVIEW)) {
         Optional<String> redirect = validator.validateStepAccess(session, step);
         assertTrue(redirect.isPresent(), "Should redirect for step: " + step);
         assertEquals("/checkout/confirmation", redirect.get());
@@ -262,9 +263,10 @@ class CheckoutStepValidatorTest {
     void confirmedSessionRedirectsOtherStepsToConfirmation() {
       CheckoutSession session = createConfirmedSession();
 
-      for (CheckoutStep step : List.of(
-          CheckoutStep.BUYER_INFO, CheckoutStep.DELIVERY,
-          CheckoutStep.PAYMENT, CheckoutStep.REVIEW)) {
+      for (CheckoutStep step :
+          List.of(
+              CheckoutStep.BUYER_INFO, CheckoutStep.DELIVERY,
+              CheckoutStep.PAYMENT, CheckoutStep.REVIEW)) {
         Optional<String> redirect = validator.validateStepAccess(session, step);
         assertTrue(redirect.isPresent(), "Should redirect for step: " + step);
         assertEquals("/checkout/confirmation", redirect.get());
@@ -443,7 +445,8 @@ class CheckoutStepValidatorTest {
   }
 
   private ShippingOption createShippingOption() {
-    return ShippingOption.of("standard", "Standard Shipping", "3-5 business days", Money.of(BigDecimal.valueOf(5), EUR));
+    return ShippingOption.of(
+        "standard", "Standard Shipping", "3-5 business days", Money.of(BigDecimal.valueOf(5), EUR));
   }
 
   private PaymentSelection createPaymentSelection() {

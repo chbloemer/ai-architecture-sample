@@ -3,8 +3,7 @@ package de.sample.aiarchitecture.checkout.application.getpaymentproviders;
 /**
  * Query model for retrieving available payment providers.
  *
- * <p>This is a marker record since no input parameters are required
- * to retrieve payment providers.
+ * <p>This is a marker record since no input parameters are required to retrieve payment providers.
  */
 public record GetPaymentProvidersQuery() {
 

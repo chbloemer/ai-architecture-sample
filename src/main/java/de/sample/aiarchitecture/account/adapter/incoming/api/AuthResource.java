@@ -6,10 +6,10 @@ import de.sample.aiarchitecture.account.application.authenticateaccount.Authenti
 import de.sample.aiarchitecture.account.application.registeraccount.RegisterAccountCommand;
 import de.sample.aiarchitecture.account.application.registeraccount.RegisterAccountInputPort;
 import de.sample.aiarchitecture.account.application.registeraccount.RegisterAccountResult;
-import de.sample.aiarchitecture.sharedkernel.domain.model.UserId;
-import de.sample.aiarchitecture.sharedkernel.marker.port.out.IdentityProvider;
 import de.sample.aiarchitecture.account.application.shared.IdentitySession;
 import de.sample.aiarchitecture.account.application.shared.TokenService;
+import de.sample.aiarchitecture.sharedkernel.domain.model.UserId;
+import de.sample.aiarchitecture.sharedkernel.marker.port.out.IdentityProvider;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,14 +21,15 @@ import org.springframework.web.bind.annotation.RestController;
 /**
  * REST API Resource for Authentication operations.
  *
- * <p>This is a primary adapter (incoming) in Hexagonal Architecture that exposes
- * authentication functionality via REST API.
+ * <p>This is a primary adapter (incoming) in Hexagonal Architecture that exposes authentication
+ * functionality via REST API.
  *
  * <p>Endpoints:
+ *
  * <ul>
- *   <li>POST /api/auth/login - Authenticate user and return JWT token</li>
- *   <li>POST /api/auth/register - Register new user and return JWT token</li>
- *   <li>POST /api/auth/logout - Clear authentication cookie</li>
+ *   <li>POST /api/auth/login - Authenticate user and return JWT token
+ *   <li>POST /api/auth/register - Register new user and return JWT token
+ *   <li>POST /api/auth/logout - Clear authentication cookie
  * </ul>
  */
 @RestController
@@ -55,12 +56,10 @@ public class AuthResource {
   }
 
   @PostMapping("/login")
-  public ResponseEntity<LoginResponse> login(
-      @Valid @RequestBody final LoginRequest request) {
+  public ResponseEntity<LoginResponse> login(@Valid @RequestBody final LoginRequest request) {
 
-    final AuthenticateAccountCommand command = new AuthenticateAccountCommand(
-        request.email(),
-        request.password());
+    final AuthenticateAccountCommand command =
+        new AuthenticateAccountCommand(request.email(), request.password());
 
     final AuthenticateAccountResult result = authenticateAccountUseCase.execute(command);
 
@@ -69,10 +68,9 @@ public class AuthResource {
           .body(LoginResponse.failure(result.errorMessage()));
     }
 
-    final String token = tokenService.generateRegisteredToken(
-        UserId.of(result.userId()),
-        result.email(),
-        result.roles());
+    final String token =
+        tokenService.generateRegisteredToken(
+            UserId.of(result.userId()), result.email(), result.roles());
 
     identitySession.setRegisteredIdentity(token);
 
@@ -85,18 +83,15 @@ public class AuthResource {
 
     final String currentUserId = identityProvider.getCurrentIdentity().userId().value();
 
-    final RegisterAccountCommand command = new RegisterAccountCommand(
-        request.email(),
-        request.password(),
-        currentUserId);
+    final RegisterAccountCommand command =
+        new RegisterAccountCommand(request.email(), request.password(), currentUserId);
 
     try {
       final RegisterAccountResult result = registerAccountUseCase.execute(command);
 
-      final String token = tokenService.generateRegisteredToken(
-          UserId.of(result.userId()),
-          result.email(),
-          result.roles());
+      final String token =
+          tokenService.generateRegisteredToken(
+              UserId.of(result.userId()), result.email(), result.roles());
 
       identitySession.setRegisteredIdentity(token);
 
@@ -104,8 +99,7 @@ public class AuthResource {
           .body(RegisterResponse.success(token, result.email()));
 
     } catch (final IllegalArgumentException e) {
-      return ResponseEntity.badRequest()
-          .body(RegisterResponse.failure(e.getMessage()));
+      return ResponseEntity.badRequest().body(RegisterResponse.failure(e.getMessage()));
     }
   }
 

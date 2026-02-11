@@ -7,14 +7,14 @@ import java.util.Set;
 /**
  * Port for retrieving the current user's identity.
  *
- * <p>This is the primary way for application services and controllers
- * to access the current user's identity without depending on infrastructure
- * details like HTTP sessions or JWT tokens.
+ * <p>This is the primary way for application services and controllers to access the current user's
+ * identity without depending on infrastructure details like HTTP sessions or JWT tokens.
  *
- * <p>The implementation (in the infrastructure layer) extracts the identity
- * from the security context, which is populated by the JWT filter.
+ * <p>The implementation (in the infrastructure layer) extracts the identity from the security
+ * context, which is populated by the JWT filter.
  *
  * <p><b>Usage in Controllers:</b>
+ *
  * <pre>{@code
  * @GetMapping("/cart")
  * public String showCart(Model model) {
@@ -25,6 +25,7 @@ import java.util.Set;
  * }</pre>
  *
  * <p><b>Usage in Use Cases:</b>
+ *
  * <pre>{@code
  * public class SomeUseCase {
  *     private final IdentityProvider identityProvider;
@@ -44,60 +45,46 @@ public interface IdentityProvider extends OutputPort {
    * Retrieves the current user's identity from the security context.
    *
    * <p>This method always returns a valid identity because:
+   *
    * <ul>
-   *   <li>The JWT filter creates an anonymous identity for first-time visitors</li>
-   *   <li>Existing users have their identity extracted from the JWT</li>
+   *   <li>The JWT filter creates an anonymous identity for first-time visitors
+   *   <li>Existing users have their identity extracted from the JWT
    * </ul>
    *
    * @return the current user's identity (never null)
    * @throws IllegalStateException if called outside of a request context
    */
-  
   Identity getCurrentIdentity();
 
   /**
    * Represents the current user's identity.
    *
    * <p>Identity can be either:
+   *
    * <ul>
-   *   <li><b>Anonymous</b> - User has a UserId but no account (soft identity)</li>
-   *   <li><b>Registered</b> - User has a UserId linked to an account (hard identity)</li>
+   *   <li><b>Anonymous</b> - User has a UserId but no account (soft identity)
+   *   <li><b>Registered</b> - User has a UserId linked to an account (hard identity)
    * </ul>
    *
-   * <p>The UserId remains the same when an anonymous user registers, ensuring
-   * cart continuity.
+   * <p>The UserId remains the same when an anonymous user registers, ensuring cart continuity.
    *
    * <p>Implementations should be immutable records or classes.
    */
   interface Identity {
 
-    /**
-     * Default role for registered customers.
-     */
+    /** Default role for registered customers. */
     String ROLE_CUSTOMER = "CUSTOMER";
 
-    /**
-     * The user's unique identifier (always present).
-     */
-    
+    /** The user's unique identifier (always present). */
     UserId userId();
 
-    /**
-     * The identity type (ANONYMOUS or REGISTERED).
-     */
-    
+    /** The identity type (ANONYMOUS or REGISTERED). */
     IdentityType type();
 
-    /**
-     * The user's email (only present for registered users).
-     */
-    
+    /** The user's email (only present for registered users). */
     Optional<String> email();
 
-    /**
-     * The user's roles (typically empty for anonymous, contains CUSTOMER for registered).
-     */
-    
+    /** The user's roles (typically empty for anonymous, contains CUSTOMER for registered). */
     Set<String> roles();
 
     /**
@@ -132,26 +119,20 @@ public interface IdentityProvider extends OutputPort {
   /**
    * Represents the type of user identity.
    *
-   * <p>This is an interface to allow projects to define their own identity types
-   * (e.g., SERVICE_ACCOUNT, API_KEY, etc.) while maintaining a common contract.
+   * <p>This is an interface to allow projects to define their own identity types (e.g.,
+   * SERVICE_ACCOUNT, API_KEY, etc.) while maintaining a common contract.
    *
    * <p>Implementations should typically be enums.
    */
   interface IdentityType {
 
-    /**
-     * The name of this identity type.
-     */
+    /** The name of this identity type. */
     String name();
 
-    /**
-     * Returns true if this is an anonymous identity type.
-     */
+    /** Returns true if this is an anonymous identity type. */
     boolean isAnonymous();
 
-    /**
-     * Returns true if this is a registered identity type.
-     */
+    /** Returns true if this is a registered identity type. */
     boolean isRegistered();
   }
 }

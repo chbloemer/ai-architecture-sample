@@ -6,9 +6,7 @@ import de.sample.aiarchitecture.sharedkernel.marker.tactical.DomainEvent;
 import java.time.Instant;
 import java.util.UUID;
 
-/**
- * Domain Event indicating that a product's category was changed.
- */
+/** Domain Event indicating that a product's category was changed. */
 public record ProductCategoryChanged(
     UUID eventId,
     ProductId productId,
@@ -19,9 +17,7 @@ public record ProductCategoryChanged(
     implements DomainEvent {
 
   public static ProductCategoryChanged now(
-      final ProductId productId,
-      final Category oldCategory,
-      final Category newCategory) {
+      final ProductId productId, final Category oldCategory, final Category newCategory) {
     return new ProductCategoryChanged(
         UUID.randomUUID(), productId, oldCategory, newCategory, Instant.now(), 1);
   }

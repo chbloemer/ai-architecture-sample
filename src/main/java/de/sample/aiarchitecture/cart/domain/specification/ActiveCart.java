@@ -5,9 +5,7 @@ import de.sample.aiarchitecture.cart.domain.model.ShoppingCart;
 import de.sample.aiarchitecture.sharedkernel.domain.specification.AndSpecification;
 import de.sample.aiarchitecture.sharedkernel.domain.specification.SpecificationVisitor;
 
-/**
- * Cart is in ACTIVE status.
- */
+/** Cart is in ACTIVE status. */
 public record ActiveCart() implements CartSpecification {
   @Override
   public boolean isSatisfiedBy(ShoppingCart candidate) {

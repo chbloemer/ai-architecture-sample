@@ -8,11 +8,11 @@ import de.sample.aiarchitecture.sharedkernel.marker.tactical.Value;
 /**
  * Value Object that combines CartItem data with current CartArticle data.
  *
- * <p>Enables domain logic like determining if the price has changed since the item
- * was added to the cart and whether there is sufficient stock for the requested quantity.
+ * <p>Enables domain logic like determining if the price has changed since the item was added to the
+ * cart and whether there is sufficient stock for the requested quantity.
  *
- * <p>Note: This value object extracts data from CartItem (an Entity) to maintain
- * DDD principle that value objects should not contain entities.
+ * <p>Note: This value object extracts data from CartItem (an Entity) to maintain DDD principle that
+ * value objects should not contain entities.
  */
 public record EnrichedCartItem(
     CartItemId cartItemId,
@@ -115,8 +115,8 @@ public record EnrichedCartItem(
   /**
    * Checks if this cart item is valid for checkout.
    *
-   * <p>An item is valid for checkout if the product is available AND there is
-   * sufficient stock for the requested quantity.
+   * <p>An item is valid for checkout if the product is available AND there is sufficient stock for
+   * the requested quantity.
    *
    * @return true if the item can proceed to checkout
    */

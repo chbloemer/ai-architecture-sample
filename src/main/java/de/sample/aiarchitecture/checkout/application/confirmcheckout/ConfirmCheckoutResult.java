@@ -1,4 +1,5 @@
 package de.sample.aiarchitecture.checkout.application.confirmcheckout;
+
 import org.jspecify.annotations.Nullable;
 
 /**

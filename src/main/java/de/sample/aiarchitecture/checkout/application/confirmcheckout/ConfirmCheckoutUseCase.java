@@ -17,13 +17,14 @@ import org.springframework.transaction.annotation.Transactional;
  * Use case for confirming a checkout session.
  *
  * <p>This use case handles the confirmation step by:
+ *
  * <ul>
- *   <li>Loading and validating the checkout session</li>
- *   <li>Fetching fresh article data (pricing, availability) via CheckoutArticleDataPort</li>
- *   <li>Building a resolver for current pricing validation</li>
- *   <li>Calling the domain method to confirm with validation</li>
- *   <li>Persisting the updated session</li>
- *   <li>The domain raises the CheckoutConfirmed integration event</li>
+ *   <li>Loading and validating the checkout session
+ *   <li>Fetching fresh article data (pricing, availability) via CheckoutArticleDataPort
+ *   <li>Building a resolver for current pricing validation
+ *   <li>Calling the domain method to confirm with validation
+ *   <li>Persisting the updated session
+ *   <li>The domain raises the CheckoutConfirmed integration event
  * </ul>
  *
  * <p><b>Hexagonal Architecture:</b> This class implements the {@link ConfirmCheckoutInputPort}
@@ -60,23 +61,23 @@ public class ConfirmCheckoutUseCase implements ConfirmCheckoutInputPort {
                 () -> new IllegalArgumentException("Session not found: " + command.sessionId()));
 
     // Collect product IDs from line items
-    final List<ProductId> productIds = session.lineItems().stream()
-        .map(item -> item.productId())
-        .toList();
+    final List<ProductId> productIds =
+        session.lineItems().stream().map(item -> item.productId()).toList();
 
     // Fetch fresh article data (pricing, availability) for validation
     final Map<ProductId, CheckoutArticle> articleDataMap =
         checkoutArticleDataPort.getArticleData(productIds);
 
     // Build resolver from fetched data
-    final CheckoutArticlePriceResolver resolver = productId -> {
-      final CheckoutArticle article = articleDataMap.get(productId);
-      if (article == null) {
-        throw new IllegalArgumentException("Article data not found for: " + productId.value());
-      }
-      return new CheckoutArticlePriceResolver.ArticlePrice(
-          article.currentPrice(), article.isAvailable(), article.availableStock());
-    };
+    final CheckoutArticlePriceResolver resolver =
+        productId -> {
+          final CheckoutArticle article = articleDataMap.get(productId);
+          if (article == null) {
+            throw new IllegalArgumentException("Article data not found for: " + productId.value());
+          }
+          return new CheckoutArticlePriceResolver.ArticlePrice(
+              article.currentPrice(), article.isAvailable(), article.availableStock());
+        };
 
     // Confirm checkout with validation (domain validates state, step, completeness, and items)
     // This raises the CheckoutConfirmed integration event

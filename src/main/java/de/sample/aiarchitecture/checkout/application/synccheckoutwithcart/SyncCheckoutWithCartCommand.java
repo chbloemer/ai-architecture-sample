@@ -5,5 +5,4 @@ package de.sample.aiarchitecture.checkout.application.synccheckoutwithcart;
  *
  * @param cartId the ID of the cart that changed
  */
-public record SyncCheckoutWithCartCommand(String cartId) {
-}
+public record SyncCheckoutWithCartCommand(String cartId) {}

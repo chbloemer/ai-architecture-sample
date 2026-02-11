@@ -7,7 +7,10 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface CartJpaRepository extends JpaRepository<CartEntity, String>, JpaSpecificationExecutor<CartEntity> {
+public interface CartJpaRepository
+    extends JpaRepository<CartEntity, String>, JpaSpecificationExecutor<CartEntity> {
   List<CartEntity> findByCustomerId(String customerId);
-  Optional<CartEntity> findFirstByCustomerIdAndStatusOrderByUpdatedAtDesc(String customerId, String status);
+
+  Optional<CartEntity> findFirstByCustomerIdAndStatusOrderByUpdatedAtDesc(
+      String customerId, String status);
 }

@@ -15,6 +15,7 @@ import java.util.Optional;
  * Implementation resides in the secondary adapter layer.
  *
  * <p>Extends the base {@link Repository} interface which provides common methods:
+ *
  * <ul>
  *   <li>{@code findById(PriceId)} - inherited from base interface
  *   <li>{@code save(ProductPrice)} - inherited from base interface

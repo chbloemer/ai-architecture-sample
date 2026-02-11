@@ -22,22 +22,12 @@ public record RecoverCartOnLoginResult(
     BigDecimal totalAmount,
     String totalCurrency,
     int itemsMerged,
-    boolean anonymousCartDeleted
-) {
+    boolean anonymousCartDeleted) {
 
-  /**
-   * Creates a response when no cart recovery was needed (no anonymous cart existed).
-   */
+  /** Creates a response when no cart recovery was needed (no anonymous cart existed). */
   public static RecoverCartOnLoginResult noRecoveryNeeded(String customerId) {
     return new RecoverCartOnLoginResult(
-        null,
-        customerId,
-        List.of(),
-        BigDecimal.ZERO,
-        "EUR",
-        0,
-        false
-    );
+        null, customerId, List.of(), BigDecimal.ZERO, "EUR", 0, false);
   }
 
   /**
@@ -54,6 +44,5 @@ public record RecoverCartOnLoginResult(
       String productId,
       int quantity,
       BigDecimal unitPriceAmount,
-      String unitPriceCurrency
-  ) {}
+      String unitPriceCurrency) {}
 }

@@ -6,13 +6,9 @@ package de.sample.aiarchitecture.inventory.application.setstocklevel;
  * @param productId the product ID
  * @param quantity the stock quantity to set (must be non-negative)
  */
-public record SetStockLevelCommand(
-    String productId,
-    int quantity) {
+public record SetStockLevelCommand(String productId, int quantity) {
 
-  /**
-   * Compact constructor with validation.
-   */
+  /** Compact constructor with validation. */
   public SetStockLevelCommand {
     if (productId == null || productId.isBlank()) {
       throw new IllegalArgumentException("Product ID cannot be null or blank");

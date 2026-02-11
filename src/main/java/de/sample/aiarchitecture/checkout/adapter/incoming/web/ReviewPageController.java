@@ -17,17 +17,17 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 /**
  * MVC Controller for the order review page in checkout.
  *
- * <p>This controller handles the review step of checkout where the customer
- * reviews all order details before confirming the purchase.
+ * <p>This controller handles the review step of checkout where the customer reviews all order
+ * details before confirming the purchase.
  *
- * <p>The active checkout session is identified via JWT identity, removing the need
- * for session IDs in URLs.
+ * <p>The active checkout session is identified via JWT identity, removing the need for session IDs
+ * in URLs.
  *
  * <p><b>Clean Architecture:</b> This controller depends on use case interfaces (input ports)
  * instead of application services, following the Dependency Inversion Principle.
  *
- * <p><b>Naming Convention:</b> MVC controllers use {@code @Controller} annotation and
- * end with "Controller" suffix.
+ * <p><b>Naming Convention:</b> MVC controllers use {@code @Controller} annotation and end with
+ * "Controller" suffix.
  */
 @Controller
 @RequestMapping("/checkout")
@@ -49,19 +49,16 @@ public class ReviewPageController {
   /**
    * Displays the order review page with all order details.
    *
-   * <p>This endpoint retrieves the active checkout session for the current user
-   * (via JWT identity) and displays all collected information including buyer info,
-   * delivery details, payment method, and order summary for final review before
-   * purchase confirmation.
+   * <p>This endpoint retrieves the active checkout session for the current user (via JWT identity)
+   * and displays all collected information including buyer info, delivery details, payment method,
+   * and order summary for final review before purchase confirmation.
    *
    * @param model the Spring MVC model
    * @param redirectAttributes for passing flash messages on error
    * @return the review.pug template or redirect on error
    */
   @GetMapping("/review")
-  public String showReviewPage(
-      final Model model,
-      final RedirectAttributes redirectAttributes) {
+  public String showReviewPage(final Model model, final RedirectAttributes redirectAttributes) {
 
     // Get customer ID from JWT identity
     final IdentityProvider.Identity identity = identityProvider.getCurrentIdentity();
@@ -79,8 +76,7 @@ public class ReviewPageController {
 
     // Get full session details
     final GetCheckoutSessionResult result =
-        getCheckoutSessionInputPort.execute(
-            GetCheckoutSessionQuery.of(activeSession.sessionId()));
+        getCheckoutSessionInputPort.execute(GetCheckoutSessionQuery.of(activeSession.sessionId()));
 
     if (!result.found()) {
       redirectAttributes.addFlashAttribute("error", "Checkout session not found");

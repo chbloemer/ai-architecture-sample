@@ -5,14 +5,8 @@ import de.sample.aiarchitecture.sharedkernel.marker.tactical.DomainEvent;
 import java.time.Instant;
 import java.util.UUID;
 
-/**
- * Domain Event indicating that a shopping cart was abandoned by the customer.
- */
-public record CartAbandoned(
-    UUID eventId,
-    CartId cartId,
-    Instant occurredOn,
-    int version)
+/** Domain Event indicating that a shopping cart was abandoned by the customer. */
+public record CartAbandoned(UUID eventId, CartId cartId, Instant occurredOn, int version)
     implements DomainEvent {
 
   public static CartAbandoned now(final CartId cartId) {

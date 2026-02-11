@@ -8,8 +8,8 @@ import org.jspecify.annotations.Nullable;
 /**
  * Value Object representing checkout's view of article data from external contexts.
  *
- * <p>This is a domain-level value object that contains article information
- * needed during checkout operations, including pricing and availability.
+ * <p>This is a domain-level value object that contains article information needed during checkout
+ * operations, including pricing and availability.
  */
 public record CheckoutArticle(
     ProductId productId,
@@ -63,6 +63,7 @@ public record CheckoutArticle(
       final int availableStock,
       final boolean isAvailable,
       @Nullable final String imageUrl) {
-    return new CheckoutArticle(productId, name, currentPrice, availableStock, isAvailable, imageUrl);
+    return new CheckoutArticle(
+        productId, name, currentPrice, availableStock, isAvailable, imageUrl);
   }
 }

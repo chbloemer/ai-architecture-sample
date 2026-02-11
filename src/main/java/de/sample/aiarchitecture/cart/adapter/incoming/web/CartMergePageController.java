@@ -19,12 +19,12 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 /**
  * MVC Controller for cart merge options page.
  *
- * <p>This controller handles the cart merge decision flow when a user logs in
- * and both their anonymous cart and account cart have items.
+ * <p>This controller handles the cart merge decision flow when a user logs in and both their
+ * anonymous cart and account cart have items.
  *
- * <p><b>Stateless Design:</b> This controller uses URL parameters instead of HTTP sessions
- * to pass state between requests. The anonymous user ID and return URL are passed via URL,
- * making it compatible with session-disabled configurations.
+ * <p><b>Stateless Design:</b> This controller uses URL parameters instead of HTTP sessions to pass
+ * state between requests. The anonymous user ID and return URL are passed via URL, making it
+ * compatible with session-disabled configurations.
  *
  * <p><b>Template Location:</b> {@code src/main/resources/templates/cart/merge-options.pug}
  */
@@ -48,8 +48,8 @@ public class CartMergePageController {
   /**
    * Displays the cart merge options page.
    *
-   * <p>Shows the user both carts and lets them choose how to handle the conflict.
-   * If no merge is required, redirects to the return URL or cart page.
+   * <p>Shows the user both carts and lets them choose how to handle the conflict. If no merge is
+   * required, redirects to the return URL or cart page.
    *
    * @param model Spring MVC model
    * @param anonymousUserId the anonymous user ID (passed via URL from login)
@@ -68,7 +68,8 @@ public class CartMergePageController {
     final String registeredUserId = identity.userId().value();
 
     // Get merge options
-    final GetCartMergeOptionsQuery query = new GetCartMergeOptionsQuery(anonymousUserId, registeredUserId);
+    final GetCartMergeOptionsQuery query =
+        new GetCartMergeOptionsQuery(anonymousUserId, registeredUserId);
     final GetCartMergeOptionsResult options = getCartMergeOptionsUseCase.execute(query);
 
     if (!options.mergeRequired()) {
@@ -116,20 +117,23 @@ public class CartMergePageController {
       mergeStrategy = CartMergeStrategy.valueOf(strategy);
     } catch (final IllegalArgumentException e) {
       redirectAttributes.addFlashAttribute("error", "Invalid merge option selected");
-      return "redirect:/cart/merge?anonymousUserId=" + anonymousUserId
+      return "redirect:/cart/merge?anonymousUserId="
+          + anonymousUserId
           + (returnUrl != null ? "&returnUrl=" + returnUrl : "");
     }
 
     // Execute merge
-    final MergeCartsCommand command = new MergeCartsCommand(anonymousUserId, registeredUserId, mergeStrategy);
+    final MergeCartsCommand command =
+        new MergeCartsCommand(anonymousUserId, registeredUserId, mergeStrategy);
     final MergeCartsResult response = mergeCartsUseCase.execute(command);
 
     // Add success message based on strategy
-    final String message = switch (mergeStrategy) {
-      case MERGE_BOTH -> "Carts merged successfully!";
-      case USE_ACCOUNT_CART -> "Using your account cart.";
-      case USE_ANONYMOUS_CART -> "Using your recent cart.";
-    };
+    final String message =
+        switch (mergeStrategy) {
+          case MERGE_BOTH -> "Carts merged successfully!";
+          case USE_ACCOUNT_CART -> "Using your account cart.";
+          case USE_ANONYMOUS_CART -> "Using your recent cart.";
+        };
     redirectAttributes.addFlashAttribute("message", message);
 
     // Redirect to return URL or cart

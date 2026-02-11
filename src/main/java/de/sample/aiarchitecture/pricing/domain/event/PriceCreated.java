@@ -7,9 +7,7 @@ import de.sample.aiarchitecture.sharedkernel.marker.tactical.DomainEvent;
 import java.time.Instant;
 import java.util.UUID;
 
-/**
- * Domain Event indicating that a new price was created for a product.
- */
+/** Domain Event indicating that a new price was created for a product. */
 public record PriceCreated(
     UUID eventId,
     PriceId priceId,

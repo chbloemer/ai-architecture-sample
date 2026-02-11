@@ -7,10 +7,7 @@ package de.sample.aiarchitecture.account.application.registeraccount;
  * @param password the user's plaintext password (will be hashed)
  * @param currentUserId the current user's ID (from their anonymous JWT)
  */
-public record RegisterAccountCommand(
-    String email,
-    String password,
-    String currentUserId) {
+public record RegisterAccountCommand(String email, String password, String currentUserId) {
 
   public RegisterAccountCommand {
     if (email == null || email.isBlank()) {

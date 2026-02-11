@@ -25,17 +25,17 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 /**
  * MVC Controller for the delivery/shipping address page in checkout.
  *
- * <p>This controller handles the delivery step of checkout where the customer
- * enters their shipping address and selects a shipping option.
+ * <p>This controller handles the delivery step of checkout where the customer enters their shipping
+ * address and selects a shipping option.
  *
- * <p>The active checkout session is identified via JWT identity, removing the need
- * for session IDs in URLs.
+ * <p>The active checkout session is identified via JWT identity, removing the need for session IDs
+ * in URLs.
  *
  * <p><b>Clean Architecture:</b> This controller depends on use case interfaces (input ports)
  * instead of application services, following the Dependency Inversion Principle.
  *
- * <p><b>Naming Convention:</b> MVC controllers use {@code @Controller} annotation and
- * end with "Controller" suffix.
+ * <p><b>Naming Convention:</b> MVC controllers use {@code @Controller} annotation and end with
+ * "Controller" suffix.
  */
 @Controller
 @RequestMapping("/checkout")
@@ -63,18 +63,16 @@ public class DeliveryPageController {
   /**
    * Displays the delivery address and shipping options form.
    *
-   * <p>This endpoint retrieves the active checkout session for the current user
-   * (via JWT identity) and available shipping options, then displays the delivery form.
-   * If no active session is found, redirects to cart with an error.
+   * <p>This endpoint retrieves the active checkout session for the current user (via JWT identity)
+   * and available shipping options, then displays the delivery form. If no active session is found,
+   * redirects to cart with an error.
    *
    * @param model the Spring MVC model
    * @param redirectAttributes for passing flash messages on error
    * @return the delivery.pug template or redirect on error
    */
   @GetMapping("/delivery")
-  public String showDeliveryForm(
-      final Model model,
-      final RedirectAttributes redirectAttributes) {
+  public String showDeliveryForm(final Model model, final RedirectAttributes redirectAttributes) {
 
     // Get customer ID from JWT identity
     final IdentityProvider.Identity identity = identityProvider.getCurrentIdentity();
@@ -92,8 +90,7 @@ public class DeliveryPageController {
 
     // Get full session details
     final GetCheckoutSessionResult result =
-        getCheckoutSessionInputPort.execute(
-            GetCheckoutSessionQuery.of(activeSession.sessionId()));
+        getCheckoutSessionInputPort.execute(GetCheckoutSessionQuery.of(activeSession.sessionId()));
 
     if (!result.found()) {
       redirectAttributes.addFlashAttribute("error", "Checkout session not found");
@@ -116,8 +113,8 @@ public class DeliveryPageController {
   /**
    * Submits delivery information and advances to payment step.
    *
-   * <p>This endpoint processes the delivery form submission and redirects
-   * to the payment step on success.
+   * <p>This endpoint processes the delivery form submission and redirects to the payment step on
+   * success.
    *
    * @param street the street address
    * @param streetLine2 optional second address line

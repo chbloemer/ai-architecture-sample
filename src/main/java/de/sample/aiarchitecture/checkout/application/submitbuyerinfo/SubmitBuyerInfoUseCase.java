@@ -11,11 +11,12 @@ import org.springframework.transaction.annotation.Transactional;
  * Use case for submitting buyer contact information during checkout.
  *
  * <p>This use case handles the buyer info step by:
+ *
  * <ul>
- *   <li>Loading and validating the checkout session</li>
- *   <li>Creating BuyerInfo value object from command data</li>
- *   <li>Calling the domain method to submit buyer info</li>
- *   <li>Persisting the updated session</li>
+ *   <li>Loading and validating the checkout session
+ *   <li>Creating BuyerInfo value object from command data
+ *   <li>Calling the domain method to submit buyer info
+ *   <li>Persisting the updated session
  * </ul>
  *
  * <p><b>Hexagonal Architecture:</b> This class implements the {@link SubmitBuyerInfoInputPort}

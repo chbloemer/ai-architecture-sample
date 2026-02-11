@@ -9,8 +9,8 @@ import java.util.List;
 /**
  * Value Object representing the result of cart validation for checkout.
  *
- * <p>Collects validation errors that prevent a cart from being checked out,
- * such as unavailable products or insufficient stock.
+ * <p>Collects validation errors that prevent a cart from being checked out, such as unavailable
+ * products or insufficient stock.
  */
 public record CartValidationResult(List<ValidationError> errors) implements Value {
 
@@ -49,13 +49,9 @@ public record CartValidationResult(List<ValidationError> errors) implements Valu
     return new CartValidationResult(errors);
   }
 
-  /**
-   * Represents a single validation error for a product in the cart.
-   */
-  public record ValidationError(
-      ProductId productId,
-      String message,
-      ErrorType type) implements Value {
+  /** Represents a single validation error for a product in the cart. */
+  public record ValidationError(ProductId productId, String message, ErrorType type)
+      implements Value {
 
     public ValidationError {
       if (productId == null) {
@@ -91,9 +87,7 @@ public record CartValidationResult(List<ValidationError> errors) implements Valu
      * @return a ValidationError of type INSUFFICIENT_STOCK
      */
     public static ValidationError insufficientStock(
-        final ProductId productId,
-        final int requested,
-        final int available) {
+        final ProductId productId, final int requested, final int available) {
       return new ValidationError(
           productId,
           String.format(
@@ -103,9 +97,7 @@ public record CartValidationResult(List<ValidationError> errors) implements Valu
     }
   }
 
-  /**
-   * The type of validation error.
-   */
+  /** The type of validation error. */
   public enum ErrorType {
     /** The product is not available for purchase. */
     PRODUCT_UNAVAILABLE,

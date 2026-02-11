@@ -6,8 +6,8 @@ import de.sample.aiarchitecture.sharedkernel.marker.tactical.Value;
 
 /**
  * Functional interface for resolving current pricing and availability information for articles
- * during checkout operations. This resolver provides a domain-level abstraction for obtaining
- * fresh pricing data that may come from external systems.
+ * during checkout operations. This resolver provides a domain-level abstraction for obtaining fresh
+ * pricing data that may come from external systems.
  */
 @FunctionalInterface
 public interface CheckoutArticlePriceResolver {
@@ -27,8 +27,7 @@ public interface CheckoutArticlePriceResolver {
    * @param isAvailable whether the article is currently available for purchase
    * @param availableStock the quantity currently available in stock
    */
-  record ArticlePrice(Money price, boolean isAvailable, int availableStock)
-      implements Value {
+  record ArticlePrice(Money price, boolean isAvailable, int availableStock) implements Value {
 
     public ArticlePrice {
       if (availableStock < 0) {

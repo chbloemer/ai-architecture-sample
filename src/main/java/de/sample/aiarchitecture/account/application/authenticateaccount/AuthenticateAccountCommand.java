@@ -6,9 +6,7 @@ package de.sample.aiarchitecture.account.application.authenticateaccount;
  * @param email the user's email address
  * @param password the user's plaintext password
  */
-public record AuthenticateAccountCommand(
-    String email,
-    String password) {
+public record AuthenticateAccountCommand(String email, String password) {
 
   public AuthenticateAccountCommand {
     if (email == null || email.isBlank()) {

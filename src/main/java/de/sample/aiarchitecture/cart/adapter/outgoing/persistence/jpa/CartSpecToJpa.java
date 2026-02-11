@@ -1,22 +1,22 @@
 package de.sample.aiarchitecture.cart.adapter.outgoing.persistence.jpa;
 
-import de.sample.aiarchitecture.cart.domain.specification.*;
 import de.sample.aiarchitecture.cart.domain.model.CartStatus;
 import de.sample.aiarchitecture.cart.domain.model.ShoppingCart;
+import de.sample.aiarchitecture.cart.domain.specification.*;
 import de.sample.aiarchitecture.sharedkernel.domain.specification.AndSpecification;
 import de.sample.aiarchitecture.sharedkernel.domain.specification.CompositeSpecification;
 import de.sample.aiarchitecture.sharedkernel.domain.specification.NotSpecification;
 import de.sample.aiarchitecture.sharedkernel.domain.specification.OrSpecification;
-import java.math.BigDecimal;
 import jakarta.persistence.criteria.Expression;
 import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.JoinType;
+import java.math.BigDecimal;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
 
 /**
- * Translates domain-level cart specifications into Spring Data JPA Specifications
- * to allow database-side filtering (predicate pushdown).
+ * Translates domain-level cart specifications into Spring Data JPA Specifications to allow
+ * database-side filtering (predicate pushdown).
  */
 @Component
 public class CartSpecToJpa implements CartSpecificationVisitor<Specification<CartEntity>> {
@@ -47,15 +47,20 @@ public class CartSpecToJpa implements CartSpecificationVisitor<Specification<Car
       query.groupBy(root.get("id"));
       query.having(
           cb.greaterThanOrEqualTo(
-              cb.coalesce(cb.sum(
-                  cb.<BigDecimal>selectCase()
-                      .when(cb.equal(items.get("priceCurrency"), spec.minimum().currency().getCurrencyCode()), lineTotal)
-                      .otherwise(cb.literal(BigDecimal.ZERO))
-              ), BigDecimal.ZERO),
-              spec.minimum().amount()
-          ));
+              cb.coalesce(
+                  cb.sum(
+                      cb.<BigDecimal>selectCase()
+                          .when(
+                              cb.equal(
+                                  items.get("priceCurrency"),
+                                  spec.minimum().currency().getCurrencyCode()),
+                              lineTotal)
+                          .otherwise(cb.literal(BigDecimal.ZERO))),
+                  BigDecimal.ZERO),
+              spec.minimum().amount()));
 
-      // Some JPA providers require returning a dummy predicate when only HAVING is used; use TRUE = TRUE
+      // Some JPA providers require returning a dummy predicate when only HAVING is used; use TRUE =
+      // TRUE
       return cb.conjunction();
     };
   }

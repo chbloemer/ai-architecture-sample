@@ -5,15 +5,15 @@ import java.math.BigDecimal;
 /**
  * Input model for creating a product.
  *
- * <p>This immutable record encapsulates all data required to create a new product.
- * It decouples the use case from presentation layer DTOs and framework concerns.
+ * <p>This immutable record encapsulates all data required to create a new product. It decouples the
+ * use case from presentation layer DTOs and framework concerns.
  *
- * <p><b>Clean Architecture Note:</b>
- * Input models are part of the application layer and define the contract for use cases.
- * They prevent the domain layer from depending on external frameworks or DTOs.
+ * <p><b>Clean Architecture Note:</b> Input models are part of the application layer and define the
+ * contract for use cases. They prevent the domain layer from depending on external frameworks or
+ * DTOs.
  *
- * <p><b>Note:</b> The stockQuantity is passed via the ProductCreated event to the
- * Inventory bounded context for initialization. Product context does not store stock.
+ * <p><b>Note:</b> The stockQuantity is passed via the ProductCreated event to the Inventory bounded
+ * context for initialization. Product context does not store stock.
  *
  * @param sku the unique stock keeping unit
  * @param name the product name
@@ -32,12 +32,9 @@ public record CreateProductCommand(
     BigDecimal priceAmount,
     String priceCurrency,
     String category,
-    int stockQuantity
-) {
+    int stockQuantity) {
 
-  /**
-   * Creates a command without specifying initial stock (defaults to 0).
-   */
+  /** Creates a command without specifying initial stock (defaults to 0). */
   public CreateProductCommand(
       String sku,
       String name,
@@ -49,9 +46,7 @@ public record CreateProductCommand(
     this(sku, name, description, imageUrl, priceAmount, priceCurrency, category, 0);
   }
 
-  /**
-   * Compact constructor with validation.
-   */
+  /** Compact constructor with validation. */
   public CreateProductCommand {
     if (sku == null || sku.isBlank()) {
       throw new IllegalArgumentException("SKU cannot be null or blank");

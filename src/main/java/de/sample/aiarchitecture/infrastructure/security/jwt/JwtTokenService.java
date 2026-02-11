@@ -1,9 +1,9 @@
 package de.sample.aiarchitecture.infrastructure.security.jwt;
 
+import de.sample.aiarchitecture.account.application.shared.TokenService;
 import de.sample.aiarchitecture.infrastructure.security.JwtIdentity;
 import de.sample.aiarchitecture.sharedkernel.domain.model.UserId;
 import de.sample.aiarchitecture.sharedkernel.marker.port.out.IdentityProvider;
-import de.sample.aiarchitecture.account.application.shared.TokenService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
@@ -24,13 +24,15 @@ import org.springframework.stereotype.Service;
  * JWT implementation of the TokenService.
  *
  * <p>This service handles all JWT token operations including:
+ *
  * <ul>
- *   <li>Generating anonymous tokens for first-time visitors</li>
- *   <li>Generating registered tokens after login/registration</li>
- *   <li>Validating and parsing tokens from cookies</li>
+ *   <li>Generating anonymous tokens for first-time visitors
+ *   <li>Generating registered tokens after login/registration
+ *   <li>Validating and parsing tokens from cookies
  * </ul>
  *
  * <p><b>Token Structure:</b>
+ *
  * <pre>
  * Header: { "alg": "HS256", "typ": "JWT" }
  * Payload: {
@@ -70,7 +72,6 @@ public class JwtTokenService implements TokenService {
    * @param userId the user's unique identifier
    * @return the generated JWT token string
    */
-  
   public String generateAnonymousToken(final UserId userId) {
     final Date now = new Date();
     final Date expiration = new Date(now.getTime() + properties.anonymousExpirationMs());
@@ -94,11 +95,8 @@ public class JwtTokenService implements TokenService {
    * @return the generated JWT token string
    */
   @Override
-  
   public String generateRegisteredToken(
-      final UserId userId,
-      final String email,
-      final Set<String> roles) {
+      final UserId userId, final String email, final Set<String> roles) {
     final Date now = new Date();
     final Date expiration = new Date(now.getTime() + properties.registeredExpirationMs());
 
@@ -120,15 +118,15 @@ public class JwtTokenService implements TokenService {
    * @param token the JWT token to validate
    * @return an Optional containing the Identity if valid, empty otherwise
    */
-  
   public Optional<IdentityProvider.Identity> validateAndParse(final String token) {
     try {
-      final Claims claims = Jwts.parser()
-          .verifyWith(secretKey)
-          .requireIssuer(properties.issuer())
-          .build()
-          .parseSignedClaims(token)
-          .getPayload();
+      final Claims claims =
+          Jwts.parser()
+              .verifyWith(secretKey)
+              .requireIssuer(properties.issuer())
+              .build()
+              .parseSignedClaims(token)
+              .getPayload();
 
       return Optional.of(buildIdentityFromClaims(claims));
 
@@ -152,10 +150,7 @@ public class JwtTokenService implements TokenService {
    */
   public boolean isExpired(final String token) {
     try {
-      Jwts.parser()
-          .verifyWith(secretKey)
-          .build()
-          .parseSignedClaims(token);
+      Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token);
       return false;
     } catch (ExpiredJwtException e) {
       return true;

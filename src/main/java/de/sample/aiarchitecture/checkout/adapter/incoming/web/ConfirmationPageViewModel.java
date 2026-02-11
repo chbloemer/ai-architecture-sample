@@ -19,30 +19,22 @@ public record ConfirmationPageViewModel(
     TotalsViewModel totals,
     BuyerInfoViewModel buyerInfo,
     @Nullable DeliveryViewModel delivery,
-    PaymentViewModel payment
-) {
+    PaymentViewModel payment) {
 
-  /**
-   * Creates a ConfirmationPageViewModel from a CheckoutCartSnapshot.
-   */
+  /** Creates a ConfirmationPageViewModel from a CheckoutCartSnapshot. */
   public static ConfirmationPageViewModel fromSnapshot(final CheckoutCartSnapshot snapshot) {
     return new ConfirmationPageViewModel(
         snapshot.sessionId().value(),
         snapshot.status().name(),
         snapshot.orderReference(),
-        snapshot.lineItems().stream()
-            .map(LineItemViewModel::fromSnapshot)
-            .toList(),
+        snapshot.lineItems().stream().map(LineItemViewModel::fromSnapshot).toList(),
         TotalsViewModel.fromSnapshot(snapshot),
         BuyerInfoViewModel.fromSnapshot(snapshot),
         DeliveryViewModel.fromSnapshot(snapshot),
-        PaymentViewModel.fromSnapshot(snapshot)
-    );
+        PaymentViewModel.fromSnapshot(snapshot));
   }
 
-  /**
-   * Line item for order display.
-   */
+  /** Line item for order display. */
   public record LineItemViewModel(
       String productId,
       String productName,
@@ -50,8 +42,7 @@ public record ConfirmationPageViewModel(
       BigDecimal unitPrice,
       BigDecimal lineTotal,
       String currencyCode,
-      String imageUrl
-  ) {
+      String imageUrl) {
     static LineItemViewModel fromSnapshot(final LineItemSnapshot item) {
       return new LineItemViewModel(
           item.productId().value(),
@@ -60,21 +51,17 @@ public record ConfirmationPageViewModel(
           item.price().amount(),
           item.lineTotal().amount(),
           item.price().currency().getCurrencyCode(),
-          item.imageUrl()
-      );
+          item.imageUrl());
     }
   }
 
-  /**
-   * Order totals.
-   */
+  /** Order totals. */
   public record TotalsViewModel(
       BigDecimal subtotal,
       BigDecimal shipping,
       BigDecimal tax,
       BigDecimal total,
-      String currencyCode
-  ) {
+      String currencyCode) {
     static TotalsViewModel fromSnapshot(final CheckoutCartSnapshot snapshot) {
       if (snapshot.totals() != null) {
         final var totals = snapshot.totals();
@@ -83,49 +70,31 @@ public record ConfirmationPageViewModel(
             totals.shipping().amount(),
             totals.tax().amount(),
             totals.total().amount(),
-            totals.total().currency().getCurrencyCode()
-        );
+            totals.total().currency().getCurrencyCode());
       }
       return new TotalsViewModel(
           snapshot.subtotal().amount(),
           BigDecimal.ZERO,
           BigDecimal.ZERO,
           snapshot.subtotal().amount(),
-          snapshot.subtotal().currency().getCurrencyCode()
-      );
+          snapshot.subtotal().currency().getCurrencyCode());
     }
   }
 
-  /**
-   * Buyer information.
-   */
-  public record BuyerInfoViewModel(
-      String email,
-      String firstName,
-      String lastName,
-      String phone
-  ) {
+  /** Buyer information. */
+  public record BuyerInfoViewModel(String email, String firstName, String lastName, String phone) {
     static BuyerInfoViewModel fromSnapshot(final CheckoutCartSnapshot snapshot) {
       final var info = snapshot.buyerInfo();
       if (info == null) {
         return new BuyerInfoViewModel("", "", "", "");
       }
-      return new BuyerInfoViewModel(
-          info.email(),
-          info.firstName(),
-          info.lastName(),
-          info.phone()
-      );
+      return new BuyerInfoViewModel(info.email(), info.firstName(), info.lastName(), info.phone());
     }
   }
 
-  /**
-   * Delivery information.
-   */
+  /** Delivery information. */
   public record DeliveryViewModel(
-      AddressViewModel address,
-      ShippingOptionViewModel shippingOption
-  ) {
+      AddressViewModel address, ShippingOptionViewModel shippingOption) {
     static DeliveryViewModel fromSnapshot(final CheckoutCartSnapshot snapshot) {
       final var addr = snapshot.deliveryAddress();
       final var shipping = snapshot.shippingOption();
@@ -133,23 +102,18 @@ public record ConfirmationPageViewModel(
         return null;
       }
       return new DeliveryViewModel(
-          AddressViewModel.fromAddress(addr),
-          ShippingOptionViewModel.fromOption(shipping)
-      );
+          AddressViewModel.fromAddress(addr), ShippingOptionViewModel.fromOption(shipping));
     }
   }
 
-  /**
-   * Delivery address.
-   */
+  /** Delivery address. */
   public record AddressViewModel(
       String street,
       @Nullable String streetLine2,
       String city,
       String postalCode,
       String country,
-      @Nullable String state
-  ) {
+      @Nullable String state) {
     static AddressViewModel fromAddress(
         final de.sample.aiarchitecture.checkout.domain.model.DeliveryAddress addr) {
       return new AddressViewModel(
@@ -158,47 +122,31 @@ public record ConfirmationPageViewModel(
           addr.city(),
           addr.postalCode(),
           addr.country(),
-          addr.state()
-      );
+          addr.state());
     }
   }
 
-  /**
-   * Shipping option.
-   */
+  /** Shipping option. */
   public record ShippingOptionViewModel(
-      String name,
-      String estimatedDelivery,
-      BigDecimal cost,
-      String currencyCode
-  ) {
+      String name, String estimatedDelivery, BigDecimal cost, String currencyCode) {
     static ShippingOptionViewModel fromOption(
         final de.sample.aiarchitecture.checkout.domain.model.ShippingOption option) {
       return new ShippingOptionViewModel(
           option.name(),
           option.estimatedDelivery(),
           option.cost().amount(),
-          option.cost().currency().getCurrencyCode()
-      );
+          option.cost().currency().getCurrencyCode());
     }
   }
 
-  /**
-   * Payment information.
-   */
-  public record PaymentViewModel(
-      String providerId,
-      @Nullable String providerReference
-  ) {
+  /** Payment information. */
+  public record PaymentViewModel(String providerId, @Nullable String providerReference) {
     static PaymentViewModel fromSnapshot(final CheckoutCartSnapshot snapshot) {
       final var payment = snapshot.paymentSelection();
       if (payment == null) {
         return new PaymentViewModel("", null);
       }
-      return new PaymentViewModel(
-          payment.providerId().value(),
-          payment.providerReference()
-      );
+      return new PaymentViewModel(payment.providerId().value(), payment.providerReference());
     }
   }
 }

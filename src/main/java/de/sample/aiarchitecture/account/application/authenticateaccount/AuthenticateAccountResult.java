@@ -12,11 +12,7 @@ import java.util.Set;
  * @param errorMessage error message if authentication failed
  */
 public record AuthenticateAccountResult(
-    boolean success,
-    String userId,
-    String email,
-    Set<String> roles,
-    String errorMessage) {
+    boolean success, String userId, String email, Set<String> roles, String errorMessage) {
 
   /**
    * Creates a successful authentication response.
@@ -27,9 +23,7 @@ public record AuthenticateAccountResult(
    * @return a successful response
    */
   public static AuthenticateAccountResult success(
-      final String userId,
-      final String email,
-      final Set<String> roles) {
+      final String userId, final String email, final Set<String> roles) {
     return new AuthenticateAccountResult(true, userId, email, roles, null);
   }
 

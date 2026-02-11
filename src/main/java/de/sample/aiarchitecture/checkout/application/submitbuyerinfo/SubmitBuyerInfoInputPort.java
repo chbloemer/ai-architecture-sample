@@ -5,8 +5,8 @@ import de.sample.aiarchitecture.sharedkernel.marker.port.in.UseCase;
 /**
  * Input port for submitting buyer contact information during checkout.
  *
- * <p>This port defines the contract for the buyer info step of checkout.
- * Primary adapters (REST controllers, etc.) depend on this interface.
+ * <p>This port defines the contract for the buyer info step of checkout. Primary adapters (REST
+ * controllers, etc.) depend on this interface.
  *
  * <p><b>Hexagonal Architecture:</b> This is a driving/primary port for write operations.
  *
@@ -19,11 +19,12 @@ public interface SubmitBuyerInfoInputPort
    * Submits buyer contact information for the checkout session.
    *
    * <p>This operation:
+   *
    * <ul>
-   *   <li>Validates the session exists and is active</li>
-   *   <li>Validates the session is at or before the buyer info step</li>
-   *   <li>Updates the session with buyer contact information</li>
-   *   <li>Advances to the delivery step if at buyer info step</li>
+   *   <li>Validates the session exists and is active
+   *   <li>Validates the session is at or before the buyer info step
+   *   <li>Updates the session with buyer contact information
+   *   <li>Advances to the delivery step if at buyer info step
    * </ul>
    *
    * @param command the command containing session ID and buyer info

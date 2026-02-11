@@ -17,10 +17,7 @@ public record GetStockForProductsResult(Map<ProductId, StockData> stocks) {
    * @param availableStock the quantity of stock available (unreserved)
    * @param isAvailable whether any stock is available for purchase
    */
-  public record StockData(
-      ProductId productId,
-      int availableStock,
-      boolean isAvailable) {
+  public record StockData(ProductId productId, int availableStock, boolean isAvailable) {
 
     public StockData {
       if (productId == null) {

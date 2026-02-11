@@ -14,7 +14,6 @@ import java.util.Arrays;
 import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.jspecify.annotations.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -25,26 +24,27 @@ import org.springframework.web.filter.OncePerRequestFilter;
  * JWT Authentication Filter that runs on every request.
  *
  * <p>This filter is responsible for:
+ *
  * <ol>
- *   <li>Extracting JWT from the cookie (or Authorization header)</li>
- *   <li>If no JWT exists, generating an anonymous token and setting the cookie</li>
- *   <li>Validating the token and extracting the Identity</li>
- *   <li>Setting the SecurityContext with the Identity for downstream access</li>
+ *   <li>Extracting JWT from the cookie (or Authorization header)
+ *   <li>If no JWT exists, generating an anonymous token and setting the cookie
+ *   <li>Validating the token and extracting the Identity
+ *   <li>Setting the SecurityContext with the Identity for downstream access
  * </ol>
  *
  * <p><b>Cookie Settings:</b>
+ *
  * <ul>
- *   <li>HttpOnly: true (prevents XSS attacks)</li>
- *   <li>Secure: based on request scheme (https = secure)</li>
- *   <li>SameSite: Lax (CSRF protection)</li>
- *   <li>Path: / (accessible site-wide)</li>
- *   <li>MaxAge: based on token type (30 days anonymous, 7 days registered)</li>
+ *   <li>HttpOnly: true (prevents XSS attacks)
+ *   <li>Secure: based on request scheme (https = secure)
+ *   <li>SameSite: Lax (CSRF protection)
+ *   <li>Path: / (accessible site-wide)
+ *   <li>MaxAge: based on token type (30 days anonymous, 7 days registered)
  * </ul>
  *
- * <p><b>Security Context:</b>
- * The Identity is stored in the SecurityContext as the principal of an
- * UsernamePasswordAuthenticationToken. This allows downstream code to access
- * the identity via SecurityContextHolder or the IdentityProvider.
+ * <p><b>Security Context:</b> The Identity is stored in the SecurityContext as the principal of an
+ * UsernamePasswordAuthenticationToken. This allows downstream code to access the identity via
+ * SecurityContextHolder or the IdentityProvider.
  */
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
@@ -71,7 +71,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
   protected void doFilterInternal(
       final HttpServletRequest request,
       final HttpServletResponse response,
-      final FilterChain filterChain) throws ServletException, IOException {
+      final FilterChain filterChain)
+      throws ServletException, IOException {
 
     // Skip filter for static resources
     if (isStaticResource(request)) {
@@ -97,15 +98,19 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
       if (identityOpt.isPresent()) {
         identity = identityOpt.get();
 
-        // For registered users, verify account still exists (handles app restart with in-memory storage)
-        if (identity.isRegistered() && !registeredUserValidator.existsForUserId(identity.userId())) {
-          LOG.info("Registered user {} has no account - creating anonymous identity",
-                   identity.userId().value());
+        // For registered users, verify account still exists (handles app restart with in-memory
+        // storage)
+        if (identity.isRegistered()
+            && !registeredUserValidator.existsForUserId(identity.userId())) {
+          LOG.info(
+              "Registered user {} has no account - creating anonymous identity",
+              identity.userId().value());
           identity = createAnonymousIdentity();
           token = tokenService.generateAnonymousToken(identity.userId());
           newTokenCreated = true;
         } else {
-          LOG.debug("Valid JWT found for user: {} ({})", identity.userId().value(), identity.type());
+          LOG.debug(
+              "Valid JWT found for user: {} ({})", identity.userId().value(), identity.type());
         }
       } else {
         // Token invalid or expired - create new anonymous identity
@@ -162,9 +167,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
   }
 
   private void setIdentityCookie(
-      final HttpServletResponse response,
-      final String token,
-      final int maxAgeSeconds) {
+      final HttpServletResponse response, final String token, final int maxAgeSeconds) {
 
     final Cookie cookie = new Cookie(jwtProperties.cookieName(), token);
     cookie.setHttpOnly(true);
@@ -180,14 +183,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
   }
 
   private void setSecurityContext(final IdentityProvider.Identity identity) {
-    final var authorities = identity.roles().stream()
-        .map(role -> new SimpleGrantedAuthority("ROLE_" + role))
-        .toList();
+    final var authorities =
+        identity.roles().stream().map(role -> new SimpleGrantedAuthority("ROLE_" + role)).toList();
 
-    final var authentication = new UsernamePasswordAuthenticationToken(
-        identity,  // principal
-        null,      // credentials (not needed for JWT)
-        authorities);
+    final var authentication =
+        new UsernamePasswordAuthenticationToken(
+            identity, // principal
+            null, // credentials (not needed for JWT)
+            authorities);
 
     SecurityContextHolder.getContext().setAuthentication(authentication);
   }

@@ -8,9 +8,9 @@ import de.sample.aiarchitecture.checkout.domain.event.CheckoutExpired;
 import de.sample.aiarchitecture.checkout.domain.event.CheckoutSessionStarted;
 import de.sample.aiarchitecture.checkout.domain.event.DeliverySubmitted;
 import de.sample.aiarchitecture.checkout.domain.event.PaymentSubmitted;
+import de.sample.aiarchitecture.checkout.domain.model.CheckoutValidationResult.ValidationError;
 import de.sample.aiarchitecture.sharedkernel.domain.model.Money;
 import de.sample.aiarchitecture.sharedkernel.marker.tactical.BaseAggregateRoot;
-import de.sample.aiarchitecture.checkout.domain.model.CheckoutValidationResult.ValidationError;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -19,28 +19,30 @@ import org.jspecify.annotations.Nullable;
 /**
  * CheckoutSession Aggregate Root.
  *
- * <p>Represents a customer's checkout session with state management across
- * a 5-step checkout flow: Buyer Info → Delivery → Payment → Review → Confirmation.
+ * <p>Represents a customer's checkout session with state management across a 5-step checkout flow:
+ * Buyer Info → Delivery → Payment → Review → Confirmation.
  *
  * <p><b>Business Rules:</b>
+ *
  * <ul>
- *   <li>Cannot skip steps - must complete each step in order</li>
- *   <li>Can go back to previous steps to modify data</li>
- *   <li>Cannot modify a confirmed, completed, abandoned, or expired session</li>
- *   <li>Must have at least one line item to start checkout</li>
- *   <li>Must complete all steps before confirmation</li>
+ *   <li>Cannot skip steps - must complete each step in order
+ *   <li>Can go back to previous steps to modify data
+ *   <li>Cannot modify a confirmed, completed, abandoned, or expired session
+ *   <li>Must have at least one line item to start checkout
+ *   <li>Must complete all steps before confirmation
  * </ul>
  *
  * <p><b>Domain Events:</b>
+ *
  * <ul>
- *   <li>{@link CheckoutSessionStarted} - when checkout begins from cart</li>
- *   <li>{@link BuyerInfoSubmitted} - when buyer info step is completed</li>
- *   <li>{@link DeliverySubmitted} - when delivery step is completed</li>
- *   <li>{@link PaymentSubmitted} - when payment step is completed</li>
- *   <li>{@link CheckoutConfirmed} - when order is confirmed at review</li>
- *   <li>{@link CheckoutCompleted} - when checkout is fully processed</li>
- *   <li>{@link CheckoutAbandoned} - when customer abandons checkout</li>
- *   <li>{@link CheckoutExpired} - when session expires due to inactivity</li>
+ *   <li>{@link CheckoutSessionStarted} - when checkout begins from cart
+ *   <li>{@link BuyerInfoSubmitted} - when buyer info step is completed
+ *   <li>{@link DeliverySubmitted} - when delivery step is completed
+ *   <li>{@link PaymentSubmitted} - when payment step is completed
+ *   <li>{@link CheckoutConfirmed} - when order is confirmed at review
+ *   <li>{@link CheckoutCompleted} - when checkout is fully processed
+ *   <li>{@link CheckoutAbandoned} - when customer abandons checkout
+ *   <li>{@link CheckoutExpired} - when session expires due to inactivity
  * </ul>
  */
 public final class CheckoutSession extends BaseAggregateRoot<CheckoutSession, CheckoutSessionId> {
@@ -72,11 +74,9 @@ public final class CheckoutSession extends BaseAggregateRoot<CheckoutSession, Ch
     this.cartId = cartId;
     this.customerId = customerId;
     this.lineItems = new ArrayList<>(lineItems);
-    this.totals = CheckoutTotals.of(
-        subtotal,
-        Money.zero(subtotal.currency()),
-        Money.zero(subtotal.currency()),
-        subtotal);
+    this.totals =
+        CheckoutTotals.of(
+            subtotal, Money.zero(subtotal.currency()), Money.zero(subtotal.currency()), subtotal);
     this.currentStep = CheckoutStep.BUYER_INFO;
     this.status = CheckoutSessionStatus.ACTIVE;
   }
@@ -169,18 +169,15 @@ public final class CheckoutSession extends BaseAggregateRoot<CheckoutSession, Ch
   /**
    * Synchronizes line items with the current cart state.
    *
-   * <p>This method updates the checkout session's line items when the underlying cart
-   * changes during the checkout flow. It recalculates the subtotal and updates totals
-   * accordingly.
+   * <p>This method updates the checkout session's line items when the underlying cart changes
+   * during the checkout flow. It recalculates the subtotal and updates totals accordingly.
    *
    * @param newLineItems the updated line items from the cart
    * @param newSubtotal the new subtotal calculated from the cart
    * @throws IllegalStateException if session is not modifiable
    * @throws IllegalArgumentException if newLineItems is empty
    */
-  public void syncLineItems(
-      final List<CheckoutLineItem> newLineItems,
-      final Money newSubtotal) {
+  public void syncLineItems(final List<CheckoutLineItem> newLineItems, final Money newSubtotal) {
     ensureModifiable();
 
     if (newLineItems == null || newLineItems.isEmpty()) {
@@ -192,11 +189,12 @@ public final class CheckoutSession extends BaseAggregateRoot<CheckoutSession, Ch
 
     // Recalculate totals with existing shipping cost
     final Money shippingCost = this.totals.shipping();
-    this.totals = CheckoutTotals.of(
-        newSubtotal,
-        shippingCost,
-        Money.zero(newSubtotal.currency()),
-        newSubtotal.add(shippingCost));
+    this.totals =
+        CheckoutTotals.of(
+            newSubtotal,
+            shippingCost,
+            Money.zero(newSubtotal.currency()),
+            newSubtotal.add(shippingCost));
   }
 
   /**
@@ -230,8 +228,7 @@ public final class CheckoutSession extends BaseAggregateRoot<CheckoutSession, Ch
    * @param shippingOption the selected shipping option
    * @throws IllegalStateException if session is not modifiable or if trying to skip steps
    */
-  public void submitDelivery(
-      final DeliveryAddress address, final ShippingOption shippingOption) {
+  public void submitDelivery(final DeliveryAddress address, final ShippingOption shippingOption) {
     ensureModifiable();
     ensureStepCompleted(CheckoutStep.BUYER_INFO);
     ensureAtOrBeforeStep(CheckoutStep.DELIVERY);
@@ -277,8 +274,8 @@ public final class CheckoutSession extends BaseAggregateRoot<CheckoutSession, Ch
   /**
    * Calculates the order total using fresh pricing data from the resolver.
    *
-   * <p>Iterates through all line items and resolves current prices to compute
-   * the sum of (current price × quantity) for each item.
+   * <p>Iterates through all line items and resolves current prices to compute the sum of (current
+   * price × quantity) for each item.
    *
    * @param resolver the resolver providing current pricing information
    * @return the calculated order total
@@ -298,16 +295,16 @@ public final class CheckoutSession extends BaseAggregateRoot<CheckoutSession, Ch
    * Validates checkout items against current pricing and availability data.
    *
    * <p>Checks each line item for:
+   *
    * <ul>
-   *   <li>Product availability</li>
-   *   <li>Sufficient stock for the requested quantity</li>
+   *   <li>Product availability
+   *   <li>Sufficient stock for the requested quantity
    * </ul>
    *
    * @param resolver the resolver providing current pricing and availability information
    * @return a validation result containing any errors found
    */
-  public CheckoutValidationResult validateItems(
-      final CheckoutArticlePriceResolver resolver) {
+  public CheckoutValidationResult validateItems(final CheckoutArticlePriceResolver resolver) {
     final List<ValidationError> errors = new ArrayList<>();
     for (final CheckoutLineItem item : lineItems) {
       final CheckoutArticlePriceResolver.ArticlePrice articlePrice =
@@ -315,8 +312,9 @@ public final class CheckoutSession extends BaseAggregateRoot<CheckoutSession, Ch
       if (!articlePrice.isAvailable()) {
         errors.add(ValidationError.productUnavailable(item.productId()));
       } else if (articlePrice.availableStock() < item.quantity()) {
-        errors.add(ValidationError.insufficientStock(
-            item.productId(), item.quantity(), articlePrice.availableStock()));
+        errors.add(
+            ValidationError.insufficientStock(
+                item.productId(), item.quantity(), articlePrice.availableStock()));
       }
     }
     return errors.isEmpty()
@@ -327,14 +325,14 @@ public final class CheckoutSession extends BaseAggregateRoot<CheckoutSession, Ch
   /**
    * Confirms the checkout order after validating items with fresh pricing data.
    *
-   * <p>Validates all items using the resolver before confirming. If validation fails,
-   * an exception is thrown with details about the validation errors.
+   * <p>Validates all items using the resolver before confirming. If validation fails, an exception
+   * is thrown with details about the validation errors.
    *
    * <p>Raises a {@link CheckoutConfirmed} domain event on success.
    *
    * @param resolver the resolver for validating current pricing and availability
-   * @throws IllegalStateException if session is not confirmable, steps are incomplete,
-   *         or validation fails
+   * @throws IllegalStateException if session is not confirmable, steps are incomplete, or
+   *     validation fails
    */
   public void confirm(final CheckoutArticlePriceResolver resolver) {
     ensureModifiable();
@@ -347,15 +345,17 @@ public final class CheckoutSession extends BaseAggregateRoot<CheckoutSession, Ch
     final CheckoutValidationResult validationResult = validateItems(resolver);
     if (!validationResult.isValid()) {
       throw new IllegalStateException(
-          "Cannot confirm checkout: validation failed with " + validationResult.errors().size()
+          "Cannot confirm checkout: validation failed with "
+              + validationResult.errors().size()
               + " error(s)");
     }
 
     this.status = CheckoutSessionStatus.CONFIRMED;
     this.currentStep = CheckoutStep.CONFIRMATION;
 
-    registerEvent(CheckoutConfirmed.now(
-        this.id, this.cartId, this.customerId, this.totals.total(), this.lineItems));
+    registerEvent(
+        CheckoutConfirmed.now(
+            this.id, this.cartId, this.customerId, this.totals.total(), this.lineItems));
   }
 
   /**
@@ -365,7 +365,7 @@ public final class CheckoutSession extends BaseAggregateRoot<CheckoutSession, Ch
    *
    * @throws IllegalStateException if session is not confirmable or steps are incomplete
    * @deprecated Use {@link #confirm(CheckoutArticlePriceResolver)} instead to validate items
-   *             against current pricing before confirmation
+   *     against current pricing before confirmation
    */
   @Deprecated
   public void confirm() {
@@ -379,8 +379,9 @@ public final class CheckoutSession extends BaseAggregateRoot<CheckoutSession, Ch
     this.status = CheckoutSessionStatus.CONFIRMED;
     this.currentStep = CheckoutStep.CONFIRMATION;
 
-    registerEvent(CheckoutConfirmed.now(
-        this.id, this.cartId, this.customerId, this.totals.total(), this.lineItems));
+    registerEvent(
+        CheckoutConfirmed.now(
+            this.id, this.cartId, this.customerId, this.totals.total(), this.lineItems));
   }
 
   /**
@@ -470,8 +471,8 @@ public final class CheckoutSession extends BaseAggregateRoot<CheckoutSession, Ch
       case BUYER_INFO -> buyerInfo != null;
       case DELIVERY -> deliveryAddress != null && shippingOption != null;
       case PAYMENT -> paymentSelection != null;
-      case REVIEW -> status == CheckoutSessionStatus.CONFIRMED
-          || status == CheckoutSessionStatus.COMPLETED;
+      case REVIEW ->
+          status == CheckoutSessionStatus.CONFIRMED || status == CheckoutSessionStatus.COMPLETED;
       case CONFIRMATION -> status == CheckoutSessionStatus.COMPLETED;
     };
   }

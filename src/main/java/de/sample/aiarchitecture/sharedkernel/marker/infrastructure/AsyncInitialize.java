@@ -14,6 +14,7 @@ import java.lang.annotation.Target;
  * initialization of caches, metrics, or other background setup tasks.
  *
  * <p><b>Usage Example:</b>
+ *
  * <pre>{@code
  * @Repository
  * @AsyncInitialize(priority = 50, description = "Warm up product cache")
@@ -29,10 +30,12 @@ import java.lang.annotation.Target;
  * }</pre>
  *
  * <p><b>Architecture Pattern:</b>
+ *
  * <ul>
- *   <li>Annotation definition: {@code sharedkernel.marker.infrastructure} (pure Java)</li>
- *   <li>Annotation processing: {@code infrastructure.support.AsyncInitializationProcessor} (Spring-specific)</li>
- *   <li>Async configuration: {@code infrastructure.config.AsyncConfiguration} (Spring-specific)</li>
+ *   <li>Annotation definition: {@code sharedkernel.marker.infrastructure} (pure Java)
+ *   <li>Annotation processing: {@code infrastructure.support.AsyncInitializationProcessor}
+ *       (Spring-specific)
+ *   <li>Async configuration: {@code infrastructure.config.AsyncConfiguration} (Spring-specific)
  * </ul>
  *
  * @see de.sample.aiarchitecture.infrastructure.support.AsyncInitializationProcessor

@@ -3,10 +3,10 @@ package de.sample.aiarchitecture.account.adapter.incoming.web;
 import de.sample.aiarchitecture.account.application.registeraccount.RegisterAccountCommand;
 import de.sample.aiarchitecture.account.application.registeraccount.RegisterAccountInputPort;
 import de.sample.aiarchitecture.account.application.registeraccount.RegisterAccountResult;
-import de.sample.aiarchitecture.sharedkernel.domain.model.UserId;
-import de.sample.aiarchitecture.sharedkernel.marker.port.out.IdentityProvider;
 import de.sample.aiarchitecture.account.application.shared.IdentitySession;
 import de.sample.aiarchitecture.account.application.shared.TokenService;
+import de.sample.aiarchitecture.sharedkernel.domain.model.UserId;
+import de.sample.aiarchitecture.sharedkernel.marker.port.out.IdentityProvider;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -51,8 +51,7 @@ public class RegisterPageController {
    */
   @GetMapping
   public String showRegisterPage(
-      final Model model,
-      @RequestParam(required = false) final String returnUrl) {
+      final Model model, @RequestParam(required = false) final String returnUrl) {
 
     model.addAttribute("title", "Register");
     model.addAttribute("returnUrl", returnUrl);
@@ -98,17 +97,14 @@ public class RegisterPageController {
     try {
       final String currentUserId = identityProvider.getCurrentIdentity().userId().value();
 
-      final RegisterAccountCommand command = new RegisterAccountCommand(
-          email,
-          password,
-          currentUserId);
+      final RegisterAccountCommand command =
+          new RegisterAccountCommand(email, password, currentUserId);
 
       final RegisterAccountResult result = registerAccountUseCase.execute(command);
 
-      final String token = tokenService.generateRegisteredToken(
-          UserId.of(result.userId()),
-          result.email(),
-          result.roles());
+      final String token =
+          tokenService.generateRegisteredToken(
+              UserId.of(result.userId()), result.email(), result.roles());
 
       identitySession.setRegisteredIdentity(token);
 

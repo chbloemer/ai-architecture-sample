@@ -7,15 +7,9 @@ package de.sample.aiarchitecture.cart.application.additemtocart;
  * @param productId the product ID to add
  * @param quantity the quantity to add
  */
-public record AddItemToCartCommand(
-    String cartId,
-    String productId,
-    int quantity
-) {
+public record AddItemToCartCommand(String cartId, String productId, int quantity) {
 
-  /**
-   * Compact constructor with validation.
-   */
+  /** Compact constructor with validation. */
   public AddItemToCartCommand {
     if (cartId == null || cartId.isBlank()) {
       throw new IllegalArgumentException("Cart ID cannot be null or blank");

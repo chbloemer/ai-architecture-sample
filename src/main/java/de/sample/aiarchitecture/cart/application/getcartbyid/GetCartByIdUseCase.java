@@ -17,9 +17,9 @@ import org.springframework.transaction.annotation.Transactional;
 /**
  * Use case for retrieving a shopping cart by its ID.
  *
- * <p>This is a query use case that retrieves cart details without modifying state.
- * Returns a {@link GetCartByIdResult} containing an {@link EnrichedCart}
- * read model that combines cart state with current article data (pricing, availability).
+ * <p>This is a query use case that retrieves cart details without modifying state. Returns a {@link
+ * GetCartByIdResult} containing an {@link EnrichedCart} read model that combines cart state with
+ * current article data (pricing, availability).
  *
  * <p><b>Hexagonal Architecture:</b> This class implements the {@link GetCartByIdInputPort}
  * interface, which is a primary/driving port in the application layer.
@@ -32,8 +32,7 @@ public class GetCartByIdUseCase implements GetCartByIdInputPort {
   private final ArticleDataPort articleDataPort;
 
   public GetCartByIdUseCase(
-      final ShoppingCartRepository shoppingCartRepository,
-      final ArticleDataPort articleDataPort) {
+      final ShoppingCartRepository shoppingCartRepository, final ArticleDataPort articleDataPort) {
     this.shoppingCartRepository = shoppingCartRepository;
     this.articleDataPort = articleDataPort;
   }
@@ -51,9 +50,8 @@ public class GetCartByIdUseCase implements GetCartByIdInputPort {
     final ShoppingCart cart = cartOpt.get();
 
     // Collect product IDs and fetch article data in batch
-    final Set<ProductId> productIds = cart.items().stream()
-        .map(item -> item.productId())
-        .collect(Collectors.toSet());
+    final Set<ProductId> productIds =
+        cart.items().stream().map(item -> item.productId()).collect(Collectors.toSet());
 
     final Map<ProductId, CartArticle> articleData = articleDataPort.getArticleData(productIds);
 

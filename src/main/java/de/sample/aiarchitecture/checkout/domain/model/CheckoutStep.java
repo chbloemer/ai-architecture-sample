@@ -6,12 +6,13 @@ import de.sample.aiarchitecture.sharedkernel.marker.tactical.Value;
  * Enum representing the steps in the checkout flow.
  *
  * <p>The checkout follows a 5-step flow:
+ *
  * <ol>
- *   <li>BUYER_INFO - Collect buyer contact information</li>
- *   <li>DELIVERY - Select delivery address and shipping option</li>
- *   <li>PAYMENT - Select payment method</li>
- *   <li>REVIEW - Review order before confirmation</li>
- *   <li>CONFIRMATION - Order confirmed</li>
+ *   <li>BUYER_INFO - Collect buyer contact information
+ *   <li>DELIVERY - Select delivery address and shipping option
+ *   <li>PAYMENT - Select payment method
+ *   <li>REVIEW - Review order before confirmation
+ *   <li>CONFIRMATION - Order confirmed
  * </ol>
  */
 public enum CheckoutStep implements Value {

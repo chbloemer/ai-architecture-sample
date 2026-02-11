@@ -16,8 +16,5 @@ public record GetPaymentProvidersResult(List<PaymentProviderData> paymentProvide
    * @param displayName the human-readable display name
    * @param available whether the provider is currently available
    */
-  public record PaymentProviderData(
-      String id,
-      String displayName,
-      boolean available) {}
+  public record PaymentProviderData(String id, String displayName, boolean available) {}
 }

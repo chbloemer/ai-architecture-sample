@@ -5,8 +5,8 @@ import com.microsoft.playwright.Page;
 /**
  * Page object for the cart merge options page.
  *
- * <p>Provides methods to interact with the cart merge decision flow
- * when a user logs in and both carts have items.
+ * <p>Provides methods to interact with the cart merge decision flow when a user logs in and both
+ * carts have items.
  */
 public class CartMergePage extends BasePage {
 
@@ -29,8 +29,8 @@ public class CartMergePage extends BasePage {
   }
 
   /**
-   * Creates a CartMergePage without URL validation.
-   * Use this when checking if we're redirected to merge page.
+   * Creates a CartMergePage without URL validation. Use this when checking if we're redirected to
+   * merge page.
    *
    * @param page the Playwright page instance
    * @param skipValidation ignored, just differentiates constructors

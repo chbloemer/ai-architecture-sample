@@ -22,17 +22,17 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 /**
  * MVC Controller for rendering shopping cart pages using Pug templates.
  *
- * <p>This controller handles traditional server-side rendered pages using Pug4j templates.
- * Unlike REST API controllers which return JSON, this controller returns HTML views.
+ * <p>This controller handles traditional server-side rendered pages using Pug4j templates. Unlike
+ * REST API controllers which return JSON, this controller returns HTML views.
  *
  * <p><b>Clean Architecture:</b> This controller depends on use case interfaces (input ports)
  * instead of application services, following the Dependency Inversion Principle.
  *
- * <p><b>Naming Convention:</b> MVC controllers use {@code @Controller} annotation and
- * end with "Controller" suffix. REST controllers use {@code @RestController} and end
- * with "Resource" suffix.
+ * <p><b>Naming Convention:</b> MVC controllers use {@code @Controller} annotation and end with
+ * "Controller" suffix. REST controllers use {@code @RestController} and end with "Resource" suffix.
  *
  * <p><b>Template Location:</b> {@code src/main/resources/templates/cart/}
+ *
  * <p><b>Template Engine:</b> Pug4j (Java implementation of Pug/Jade)
  */
 @Controller
@@ -58,8 +58,8 @@ public class CartPageController {
   /**
    * Displays the shopping cart page for the current user.
    *
-   * <p>Returns the cart details rendered using the Pug template.
-   * The user's identity is obtained from the JWT token via IdentityProvider.
+   * <p>Returns the cart details rendered using the Pug template. The user's identity is obtained
+   * from the JWT token via IdentityProvider.
    *
    * @param model Spring MVC model to pass data to the view
    * @return view name "cart/view" which resolves to templates/cart/view.pug
@@ -82,7 +82,8 @@ public class CartPageController {
     }
 
     // Convert to page-specific ViewModel
-    final CartPageViewModel viewModel = CartPageViewModel.fromEnrichedCart(result.cart().orElseThrow());
+    final CartPageViewModel viewModel =
+        CartPageViewModel.fromEnrichedCart(result.cart().orElseThrow());
 
     model.addAttribute("shoppingCart", viewModel);
     model.addAttribute("title", "Shopping Cart");
@@ -94,6 +95,7 @@ public class CartPageController {
    * Handles adding a product to the cart.
    *
    * <p>This endpoint:
+   *
    * <ul>
    *   <li>Gets or creates an active cart for the current user (via JWT identity)
    *   <li>Adds the specified product to the cart

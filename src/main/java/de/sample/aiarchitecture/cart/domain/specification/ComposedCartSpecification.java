@@ -6,9 +6,9 @@ import de.sample.aiarchitecture.sharedkernel.domain.specification.SpecificationV
 import java.util.Objects;
 
 /**
- * Legacy adapter wrapper. No longer needed now that repositories accept
- * {@link CompositeSpecification <ShoppingCart>} directly. Kept for source
- * compatibility if referenced elsewhere.
+ * Legacy adapter wrapper. No longer needed now that repositories accept {@link
+ * CompositeSpecification <ShoppingCart>} directly. Kept for source compatibility if referenced
+ * elsewhere.
  */
 public final class ComposedCartSpecification implements CompositeSpecification<ShoppingCart> {
 

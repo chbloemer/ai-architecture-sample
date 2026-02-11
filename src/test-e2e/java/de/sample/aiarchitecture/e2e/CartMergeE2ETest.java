@@ -10,18 +10,20 @@ import org.junit.jupiter.api.Test;
  * E2E test for the cart merge flow.
  *
  * <p>Tests the full flow of:
+ *
  * <ol>
- *   <li>User adds items to cart as guest</li>
- *   <li>User registers/logs in with existing cart having items</li>
- *   <li>User sees merge options page</li>
- *   <li>User selects merge option</li>
- *   <li>Cart shows combined items</li>
+ *   <li>User adds items to cart as guest
+ *   <li>User registers/logs in with existing cart having items
+ *   <li>User sees merge options page
+ *   <li>User selects merge option
+ *   <li>Cart shows combined items
  * </ol>
  *
  * <p>Prerequisites:
+ *
  * <ul>
- *   <li>Application running at configured base URL</li>
- *   <li>Sample products loaded in database</li>
+ *   <li>Application running at configured base URL
+ *   <li>Sample products loaded in database
  * </ul>
  */
 @DisplayName("Cart Merge E2E Tests")
@@ -30,7 +32,8 @@ class CartMergeE2ETest extends BaseE2ETest {
   private static final String TEST_PASSWORD = "SecurePassword123!";
 
   @Test
-  @DisplayName("Full flow: login with both carts, see merge options, select merge, verify combined cart")
+  @DisplayName(
+      "Full flow: login with both carts, see merge options, select merge, verify combined cart")
   void fullCartMergeFlow() {
     // Step 1: Register a new user and add a product to their account cart
     String uniqueEmail = "merge-test-" + System.currentTimeMillis() + "@example.com";
@@ -88,7 +91,8 @@ class CartMergeE2ETest extends BaseE2ETest {
       cart.waitForItems();
       int mergedItemCount = cart.getItemCount();
 
-      // The merged cart should have items (at least 1 since we added same product which combines quantities)
+      // The merged cart should have items (at least 1 since we added same product which combines
+      // quantities)
       assertTrue(mergedItemCount >= 1, "Merged cart should have items");
 
       // Verify we're back on the cart page
@@ -104,9 +108,10 @@ class CartMergeE2ETest extends BaseE2ETest {
     } else {
       // Check if we ended up on a different expected page
       assertTrue(
-          currentPath.contains("/cart") || currentPath.contains("/products") || currentPath.equals("/"),
-          "Should end up on cart, products, or home page after login. Got: " + currentPath
-      );
+          currentPath.contains("/cart")
+              || currentPath.contains("/products")
+              || currentPath.equals("/"),
+          "Should end up on cart, products, or home page after login. Got: " + currentPath);
     }
   }
 }

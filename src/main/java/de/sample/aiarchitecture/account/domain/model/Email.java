@@ -7,23 +7,21 @@ import java.util.regex.Pattern;
  * Value Object representing an email address.
  *
  * <p>This value object ensures email addresses are:
+ *
  * <ul>
- *   <li>Non-null and non-blank</li>
- *   <li>Properly formatted (basic validation)</li>
- *   <li>Normalized to lowercase</li>
+ *   <li>Non-null and non-blank
+ *   <li>Properly formatted (basic validation)
+ *   <li>Normalized to lowercase
  * </ul>
  *
- * <p>Note: Full RFC 5322 compliance is not attempted; this provides
- * practical validation for common email formats.
+ * <p>Note: Full RFC 5322 compliance is not attempted; this provides practical validation for common
+ * email formats.
  */
 public record Email(String value) implements Value {
 
-  /**
-   * Basic email pattern for validation.
-   * Matches: local@domain.tld
-   */
-  private static final Pattern EMAIL_PATTERN = Pattern.compile(
-      "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$");
+  /** Basic email pattern for validation. Matches: local@domain.tld */
+  private static final Pattern EMAIL_PATTERN =
+      Pattern.compile("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$");
 
   public Email {
     if (value == null || value.isBlank()) {

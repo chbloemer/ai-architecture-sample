@@ -9,19 +9,21 @@ import java.lang.annotation.Target;
 /**
  * Marks a class as an Open Host Service in Domain-Driven Design.
  *
- * <p>An Open Host Service is a public API that a bounded context exposes for other
- * bounded contexts to consume. It acts as an incoming adapter that translates domain
- * objects to DTOs, similar to how REST controllers translate domain objects to JSON.
+ * <p>An Open Host Service is a public API that a bounded context exposes for other bounded contexts
+ * to consume. It acts as an incoming adapter that translates domain objects to DTOs, similar to how
+ * REST controllers translate domain objects to JSON.
  *
  * <p><b>Architectural rules:</b>
+ *
  * <ul>
- *   <li>Open Host Services must be placed in {@code adapter/incoming/openhost/}</li>
- *   <li>They must return DTOs, never domain objects</li>
- *   <li>Outgoing adapters from other contexts may ONLY import from Open Host Services</li>
- *   <li>Application layer use cases must NEVER import from Open Host Services directly</li>
+ *   <li>Open Host Services must be placed in {@code adapter/incoming/openhost/}
+ *   <li>They must return DTOs, never domain objects
+ *   <li>Outgoing adapters from other contexts may ONLY import from Open Host Services
+ *   <li>Application layer use cases must NEVER import from Open Host Services directly
  * </ul>
  *
  * <p><b>Usage:</b>
+ *
  * <pre>{@code
  * @OpenHostService(
  *     context = "Product Catalog",
@@ -41,13 +43,9 @@ import java.lang.annotation.Target;
 @Documented
 public @interface OpenHostService {
 
-    /**
-     * The bounded context this Open Host Service belongs to.
-     */
-    String context();
+  /** The bounded context this Open Host Service belongs to. */
+  String context();
 
-    /**
-     * Description of what this Open Host Service provides.
-     */
-    String description() default "";
+  /** Description of what this Open Host Service provides. */
+  String description() default "";
 }

@@ -7,10 +7,10 @@ import de.sample.aiarchitecture.sharedkernel.domain.specification.SpecificationV
 /**
  * Cart contains at least one item that is considered "available".
  *
- * <p>Domain aggregate does not know product availability/discontinued flags;
- * therefore in-memory evaluation is neutral (true). The persistence adapter is
- * expected to push this down to the database (e.g., EXISTS over items and
- * optionally a join to products to check stock/discontinued) where possible.
+ * <p>Domain aggregate does not know product availability/discontinued flags; therefore in-memory
+ * evaluation is neutral (true). The persistence adapter is expected to push this down to the
+ * database (e.g., EXISTS over items and optionally a join to products to check stock/discontinued)
+ * where possible.
  */
 public record HasAnyAvailableItem() implements CartSpecification {
 

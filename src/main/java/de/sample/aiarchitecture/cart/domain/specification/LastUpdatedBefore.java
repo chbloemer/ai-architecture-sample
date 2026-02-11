@@ -8,9 +8,9 @@ import java.time.Instant;
 /**
  * Cart was last updated before the given threshold (exclusive).
  *
- * <p>Note: The domain aggregate currently doesn't expose an updatedAt timestamp,
- * so in-memory checks are neutral (returning true). Persistence adapters push
- * this predicate down to the database using entity timestamps.
+ * <p>Note: The domain aggregate currently doesn't expose an updatedAt timestamp, so in-memory
+ * checks are neutral (returning true). Persistence adapters push this predicate down to the
+ * database using entity timestamps.
  */
 public record LastUpdatedBefore(Instant threshold) implements CartSpecification {
   @Override

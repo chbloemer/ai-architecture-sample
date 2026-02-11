@@ -56,8 +56,7 @@ public final class ProductPrice extends BaseAggregateRoot<ProductPrice, PriceId>
    * @return the new ProductPrice aggregate
    * @throws IllegalArgumentException if price is not greater than zero
    */
-  public static ProductPrice create(
-      final ProductId productId, final Money price) {
+  public static ProductPrice create(final ProductId productId, final Money price) {
     validatePriceGreaterThanZero(price);
     final PriceId priceId = PriceId.generate();
     final Instant effectiveFrom = Instant.now();

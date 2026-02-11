@@ -8,11 +8,7 @@ package de.sample.aiarchitecture.account.adapter.incoming.api;
  * @param email the user's email (only present on success)
  * @param errorMessage error message (only present on failure)
  */
-public record RegisterResponse(
-    boolean success,
-    String token,
-    String email,
-    String errorMessage) {
+public record RegisterResponse(boolean success, String token, String email, String errorMessage) {
 
   public static RegisterResponse success(final String token, final String email) {
     return new RegisterResponse(true, token, email, null);

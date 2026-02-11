@@ -6,8 +6,8 @@ import de.sample.aiarchitecture.sharedkernel.marker.tactical.Value;
 /**
  * Value Object representing a payment provider's unique identifier.
  *
- * <p>Payment providers are external systems that handle payment processing
- * (e.g., "stripe", "paypal", "invoice").
+ * <p>Payment providers are external systems that handle payment processing (e.g., "stripe",
+ * "paypal", "invoice").
  */
 public record PaymentProviderId(String value) implements Id, Value {
 

@@ -5,10 +5,10 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 /**
  * Configuration properties for JWT authentication.
  *
- * <p>These properties are bound from the application.yml under the
- * {@code app.security.jwt} prefix.
+ * <p>These properties are bound from the application.yml under the {@code app.security.jwt} prefix.
  *
  * <p><b>Example configuration:</b>
+ *
  * <pre>
  * app:
  *   security:
@@ -34,14 +34,10 @@ public record JwtProperties(
     String issuer,
     String cookieName) {
 
-  /**
-   * Default cookie name if not configured.
-   */
+  /** Default cookie name if not configured. */
   public static final String DEFAULT_COOKIE_NAME = "shop-identity";
 
-  /**
-   * Default issuer if not configured.
-   */
+  /** Default issuer if not configured. */
   public static final String DEFAULT_ISSUER = "ai-architecture-sample";
 
   public JwtProperties {

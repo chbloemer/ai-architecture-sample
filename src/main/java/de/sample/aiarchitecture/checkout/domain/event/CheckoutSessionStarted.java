@@ -11,8 +11,7 @@ import java.util.UUID;
 /**
  * Domain Event indicating that a checkout session was started.
  *
- * <p>This event is raised when a customer begins the checkout process
- * from their shopping cart.
+ * <p>This event is raised when a customer begins the checkout process from their shopping cart.
  */
 public record CheckoutSessionStarted(
     UUID eventId,
@@ -32,6 +31,13 @@ public record CheckoutSessionStarted(
       final Money subtotal,
       final int lineItemCount) {
     return new CheckoutSessionStarted(
-        UUID.randomUUID(), sessionId, cartId, customerId, subtotal, lineItemCount, Instant.now(), 1);
+        UUID.randomUUID(),
+        sessionId,
+        cartId,
+        customerId,
+        subtotal,
+        lineItemCount,
+        Instant.now(),
+        1);
   }
 }

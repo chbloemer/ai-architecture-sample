@@ -16,10 +16,11 @@ import org.junit.jupiter.api.Test;
  * Unit tests for ShoppingCart.merge() method.
  *
  * <p>Tests the domain logic for merging carts, covering:
+ *
  * <ul>
- *   <li>Same product quantity combination</li>
- *   <li>Different products addition</li>
- *   <li>Empty cart handling</li>
+ *   <li>Same product quantity combination
+ *   <li>Different products addition
+ *   <li>Empty cart handling
  * </ul>
  */
 @DisplayName("ShoppingCart.merge()")

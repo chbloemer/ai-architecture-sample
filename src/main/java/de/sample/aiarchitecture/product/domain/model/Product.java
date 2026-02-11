@@ -3,24 +3,26 @@ package de.sample.aiarchitecture.product.domain.model;
 import de.sample.aiarchitecture.product.domain.event.ProductCategoryChanged;
 import de.sample.aiarchitecture.product.domain.event.ProductDescriptionChanged;
 import de.sample.aiarchitecture.product.domain.event.ProductNameChanged;
-import de.sample.aiarchitecture.sharedkernel.marker.tactical.BaseAggregateRoot;
 import de.sample.aiarchitecture.sharedkernel.domain.model.ProductId;
+import de.sample.aiarchitecture.sharedkernel.marker.tactical.BaseAggregateRoot;
 
 /**
  * Product Aggregate Root.
  *
- * <p>Represents a product in the e-commerce catalog with its attributes and business logic.
- * This is the root of the Product aggregate, and all modifications to the product
- * must go through this aggregate root to maintain invariants.
+ * <p>Represents a product in the e-commerce catalog with its attributes and business logic. This is
+ * the root of the Product aggregate, and all modifications to the product must go through this
+ * aggregate root to maintain invariants.
  *
  * <p>Product context owns identity (productId, sku) and description (name, description, category).
  *
  * <p><b>Business Rules:</b>
+ *
  * <ul>
  *   <li>SKU must be unique across all products
  * </ul>
  *
  * <p><b>Domain Events:</b>
+ *
  * <ul>
  *   <li>{@link ProductCreated} - when a new product is created
  *   <li>{@link ProductNameChanged} - when the product name is updated
@@ -28,9 +30,9 @@ import de.sample.aiarchitecture.sharedkernel.domain.model.ProductId;
  *   <li>{@link ProductCategoryChanged} - when the product category is updated
  * </ul>
  *
- * <p><b>Note:</b> Pricing is managed by the Pricing bounded context. Use PricingService
- * to get current prices for products. Stock/availability is managed by the Inventory
- * bounded context. Use InventoryService to get stock information.
+ * <p><b>Note:</b> Pricing is managed by the Pricing bounded context. Use PricingService to get
+ * current prices for products. Stock/availability is managed by the Inventory bounded context. Use
+ * InventoryService to get stock information.
  */
 public final class Product extends BaseAggregateRoot<Product, ProductId> {
 

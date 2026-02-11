@@ -7,19 +7,22 @@ import de.sample.aiarchitecture.sharedkernel.marker.tactical.Value;
  * Value Object representing a securely hashed password.
  *
  * <p>This value object:
+ *
  * <ul>
- *   <li>Never stores plaintext passwords</li>
- *   <li>Validates password strength requirements</li>
- *   <li>Delegates hashing to a {@link PasswordHasher} domain service</li>
+ *   <li>Never stores plaintext passwords
+ *   <li>Validates password strength requirements
+ *   <li>Delegates hashing to a {@link PasswordHasher} domain service
  * </ul>
  *
  * <p><b>Security:</b>
+ *
  * <ul>
- *   <li>Passwords are hashed with BCrypt (cost factor 12)</li>
- *   <li>toString() does not reveal the hash</li>
+ *   <li>Passwords are hashed with BCrypt (cost factor 12)
+ *   <li>toString() does not reveal the hash
  * </ul>
  *
  * <p><b>Usage:</b>
+ *
  * <pre>{@code
  * // Create from plaintext (validates strength and hashes)
  * HashedPassword password = HashedPassword.fromPlaintext("MyP@ssw0rd!", hasher);
@@ -33,9 +36,7 @@ import de.sample.aiarchitecture.sharedkernel.marker.tactical.Value;
  */
 public record HashedPassword(String hash) implements Value {
 
-  /**
-   * Minimum password length requirement.
-   */
+  /** Minimum password length requirement. */
   public static final int MIN_LENGTH = 8;
 
   public HashedPassword {
@@ -48,9 +49,10 @@ public record HashedPassword(String hash) implements Value {
    * Creates a HashedPassword from plaintext by validating and hashing.
    *
    * <p>This factory method:
+   *
    * <ol>
-   *   <li>Validates password strength requirements</li>
-   *   <li>Hashes the password using the provided hasher</li>
+   *   <li>Validates password strength requirements
+   *   <li>Hashes the password using the provided hasher
    * </ol>
    *
    * @param plaintext the plaintext password
@@ -58,9 +60,7 @@ public record HashedPassword(String hash) implements Value {
    * @return a HashedPassword wrapping the generated hash
    * @throws IllegalArgumentException if password doesn't meet strength requirements
    */
-  public static HashedPassword fromPlaintext(
-      final String plaintext,
-      final PasswordHasher hasher) {
+  public static HashedPassword fromPlaintext(final String plaintext, final PasswordHasher hasher) {
     validatePasswordStrength(plaintext);
     return new HashedPassword(hasher.hash(plaintext));
   }
@@ -68,8 +68,8 @@ public record HashedPassword(String hash) implements Value {
   /**
    * Creates a HashedPassword from an existing hash.
    *
-   * <p>This factory method creates a HashedPassword from a pre-computed hash,
-   * such as one loaded from storage.
+   * <p>This factory method creates a HashedPassword from a pre-computed hash, such as one loaded
+   * from storage.
    *
    * @param hash the BCrypt hash
    * @return a HashedPassword wrapping the hash
@@ -103,11 +103,12 @@ public record HashedPassword(String hash) implements Value {
    * Validates password strength requirements.
    *
    * <p>Requirements:
+   *
    * <ul>
-   *   <li>Minimum 8 characters</li>
-   *   <li>At least one uppercase letter</li>
-   *   <li>At least one lowercase letter</li>
-   *   <li>At least one digit</li>
+   *   <li>Minimum 8 characters
+   *   <li>At least one uppercase letter
+   *   <li>At least one lowercase letter
+   *   <li>At least one digit
    * </ul>
    *
    * @param plaintext the password to validate

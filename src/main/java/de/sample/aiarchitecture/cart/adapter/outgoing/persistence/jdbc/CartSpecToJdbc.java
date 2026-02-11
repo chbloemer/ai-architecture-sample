@@ -14,15 +14,17 @@ import org.springframework.stereotype.Component;
 /**
  * Translates domain cart specifications into JDBC WHERE fragments with bind parameters.
  *
- * <p>The resulting SQL snippets are intended to be appended to a base query that selects from
- * the {@code carts} table using the alias {@code c}. Item-related predicates use correlated
- * subqueries against {@code cart_items}.
+ * <p>The resulting SQL snippets are intended to be appended to a base query that selects from the
+ * {@code carts} table using the alias {@code c}. Item-related predicates use correlated subqueries
+ * against {@code cart_items}.
  */
 @Component
 public class CartSpecToJdbc implements CartSpecificationVisitor<CartSpecToJdbc.JdbcPredicate> {
 
   public record JdbcPredicate(String sql, List<Object> params) {
-    public static JdbcPredicate alwaysTrue() { return new JdbcPredicate("1=1", List.of()); }
+    public static JdbcPredicate alwaysTrue() {
+      return new JdbcPredicate("1=1", List.of());
+    }
   }
 
   // ---- Leaf specs
@@ -40,8 +42,9 @@ public class CartSpecToJdbc implements CartSpecificationVisitor<CartSpecToJdbc.J
   @Override
   public JdbcPredicate visit(HasMinTotal spec) {
     // Sum over items of this cart filtered by currency
-    final String sql = "(SELECT COALESCE(SUM(ci.price_amount * ci.quantity), 0) FROM cart_items ci " +
-        "WHERE ci.cart_id = c.id AND ci.price_currency = ?) >= ?";
+    final String sql =
+        "(SELECT COALESCE(SUM(ci.price_amount * ci.quantity), 0) FROM cart_items ci "
+            + "WHERE ci.cart_id = c.id AND ci.price_currency = ?) >= ?";
     final List<Object> params = new ArrayList<>();
     params.add(spec.minimum().currency().getCurrencyCode());
     params.add(spec.minimum().amount());
@@ -50,7 +53,8 @@ public class CartSpecToJdbc implements CartSpecificationVisitor<CartSpecToJdbc.J
 
   @Override
   public JdbcPredicate visit(HasAnyAvailableItem spec) {
-    final String sql = "EXISTS (SELECT 1 FROM cart_items ci WHERE ci.cart_id = c.id AND ci.quantity > 0)";
+    final String sql =
+        "EXISTS (SELECT 1 FROM cart_items ci WHERE ci.cart_id = c.id AND ci.quantity > 0)";
     return new JdbcPredicate(sql, List.of());
   }
 

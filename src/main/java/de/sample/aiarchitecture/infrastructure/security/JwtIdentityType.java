@@ -5,19 +5,14 @@ import de.sample.aiarchitecture.sharedkernel.marker.port.out.IdentityProvider;
 /**
  * JWT-based implementation of identity types.
  *
- * <p>A user starts as ANONYMOUS on first visit and becomes REGISTERED
- * after creating an account.
+ * <p>A user starts as ANONYMOUS on first visit and becomes REGISTERED after creating an account.
  */
 public enum JwtIdentityType implements IdentityProvider.IdentityType {
 
-  /**
-   * Anonymous user with soft identity (JWT without account).
-   */
+  /** Anonymous user with soft identity (JWT without account). */
   ANONYMOUS,
 
-  /**
-   * Registered user with hard identity (JWT linked to account).
-   */
+  /** Registered user with hard identity (JWT linked to account). */
   REGISTERED;
 
   @Override

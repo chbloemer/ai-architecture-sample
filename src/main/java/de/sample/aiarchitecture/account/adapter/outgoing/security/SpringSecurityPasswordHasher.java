@@ -11,13 +11,14 @@ import org.springframework.stereotype.Component;
  * PasswordEncoder, keeping the domain layer framework-independent.
  *
  * <p><b>Implementation Details:</b>
+ *
  * <ul>
- *   <li>Uses the configured PasswordEncoder bean (typically BCrypt)</li>
- *   <li>BCrypt provides: random salt, configurable cost factor, timing-safe comparison</li>
+ *   <li>Uses the configured PasswordEncoder bean (typically BCrypt)
+ *   <li>BCrypt provides: random salt, configurable cost factor, timing-safe comparison
  * </ul>
  *
- * <p><b>Configuration:</b>
- * The PasswordEncoder is configured in SecurityConfig with BCrypt (cost factor 12).
+ * <p><b>Configuration:</b> The PasswordEncoder is configured in SecurityConfig with BCrypt (cost
+ * factor 12).
  *
  * @see PasswordHasher
  * @see org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
@@ -32,7 +33,6 @@ public class SpringSecurityPasswordHasher implements PasswordHasher {
   }
 
   @Override
-  
   public String hash(final String plaintext) {
     return passwordEncoder.encode(plaintext);
   }

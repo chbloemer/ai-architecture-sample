@@ -7,14 +7,15 @@ import java.util.UUID;
 /**
  * Value Object representing an Account's unique identifier.
  *
- * <p>This is distinct from UserId - AccountId identifies the Account aggregate,
- * while UserId identifies the user across all contexts.
+ * <p>This is distinct from UserId - AccountId identifies the Account aggregate, while UserId
+ * identifies the user across all contexts.
  *
  * <p>The relationship is:
+ *
  * <ul>
- *   <li>One Account has one AccountId (aggregate identity)</li>
- *   <li>One Account is linked to one UserId (cross-context identity)</li>
- *   <li>Anonymous users have a UserId but no Account</li>
+ *   <li>One Account has one AccountId (aggregate identity)
+ *   <li>One Account is linked to one UserId (cross-context identity)
+ *   <li>Anonymous users have a UserId but no Account
  * </ul>
  */
 public record AccountId(String value) implements Id, Value {

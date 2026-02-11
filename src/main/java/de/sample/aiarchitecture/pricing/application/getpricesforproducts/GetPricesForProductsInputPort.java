@@ -21,6 +21,5 @@ public interface GetPricesForProductsInputPort
    * @return result containing prices mapped by product ID
    */
   @Override
-  
   GetPricesForProductsResult execute(GetPricesForProductsQuery query);
 }

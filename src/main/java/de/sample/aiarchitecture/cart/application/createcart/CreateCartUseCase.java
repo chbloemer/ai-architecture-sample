@@ -1,9 +1,9 @@
 package de.sample.aiarchitecture.cart.application.createcart;
 
+import de.sample.aiarchitecture.cart.application.shared.ShoppingCartRepository;
 import de.sample.aiarchitecture.cart.domain.model.CartId;
 import de.sample.aiarchitecture.cart.domain.model.CustomerId;
 import de.sample.aiarchitecture.cart.domain.model.ShoppingCart;
-import de.sample.aiarchitecture.cart.application.shared.ShoppingCartRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,9 +38,6 @@ public class CreateCartUseCase implements CreateCartInputPort {
 
     // Map to output
     return new CreateCartResult(
-        cart.id().value().toString(),
-        cart.customerId().value(),
-        cart.status().name()
-    );
+        cart.id().value().toString(), cart.customerId().value(), cart.status().name());
   }
 }

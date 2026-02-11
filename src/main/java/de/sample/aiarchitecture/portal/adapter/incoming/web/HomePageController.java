@@ -7,13 +7,14 @@ import org.springframework.web.bind.annotation.GetMapping;
 /**
  * MVC Controller for the application home/landing page.
  *
- * <p>This controller handles the root URL ("/") and displays the e-commerce
- * landing page with navigation to products, cart, and checkout.
+ * <p>This controller handles the root URL ("/") and displays the e-commerce landing page with
+ * navigation to products, cart, and checkout.
  *
- * <p><b>Bounded Context:</b> Portal - Entry point providing navigation to
- * Product Catalog, Shopping Cart, and other application features.
+ * <p><b>Bounded Context:</b> Portal - Entry point providing navigation to Product Catalog, Shopping
+ * Cart, and other application features.
  *
  * <p><b>Template Location:</b> {@code src/main/resources/templates/home/index.pug}
+ *
  * <p><b>Template Engine:</b> Pug4j (Java implementation of Pug/Jade)
  */
 @Controller

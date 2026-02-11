@@ -74,14 +74,12 @@ public class RegisterPage extends BasePage {
    * @return this page for method chaining
    */
   public RegisterPage fillRegistrationForm(String email, String password) {
-    return fillEmail(email)
-        .fillPassword(password)
-        .fillConfirmPassword(password);
+    return fillEmail(email).fillPassword(password).fillConfirmPassword(password);
   }
 
   /**
-   * Submits the registration form.
-   * After successful registration, caller should create the appropriate page object.
+   * Submits the registration form. After successful registration, caller should create the
+   * appropriate page object.
    */
   public void submit() {
     click(SUBMIT_BUTTON);

@@ -6,9 +6,7 @@ import de.sample.aiarchitecture.sharedkernel.marker.tactical.DomainEvent;
 import java.time.Instant;
 import java.util.UUID;
 
-/**
- * Domain Event indicating that a product's name was changed.
- */
+/** Domain Event indicating that a product's name was changed. */
 public record ProductNameChanged(
     UUID eventId,
     ProductId productId,
@@ -19,9 +17,7 @@ public record ProductNameChanged(
     implements DomainEvent {
 
   public static ProductNameChanged now(
-      final ProductId productId,
-      final ProductName oldName,
-      final ProductName newName) {
+      final ProductId productId, final ProductName oldName, final ProductName newName) {
     return new ProductNameChanged(UUID.randomUUID(), productId, oldName, newName, Instant.now(), 1);
   }
 }

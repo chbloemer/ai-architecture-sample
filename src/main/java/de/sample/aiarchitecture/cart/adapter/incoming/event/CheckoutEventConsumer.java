@@ -11,9 +11,9 @@ import org.springframework.stereotype.Component;
 /**
  * Event listener for checkout-related integration events in the Cart context.
  *
- * <p><b>Cross-Context Integration:</b> This listener enables eventual consistency between
- * the Checkout and Cart bounded contexts. When a checkout is confirmed, the cart is marked
- * as completed.
+ * <p><b>Cross-Context Integration:</b> This listener enables eventual consistency between the
+ * Checkout and Cart bounded contexts. When a checkout is confirmed, the cart is marked as
+ * completed.
  *
  * <p><b>Why Events Instead of Direct Calls?</b>
  *
@@ -66,8 +66,7 @@ public class CheckoutEventConsumer {
       completeCartUseCase.execute(command);
 
       logger.info(
-          "Cart {} marked as completed after checkout confirmation",
-          event.cartId().value());
+          "Cart {} marked as completed after checkout confirmation", event.cartId().value());
 
     } catch (IllegalStateException e) {
       logger.warn(

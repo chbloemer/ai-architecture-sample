@@ -36,8 +36,8 @@ public class ProductDetailPage extends BasePage {
   }
 
   /**
-   * Adds the current product to the cart and stays on the same page.
-   * Useful when adding multiple products.
+   * Adds the current product to the cart and stays on the same page. Useful when adding multiple
+   * products.
    *
    * @return this page for method chaining
    */

@@ -16,24 +16,25 @@ import org.springframework.web.bind.annotation.RequestMapping;
 /**
  * MVC Controller for rendering product pages using Pug templates.
  *
- * <p>This controller handles traditional server-side rendered pages using Pug4j templates.
- * Unlike REST API controllers which return JSON, this controller returns HTML views.
+ * <p>This controller handles traditional server-side rendered pages using Pug4j templates. Unlike
+ * REST API controllers which return JSON, this controller returns HTML views.
  *
  * <p><b>Clean Architecture:</b> This controller depends on use case interfaces (input ports)
  * instead of application services, following the Dependency Inversion Principle.
  *
  * <p><b>ViewModel Pattern:</b> Use Case → Result → Controller → ViewModel → Template
+ *
  * <ul>
- *   <li>Use cases return domain read models wrapped in Result objects</li>
- *   <li>Controller converts Results to page-specific ViewModels</li>
- *   <li>ViewModels use primitives only (String, BigDecimal, int, boolean)</li>
+ *   <li>Use cases return domain read models wrapped in Result objects
+ *   <li>Controller converts Results to page-specific ViewModels
+ *   <li>ViewModels use primitives only (String, BigDecimal, int, boolean)
  * </ul>
  *
- * <p><b>Naming Convention:</b> MVC controllers use {@code @Controller} annotation and
- * end with "Controller" suffix. REST controllers use {@code @RestController} and end
- * with "Resource" suffix.
+ * <p><b>Naming Convention:</b> MVC controllers use {@code @Controller} annotation and end with
+ * "Controller" suffix. REST controllers use {@code @RestController} and end with "Resource" suffix.
  *
  * <p><b>Template Location:</b> {@code src/main/resources/templates/product/}
+ *
  * <p><b>Template Engine:</b> Pug4j (Java implementation of Pug/Jade)
  */
 @Controller
@@ -53,8 +54,8 @@ public class ProductPageController {
   /**
    * Displays the product catalog page.
    *
-   * <p>Returns a list of all products rendered using the Pug template.
-   * The use case result is converted to a page-specific ViewModel.
+   * <p>Returns a list of all products rendered using the Pug template. The use case result is
+   * converted to a page-specific ViewModel.
    *
    * @param model Spring MVC model to pass data to the view
    * @return view name "product/catalog" which resolves to templates/product/catalog.pug
@@ -75,9 +76,8 @@ public class ProductPageController {
   /**
    * Displays a single product detail page.
    *
-   * <p>Shows detailed information about a specific product including availability
-   * information from the Inventory context. The use case result is converted to
-   * a page-specific ViewModel.
+   * <p>Shows detailed information about a specific product including availability information from
+   * the Inventory context. The use case result is converted to a page-specific ViewModel.
    *
    * @param id the product ID
    * @param model Spring MVC model to pass data to the view

@@ -7,9 +7,7 @@ import de.sample.aiarchitecture.sharedkernel.marker.tactical.DomainEvent;
 import java.time.Instant;
 import java.util.UUID;
 
-/**
- * Domain Event indicating that stock was reserved for a product.
- */
+/** Domain Event indicating that stock was reserved for a product. */
 public record StockReserved(
     UUID eventId,
     StockLevelId stockLevelId,

@@ -17,8 +17,8 @@ import org.junit.jupiter.api.Test;
 /**
  * Unit tests for ShoppingCart resolver-based methods.
  *
- * <p>Tests the domain logic for calculating totals and validating carts
- * using the ArticlePriceResolver for fresh pricing data.
+ * <p>Tests the domain logic for calculating totals and validating carts using the
+ * ArticlePriceResolver for fresh pricing data.
  */
 @DisplayName("ShoppingCart Resolver Methods")
 class ShoppingCartResolverTest {
@@ -134,7 +134,8 @@ class ShoppingCartResolverTest {
 
       assertFalse(outcome.isValid());
       assertEquals(1, outcome.errors().size());
-      assertEquals(CartValidationResult.ErrorType.PRODUCT_UNAVAILABLE, outcome.errors().get(0).type());
+      assertEquals(
+          CartValidationResult.ErrorType.PRODUCT_UNAVAILABLE, outcome.errors().get(0).type());
       assertEquals(productId, outcome.errors().get(0).productId());
     }
 
@@ -151,7 +152,8 @@ class ShoppingCartResolverTest {
 
       assertFalse(outcome.isValid());
       assertEquals(1, outcome.errors().size());
-      assertEquals(CartValidationResult.ErrorType.INSUFFICIENT_STOCK, outcome.errors().get(0).type());
+      assertEquals(
+          CartValidationResult.ErrorType.INSUFFICIENT_STOCK, outcome.errors().get(0).type());
       assertEquals(productId, outcome.errors().get(0).productId());
     }
 
@@ -165,7 +167,8 @@ class ShoppingCartResolverTest {
       cart.addItem(unavailableProduct, Quantity.of(1), price);
       cart.addItem(lowStockProduct, Quantity.of(10), price);
 
-      priceResolver.setPrice(unavailableProduct, Money.of(BigDecimal.valueOf(10.00), EUR), false, 0);
+      priceResolver.setPrice(
+          unavailableProduct, Money.of(BigDecimal.valueOf(10.00), EUR), false, 0);
       priceResolver.setPrice(lowStockProduct, Money.of(BigDecimal.valueOf(10.00), EUR), true, 5);
 
       CartValidationResult outcome = cart.validateForCheckout(priceResolver);
@@ -220,9 +223,7 @@ class ShoppingCartResolverTest {
     }
   }
 
-  /**
-   * Test implementation of ArticlePriceResolver for unit testing.
-   */
+  /** Test implementation of ArticlePriceResolver for unit testing. */
   private static class TestArticlePriceResolver implements ArticlePriceResolver {
     private final Map<ProductId, ArticlePrice> prices = new HashMap<>();
 
@@ -232,9 +233,7 @@ class ShoppingCartResolverTest {
 
     @Override
     public ArticlePrice resolve(ProductId productId) {
-      return prices.getOrDefault(
-          productId,
-          new ArticlePrice(Money.euro(0.0), true, 100));
+      return prices.getOrDefault(productId, new ArticlePrice(Money.euro(0.0), true, 100));
     }
   }
 }

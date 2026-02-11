@@ -7,9 +7,7 @@ import de.sample.aiarchitecture.sharedkernel.marker.tactical.DomainEvent;
 import java.time.Instant;
 import java.util.UUID;
 
-/**
- * Domain Event indicating that a new stock level was created for a product.
- */
+/** Domain Event indicating that a new stock level was created for a product. */
 public record StockLevelCreated(
     UUID eventId,
     StockLevelId stockLevelId,
@@ -20,9 +18,7 @@ public record StockLevelCreated(
     implements DomainEvent {
 
   public static StockLevelCreated now(
-      final StockLevelId stockLevelId,
-      final ProductId productId,
-      final StockQuantity quantity) {
+      final StockLevelId stockLevelId, final ProductId productId, final StockQuantity quantity) {
     return new StockLevelCreated(
         UUID.randomUUID(), stockLevelId, productId, quantity, Instant.now(), 1);
   }

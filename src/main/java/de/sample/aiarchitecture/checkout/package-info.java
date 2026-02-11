@@ -11,4 +11,3 @@ package de.sample.aiarchitecture.checkout;
 
 import de.sample.aiarchitecture.sharedkernel.marker.strategic.BoundedContext;
 import org.jspecify.annotations.NullMarked;
-

@@ -9,8 +9,8 @@ import java.util.UUID;
 /**
  * Domain Event indicating that a checkout session was abandoned by the customer.
  *
- * <p>This event is raised when a customer explicitly cancels their checkout
- * or navigates away from the checkout flow.
+ * <p>This event is raised when a customer explicitly cancels their checkout or navigates away from
+ * the checkout flow.
  */
 public record CheckoutAbandoned(
     UUID eventId,

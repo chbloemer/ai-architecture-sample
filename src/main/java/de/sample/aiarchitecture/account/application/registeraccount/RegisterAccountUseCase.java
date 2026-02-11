@@ -4,8 +4,8 @@ import de.sample.aiarchitecture.account.application.shared.AccountRepository;
 import de.sample.aiarchitecture.account.domain.model.Account;
 import de.sample.aiarchitecture.account.domain.model.Email;
 import de.sample.aiarchitecture.account.domain.service.PasswordHasher;
-import de.sample.aiarchitecture.sharedkernel.marker.port.out.DomainEventPublisher;
 import de.sample.aiarchitecture.sharedkernel.domain.model.UserId;
+import de.sample.aiarchitecture.sharedkernel.marker.port.out.DomainEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -13,20 +13,22 @@ import org.springframework.transaction.annotation.Transactional;
  * Use case for registering a new account.
  *
  * <p>This use case:
+ *
  * <ol>
- *   <li>Validates the email is not already registered</li>
- *   <li>Validates password strength requirements (delegated to domain)</li>
- *   <li>Hashes the password (delegated to domain)</li>
- *   <li>Creates a new Account</li>
- *   <li>Links the Account to the user's current UserId</li>
- *   <li>Publishes domain events (AccountRegistered, AccountLinkedToIdentity)</li>
- *   <li>Returns information needed to issue a new JWT</li>
+ *   <li>Validates the email is not already registered
+ *   <li>Validates password strength requirements (delegated to domain)
+ *   <li>Hashes the password (delegated to domain)
+ *   <li>Creates a new Account
+ *   <li>Links the Account to the user's current UserId
+ *   <li>Publishes domain events (AccountRegistered, AccountLinkedToIdentity)
+ *   <li>Returns information needed to issue a new JWT
  * </ol>
  *
  * <p>After registration, the controller should:
+ *
  * <ol>
- *   <li>Generate a new registered JWT with the returned userId, email, and roles</li>
- *   <li>Set the JWT cookie to upgrade the user from anonymous to registered</li>
+ *   <li>Generate a new registered JWT with the returned userId, email, and roles
+ *   <li>Set the JWT cookie to upgrade the user from anonymous to registered
  * </ol>
  */
 @Service
@@ -47,7 +49,6 @@ public class RegisterAccountUseCase implements RegisterAccountInputPort {
 
   @Override
   @Transactional
-  
   public RegisterAccountResult execute(final RegisterAccountCommand command) {
     final Email email = Email.of(command.email());
 
@@ -64,7 +65,8 @@ public class RegisterAccountUseCase implements RegisterAccountInputPort {
     }
 
     // Create the account (password validation and hashing done by domain)
-    final Account account = Account.register(email, command.password(), currentUserId, passwordHasher);
+    final Account account =
+        Account.register(email, command.password(), currentUserId, passwordHasher);
 
     // Persist the account
     accountRepository.save(account);

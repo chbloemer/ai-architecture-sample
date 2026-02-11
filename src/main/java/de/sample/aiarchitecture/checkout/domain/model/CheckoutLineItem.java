@@ -8,8 +8,8 @@ import org.jspecify.annotations.Nullable;
 /**
  * Value Object representing a line item in the checkout.
  *
- * <p>Contains product information, quantity, and calculated totals for a single
- * item in the checkout session.
+ * <p>Contains product information, quantity, and calculated totals for a single item in the
+ * checkout session.
  */
 public record CheckoutLineItem(
     CheckoutLineItemId id,

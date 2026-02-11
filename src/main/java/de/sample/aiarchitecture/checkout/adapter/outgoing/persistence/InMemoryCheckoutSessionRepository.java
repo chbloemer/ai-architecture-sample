@@ -82,9 +82,10 @@ public class InMemoryCheckoutSessionRepository implements CheckoutSessionReposit
       final CustomerId customerId) {
     return sessions.values().stream()
         .filter(session -> session.customerId().equals(customerId))
-        .filter(session ->
-            session.status() == CheckoutSessionStatus.CONFIRMED
-                || session.status() == CheckoutSessionStatus.COMPLETED)
+        .filter(
+            session ->
+                session.status() == CheckoutSessionStatus.CONFIRMED
+                    || session.status() == CheckoutSessionStatus.COMPLETED)
         .findFirst();
   }
 }

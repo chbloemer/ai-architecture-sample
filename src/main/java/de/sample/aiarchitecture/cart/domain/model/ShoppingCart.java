@@ -19,10 +19,11 @@ import java.util.Optional;
 /**
  * ShoppingCart Aggregate Root.
  *
- * <p>Represents a customer's shopping cart containing items they intend to purchase.
- * This aggregate enforces cart rules and ensures consistency of all cart operations.
+ * <p>Represents a customer's shopping cart containing items they intend to purchase. This aggregate
+ * enforces cart rules and ensures consistency of all cart operations.
  *
  * <p><b>Business Rules:</b>
+ *
  * <ul>
  *   <li>Cannot add items to a checked-out cart
  *   <li>Cannot modify items in a checked-out cart
@@ -31,6 +32,7 @@ import java.util.Optional;
  * </ul>
  *
  * <p><b>Domain Events:</b>
+ *
  * <ul>
  *   <li>{@link CartItemAddedToCart} - when an item is added to the cart
  *   <li>{@link ProductRemovedFromCart} - when a product is removed from the cart
@@ -82,10 +84,7 @@ public final class ShoppingCart extends BaseAggregateRoot<ShoppingCart, CartId> 
    * @param price the current price of the product
    * @throws IllegalStateException if cart is checked out
    */
-  public void addItem(
-      final ProductId productId,
-      final Quantity quantity,
-      final Price price) {
+  public void addItem(final ProductId productId, final Quantity quantity, final Price price) {
     ensureCartIsActive();
 
     // Check if product already in cart
@@ -157,8 +156,7 @@ public final class ShoppingCart extends BaseAggregateRoot<ShoppingCart, CartId> 
    * @throws IllegalStateException if cart is checked out
    * @throws IllegalArgumentException if item not found
    */
-  public void updateItemQuantity(
-      final CartItemId itemId, final Quantity newQuantity) {
+  public void updateItemQuantity(final CartItemId itemId, final Quantity newQuantity) {
     ensureCartIsActive();
 
     final CartItem item =
@@ -170,7 +168,8 @@ public final class ShoppingCart extends BaseAggregateRoot<ShoppingCart, CartId> 
     item.updateQuantity(newQuantity);
 
     // Raise domain event
-    registerEvent(CartItemQuantityChanged.now(this.id, itemId, item.productId(), oldQuantity, newQuantity));
+    registerEvent(
+        CartItemQuantityChanged.now(this.id, itemId, item.productId(), oldQuantity, newQuantity));
   }
 
   /**
@@ -191,8 +190,9 @@ public final class ShoppingCart extends BaseAggregateRoot<ShoppingCart, CartId> 
     item.increaseQuantity();
 
     // Raise domain event
-    registerEvent(CartItemQuantityChanged.now(
-        this.id, itemId, item.productId(), oldQuantity, item.quantity()));
+    registerEvent(
+        CartItemQuantityChanged.now(
+            this.id, itemId, item.productId(), oldQuantity, item.quantity()));
   }
 
   /**
@@ -213,8 +213,9 @@ public final class ShoppingCart extends BaseAggregateRoot<ShoppingCart, CartId> 
     item.decreaseQuantity();
 
     // Raise domain event
-    registerEvent(CartItemQuantityChanged.now(
-        this.id, itemId, item.productId(), oldQuantity, item.quantity()));
+    registerEvent(
+        CartItemQuantityChanged.now(
+            this.id, itemId, item.productId(), oldQuantity, item.quantity()));
   }
 
   /**
@@ -270,9 +271,9 @@ public final class ShoppingCart extends BaseAggregateRoot<ShoppingCart, CartId> 
   /**
    * Marks the cart as completed after checkout confirmation.
    *
-   * <p>This method is called when the checkout process has been fully confirmed
-   * (customer has completed payment/review steps). The cart can be completed
-   * from either ACTIVE or CHECKED_OUT status.
+   * <p>This method is called when the checkout process has been fully confirmed (customer has
+   * completed payment/review steps). The cart can be completed from either ACTIVE or CHECKED_OUT
+   * status.
    *
    * <p>Raises a {@link CartCompleted} domain event.
    *
@@ -303,8 +304,7 @@ public final class ShoppingCart extends BaseAggregateRoot<ShoppingCart, CartId> 
 
     Money total = Money.euro(0.0);
     for (final CartItem item : items) {
-      final Money itemTotal =
-          item.priceAtAddition().value().multiply(item.quantity().value());
+      final Money itemTotal = item.priceAtAddition().value().multiply(item.quantity().value());
       total = total.add(itemTotal);
     }
     return total;
@@ -313,8 +313,8 @@ public final class ShoppingCart extends BaseAggregateRoot<ShoppingCart, CartId> 
   /**
    * Calculates the total value of all items in the cart using fresh pricing from the resolver.
    *
-   * <p>This method iterates through all cart items and uses the resolver to fetch
-   * current pricing for each product, ensuring accurate totals at checkout time.
+   * <p>This method iterates through all cart items and uses the resolver to fetch current pricing
+   * for each product, ensuring accurate totals at checkout time.
    *
    * @param priceResolver the resolver to fetch current pricing
    * @return the total money value based on current prices
@@ -339,8 +339,8 @@ public final class ShoppingCart extends BaseAggregateRoot<ShoppingCart, CartId> 
   /**
    * Validates the cart for checkout using fresh pricing and availability data.
    *
-   * <p>This method checks each item in the cart against current availability
-   * and stock levels to ensure the cart can proceed to checkout.
+   * <p>This method checks each item in the cart against current availability and stock levels to
+   * ensure the cart can proceed to checkout.
    *
    * @param priceResolver the resolver to fetch current pricing and availability
    * @return a CartValidationResult containing any validation errors
@@ -360,10 +360,9 @@ public final class ShoppingCart extends BaseAggregateRoot<ShoppingCart, CartId> 
       if (!articlePrice.isAvailable()) {
         errors.add(CartValidationResult.ValidationError.productUnavailable(item.productId()));
       } else if (articlePrice.availableStock() < item.quantity().value()) {
-        errors.add(CartValidationResult.ValidationError.insufficientStock(
-            item.productId(),
-            item.quantity().value(),
-            articlePrice.availableStock()));
+        errors.add(
+            CartValidationResult.ValidationError.insufficientStock(
+                item.productId(), item.quantity().value(), articlePrice.availableStock()));
       }
     }
 
@@ -422,9 +421,10 @@ public final class ShoppingCart extends BaseAggregateRoot<ShoppingCart, CartId> 
    * Merges items from another cart into this cart.
    *
    * <p>For each item in the source cart:
+   *
    * <ul>
-   *   <li>If the product already exists in this cart, quantities are combined</li>
-   *   <li>If the product doesn't exist, a new item is added with the source item's price</li>
+   *   <li>If the product already exists in this cart, quantities are combined
+   *   <li>If the product doesn't exist, a new item is added with the source item's price
    * </ul>
    *
    * <p>This method does not modify the source cart.

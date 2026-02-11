@@ -20,6 +20,11 @@ public final class AndSpecification<T> implements CompositeSpecification<T> {
     return visitor.visit(this);
   }
 
-  public CompositeSpecification<T> left() { return left; }
-  public CompositeSpecification<T> right() { return right; }
+  public CompositeSpecification<T> left() {
+    return left;
+  }
+
+  public CompositeSpecification<T> right() {
+    return right;
+  }
 }

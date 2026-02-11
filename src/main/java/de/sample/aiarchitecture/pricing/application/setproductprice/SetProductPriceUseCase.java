@@ -41,7 +41,8 @@ public class SetProductPriceUseCase implements SetProductPriceInputPort {
   @Override
   public SetProductPriceResult execute(final SetProductPriceCommand command) {
     final ProductId productId = ProductId.of(command.productId());
-    final Money newPrice = new Money(command.priceAmount(), Currency.getInstance(command.priceCurrency()));
+    final Money newPrice =
+        new Money(command.priceAmount(), Currency.getInstance(command.priceCurrency()));
 
     // Check if price exists for this product
     final var existingPrice = productPriceRepository.findByProductId(productId);

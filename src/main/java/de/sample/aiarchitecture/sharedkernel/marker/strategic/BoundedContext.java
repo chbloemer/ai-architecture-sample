@@ -25,7 +25,8 @@ import java.lang.annotation.Target;
  * <p><b>Architectural Rules:</b>
  *
  * <ul>
- *   <li>Bounded contexts must not directly depend on each other (except via Shared Kernel or events)
+ *   <li>Bounded contexts must not directly depend on each other (except via Shared Kernel or
+ *       events)
  *   <li>Each bounded context has its own domain, application, and adapter layers
  *   <li>Cross-context communication should use domain events or Anti-Corruption Layers
  * </ul>

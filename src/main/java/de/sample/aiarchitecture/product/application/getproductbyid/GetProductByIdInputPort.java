@@ -12,7 +12,8 @@ import de.sample.aiarchitecture.sharedkernel.marker.port.in.UseCase;
  *
  * @see de.sample.aiarchitecture.product.application.usecase.getproductbyid.GetProductByIdUseCase
  */
-public interface GetProductByIdInputPort extends UseCase<GetProductByIdQuery, GetProductByIdResult> {
+public interface GetProductByIdInputPort
+    extends UseCase<GetProductByIdQuery, GetProductByIdResult> {
 
   /**
    * Retrieves a product by its unique identifier.

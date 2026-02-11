@@ -2,9 +2,7 @@ package de.sample.aiarchitecture.cart.domain.model;
 
 import de.sample.aiarchitecture.sharedkernel.marker.tactical.Value;
 
-/**
- * Value Object representing a quantity of items.
- */
+/** Value Object representing a quantity of items. */
 public record Quantity(int value) implements Value {
 
   public Quantity {

@@ -7,9 +7,9 @@ import de.sample.aiarchitecture.sharedkernel.domain.specification.SpecificationV
 /**
  * Customer owning the cart has opted-in to receive marketing communication.
  *
- * <p>Domain aggregate doesn't expose customer preferences; in-memory evaluation is
- * neutral (true). Persistence adapters can push this to the DB if a customer
- * read-model exists; otherwise it can be a no-op predicate.
+ * <p>Domain aggregate doesn't expose customer preferences; in-memory evaluation is neutral (true).
+ * Persistence adapters can push this to the DB if a customer read-model exists; otherwise it can be
+ * a no-op predicate.
  */
 public record CustomerAllowsMarketing() implements CartSpecification {
 

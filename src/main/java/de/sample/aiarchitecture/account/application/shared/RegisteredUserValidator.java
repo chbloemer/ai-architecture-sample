@@ -1,17 +1,17 @@
 package de.sample.aiarchitecture.account.application.shared;
 
-import de.sample.aiarchitecture.sharedkernel.marker.port.out.OutputPort;
 import de.sample.aiarchitecture.sharedkernel.domain.model.UserId;
+import de.sample.aiarchitecture.sharedkernel.marker.port.out.OutputPort;
 
 /**
  * Validator for checking if a registered user's account exists.
  *
- * <p>This is used by the security infrastructure to verify that registered
- * users have valid accounts. After an application restart with in-memory storage,
- * JWT tokens may still be valid but the accounts they reference no longer exist.
+ * <p>This is used by the security infrastructure to verify that registered users have valid
+ * accounts. After an application restart with in-memory storage, JWT tokens may still be valid but
+ * the accounts they reference no longer exist.
  *
- * <p>This interface belongs to the account bounded context because only the
- * account context knows about account existence.
+ * <p>This interface belongs to the account bounded context because only the account context knows
+ * about account existence.
  */
 public interface RegisteredUserValidator extends OutputPort {
 

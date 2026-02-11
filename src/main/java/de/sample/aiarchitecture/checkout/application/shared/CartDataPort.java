@@ -7,12 +7,12 @@ import java.util.Optional;
 /**
  * Output port for accessing cart data from the Cart bounded context.
  *
- * <p>This is part of the Anti-Corruption Layer (ACL) that isolates the Checkout context
- * from direct coupling to the Cart context's domain model. The adapter implementation
- * translates Cart domain objects into Checkout-specific data structures.
+ * <p>This is part of the Anti-Corruption Layer (ACL) that isolates the Checkout context from direct
+ * coupling to the Cart context's domain model. The adapter implementation translates Cart domain
+ * objects into Checkout-specific data structures.
  *
- * <p><b>Hexagonal Architecture:</b> This is a secondary/driven port that defines what
- * the Checkout application layer needs from the Cart context.
+ * <p><b>Hexagonal Architecture:</b> This is a secondary/driven port that defines what the Checkout
+ * application layer needs from the Cart context.
  */
 public interface CartDataPort extends OutputPort {
 

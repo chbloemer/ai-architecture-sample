@@ -18,9 +18,9 @@ import org.springframework.transaction.annotation.Transactional;
 /**
  * Use case for retrieving a product by its ID.
  *
- * <p>This is a query use case that retrieves product details without modifying state.
- * Creates an enriched read model that combines aggregate state with external data
- * from Pricing and Inventory contexts.
+ * <p>This is a query use case that retrieves product details without modifying state. Creates an
+ * enriched read model that combines aggregate state with external data from Pricing and Inventory
+ * contexts.
  *
  * <p><b>Hexagonal Architecture:</b> This class implements the {@link GetProductByIdInputPort}
  * interface, which is a primary/driving port in the application layer.
@@ -68,9 +68,8 @@ public class GetProductByIdUseCase implements GetProductByIdInputPort {
   private ProductArticle buildArticleData(final ProductId productId) {
     // Fetch price from Pricing context
     final Optional<PriceData> priceData = pricingDataPort.getPrice(productId);
-    final Money currentPrice = priceData
-        .map(PriceData::currentPrice)
-        .orElse(Money.zero(DEFAULT_CURRENCY));
+    final Money currentPrice =
+        priceData.map(PriceData::currentPrice).orElse(Money.zero(DEFAULT_CURRENCY));
 
     // Fetch stock from Inventory context
     final Optional<StockData> stockData = productStockDataPort.getStockData(productId);

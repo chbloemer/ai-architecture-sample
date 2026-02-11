@@ -29,19 +29,20 @@ public class GetAllCartsUseCase implements GetAllCartsInputPort {
   public GetAllCartsResult execute(final GetAllCartsQuery input) {
     final List<ShoppingCart> carts = shoppingCartRepository.findAll();
 
-    final List<GetAllCartsResult.CartSummary> cartSummaries = carts.stream()
-        .map(cart -> {
-          final Money total = cart.calculateTotal();
-          return new GetAllCartsResult.CartSummary(
-              cart.id().value(),
-              cart.customerId().value(),
-              cart.status().name(),
-              cart.items().size(),
-              total.amount(),
-              total.currency().getCurrencyCode()
-          );
-        })
-        .toList();
+    final List<GetAllCartsResult.CartSummary> cartSummaries =
+        carts.stream()
+            .map(
+                cart -> {
+                  final Money total = cart.calculateTotal();
+                  return new GetAllCartsResult.CartSummary(
+                      cart.id().value(),
+                      cart.customerId().value(),
+                      cart.status().name(),
+                      cart.items().size(),
+                      total.amount(),
+                      total.currency().getCurrencyCode());
+                })
+            .toList();
 
     return new GetAllCartsResult(cartSummaries);
   }

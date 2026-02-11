@@ -3,15 +3,13 @@ package de.sample.aiarchitecture.cart.application.removeitemfromcart;
 /**
  * Command to remove an item from a shopping cart.
  *
- * <p>This is an immutable command object that encapsulates the data needed
- * to execute the "Remove Item from Cart" use case.
+ * <p>This is an immutable command object that encapsulates the data needed to execute the "Remove
+ * Item from Cart" use case.
  *
  * @param cartId the ID of the cart
  * @param productId the ID of the product to remove
  */
-public record RemoveItemFromCartCommand(
-    String cartId,
-    String productId) {
+public record RemoveItemFromCartCommand(String cartId, String productId) {
 
   public RemoveItemFromCartCommand {
     if (cartId == null || cartId.isBlank()) {

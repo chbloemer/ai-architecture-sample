@@ -18,30 +18,35 @@ import org.junit.jupiter.api.extension.TestWatcher;
  * Base class for E2E tests using Playwright.
  *
  * <p>Provides common setup for browser automation including:
+ *
  * <ul>
- *   <li>Playwright and browser initialization</li>
- *   <li>Browser context and page management per test</li>
- *   <li>Configuration via system properties</li>
- *   <li>Common navigation and assertion helpers</li>
+ *   <li>Playwright and browser initialization
+ *   <li>Browser context and page management per test
+ *   <li>Configuration via system properties
+ *   <li>Common navigation and assertion helpers
  * </ul>
  *
  * <p>Configuration properties:
+ *
  * <ul>
- *   <li>{@code e2e.baseUrl} - Base URL for the application (default: http://localhost:8080)</li>
- *   <li>{@code e2e.browser} - Browser to use: chromium, firefox, webkit (default: chromium)</li>
- *   <li>{@code e2e.headless} - Run in headless mode (default: true)</li>
+ *   <li>{@code e2e.baseUrl} - Base URL for the application (default: http://localhost:8080)
+ *   <li>{@code e2e.browser} - Browser to use: chromium, firefox, webkit (default: chromium)
+ *   <li>{@code e2e.headless} - Run in headless mode (default: true)
  * </ul>
  *
  * <p>Usage example:
+ *
  * <pre>{@code
  * ./gradlew test-e2e -De2e.baseUrl=http://localhost:8080 -De2e.headless=false
  * }</pre>
  */
 public abstract class BaseE2ETest {
 
-  protected static final String BASE_URL = System.getProperty("e2e.baseUrl", "http://localhost:8080");
+  protected static final String BASE_URL =
+      System.getProperty("e2e.baseUrl", "http://localhost:8080");
   protected static final String BROWSER_TYPE = System.getProperty("e2e.browser", "chromium");
-  protected static final boolean HEADLESS = Boolean.parseBoolean(System.getProperty("e2e.headless", "true"));
+  protected static final boolean HEADLESS =
+      Boolean.parseBoolean(System.getProperty("e2e.headless", "true"));
 
   protected static Playwright playwright;
   protected static Browser browser;
@@ -50,33 +55,35 @@ public abstract class BaseE2ETest {
   protected Page page;
 
   @RegisterExtension
-  final TestWatcher screenshotOnFailure = new TestWatcher() {
-    @Override
-    public void testFailed(ExtensionContext context, Throwable cause) {
-      if (page != null && !page.isClosed()) {
-        try {
-          String testName = context.getDisplayName().replaceAll("[^a-zA-Z0-9_-]", "_");
-          page.screenshot(new Page.ScreenshotOptions()
-              .setPath(Paths.get("build/reports/test-e2e/screenshots/" + testName + ".png"))
-              .setFullPage(true));
-        } catch (Exception e) {
-          // Browser context may already be closed by @AfterEach
+  final TestWatcher screenshotOnFailure =
+      new TestWatcher() {
+        @Override
+        public void testFailed(ExtensionContext context, Throwable cause) {
+          if (page != null && !page.isClosed()) {
+            try {
+              String testName = context.getDisplayName().replaceAll("[^a-zA-Z0-9_-]", "_");
+              page.screenshot(
+                  new Page.ScreenshotOptions()
+                      .setPath(Paths.get("build/reports/test-e2e/screenshots/" + testName + ".png"))
+                      .setFullPage(true));
+            } catch (Exception e) {
+              // Browser context may already be closed by @AfterEach
+            }
+          }
         }
-      }
-    }
-  };
+      };
 
   @BeforeAll
   static void launchBrowser() {
     playwright = Playwright.create();
-    BrowserType.LaunchOptions options = new BrowserType.LaunchOptions()
-        .setHeadless(HEADLESS);
+    BrowserType.LaunchOptions options = new BrowserType.LaunchOptions().setHeadless(HEADLESS);
 
-    browser = switch (BROWSER_TYPE.toLowerCase()) {
-      case "firefox" -> playwright.firefox().launch(options);
-      case "webkit" -> playwright.webkit().launch(options);
-      default -> playwright.chromium().launch(options);
-    };
+    browser =
+        switch (BROWSER_TYPE.toLowerCase()) {
+          case "firefox" -> playwright.firefox().launch(options);
+          case "webkit" -> playwright.webkit().launch(options);
+          default -> playwright.chromium().launch(options);
+        };
   }
 
   @AfterAll
@@ -282,7 +289,9 @@ public abstract class BaseE2ETest {
    * @param name the screenshot file name (without extension)
    */
   protected void takeScreenshot(String name) {
-    page.screenshot(new Page.ScreenshotOptions()
-        .setPath(java.nio.file.Paths.get("build/reports/test-e2e/screenshots/" + name + ".png")));
+    page.screenshot(
+        new Page.ScreenshotOptions()
+            .setPath(
+                java.nio.file.Paths.get("build/reports/test-e2e/screenshots/" + name + ".png")));
   }
 }

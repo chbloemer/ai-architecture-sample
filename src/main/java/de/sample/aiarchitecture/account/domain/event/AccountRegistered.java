@@ -11,10 +11,11 @@ import java.util.UUID;
  * Domain event raised when a new account is registered.
  *
  * <p>This event is raised during account creation and can be used by:
+ *
  * <ul>
- *   <li>Email service to send welcome email</li>
- *   <li>Analytics to track registrations</li>
- *   <li>Other bounded contexts that need to know about new users</li>
+ *   <li>Email service to send welcome email
+ *   <li>Analytics to track registrations
+ *   <li>Other bounded contexts that need to know about new users
  * </ul>
  *
  * @param eventId unique identifier for this event instance
@@ -30,7 +31,8 @@ public record AccountRegistered(
     Email email,
     UserId linkedUserId,
     Instant occurredOn,
-    int version) implements DomainEvent {
+    int version)
+    implements DomainEvent {
 
   /**
    * Creates an AccountRegistered event with the current timestamp.
@@ -41,9 +43,8 @@ public record AccountRegistered(
    * @return a new AccountRegistered event
    */
   public static AccountRegistered now(
-      final AccountId accountId,
-      final Email email,
-      final UserId linkedUserId) {
-    return new AccountRegistered(UUID.randomUUID(), accountId, email, linkedUserId, Instant.now(), 1);
+      final AccountId accountId, final Email email, final UserId linkedUserId) {
+    return new AccountRegistered(
+        UUID.randomUUID(), accountId, email, linkedUserId, Instant.now(), 1);
   }
 }

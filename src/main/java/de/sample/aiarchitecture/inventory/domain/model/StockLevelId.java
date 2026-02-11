@@ -3,7 +3,6 @@ package de.sample.aiarchitecture.inventory.domain.model;
 import de.sample.aiarchitecture.sharedkernel.marker.tactical.Id;
 import de.sample.aiarchitecture.sharedkernel.marker.tactical.Value;
 import java.util.UUID;
-import lombok.NonNull;
 
 public record StockLevelId(String value) implements Id, Value {
 

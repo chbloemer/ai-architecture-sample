@@ -1,8 +1,8 @@
 package de.sample.aiarchitecture.sharedkernel.marker.port.out;
 
-import java.util.Optional;
 import de.sample.aiarchitecture.sharedkernel.marker.tactical.AggregateRoot;
 import de.sample.aiarchitecture.sharedkernel.marker.tactical.Id;
+import java.util.Optional;
 
 /**
  * Base interface for Repositories.
@@ -99,8 +99,8 @@ public interface Repository<T extends AggregateRoot<T, ID>, ID extends Id> exten
   /**
    * Deletes an aggregate from the repository by its ID.
    *
-   * <p>This method removes the aggregate from the collection. If the aggregate doesn't exist,
-   * the behavior is implementation-specific (may throw exception or silently succeed).
+   * <p>This method removes the aggregate from the collection. If the aggregate doesn't exist, the
+   * behavior is implementation-specific (may throw exception or silently succeed).
    *
    * @param id the ID of the aggregate to delete
    */

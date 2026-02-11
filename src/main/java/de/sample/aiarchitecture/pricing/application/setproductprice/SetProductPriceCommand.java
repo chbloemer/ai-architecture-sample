@@ -10,13 +10,9 @@ import java.math.BigDecimal;
  * @param priceCurrency the price currency code (e.g., "EUR", "USD")
  */
 public record SetProductPriceCommand(
-    String productId,
-    BigDecimal priceAmount,
-    String priceCurrency) {
+    String productId, BigDecimal priceAmount, String priceCurrency) {
 
-  /**
-   * Compact constructor with validation.
-   */
+  /** Compact constructor with validation. */
   public SetProductPriceCommand {
     if (productId == null || productId.isBlank()) {
       throw new IllegalArgumentException("Product ID cannot be null or blank");

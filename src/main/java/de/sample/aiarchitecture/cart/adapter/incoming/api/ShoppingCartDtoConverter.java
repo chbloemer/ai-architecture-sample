@@ -17,6 +17,7 @@ import org.springframework.stereotype.Component;
  * Converter for transforming between domain/use case models and Cart DTOs.
  *
  * <p>This converter supports both:
+ *
  * <ul>
  *   <li>Domain entities (ShoppingCart) - for legacy code
  *   <li>Use case outputs - for Clean Architecture pattern
@@ -48,9 +49,7 @@ public final class ShoppingCartDtoConverter {
         cart.itemCount());
   }
 
-  /**
-   * Converts CreateCartResult to DTO.
-   */
+  /** Converts CreateCartResult to DTO. */
   public ShoppingCartDto toDto(final CreateCartResult output) {
     return new ShoppingCartDto(
         output.cartId(),
@@ -59,17 +58,12 @@ public final class ShoppingCartDtoConverter {
         output.status(),
         null,
         null,
-        0
-    );
+        0);
   }
 
-  /**
-   * Converts EnrichedCart read model to DTO.
-   */
+  /** Converts EnrichedCart read model to DTO. */
   public ShoppingCartDto toDto(final EnrichedCart cart) {
-    final List<CartItemDto> items = cart.items().stream()
-        .map(this::toItemDto)
-        .toList();
+    final List<CartItemDto> items = cart.items().stream().map(this::toItemDto).toList();
 
     final Money total = cart.calculateCurrentSubtotal();
 
@@ -80,17 +74,12 @@ public final class ShoppingCartDtoConverter {
         cart.status().name(),
         total.amount(),
         total.currency().getCurrencyCode(),
-        items.size()
-    );
+        items.size());
   }
 
-  /**
-   * Converts AddItemToCartResult to DTO.
-   */
+  /** Converts AddItemToCartResult to DTO. */
   public ShoppingCartDto toDto(final AddItemToCartResult output) {
-    final List<CartItemDto> items = output.items().stream()
-        .map(this::toItemDto)
-        .toList();
+    final List<CartItemDto> items = output.items().stream().map(this::toItemDto).toList();
 
     return new ShoppingCartDto(
         output.cartId(),
@@ -99,17 +88,12 @@ public final class ShoppingCartDtoConverter {
         "ACTIVE", // Always active when adding items
         output.totalAmount(),
         output.totalCurrency(),
-        items.size()
-    );
+        items.size());
   }
 
-  /**
-   * Converts RemoveItemFromCartResult to DTO.
-   */
+  /** Converts RemoveItemFromCartResult to DTO. */
   public ShoppingCartDto toDto(final RemoveItemFromCartResult output) {
-    final List<CartItemDto> items = output.items().stream()
-        .map(this::toItemDto)
-        .toList();
+    final List<CartItemDto> items = output.items().stream().map(this::toItemDto).toList();
 
     return new ShoppingCartDto(
         output.cartId(),
@@ -118,17 +102,12 @@ public final class ShoppingCartDtoConverter {
         "ACTIVE", // Always active when removing items
         output.totalAmount(),
         output.totalCurrency(),
-        items.size()
-    );
+        items.size());
   }
 
-  /**
-   * Converts CheckoutCartResult to DTO.
-   */
+  /** Converts CheckoutCartResult to DTO. */
   public ShoppingCartDto toDto(final CheckoutCartResult output) {
-    final List<CartItemDto> items = output.items().stream()
-        .map(this::toItemDto)
-        .toList();
+    final List<CartItemDto> items = output.items().stream().map(this::toItemDto).toList();
 
     return new ShoppingCartDto(
         output.cartId(),
@@ -137,24 +116,23 @@ public final class ShoppingCartDtoConverter {
         "CHECKED_OUT",
         output.totalAmount(),
         output.totalCurrency(),
-        items.size()
-    );
+        items.size());
   }
 
-  /**
-   * Converts GetAllCartsResult to list DTO.
-   */
+  /** Converts GetAllCartsResult to list DTO. */
   public ShoppingCartListDto toListDto(final GetAllCartsResult output) {
-    final List<ShoppingCartListDto.CartSummaryDto> summaries = output.carts().stream()
-        .map(cart -> new ShoppingCartListDto.CartSummaryDto(
-            cart.cartId(),
-            cart.customerId(),
-            cart.status(),
-            cart.itemCount(),
-            cart.totalAmount(),
-            cart.totalCurrency()
-        ))
-        .toList();
+    final List<ShoppingCartListDto.CartSummaryDto> summaries =
+        output.carts().stream()
+            .map(
+                cart ->
+                    new ShoppingCartListDto.CartSummaryDto(
+                        cart.cartId(),
+                        cart.customerId(),
+                        cart.status(),
+                        cart.itemCount(),
+                        cart.totalAmount(),
+                        cart.totalCurrency()))
+            .toList();
 
     return new ShoppingCartListDto(summaries);
   }
@@ -185,8 +163,7 @@ public final class ShoppingCartDtoConverter {
         item.productId(),
         item.quantity(),
         item.unitPriceAmount(),
-        item.unitPriceCurrency()
-    );
+        item.unitPriceCurrency());
   }
 
   private CartItemDto toItemDto(final RemoveItemFromCartResult.CartItemSummary item) {
@@ -195,8 +172,7 @@ public final class ShoppingCartDtoConverter {
         item.productId(),
         item.quantity(),
         item.unitPriceAmount(),
-        item.unitPriceCurrency()
-    );
+        item.unitPriceCurrency());
   }
 
   private CartItemDto toItemDto(final CheckoutCartResult.CartItemSummary item) {
@@ -205,7 +181,6 @@ public final class ShoppingCartDtoConverter {
         item.productId(),
         item.quantity(),
         item.unitPriceAmount(),
-        item.unitPriceCurrency()
-    );
+        item.unitPriceCurrency());
   }
 }

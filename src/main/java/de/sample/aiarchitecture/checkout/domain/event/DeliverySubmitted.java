@@ -11,8 +11,8 @@ import java.util.UUID;
 /**
  * Domain Event indicating that delivery details were submitted for a checkout session.
  *
- * <p>This event is raised when a customer completes the delivery step,
- * providing their shipping address and selecting a shipping option.
+ * <p>This event is raised when a customer completes the delivery step, providing their shipping
+ * address and selecting a shipping option.
  */
 public record DeliverySubmitted(
     UUID eventId,

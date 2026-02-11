@@ -8,31 +8,35 @@ package de.sample.aiarchitecture.sharedkernel.marker.port.out;
  * Architecture terms, output ports sit on the "right side" of the hexagon.
  *
  * <p><b>Driven Adapters that implement Output Ports:</b>
+ *
  * <ul>
- *   <li>Repository implementations (database access)</li>
- *   <li>External API clients (REST, gRPC, SOAP)</li>
- *   <li>Message publishers (Kafka, RabbitMQ, SQS)</li>
- *   <li>Email/SMS services</li>
- *   <li>File storage services</li>
- *   <li>Cache implementations</li>
+ *   <li>Repository implementations (database access)
+ *   <li>External API clients (REST, gRPC, SOAP)
+ *   <li>Message publishers (Kafka, RabbitMQ, SQS)
+ *   <li>Email/SMS services
+ *   <li>File storage services
+ *   <li>Cache implementations
  * </ul>
  *
  * <p><b>Common Output Port Types:</b>
+ *
  * <ul>
- *   <li>{@link Repository} - Aggregate persistence</li>
- *   <li>{@link DomainEventPublisher} - Event publication</li>
- *   <li>External service ports - Integration with external systems</li>
+ *   <li>{@link Repository} - Aggregate persistence
+ *   <li>{@link DomainEventPublisher} - Event publication
+ *   <li>External service ports - Integration with external systems
  * </ul>
  *
  * <p><b>Key Characteristics:</b>
+ *
  * <ul>
- *   <li>Technology-agnostic interface (no framework dependencies)</li>
- *   <li>Defined in terms of application/domain concepts</li>
- *   <li>Implemented by adapters in the outgoing adapter layer</li>
- *   <li>Used (depended upon) by application layer classes</li>
+ *   <li>Technology-agnostic interface (no framework dependencies)
+ *   <li>Defined in terms of application/domain concepts
+ *   <li>Implemented by adapters in the outgoing adapter layer
+ *   <li>Used (depended upon) by application layer classes
  * </ul>
  *
  * <p><b>Example Hierarchy:</b>
+ *
  * <pre>{@code
  * OutputPort (marker)
  *   ├── Repository<T, ID>
@@ -40,10 +44,9 @@ package de.sample.aiarchitecture.sharedkernel.marker.port.out;
  *   └── DomainEventPublisher
  * }</pre>
  *
- * <p><b>Dependency Inversion Principle:</b>
- * Output ports enable the application layer to depend on abstractions rather than concrete
- * implementations. The application defines what it needs (the interface), and the infrastructure
- * provides concrete implementations.
+ * <p><b>Dependency Inversion Principle:</b> Output ports enable the application layer to depend on
+ * abstractions rather than concrete implementations. The application defines what it needs (the
+ * interface), and the infrastructure provides concrete implementations.
  *
  * @see Repository
  * @see DomainEventPublisher

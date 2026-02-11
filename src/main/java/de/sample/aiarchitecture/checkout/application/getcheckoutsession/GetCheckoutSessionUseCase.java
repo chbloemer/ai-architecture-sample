@@ -8,8 +8,8 @@ import org.springframework.transaction.annotation.Transactional;
 /**
  * Use case for retrieving a checkout session by ID.
  *
- * <p>This use case loads all session data for display, including line items,
- * totals, buyer info, delivery, and payment information.
+ * <p>This use case loads all session data for display, including line items, totals, buyer info,
+ * delivery, and payment information.
  *
  * <p><b>Hexagonal Architecture:</b> This class implements the {@link GetCheckoutSessionInputPort}
  * interface, which is a primary/driving port in the application layer.

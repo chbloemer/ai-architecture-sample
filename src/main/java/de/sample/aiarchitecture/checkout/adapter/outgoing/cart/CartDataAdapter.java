@@ -12,9 +12,9 @@ import org.springframework.stereotype.Component;
 /**
  * Adapter that implements the CartDataPort by accessing the Cart bounded context.
  *
- * <p>This is the Anti-Corruption Layer (ACL) that translates between the Cart context's
- * domain model and the Checkout context's data structures. All coupling to the Cart
- * context is isolated here.
+ * <p>This is the Anti-Corruption Layer (ACL) that translates between the Cart context's domain
+ * model and the Checkout context's data structures. All coupling to the Cart context is isolated
+ * here.
  */
 @Component
 public class CartDataAdapter implements CartDataPort {

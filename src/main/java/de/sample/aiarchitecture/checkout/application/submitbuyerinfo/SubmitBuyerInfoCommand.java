@@ -10,15 +10,9 @@ package de.sample.aiarchitecture.checkout.application.submitbuyerinfo;
  * @param phone the buyer's phone number
  */
 public record SubmitBuyerInfoCommand(
-    String sessionId,
-    String email,
-    String firstName,
-    String lastName,
-    String phone) {
+    String sessionId, String email, String firstName, String lastName, String phone) {
 
-  /**
-   * Compact constructor with validation.
-   */
+  /** Compact constructor with validation. */
   public SubmitBuyerInfoCommand {
     if (sessionId == null || sessionId.isBlank()) {
       throw new IllegalArgumentException("Session ID cannot be null or blank");

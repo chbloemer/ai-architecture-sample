@@ -7,33 +7,24 @@ import org.jspecify.annotations.Nullable;
 /**
  * Response containing cart merge options information.
  *
- * <p>When both anonymous and account carts have items, this response provides
- * details about each cart so the user can make an informed decision about
- * how to handle the merge.
+ * <p>When both anonymous and account carts have items, this response provides details about each
+ * cart so the user can make an informed decision about how to handle the merge.
  *
  * @param mergeRequired true if user must choose between merge options
  * @param anonymousCart summary of the anonymous cart (null if empty/not exists)
  * @param accountCart summary of the account cart (null if empty/not exists)
  */
 public record GetCartMergeOptionsResult(
-    boolean mergeRequired,
-    @Nullable CartSummary anonymousCart,
-    @Nullable CartSummary accountCart
-) {
+    boolean mergeRequired, @Nullable CartSummary anonymousCart, @Nullable CartSummary accountCart) {
 
-  /**
-   * Creates a response indicating no merge is required.
-   */
+  /** Creates a response indicating no merge is required. */
   public static GetCartMergeOptionsResult noMergeRequired() {
     return new GetCartMergeOptionsResult(false, null, null);
   }
 
-  /**
-   * Creates a response indicating merge options should be presented.
-   */
+  /** Creates a response indicating merge options should be presented. */
   public static GetCartMergeOptionsResult mergeRequired(
-      CartSummary anonymousCart,
-      CartSummary accountCart) {
+      CartSummary anonymousCart, CartSummary accountCart) {
     return new GetCartMergeOptionsResult(true, anonymousCart, accountCart);
   }
 
@@ -53,8 +44,7 @@ public record GetCartMergeOptionsResult(
       int totalQuantity,
       BigDecimal totalAmount,
       String totalCurrency,
-      List<CartItemSummary> items
-  ) {}
+      List<CartItemSummary> items) {}
 
   /**
    * Summary of a cart item for display.
@@ -70,6 +60,5 @@ public record GetCartMergeOptionsResult(
       String imageUrl,
       int quantity,
       BigDecimal unitPriceAmount,
-      String unitPriceCurrency
-  ) {}
+      String unitPriceCurrency) {}
 }

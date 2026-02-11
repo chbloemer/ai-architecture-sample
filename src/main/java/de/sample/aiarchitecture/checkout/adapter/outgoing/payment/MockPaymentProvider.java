@@ -10,12 +10,12 @@ import org.springframework.stereotype.Component;
 /**
  * Mock implementation of PaymentProvider for testing and development.
  *
- * <p>This adapter simulates payment processing without connecting to any real payment
- * gateway. All payments are automatically approved, making it suitable for local
- * development, testing, and demonstration purposes.
+ * <p>This adapter simulates payment processing without connecting to any real payment gateway. All
+ * payments are automatically approved, making it suitable for local development, testing, and
+ * demonstration purposes.
  *
- * <p>The provider generates mock transaction references in the format "mock-{uuid}"
- * to simulate real provider behavior.
+ * <p>The provider generates mock transaction references in the format "mock-{uuid}" to simulate
+ * real provider behavior.
  */
 @Component
 public class MockPaymentProvider implements PaymentProvider {
@@ -26,21 +26,17 @@ public class MockPaymentProvider implements PaymentProvider {
   private boolean available = true;
 
   @Override
-  
   public PaymentProviderId providerId() {
     return PROVIDER_ID;
   }
 
   @Override
-  
   public String displayName() {
     return DISPLAY_NAME;
   }
 
   @Override
-  
-  public PaymentResult initiatePayment(
-      final CheckoutSessionId sessionId, final Money amount) {
+  public PaymentResult initiatePayment(final CheckoutSessionId sessionId, final Money amount) {
     if (!available) {
       return PaymentResult.failure("Mock payment provider is currently unavailable");
     }
@@ -51,7 +47,6 @@ public class MockPaymentProvider implements PaymentProvider {
   }
 
   @Override
-  
   public PaymentResult confirmPayment(final String providerReference) {
     if (!available) {
       return PaymentResult.failure("Mock payment provider is currently unavailable");
@@ -66,7 +61,6 @@ public class MockPaymentProvider implements PaymentProvider {
   }
 
   @Override
-  
   public PaymentResult cancelPayment(final String providerReference) {
     if (!available) {
       return PaymentResult.failure("Mock payment provider is currently unavailable");
@@ -88,8 +82,8 @@ public class MockPaymentProvider implements PaymentProvider {
   /**
    * Sets the availability state of this mock provider.
    *
-   * <p>This method is useful for testing error scenarios where the payment
-   * provider becomes temporarily unavailable.
+   * <p>This method is useful for testing error scenarios where the payment provider becomes
+   * temporarily unavailable.
    *
    * @param available true to make the provider available, false to simulate unavailability
    */

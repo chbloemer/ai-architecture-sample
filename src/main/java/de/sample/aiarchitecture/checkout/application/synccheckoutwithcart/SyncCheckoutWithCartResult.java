@@ -7,18 +7,13 @@ package de.sample.aiarchitecture.checkout.application.synccheckoutwithcart;
  * @param sessionId the checkout session ID if synced, null otherwise
  * @param itemCount the new number of line items after sync
  */
-public record SyncCheckoutWithCartResult(
-    boolean synced,
-    String sessionId,
-    int itemCount) {
+public record SyncCheckoutWithCartResult(boolean synced, String sessionId, int itemCount) {
 
   public static SyncCheckoutWithCartResult noActiveSession() {
     return new SyncCheckoutWithCartResult(false, null, 0);
   }
 
-  public static SyncCheckoutWithCartResult synced(
-      final String sessionId,
-      final int itemCount) {
+  public static SyncCheckoutWithCartResult synced(final String sessionId, final int itemCount) {
     return new SyncCheckoutWithCartResult(true, sessionId, itemCount);
   }
 }

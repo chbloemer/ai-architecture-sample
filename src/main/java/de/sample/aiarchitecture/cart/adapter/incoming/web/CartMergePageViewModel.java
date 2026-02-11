@@ -8,19 +8,16 @@ import org.jspecify.annotations.Nullable;
 /**
  * ViewModel for the cart merge options page.
  *
- * <p>Contains data needed to render the merge options UI when a user logs in
- * and has items in both their anonymous cart and account cart.
+ * <p>Contains data needed to render the merge options UI when a user logs in and has items in both
+ * their anonymous cart and account cart.
  */
 public record CartMergePageViewModel(
     CartSummaryViewModel anonymousCart,
     CartSummaryViewModel accountCart,
     String anonymousUserId,
-    @Nullable String returnUrl
-) {
+    @Nullable String returnUrl) {
 
-  /**
-   * Creates a CartMergePageViewModel from GetCartMergeOptionsResult.
-   */
+  /** Creates a CartMergePageViewModel from GetCartMergeOptionsResult. */
   public static CartMergePageViewModel fromResult(
       final GetCartMergeOptionsResult result,
       final String anonymousUserId,
@@ -29,23 +26,18 @@ public record CartMergePageViewModel(
         CartSummaryViewModel.fromSummary(result.anonymousCart()),
         CartSummaryViewModel.fromSummary(result.accountCart()),
         anonymousUserId,
-        returnUrl
-    );
+        returnUrl);
   }
 
-  /**
-   * Cart summary for display.
-   */
+  /** Cart summary for display. */
   public record CartSummaryViewModel(
       String cartId,
       int itemCount,
       int totalQuantity,
       BigDecimal totalAmount,
       String currencyCode,
-      List<CartItemViewModel> items
-  ) {
-    static CartSummaryViewModel fromSummary(
-        final GetCartMergeOptionsResult.CartSummary summary) {
+      List<CartItemViewModel> items) {
+    static CartSummaryViewModel fromSummary(final GetCartMergeOptionsResult.CartSummary summary) {
       if (summary == null) {
         return null;
       }
@@ -55,34 +47,26 @@ public record CartMergePageViewModel(
           summary.totalQuantity(),
           summary.totalAmount(),
           summary.totalCurrency(),
-          summary.items().stream()
-              .map(CartItemViewModel::fromItemSummary)
-              .toList()
-      );
+          summary.items().stream().map(CartItemViewModel::fromItemSummary).toList());
     }
   }
 
-  /**
-   * Cart item for display.
-   */
+  /** Cart item for display. */
   public record CartItemViewModel(
       String productId,
       String productName,
       String imageUrl,
       int quantity,
       BigDecimal unitPrice,
-      String currencyCode
-  ) {
-    static CartItemViewModel fromItemSummary(
-        final GetCartMergeOptionsResult.CartItemSummary item) {
+      String currencyCode) {
+    static CartItemViewModel fromItemSummary(final GetCartMergeOptionsResult.CartItemSummary item) {
       return new CartItemViewModel(
           item.productId(),
           item.productName(),
           item.imageUrl(),
           item.quantity(),
           item.unitPriceAmount(),
-          item.unitPriceCurrency()
-      );
+          item.unitPriceCurrency());
     }
   }
 }

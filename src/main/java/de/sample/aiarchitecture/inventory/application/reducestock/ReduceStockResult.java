@@ -10,11 +10,7 @@ package de.sample.aiarchitecture.inventory.application.reducestock;
  * @param errorMessage error message if reduction failed (null if successful)
  */
 public record ReduceStockResult(
-    String productId,
-    int previousStock,
-    int newStock,
-    boolean success,
-    String errorMessage) {
+    String productId, int previousStock, int newStock, boolean success, String errorMessage) {
 
   public static ReduceStockResult success(String productId, int previousStock, int newStock) {
     return new ReduceStockResult(productId, previousStock, newStock, true, null);

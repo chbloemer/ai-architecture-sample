@@ -7,9 +7,7 @@ package de.sample.aiarchitecture.checkout.application.startcheckout;
  */
 public record StartCheckoutCommand(String cartId) {
 
-  /**
-   * Compact constructor with validation.
-   */
+  /** Compact constructor with validation. */
   public StartCheckoutCommand {
     if (cartId == null || cartId.isBlank()) {
       throw new IllegalArgumentException("Cart ID cannot be null or blank");

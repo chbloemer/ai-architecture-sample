@@ -3,8 +3,8 @@ package de.sample.aiarchitecture.cart.application.shared;
 import de.sample.aiarchitecture.cart.domain.model.CartId;
 import de.sample.aiarchitecture.cart.domain.model.CustomerId;
 import de.sample.aiarchitecture.cart.domain.model.ShoppingCart;
-import de.sample.aiarchitecture.sharedkernel.domain.model.PagingRequest;
 import de.sample.aiarchitecture.sharedkernel.domain.model.PageResult;
+import de.sample.aiarchitecture.sharedkernel.domain.model.PagingRequest;
 import de.sample.aiarchitecture.sharedkernel.domain.specification.CompositeSpecification;
 import de.sample.aiarchitecture.sharedkernel.marker.port.out.Repository;
 import java.util.List;
@@ -17,6 +17,7 @@ import java.util.Optional;
  * Implementation resides in the secondary adapter layer.
  *
  * <p>Extends the base {@link Repository} interface which provides common methods:
+ *
  * <ul>
  *   <li>{@code findById(CartId)} - inherited from base interface
  *   <li>{@code save(ShoppingCart)} - inherited from base interface
@@ -57,13 +58,14 @@ public interface ShoppingCartRepository extends Repository<ShoppingCart, CartId>
    * <p>Default implementation falls back to in-memory filtering and manual paging, so secondary
    * adapters can opt-in to DB pushdown progressively.
    */
-  default PageResult<ShoppingCart> findBy(CompositeSpecification<ShoppingCart> specification, PagingRequest pageQuery) {
-    final List<ShoppingCart> filtered = findAll().stream()
-        .filter(specification::isSatisfiedBy)
-        .toList();
+  default PageResult<ShoppingCart> findBy(
+      CompositeSpecification<ShoppingCart> specification, PagingRequest pageQuery) {
+    final List<ShoppingCart> filtered =
+        findAll().stream().filter(specification::isSatisfiedBy).toList();
     final int start = (int) pageQuery.offset();
     final int end = Math.min(start + pageQuery.pageSize(), filtered.size());
-    final List<ShoppingCart> content = start >= filtered.size() ? List.of() : filtered.subList(start, end);
+    final List<ShoppingCart> content =
+        start >= filtered.size() ? List.of() : filtered.subList(start, end);
     return new PageResult<>(content, filtered.size(), pageQuery.pageNumber(), pageQuery.pageSize());
   }
 }

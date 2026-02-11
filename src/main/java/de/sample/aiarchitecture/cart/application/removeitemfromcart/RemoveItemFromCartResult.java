@@ -17,8 +17,7 @@ public record RemoveItemFromCartResult(
     String customerId,
     List<CartItemSummary> items,
     BigDecimal totalAmount,
-    String totalCurrency
-) {
+    String totalCurrency) {
 
   /**
    * Summary of a cart item.
@@ -34,6 +33,5 @@ public record RemoveItemFromCartResult(
       String productId,
       int quantity,
       BigDecimal unitPriceAmount,
-      String unitPriceCurrency
-  ) {}
+      String unitPriceCurrency) {}
 }

@@ -8,11 +8,12 @@ import org.springframework.stereotype.Component;
 /**
  * Spring Security implementation of IdentityProvider.
  *
- * <p>This component extracts the current user's Identity from the Spring Security context.
- * The Identity is placed in the security context by the {@link
+ * <p>This component extracts the current user's Identity from the Spring Security context. The
+ * Identity is placed in the security context by the {@link
  * de.sample.aiarchitecture.infrastructure.security.jwt.JwtAuthenticationFilter}.
  *
  * <p><b>Usage:</b>
+ *
  * <pre>{@code
  * @Autowired
  * private IdentityProvider identityProvider;
@@ -24,9 +25,8 @@ import org.springframework.stereotype.Component;
  * }
  * }</pre>
  *
- * <p><b>Thread Safety:</b>
- * This implementation is thread-safe because Spring Security uses thread-local
- * storage for the security context.
+ * <p><b>Thread Safety:</b> This implementation is thread-safe because Spring Security uses
+ * thread-local storage for the security context.
  */
 @Component
 public class SpringSecurityIdentityProvider implements IdentityProvider {

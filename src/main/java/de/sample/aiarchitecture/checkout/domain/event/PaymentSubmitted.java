@@ -9,8 +9,8 @@ import java.util.UUID;
 /**
  * Domain Event indicating that payment method was submitted for a checkout session.
  *
- * <p>This event is raised when a customer completes the payment step,
- * selecting their preferred payment method.
+ * <p>This event is raised when a customer completes the payment step, selecting their preferred
+ * payment method.
  */
 public record PaymentSubmitted(
     UUID eventId,

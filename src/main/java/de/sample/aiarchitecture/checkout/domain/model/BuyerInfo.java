@@ -7,11 +7,7 @@ import de.sample.aiarchitecture.sharedkernel.marker.tactical.Value;
  *
  * <p>Contains the essential contact details needed to process an order.
  */
-public record BuyerInfo(
-    String email,
-    String firstName,
-    String lastName,
-    String phone)
+public record BuyerInfo(String email, String firstName, String lastName, String phone)
     implements Value {
 
   public BuyerInfo {

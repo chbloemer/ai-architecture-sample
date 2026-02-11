@@ -9,8 +9,8 @@ import java.util.UUID;
 /**
  * Domain Event indicating that a checkout session expired due to inactivity.
  *
- * <p>This event is raised when a checkout session times out without
- * being completed or explicitly abandoned.
+ * <p>This event is raised when a checkout session times out without being completed or explicitly
+ * abandoned.
  */
 public record CheckoutExpired(
     UUID eventId,

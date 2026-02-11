@@ -9,8 +9,8 @@ import org.jspecify.annotations.Nullable;
 /**
  * ViewModel for the shopping cart page.
  *
- * <p>Contains all data needed to render the cart view including line items,
- * totals, price change alerts, and checkout eligibility.
+ * <p>Contains all data needed to render the cart view including line items, totals, price change
+ * alerts, and checkout eligibility.
  */
 public record CartPageViewModel(
     String cartId,
@@ -20,20 +20,13 @@ public record CartPageViewModel(
     int itemCount,
     int totalQuantity,
     boolean hasAnyPriceChanges,
-    boolean canCheckout
-) {
+    boolean canCheckout) {
 
-  /**
-   * Creates a CartPageViewModel from an EnrichedCart.
-   */
+  /** Creates a CartPageViewModel from an EnrichedCart. */
   public static CartPageViewModel fromEnrichedCart(final EnrichedCart cart) {
-    final var lineItems = cart.items().stream()
-        .map(LineItemViewModel::fromEnrichedItem)
-        .toList();
+    final var lineItems = cart.items().stream().map(LineItemViewModel::fromEnrichedItem).toList();
 
-    final int totalQuantity = cart.items().stream()
-        .mapToInt(item -> item.quantity().value())
-        .sum();
+    final int totalQuantity = cart.items().stream().mapToInt(item -> item.quantity().value()).sum();
 
     return new CartPageViewModel(
         cart.cartId().value(),
@@ -43,20 +36,15 @@ public record CartPageViewModel(
         cart.items().size(),
         totalQuantity,
         cart.hasAnyPriceChanges(),
-        cart.isValidForCheckout()
-    );
+        cart.isValidForCheckout());
   }
 
-  /**
-   * Checks if the cart is empty.
-   */
+  /** Checks if the cart is empty. */
   public boolean isEmpty() {
     return lineItems.isEmpty();
   }
 
-  /**
-   * Line item for cart display.
-   */
+  /** Line item for cart display. */
   public record LineItemViewModel(
       String itemId,
       String productId,
@@ -69,13 +57,11 @@ public record CartPageViewModel(
       boolean hasPriceChanged,
       @Nullable PriceChangeViewModel priceChange,
       boolean hasSufficientStock,
-      boolean isAvailable
-  ) {
+      boolean isAvailable) {
     static LineItemViewModel fromEnrichedItem(final EnrichedCartItem item) {
       final var currentPrice = item.currentArticle().currentPrice();
-      final var priceChange = item.hasPriceChanged()
-          ? PriceChangeViewModel.fromEnrichedItem(item)
-          : null;
+      final var priceChange =
+          item.hasPriceChanged() ? PriceChangeViewModel.fromEnrichedItem(item) : null;
 
       return new LineItemViewModel(
           item.cartItemId().value(),
@@ -89,21 +75,17 @@ public record CartPageViewModel(
           item.hasPriceChanged(),
           priceChange,
           item.hasSufficientStock(),
-          item.currentArticle().isAvailable()
-      );
+          item.currentArticle().isAvailable());
     }
   }
 
-  /**
-   * Price change information for display.
-   */
+  /** Price change information for display. */
   public record PriceChangeViewModel(
       BigDecimal originalPrice,
       BigDecimal currentPrice,
       BigDecimal difference,
       boolean increased,
-      String currencyCode
-  ) {
+      String currencyCode) {
     static PriceChangeViewModel fromEnrichedItem(final EnrichedCartItem item) {
       final var original = item.priceAtAddition().value();
       final var current = item.currentArticle().currentPrice();
@@ -114,31 +96,23 @@ public record CartPageViewModel(
           current.amount(),
           diff.amount(),
           current.isGreaterThan(original),
-          current.currency().getCurrencyCode()
-      );
+          current.currency().getCurrencyCode());
     }
   }
 
-  /**
-   * Cart totals for display.
-   */
+  /** Cart totals for display. */
   public record TotalsViewModel(
       BigDecimal currentSubtotal,
       BigDecimal originalSubtotal,
       BigDecimal totalDifference,
-      String currencyCode
-  ) {
+      String currencyCode) {
     static TotalsViewModel fromEnrichedCart(final EnrichedCart cart) {
       final var current = cart.calculateCurrentSubtotal();
       final var original = cart.calculateOriginalSubtotal();
       final var diff = cart.totalPriceDifference();
 
       return new TotalsViewModel(
-          current.amount(),
-          original.amount(),
-          diff.amount(),
-          current.currency().getCurrencyCode()
-      );
+          current.amount(), original.amount(), diff.amount(), current.currency().getCurrencyCode());
     }
   }
 }

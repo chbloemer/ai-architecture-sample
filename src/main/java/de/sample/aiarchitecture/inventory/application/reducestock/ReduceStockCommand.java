@@ -6,9 +6,7 @@ package de.sample.aiarchitecture.inventory.application.reducestock;
  * @param productId the product ID (UUID string)
  * @param quantity the quantity to reduce
  */
-public record ReduceStockCommand(
-    String productId,
-    int quantity) {
+public record ReduceStockCommand(String productId, int quantity) {
 
   public ReduceStockCommand {
     if (productId == null || productId.isBlank()) {

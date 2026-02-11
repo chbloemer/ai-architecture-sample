@@ -6,6 +6,7 @@ package de.sample.aiarchitecture.product.application.getallproducts;
  * <p>Currently empty but can be extended with filters, pagination, or sorting parameters.
  *
  * <p><b>Example Extensions:</b>
+ *
  * <pre>{@code
  * public record GetAllProductsQuery(
  *     String categoryFilter,

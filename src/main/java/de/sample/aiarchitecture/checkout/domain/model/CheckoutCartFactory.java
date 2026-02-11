@@ -9,14 +9,15 @@ import java.util.Map;
 /**
  * Factory for assembling CheckoutCart instances from checkout line items and article data.
  *
- * <p>Encapsulates the complex assembly of enriched line items by combining checkout line items
- * with their corresponding article data to create a fully hydrated CheckoutCart.
+ * <p>Encapsulates the complex assembly of enriched line items by combining checkout line items with
+ * their corresponding article data to create a fully hydrated CheckoutCart.
  *
  * <p><b>Responsibilities:</b>
+ *
  * <ul>
- *   <li>Validates that all line items have corresponding article data</li>
- *   <li>Creates EnrichedCheckoutLineItem instances by pairing line items with articles</li>
- *   <li>Assembles the final CheckoutCart with all enriched items</li>
+ *   <li>Validates that all line items have corresponding article data
+ *   <li>Creates EnrichedCheckoutLineItem instances by pairing line items with articles
+ *   <li>Assembles the final CheckoutCart with all enriched items
  * </ul>
  */
 public final class CheckoutCartFactory implements Factory {
@@ -39,7 +40,8 @@ public final class CheckoutCartFactory implements Factory {
 
     validateArticleDataComplete(lineItems, articleData);
 
-    final List<EnrichedCheckoutLineItem> enrichedItems = createEnrichedItems(lineItems, articleData);
+    final List<EnrichedCheckoutLineItem> enrichedItems =
+        createEnrichedItems(lineItems, articleData);
 
     return CheckoutCart.of(cartId, customerId, enrichedItems);
   }
@@ -47,8 +49,8 @@ public final class CheckoutCartFactory implements Factory {
   /**
    * Creates a CheckoutCart from an existing CheckoutSession and article data.
    *
-   * <p>This is a convenience method for assembling a CheckoutCart directly from a checkout
-   * session, using its cart ID, customer ID, and line items.
+   * <p>This is a convenience method for assembling a CheckoutCart directly from a checkout session,
+   * using its cart ID, customer ID, and line items.
    *
    * @param session the checkout session
    * @param articleData map of product IDs to their corresponding article data
@@ -56,19 +58,13 @@ public final class CheckoutCartFactory implements Factory {
    * @throws IllegalArgumentException if article data is missing for any line item
    */
   public CheckoutCart fromSession(
-      final CheckoutSession session,
-      final Map<ProductId, CheckoutArticle> articleData) {
+      final CheckoutSession session, final Map<ProductId, CheckoutArticle> articleData) {
 
-    return create(
-        session.cartId(),
-        session.customerId(),
-        session.lineItems(),
-        articleData);
+    return create(session.cartId(), session.customerId(), session.lineItems(), articleData);
   }
 
   private void validateArticleDataComplete(
-      final List<CheckoutLineItem> lineItems,
-      final Map<ProductId, CheckoutArticle> articleData) {
+      final List<CheckoutLineItem> lineItems, final Map<ProductId, CheckoutArticle> articleData) {
 
     final List<ProductId> missingArticles = new ArrayList<>();
 
@@ -85,8 +81,7 @@ public final class CheckoutCartFactory implements Factory {
   }
 
   private List<EnrichedCheckoutLineItem> createEnrichedItems(
-      final List<CheckoutLineItem> lineItems,
-      final Map<ProductId, CheckoutArticle> articleData) {
+      final List<CheckoutLineItem> lineItems, final Map<ProductId, CheckoutArticle> articleData) {
 
     final List<EnrichedCheckoutLineItem> enrichedItems = new ArrayList<>();
 

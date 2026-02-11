@@ -24,17 +24,17 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 /**
  * MVC Controller for the payment method page in checkout.
  *
- * <p>This controller handles the payment step of checkout where the customer
- * selects their payment method.
+ * <p>This controller handles the payment step of checkout where the customer selects their payment
+ * method.
  *
- * <p>The active checkout session is identified via JWT identity, removing the need
- * for session IDs in URLs.
+ * <p>The active checkout session is identified via JWT identity, removing the need for session IDs
+ * in URLs.
  *
  * <p><b>Clean Architecture:</b> This controller depends on use case interfaces (input ports)
  * instead of application services, following the Dependency Inversion Principle.
  *
- * <p><b>Naming Convention:</b> MVC controllers use {@code @Controller} annotation and
- * end with "Controller" suffix.
+ * <p><b>Naming Convention:</b> MVC controllers use {@code @Controller} annotation and end with
+ * "Controller" suffix.
  */
 @Controller
 @RequestMapping("/checkout")
@@ -62,18 +62,16 @@ public class PaymentPageController {
   /**
    * Displays the payment method selection form.
    *
-   * <p>This endpoint retrieves the active checkout session for the current user
-   * (via JWT identity) and available payment providers, then displays the payment form.
-   * If no active session is found, redirects to cart with an error.
+   * <p>This endpoint retrieves the active checkout session for the current user (via JWT identity)
+   * and available payment providers, then displays the payment form. If no active session is found,
+   * redirects to cart with an error.
    *
    * @param model the Spring MVC model
    * @param redirectAttributes for passing flash messages on error
    * @return the payment.pug template or redirect on error
    */
   @GetMapping("/payment")
-  public String showPaymentForm(
-      final Model model,
-      final RedirectAttributes redirectAttributes) {
+  public String showPaymentForm(final Model model, final RedirectAttributes redirectAttributes) {
 
     // Get customer ID from JWT identity
     final IdentityProvider.Identity identity = identityProvider.getCurrentIdentity();
@@ -91,8 +89,7 @@ public class PaymentPageController {
 
     // Get full session details
     final GetCheckoutSessionResult result =
-        getCheckoutSessionInputPort.execute(
-            GetCheckoutSessionQuery.of(activeSession.sessionId()));
+        getCheckoutSessionInputPort.execute(GetCheckoutSessionQuery.of(activeSession.sessionId()));
 
     if (!result.found()) {
       redirectAttributes.addFlashAttribute("error", "Checkout session not found");
@@ -115,8 +112,8 @@ public class PaymentPageController {
   /**
    * Submits payment method selection and advances to review step.
    *
-   * <p>This endpoint processes the payment method selection and redirects
-   * to the review step on success.
+   * <p>This endpoint processes the payment method selection and redirects to the review step on
+   * success.
    *
    * @param providerId the selected payment provider ID
    * @param providerReference optional provider-specific reference

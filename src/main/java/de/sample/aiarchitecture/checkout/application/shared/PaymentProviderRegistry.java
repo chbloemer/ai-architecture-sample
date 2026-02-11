@@ -8,12 +8,12 @@ import java.util.Optional;
 /**
  * Output port for managing payment provider registration and lookup.
  *
- * <p>Acts as a registry for available payment providers, allowing the checkout system
- * to discover and select appropriate providers at runtime. This supports a plugin
- * architecture where new payment providers can be added without modifying core checkout logic.
+ * <p>Acts as a registry for available payment providers, allowing the checkout system to discover
+ * and select appropriate providers at runtime. This supports a plugin architecture where new
+ * payment providers can be added without modifying core checkout logic.
  *
- * <p>Implementations of this interface manage the collection of registered
- * {@link PaymentProvider} instances and provide methods to query them.
+ * <p>Implementations of this interface manage the collection of registered {@link PaymentProvider}
+ * instances and provide methods to query them.
  */
 public interface PaymentProviderRegistry extends OutputPort {
 
@@ -30,18 +30,16 @@ public interface PaymentProviderRegistry extends OutputPort {
    *
    * @return list of all registered providers (never null, may be empty)
    */
-  
   List<PaymentProvider> findAll();
 
   /**
    * Returns all payment providers that are currently available for processing.
    *
-   * <p>This filters out providers that are temporarily unavailable (e.g., due to
-   * maintenance or configuration issues).
+   * <p>This filters out providers that are temporarily unavailable (e.g., due to maintenance or
+   * configuration issues).
    *
    * @return list of available providers (never null, may be empty)
    */
-  
   List<PaymentProvider> findAvailable();
 
   /**

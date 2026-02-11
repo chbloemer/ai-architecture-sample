@@ -25,8 +25,7 @@ public record MergeCartsResult(
     CartMergeStrategy strategyApplied,
     int itemsFromAnonymous,
     int itemsFromAccount,
-    boolean anonymousCartDeleted
-) {
+    boolean anonymousCartDeleted) {
 
   /**
    * Summary of a cart item.
@@ -42,6 +41,5 @@ public record MergeCartsResult(
       String productId,
       int quantity,
       BigDecimal unitPriceAmount,
-      String unitPriceCurrency
-  ) {}
+      String unitPriceCurrency) {}
 }

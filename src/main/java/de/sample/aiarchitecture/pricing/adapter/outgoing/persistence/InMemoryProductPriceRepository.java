@@ -21,9 +21,10 @@ import org.springframework.stereotype.Repository;
  * ConcurrentHashMap. A secondary index on ProductId enables efficient lookups by product.
  *
  * <p><b>Initialization:</b> Pricing data is initialized via two mechanisms:
+ *
  * <ul>
- *   <li>ProductCreatedEventConsumer - creates prices when products are created</li>
- *   <li>SampleDataInitializer - triggers ProductCreated events with initial prices</li>
+ *   <li>ProductCreatedEventConsumer - creates prices when products are created
+ *   <li>SampleDataInitializer - triggers ProductCreated events with initial prices
  * </ul>
  *
  * <p>In a production system, this would be replaced with a database implementation.
@@ -34,13 +35,13 @@ import org.springframework.stereotype.Repository;
 @AsyncInitialize(priority = 60, description = "Initialize pricing data repository")
 public class InMemoryProductPriceRepository implements ProductPriceRepository {
 
-  private static final Logger logger = LoggerFactory.getLogger(InMemoryProductPriceRepository.class);
+  private static final Logger logger =
+      LoggerFactory.getLogger(InMemoryProductPriceRepository.class);
 
   private final ConcurrentHashMap<PriceId, ProductPrice> prices = new ConcurrentHashMap<>();
   private final ConcurrentHashMap<ProductId, PriceId> productIdIndex = new ConcurrentHashMap<>();
 
-  public InMemoryProductPriceRepository() {
-  }
+  public InMemoryProductPriceRepository() {}
 
   @Override
   public Optional<ProductPrice> findById(final PriceId id) {
@@ -84,8 +85,8 @@ public class InMemoryProductPriceRepository implements ProductPriceRepository {
   /**
    * Asynchronous initialization method triggered by {@link AsyncInitialize}.
    *
-   * <p>This method performs cache warmup and logs initialization status. Actual pricing
-   * data is populated via ProductCreatedEventConsumer when products are created.
+   * <p>This method performs cache warmup and logs initialization status. Actual pricing data is
+   * populated via ProductCreatedEventConsumer when products are created.
    *
    * @see AsyncInitialize
    * @see de.sample.aiarchitecture.pricing.adapter.incoming.event.ProductCreatedEventConsumer

@@ -5,8 +5,8 @@ import de.sample.aiarchitecture.cart.domain.model.CartId;
 import de.sample.aiarchitecture.cart.domain.model.CartItem;
 import de.sample.aiarchitecture.cart.domain.model.CustomerId;
 import de.sample.aiarchitecture.cart.domain.model.ShoppingCart;
-import de.sample.aiarchitecture.sharedkernel.marker.port.out.DomainEventPublisher;
 import de.sample.aiarchitecture.sharedkernel.domain.model.Money;
+import de.sample.aiarchitecture.sharedkernel.marker.port.out.DomainEventPublisher;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.stereotype.Service;
@@ -16,11 +16,12 @@ import org.springframework.transaction.annotation.Transactional;
  * Use case for recovering cart on login.
  *
  * <p>When a registered user logs in from a new device/browser:
+ *
  * <ol>
- *   <li>Find cart for registered user's UserId</li>
- *   <li>Find cart for anonymous user's UserId (if different)</li>
- *   <li>If both exist, merge items from anonymous cart into registered cart</li>
- *   <li>Delete the anonymous cart after merge</li>
+ *   <li>Find cart for registered user's UserId
+ *   <li>Find cart for anonymous user's UserId (if different)
+ *   <li>If both exist, merge items from anonymous cart into registered cart
+ *   <li>Delete the anonymous cart after merge
  * </ol>
  *
  * <p><b>Hexagonal Architecture:</b> This class implements the {@link RecoverCartOnLoginInputPort}
@@ -60,12 +61,15 @@ public class RecoverCartOnLoginUseCase implements RecoverCartOnLoginInputPort {
     }
 
     // Find or create registered user's active cart
-    final ShoppingCart registeredCart = shoppingCartRepository
-        .findActiveCartByCustomerId(registeredCustomerId)
-        .orElseGet(() -> {
-          final ShoppingCart newCart = new ShoppingCart(CartId.generate(), registeredCustomerId);
-          return shoppingCartRepository.save(newCart);
-        });
+    final ShoppingCart registeredCart =
+        shoppingCartRepository
+            .findActiveCartByCustomerId(registeredCustomerId)
+            .orElseGet(
+                () -> {
+                  final ShoppingCart newCart =
+                      new ShoppingCart(CartId.generate(), registeredCustomerId);
+                  return shoppingCartRepository.save(newCart);
+                });
 
     // Merge items from anonymous cart into registered cart
     final ShoppingCart anonCart = anonymousCart.get();
@@ -86,15 +90,17 @@ public class RecoverCartOnLoginUseCase implements RecoverCartOnLoginInputPort {
     shoppingCartRepository.deleteById(anonCart.id());
 
     // Map to output
-    final List<RecoverCartOnLoginResult.CartItemSummary> items = registeredCart.items().stream()
-        .map(item -> new RecoverCartOnLoginResult.CartItemSummary(
-            item.id().value(),
-            item.productId().value(),
-            item.quantity().value(),
-            item.priceAtAddition().value().amount(),
-            item.priceAtAddition().value().currency().getCurrencyCode()
-        ))
-        .toList();
+    final List<RecoverCartOnLoginResult.CartItemSummary> items =
+        registeredCart.items().stream()
+            .map(
+                item ->
+                    new RecoverCartOnLoginResult.CartItemSummary(
+                        item.id().value(),
+                        item.productId().value(),
+                        item.quantity().value(),
+                        item.priceAtAddition().value().amount(),
+                        item.priceAtAddition().value().currency().getCurrencyCode()))
+            .toList();
 
     final Money total = registeredCart.calculateTotal();
 
@@ -105,7 +111,6 @@ public class RecoverCartOnLoginUseCase implements RecoverCartOnLoginInputPort {
         total.amount(),
         total.currency().getCurrencyCode(),
         itemsMerged,
-        true
-    );
+        true);
   }
 }

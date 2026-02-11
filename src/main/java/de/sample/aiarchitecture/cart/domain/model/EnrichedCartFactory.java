@@ -9,14 +9,15 @@ import java.util.Map;
 /**
  * Factory for assembling EnrichedCart instances from ShoppingCart and article data.
  *
- * <p>Encapsulates the complex assembly of enriched cart items by combining cart items
- * with their corresponding article data to create a fully hydrated EnrichedCart.
+ * <p>Encapsulates the complex assembly of enriched cart items by combining cart items with their
+ * corresponding article data to create a fully hydrated EnrichedCart.
  *
  * <p><b>Responsibilities:</b>
+ *
  * <ul>
- *   <li>Validates that all cart items have corresponding article data</li>
- *   <li>Creates EnrichedCartItem instances by pairing cart items with articles</li>
- *   <li>Assembles the final EnrichedCart with all enriched items</li>
+ *   <li>Validates that all cart items have corresponding article data
+ *   <li>Creates EnrichedCartItem instances by pairing cart items with articles
+ *   <li>Assembles the final EnrichedCart with all enriched items
  * </ul>
  */
 public final class EnrichedCartFactory implements Factory {
@@ -30,8 +31,7 @@ public final class EnrichedCartFactory implements Factory {
    * @throws IllegalArgumentException if article data is missing for any cart item
    */
   public EnrichedCart create(
-      final ShoppingCart cart,
-      final Map<ProductId, CartArticle> articleData) {
+      final ShoppingCart cart, final Map<ProductId, CartArticle> articleData) {
 
     validateArticleDataComplete(cart.items(), articleData);
 
@@ -41,8 +41,7 @@ public final class EnrichedCartFactory implements Factory {
   }
 
   private void validateArticleDataComplete(
-      final List<CartItem> items,
-      final Map<ProductId, CartArticle> articleData) {
+      final List<CartItem> items, final Map<ProductId, CartArticle> articleData) {
 
     final List<ProductId> missingArticles = new ArrayList<>();
 
@@ -59,8 +58,7 @@ public final class EnrichedCartFactory implements Factory {
   }
 
   private List<EnrichedCartItem> createEnrichedItems(
-      final List<CartItem> items,
-      final Map<ProductId, CartArticle> articleData) {
+      final List<CartItem> items, final Map<ProductId, CartArticle> articleData) {
 
     final List<EnrichedCartItem> enrichedItems = new ArrayList<>();
 

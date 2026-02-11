@@ -7,9 +7,7 @@ import de.sample.aiarchitecture.sharedkernel.marker.tactical.DomainEvent;
 import java.time.Instant;
 import java.util.UUID;
 
-/**
- * Domain Event indicating that previously reserved stock was released.
- */
+/** Domain Event indicating that previously reserved stock was released. */
 public record StockReleased(
     UUID eventId,
     StockLevelId stockLevelId,

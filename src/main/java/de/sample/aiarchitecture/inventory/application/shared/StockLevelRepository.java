@@ -11,10 +11,11 @@ import java.util.Optional;
 /**
  * Repository interface for StockLevel aggregate.
  *
- * <p>Provides collection-like access to StockLevel aggregates using domain language.
- * Implementation resides in the secondary adapter layer.
+ * <p>Provides collection-like access to StockLevel aggregates using domain language. Implementation
+ * resides in the secondary adapter layer.
  *
  * <p>Extends the base {@link Repository} interface which provides common methods:
+ *
  * <ul>
  *   <li>{@code findById(StockLevelId)} - inherited from base interface
  *   <li>{@code save(StockLevel)} - inherited from base interface

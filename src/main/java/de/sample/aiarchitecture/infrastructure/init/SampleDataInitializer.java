@@ -6,9 +6,9 @@ import de.sample.aiarchitecture.pricing.application.shared.ProductPriceRepositor
 import de.sample.aiarchitecture.pricing.domain.model.ProductPrice;
 import de.sample.aiarchitecture.product.application.shared.ProductRepository;
 import de.sample.aiarchitecture.product.domain.model.Category;
+import de.sample.aiarchitecture.product.domain.model.ImageUrl;
 import de.sample.aiarchitecture.product.domain.model.Product;
 import de.sample.aiarchitecture.product.domain.model.ProductDescription;
-import de.sample.aiarchitecture.product.domain.model.ImageUrl;
 import de.sample.aiarchitecture.product.domain.model.ProductFactory;
 import de.sample.aiarchitecture.product.domain.model.ProductName;
 import de.sample.aiarchitecture.product.domain.model.SKU;
@@ -19,13 +19,13 @@ import org.springframework.stereotype.Component;
 /**
  * Initializes sample product data for demonstration purposes.
  *
- * <p>This component loads sample products into repositories on application startup.
- * It directly creates entries in all related bounded contexts since @PostConstruct
- * does not run within a transaction (so TransactionalEventListener won't fire).
+ * <p>This component loads sample products into repositories on application startup. It directly
+ * creates entries in all related bounded contexts since @PostConstruct does not run within a
+ * transaction (so TransactionalEventListener won't fire).
  *
- * <p><b>Infrastructure Layer:</b> This component lives in the infrastructure layer because
- * it needs to coordinate across multiple bounded contexts (Product, Pricing, Inventory) for
- * sample data initialization. This is acceptable for demo/test data setup.
+ * <p><b>Infrastructure Layer:</b> This component lives in the infrastructure layer because it needs
+ * to coordinate across multiple bounded contexts (Product, Pricing, Inventory) for sample data
+ * initialization. This is acceptable for demo/test data setup.
  */
 @Component
 public class SampleDataInitializer {
@@ -156,7 +156,8 @@ public class SampleDataInitializer {
         Category.sports(),
         18);
 
-    System.out.println("Sample data initialized: " + productRepository.findAll().size() + " products loaded");
+    System.out.println(
+        "Sample data initialized: " + productRepository.findAll().size() + " products loaded");
   }
 
   private void createAndSaveProduct(

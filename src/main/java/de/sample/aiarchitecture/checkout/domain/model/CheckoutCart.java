@@ -8,15 +8,12 @@ import java.util.List;
 /**
  * Value Object representing a 'smart shopping cart' that contains enriched line items.
  *
- * <p>Provides business methods for validation and calculations, displaying running totals,
- * current prices, and alerts for price changes. This is like a shopping cart with a display
- * that shows all relevant checkout information.
+ * <p>Provides business methods for validation and calculations, displaying running totals, current
+ * prices, and alerts for price changes. This is like a shopping cart with a display that shows all
+ * relevant checkout information.
  */
 public record CheckoutCart(
-    CartId cartId,
-    CustomerId customerId,
-    List<EnrichedCheckoutLineItem> items)
-    implements Value {
+    CartId cartId, CustomerId customerId, List<EnrichedCheckoutLineItem> items) implements Value {
 
   private static final Currency DEFAULT_CURRENCY = Currency.getInstance("EUR");
 
@@ -102,9 +99,7 @@ public record CheckoutCart(
    * @return list of items with price changes
    */
   public List<EnrichedCheckoutLineItem> itemsWithPriceChanges() {
-    return items.stream()
-        .filter(EnrichedCheckoutLineItem::hasPriceChanged)
-        .toList();
+    return items.stream().filter(EnrichedCheckoutLineItem::hasPriceChanged).toList();
   }
 
   /**
@@ -115,7 +110,8 @@ public record CheckoutCart(
    * @return true if all items can proceed to checkout
    */
   public boolean isValidForCheckout() {
-    return !items.isEmpty() && items.stream().allMatch(EnrichedCheckoutLineItem::isValidForCheckout);
+    return !items.isEmpty()
+        && items.stream().allMatch(EnrichedCheckoutLineItem::isValidForCheckout);
   }
 
   /**
@@ -124,9 +120,7 @@ public record CheckoutCart(
    * @return list of items that cannot proceed to checkout
    */
   public List<EnrichedCheckoutLineItem> invalidItems() {
-    return items.stream()
-        .filter(item -> !item.isValidForCheckout())
-        .toList();
+    return items.stream().filter(item -> !item.isValidForCheckout()).toList();
   }
 
   /**
@@ -135,9 +129,7 @@ public record CheckoutCart(
    * @return list of items where the product is not available
    */
   public List<EnrichedCheckoutLineItem> unavailableItems() {
-    return items.stream()
-        .filter(item -> !item.currentArticle().isAvailable())
-        .toList();
+    return items.stream().filter(item -> !item.currentArticle().isAvailable()).toList();
   }
 
   /**
@@ -146,9 +138,7 @@ public record CheckoutCart(
    * @return list of items where stock is less than requested quantity
    */
   public List<EnrichedCheckoutLineItem> itemsWithInsufficientStock() {
-    return items.stream()
-        .filter(item -> !item.hasSufficientStock())
-        .toList();
+    return items.stream().filter(item -> !item.hasSufficientStock()).toList();
   }
 
   /**
@@ -166,8 +156,6 @@ public record CheckoutCart(
    * @return the sum of all item quantities
    */
   public int totalQuantity() {
-    return items.stream()
-        .mapToInt(item -> item.lineItem().quantity())
-        .sum();
+    return items.stream().mapToInt(item -> item.lineItem().quantity()).sum();
   }
 }

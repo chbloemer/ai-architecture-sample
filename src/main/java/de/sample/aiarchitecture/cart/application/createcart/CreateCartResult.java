@@ -7,8 +7,4 @@ package de.sample.aiarchitecture.cart.application.createcart;
  * @param customerId the customer ID
  * @param status the cart status (always "ACTIVE" for new carts)
  */
-public record CreateCartResult(
-    String cartId,
-    String customerId,
-    String status
-) {}
+public record CreateCartResult(String cartId, String customerId, String status) {}

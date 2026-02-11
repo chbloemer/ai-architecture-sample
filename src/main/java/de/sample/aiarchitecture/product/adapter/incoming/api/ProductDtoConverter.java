@@ -8,12 +8,11 @@ import org.springframework.stereotype.Component;
 /**
  * Converter for transforming between use case models and DTOs.
  *
- * <p><b>Adapter Pattern:</b> This class belongs to the adapter layer and handles
- * the translation between application layer models (which wrap domain read models)
- * and REST API DTOs.
+ * <p><b>Adapter Pattern:</b> This class belongs to the adapter layer and handles the translation
+ * between application layer models (which wrap domain read models) and REST API DTOs.
  *
- * <p>Use cases return Results containing EnrichedProduct domain read models.
- * This converter maps those to flat DTOs suitable for JSON serialization.
+ * <p>Use cases return Results containing EnrichedProduct domain read models. This converter maps
+ * those to flat DTOs suitable for JSON serialization.
  */
 @Component
 public final class ProductDtoConverter {

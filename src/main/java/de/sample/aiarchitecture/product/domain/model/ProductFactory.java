@@ -1,27 +1,27 @@
 package de.sample.aiarchitecture.product.domain.model;
 
 import de.sample.aiarchitecture.product.domain.event.ProductCreated;
-import de.sample.aiarchitecture.sharedkernel.marker.tactical.Factory;
 import de.sample.aiarchitecture.sharedkernel.domain.model.Money;
 import de.sample.aiarchitecture.sharedkernel.domain.model.ProductId;
+import de.sample.aiarchitecture.sharedkernel.marker.tactical.Factory;
 
 /**
  * Factory for creating Product aggregates.
  *
- * <p>Encapsulates complex product creation logic and ensures all invariants
- * are satisfied from the moment of creation.
+ * <p>Encapsulates complex product creation logic and ensures all invariants are satisfied from the
+ * moment of creation.
  *
- * <p><b>Note:</b> Pricing is managed by the Pricing bounded context. The initial price
- * is included in the ProductCreated event for cross-context synchronization.
- * Stock/availability is managed by the Inventory bounded context.
+ * <p><b>Note:</b> Pricing is managed by the Pricing bounded context. The initial price is included
+ * in the ProductCreated event for cross-context synchronization. Stock/availability is managed by
+ * the Inventory bounded context.
  */
 public final class ProductFactory implements Factory {
 
   /**
    * Creates a new product with generated ID.
    *
-   * <p>Raises a {@link ProductCreated} domain event with the initial price for
-   * synchronization with the Pricing bounded context (and stock for Inventory context).
+   * <p>Raises a {@link ProductCreated} domain event with the initial price for synchronization with
+   * the Pricing bounded context (and stock for Inventory context).
    *
    * @param sku the SKU
    * @param name the product name
@@ -54,8 +54,8 @@ public final class ProductFactory implements Factory {
   /**
    * Creates a new product with specified ID.
    *
-   * <p>Note: This method does NOT raise a ProductCreated event. Use this for
-   * reconstituting products from persistence or for testing purposes only.
+   * <p>Note: This method does NOT raise a ProductCreated event. Use this for reconstituting
+   * products from persistence or for testing purposes only.
    *
    * @param id the product ID
    * @param sku the SKU
@@ -93,6 +93,13 @@ public final class ProductFactory implements Factory {
       final Money initialPrice,
       final int initialStock) {
 
-    return createProduct(sku, name, ProductDescription.empty(), category, ImageUrl.empty(), initialPrice, initialStock);
+    return createProduct(
+        sku,
+        name,
+        ProductDescription.empty(),
+        category,
+        ImageUrl.empty(),
+        initialPrice,
+        initialStock);
   }
 }

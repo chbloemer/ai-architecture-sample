@@ -18,5 +18,7 @@ public final class NotSpecification<T> implements CompositeSpecification<T> {
     return visitor.visit(this);
   }
 
-  public CompositeSpecification<T> inner() { return inner; }
+  public CompositeSpecification<T> inner() {
+    return inner;
+  }
 }

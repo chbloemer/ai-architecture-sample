@@ -4,8 +4,8 @@ import de.sample.aiarchitecture.sharedkernel.marker.tactical.Id;
 import de.sample.aiarchitecture.sharedkernel.marker.tactical.Value;
 
 /**
- * Value Object representing a Customer's unique identifier.
- * References a customer from the Customer bounded context by ID only.
+ * Value Object representing a Customer's unique identifier. References a customer from the Customer
+ * bounded context by ID only.
  */
 public record CustomerId(String value) implements Id, Value {
 

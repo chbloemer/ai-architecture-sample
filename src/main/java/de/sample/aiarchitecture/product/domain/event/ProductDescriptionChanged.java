@@ -6,9 +6,7 @@ import de.sample.aiarchitecture.sharedkernel.marker.tactical.DomainEvent;
 import java.time.Instant;
 import java.util.UUID;
 
-/**
- * Domain Event indicating that a product's description was changed.
- */
+/** Domain Event indicating that a product's description was changed. */
 public record ProductDescriptionChanged(
     UUID eventId,
     ProductId productId,

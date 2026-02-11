@@ -7,14 +7,15 @@ import de.sample.aiarchitecture.sharedkernel.marker.tactical.Value;
 /**
  * Enriched Domain Model representing a product with pricing and stock data.
  *
- * <p>This domain concept combines product state from the Product aggregate with
- * external data from the Pricing and Inventory contexts. It owns business logic
- * that requires cross-context data, such as purchase eligibility and stock checks.
+ * <p>This domain concept combines product state from the Product aggregate with external data from
+ * the Pricing and Inventory contexts. It owns business logic that requires cross-context data, such
+ * as purchase eligibility and stock checks.
  *
  * <p><b>Responsibility Split:</b>
+ *
  * <ul>
- *   <li>Product aggregate: owns identity and descriptive data (mutations)</li>
- *   <li>EnrichedProduct: owns cross-context business rules (evaluation)</li>
+ *   <li>Product aggregate: owns identity and descriptive data (mutations)
+ *   <li>EnrichedProduct: owns cross-context business rules (evaluation)
  * </ul>
  *
  * @param productId the product identifier
@@ -36,8 +37,8 @@ public record EnrichedProduct(
     String imageUrl,
     Money currentPrice,
     int stockQuantity,
-    boolean isAvailable
-) implements Value {
+    boolean isAvailable)
+    implements Value {
 
   public EnrichedProduct {
     if (productId == null) {
@@ -92,8 +93,8 @@ public record EnrichedProduct(
   /**
    * Creates an EnrichedProduct from a Product aggregate and external article data.
    *
-   * <p>This factory method combines the product's state with external pricing and
-   * stock data to create an enriched read model for display.
+   * <p>This factory method combines the product's state with external pricing and stock data to
+   * create an enriched read model for display.
    *
    * @param product the product aggregate
    * @param article the external article data (pricing and stock)

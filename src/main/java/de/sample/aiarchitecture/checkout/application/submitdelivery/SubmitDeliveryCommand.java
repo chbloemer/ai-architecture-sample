@@ -33,9 +33,7 @@ public record SubmitDeliveryCommand(
     BigDecimal shippingCost,
     String currencyCode) {
 
-  /**
-   * Compact constructor with validation.
-   */
+  /** Compact constructor with validation. */
   public SubmitDeliveryCommand {
     if (sessionId == null || sessionId.isBlank()) {
       throw new IllegalArgumentException("Session ID cannot be null or blank");

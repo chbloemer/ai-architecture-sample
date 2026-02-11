@@ -6,8 +6,8 @@ import de.sample.aiarchitecture.sharedkernel.marker.tactical.Value;
 /**
  * Value Object representing a Customer's unique identifier within the Checkout context.
  *
- * <p>This is the Checkout bounded context's own representation of a customer ID,
- * avoiding direct coupling to other bounded contexts' domain models.
+ * <p>This is the Checkout bounded context's own representation of a customer ID, avoiding direct
+ * coupling to other bounded contexts' domain models.
  */
 public record CustomerId(String value) implements Id, Value {
 

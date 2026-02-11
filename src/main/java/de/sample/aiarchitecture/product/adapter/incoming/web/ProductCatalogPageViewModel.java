@@ -8,9 +8,9 @@ import java.util.List;
 /**
  * Page-specific ViewModel for the product catalog page.
  *
- * <p>This ViewModel contains only primitives and is tailored to the catalog page's needs.
- * It is created from the use case result (which wraps EnrichedProduct domain read models)
- * in the adapter layer.
+ * <p>This ViewModel contains only primitives and is tailored to the catalog page's needs. It is
+ * created from the use case result (which wraps EnrichedProduct domain read models) in the adapter
+ * layer.
  *
  * <p><b>Pattern:</b> Use Case → Result(EnrichedProduct list) → Controller → ViewModel → Template
  *
@@ -19,10 +19,7 @@ import java.util.List;
  * @param pageTitle the page title
  */
 public record ProductCatalogPageViewModel(
-    List<ProductItemViewModel> products,
-    int totalProducts,
-    String pageTitle
-) {
+    List<ProductItemViewModel> products, int totalProducts, String pageTitle) {
 
   /**
    * Creates a ViewModel from the use case result.
@@ -31,9 +28,8 @@ public record ProductCatalogPageViewModel(
    * @return the page-specific ViewModel
    */
   public static ProductCatalogPageViewModel fromResult(final GetAllProductsResult result) {
-    final List<ProductItemViewModel> items = result.products().stream()
-        .map(ProductItemViewModel::fromEnrichedProduct)
-        .toList();
+    final List<ProductItemViewModel> items =
+        result.products().stream().map(ProductItemViewModel::fromEnrichedProduct).toList();
     return new ProductCatalogPageViewModel(items, items.size(), "Product Catalog");
   }
 
@@ -61,8 +57,7 @@ public record ProductCatalogPageViewModel(
       String priceCurrency,
       String category,
       int stockQuantity,
-      boolean isInStock
-  ) {
+      boolean isInStock) {
 
     /**
      * Creates a ViewModel from an enriched product domain read model.
@@ -81,8 +76,7 @@ public record ProductCatalogPageViewModel(
           product.currentPrice().currency().getCurrencyCode(),
           product.category(),
           product.stockQuantity(),
-          product.isInStock()
-      );
+          product.isInStock());
     }
   }
 }

@@ -11,10 +11,11 @@ import java.util.Optional;
 /**
  * Repository interface for Product aggregate.
  *
- * <p>Provides collection-like access to Product aggregates using domain language.
- * Implementation resides in the secondary adapter layer.
+ * <p>Provides collection-like access to Product aggregates using domain language. Implementation
+ * resides in the secondary adapter layer.
  *
  * <p>Extends the base {@link Repository} interface which provides common methods:
+ *
  * <ul>
  *   <li>{@code findById(ProductId)} - inherited from base interface
  *   <li>{@code save(Product)} - inherited from base interface

@@ -8,11 +8,7 @@ package de.sample.aiarchitecture.account.adapter.incoming.api;
  * @param email the user's email (only present on success)
  * @param errorMessage error message (only present on failure)
  */
-public record LoginResponse(
-    boolean success,
-    String token,
-    String email,
-    String errorMessage) {
+public record LoginResponse(boolean success, String token, String email, String errorMessage) {
 
   public static LoginResponse success(final String token, final String email) {
     return new LoginResponse(true, token, email, null);

@@ -20,8 +20,7 @@ public record CheckoutCartResult(
     List<CartItemSummary> items,
     BigDecimal totalAmount,
     String totalCurrency,
-    Instant checkedOutAt
-) {
+    Instant checkedOutAt) {
 
   /**
    * Summary of a cart item.
@@ -37,6 +36,5 @@ public record CheckoutCartResult(
       String productId,
       int quantity,
       BigDecimal unitPriceAmount,
-      String unitPriceCurrency
-  ) {}
+      String unitPriceCurrency) {}
 }

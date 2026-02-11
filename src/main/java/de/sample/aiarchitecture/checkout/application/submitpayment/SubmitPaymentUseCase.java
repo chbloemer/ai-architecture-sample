@@ -14,12 +14,13 @@ import org.springframework.transaction.annotation.Transactional;
  * Use case for submitting payment information during checkout.
  *
  * <p>This use case handles the payment step by:
+ *
  * <ul>
- *   <li>Loading and validating the checkout session</li>
- *   <li>Validating the payment provider exists and is available</li>
- *   <li>Creating PaymentSelection value object from command data</li>
- *   <li>Calling the domain method to submit payment info</li>
- *   <li>Persisting the updated session</li>
+ *   <li>Loading and validating the checkout session
+ *   <li>Validating the payment provider exists and is available
+ *   <li>Creating PaymentSelection value object from command data
+ *   <li>Calling the domain method to submit payment info
+ *   <li>Persisting the updated session
  * </ul>
  *
  * <p><b>Hexagonal Architecture:</b> This class implements the {@link SubmitPaymentInputPort}
@@ -55,7 +56,9 @@ public class SubmitPaymentUseCase implements SubmitPaymentInputPort {
         paymentProviderRegistry
             .findById(providerId)
             .orElseThrow(
-                () -> new IllegalArgumentException("Payment provider not found: " + command.providerId()));
+                () ->
+                    new IllegalArgumentException(
+                        "Payment provider not found: " + command.providerId()));
 
     // Create payment selection value object
     final PaymentSelection paymentSelection =

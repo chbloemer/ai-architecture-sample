@@ -7,8 +7,8 @@ import de.sample.aiarchitecture.sharedkernel.marker.tactical.Value;
 /**
  * Value Object representing cart's view of article data from external contexts.
  *
- * <p>This is a domain-level value object that contains article information
- * needed during cart operations, including pricing and availability.
+ * <p>This is a domain-level value object that contains article information needed during cart
+ * operations, including pricing and availability.
  */
 public record CartArticle(
     ProductId productId,

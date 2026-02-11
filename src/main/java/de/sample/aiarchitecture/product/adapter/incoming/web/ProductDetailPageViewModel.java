@@ -7,9 +7,9 @@ import java.math.BigDecimal;
 /**
  * Page-specific ViewModel for the product detail page.
  *
- * <p>This ViewModel contains only primitives and is tailored to the detail page's needs.
- * It is created from the use case result (which wraps an EnrichedProduct domain read model)
- * in the adapter layer.
+ * <p>This ViewModel contains only primitives and is tailored to the detail page's needs. It is
+ * created from the use case result (which wraps an EnrichedProduct domain read model) in the
+ * adapter layer.
  *
  * <p><b>Pattern:</b> Use Case → Result(EnrichedProduct) → Controller → ViewModel → Template
  *
@@ -36,8 +36,7 @@ public record ProductDetailPageViewModel(
     String category,
     int stockQuantity,
     boolean isAvailable,
-    String pageTitle
-) {
+    String pageTitle) {
 
   /**
    * Creates a ViewModel from the use case result.
@@ -64,7 +63,6 @@ public record ProductDetailPageViewModel(
         product.category(),
         product.stockQuantity(),
         product.isAvailable(),
-        product.name()
-    );
+        product.name());
   }
 }

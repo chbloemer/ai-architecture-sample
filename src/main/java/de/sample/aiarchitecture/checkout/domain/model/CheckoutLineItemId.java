@@ -4,9 +4,7 @@ import de.sample.aiarchitecture.sharedkernel.marker.tactical.Id;
 import de.sample.aiarchitecture.sharedkernel.marker.tactical.Value;
 import java.util.UUID;
 
-/**
- * Value Object representing a checkout line item's unique identifier.
- */
+/** Value Object representing a checkout line item's unique identifier. */
 public record CheckoutLineItemId(String value) implements Id, Value {
 
   public CheckoutLineItemId {

@@ -4,10 +4,10 @@ import de.sample.aiarchitecture.cart.adapter.outgoing.persistence.jdbc.CartSpecT
 import de.sample.aiarchitecture.cart.application.shared.ShoppingCartRepository;
 import de.sample.aiarchitecture.cart.domain.model.*;
 import de.sample.aiarchitecture.sharedkernel.domain.model.Money;
+import de.sample.aiarchitecture.sharedkernel.domain.model.PageResult;
+import de.sample.aiarchitecture.sharedkernel.domain.model.PagingRequest;
 import de.sample.aiarchitecture.sharedkernel.domain.model.Price;
 import de.sample.aiarchitecture.sharedkernel.domain.model.ProductId;
-import de.sample.aiarchitecture.sharedkernel.domain.model.PagingRequest;
-import de.sample.aiarchitecture.sharedkernel.domain.model.PageResult;
 import de.sample.aiarchitecture.sharedkernel.domain.specification.CompositeSpecification;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -25,8 +25,8 @@ import org.springframework.transaction.annotation.Transactional;
  * H2/JDBC implementation of ShoppingCartRepository.
  *
  * <p>This adapter persists carts and items to an in-memory H2 database using Spring JDBC. It
- * reconstructs aggregates without emitting domain events by using reflection to set internal
- * state and then clears any collected events.
+ * reconstructs aggregates without emitting domain events by using reflection to set internal state
+ * and then clears any collected events.
  */
 @org.springframework.context.annotation.Profile("jdbc")
 @Repository
@@ -35,7 +35,8 @@ public class JdbcShoppingCartRepository implements ShoppingCartRepository {
   private final JdbcTemplate jdbcTemplate;
   private final CartSpecToJdbc specTranslator;
 
-  public JdbcShoppingCartRepository(final DataSource dataSource, final CartSpecToJdbc specTranslator) {
+  public JdbcShoppingCartRepository(
+      final DataSource dataSource, final CartSpecToJdbc specTranslator) {
     this.jdbcTemplate = new JdbcTemplate(dataSource);
     this.specTranslator = specTranslator;
   }
@@ -44,9 +45,7 @@ public class JdbcShoppingCartRepository implements ShoppingCartRepository {
   public Optional<ShoppingCart> findById(final CartId id) {
     final List<ShoppingCart> carts =
         jdbcTemplate.query(
-            "SELECT id, customer_id, status FROM carts WHERE id = ?",
-            cartRowMapper(),
-            id.value());
+            "SELECT id, customer_id, status FROM carts WHERE id = ?", cartRowMapper(), id.value());
     if (carts.isEmpty()) return Optional.empty();
     final ShoppingCart cart = carts.get(0);
     loadItems(cart);
@@ -61,7 +60,11 @@ public class JdbcShoppingCartRepository implements ShoppingCartRepository {
             "SELECT id, customer_id, status FROM carts WHERE customer_id = ? ORDER BY updated_at DESC",
             cartRowMapper(),
             customerId.value());
-    carts.forEach(c -> { loadItems(c); clearDomainEvents(c);} );
+    carts.forEach(
+        c -> {
+          loadItems(c);
+          clearDomainEvents(c);
+        });
     return carts;
   }
 
@@ -84,9 +87,12 @@ public class JdbcShoppingCartRepository implements ShoppingCartRepository {
   public List<ShoppingCart> findAll() {
     final List<ShoppingCart> carts =
         jdbcTemplate.query(
-            "SELECT id, customer_id, status FROM carts ORDER BY updated_at DESC",
-            cartRowMapper());
-    carts.forEach(c -> { loadItems(c); clearDomainEvents(c);} );
+            "SELECT id, customer_id, status FROM carts ORDER BY updated_at DESC", cartRowMapper());
+    carts.forEach(
+        c -> {
+          loadItems(c);
+          clearDomainEvents(c);
+        });
     return carts;
   }
 
@@ -96,7 +102,9 @@ public class JdbcShoppingCartRepository implements ShoppingCartRepository {
     // Upsert cart
     jdbcTemplate.update(
         "MERGE INTO carts (id, customer_id, status, updated_at) KEY(id) VALUES (?, ?, ?, CURRENT_TIMESTAMP)",
-        cart.id().value(), cart.customerId().value(), cart.status().name());
+        cart.id().value(),
+        cart.customerId().value(),
+        cart.status().name());
 
     // Replace items
     jdbcTemplate.update("DELETE FROM cart_items WHERE cart_id = ?", cart.id().value());
@@ -124,7 +132,8 @@ public class JdbcShoppingCartRepository implements ShoppingCartRepository {
 
   @Override
   @Transactional(readOnly = true)
-  public PageResult<ShoppingCart> findBy(final CompositeSpecification<ShoppingCart> specification, final PagingRequest pageQuery) {
+  public PageResult<ShoppingCart> findBy(
+      final CompositeSpecification<ShoppingCart> specification, final PagingRequest pageQuery) {
     final CartSpecToJdbc translator = requireTranslator();
     final var pred = specification.accept(translator);
 
@@ -133,11 +142,18 @@ public class JdbcShoppingCartRepository implements ShoppingCartRepository {
     final long total = jdbcTemplate.queryForObject(countSql, pred.params().toArray(), Long.class);
 
     // Page content
-    final String selectSql = "SELECT id, customer_id, status FROM carts c WHERE " + pred.sql() +
-        " ORDER BY updated_at DESC LIMIT ? OFFSET ?";
-    final Object[] params = appendLimitOffset(pred.params().toArray(), pageQuery.pageSize(), (int) pageQuery.offset());
+    final String selectSql =
+        "SELECT id, customer_id, status FROM carts c WHERE "
+            + pred.sql()
+            + " ORDER BY updated_at DESC LIMIT ? OFFSET ?";
+    final Object[] params =
+        appendLimitOffset(pred.params().toArray(), pageQuery.pageSize(), (int) pageQuery.offset());
     final List<ShoppingCart> content = jdbcTemplate.query(selectSql, cartRowMapper(), params);
-    content.forEach(c -> { loadItems(c); clearDomainEvents(c);} );
+    content.forEach(
+        c -> {
+          loadItems(c);
+          clearDomainEvents(c);
+        });
 
     return new PageResult<>(content, total, pageQuery.pageNumber(), pageQuery.pageSize());
   }

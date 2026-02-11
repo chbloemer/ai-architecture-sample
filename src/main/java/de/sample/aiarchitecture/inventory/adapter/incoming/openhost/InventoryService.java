@@ -43,8 +43,7 @@ public class InventoryService {
    * @param availableStock the quantity of stock available (unreserved)
    * @param isAvailable whether any stock is available for purchase
    */
-  public record StockInfo(
-      ProductId productId, int availableStock, boolean isAvailable) {
+  public record StockInfo(ProductId productId, int availableStock, boolean isAvailable) {
 
     public StockInfo {
       if (productId == null) {

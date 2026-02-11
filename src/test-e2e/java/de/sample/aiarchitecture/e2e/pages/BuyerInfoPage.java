@@ -5,8 +5,8 @@ import com.microsoft.playwright.Page;
 /**
  * Page object for the buyer information page in checkout.
  *
- * <p>Provides methods to fill buyer information and navigate to login/register
- * for authenticated checkout.
+ * <p>Provides methods to fill buyer information and navigate to login/register for authenticated
+ * checkout.
  */
 public class BuyerInfoPage extends BasePage {
 
@@ -78,11 +78,9 @@ public class BuyerInfoPage extends BasePage {
    * @param phone the phone number
    * @return this page for method chaining
    */
-  public BuyerInfoPage fillBuyerInfo(String email, String firstName, String lastName, String phone) {
-    return fillEmail(email)
-        .fillFirstName(firstName)
-        .fillLastName(lastName)
-        .fillPhone(phone);
+  public BuyerInfoPage fillBuyerInfo(
+      String email, String firstName, String lastName, String phone) {
+    return fillEmail(email).fillFirstName(firstName).fillLastName(lastName).fillPhone(phone);
   }
 
   /**
@@ -98,8 +96,8 @@ public class BuyerInfoPage extends BasePage {
   /**
    * Clicks the continue button, expecting to stay on the same page due to validation errors.
    *
-   * <p>Handles both HTML5 client-side validation (which prevents form submission)
-   * and server-side validation (which redirects back with error flash attributes).
+   * <p>Handles both HTML5 client-side validation (which prevents form submission) and server-side
+   * validation (which redirects back with error flash attributes).
    *
    * @return this page for method chaining
    */
@@ -144,10 +142,11 @@ public class BuyerInfoPage extends BasePage {
    * Checks if the page contains validation error text or HTML5 validation failures.
    *
    * <p>Detects three types of validation:
+   *
    * <ul>
-   *   <li>Server-side errors rendered via data-test="buyer-error-message"</li>
-   *   <li>Server-side error text in the page body</li>
-   *   <li>HTML5 constraint validation on the buyer form inputs</li>
+   *   <li>Server-side errors rendered via data-test="buyer-error-message"
+   *   <li>Server-side error text in the page body
+   *   <li>HTML5 constraint validation on the buyer form inputs
    * </ul>
    *
    * @return true if validation errors are shown
@@ -160,9 +159,10 @@ public class BuyerInfoPage extends BasePage {
   }
 
   private boolean hasHtml5ValidationErrors() {
-    return (boolean) page.evaluate(
-        "() => { const form = document.querySelector('[data-test=\"buyer-form\"]'); "
-            + "return form != null && !form.checkValidity(); }");
+    return (boolean)
+        page.evaluate(
+            "() => { const form = document.querySelector('[data-test=\"buyer-form\"]'); "
+                + "return form != null && !form.checkValidity(); }");
   }
 
   /**

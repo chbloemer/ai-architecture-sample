@@ -13,9 +13,11 @@ import de.sample.aiarchitecture.sharedkernel.marker.tactical.BaseAggregateRoot;
  * StockLevel Aggregate Root.
  *
  * <p>Manages inventory stock levels for a product, tracking both available and reserved quantities.
- * Reserved stock represents inventory that has been earmarked for pending orders but not yet shipped.
+ * Reserved stock represents inventory that has been earmarked for pending orders but not yet
+ * shipped.
  *
  * <p><b>Business Rules:</b>
+ *
  * <ul>
  *   <li>Available quantity cannot be negative
  *   <li>Reserved quantity cannot exceed available quantity
@@ -24,6 +26,7 @@ import de.sample.aiarchitecture.sharedkernel.marker.tactical.BaseAggregateRoot;
  * </ul>
  *
  * <p><b>Domain Events:</b>
+ *
  * <ul>
  *   <li>{@link StockLevelCreated} - when a new stock level is created
  *   <li>{@link StockIncreased} - when stock is increased
@@ -57,23 +60,20 @@ public final class StockLevel extends BaseAggregateRoot<StockLevel, StockLevelId
    * @param initialQuantity the initial available quantity
    * @return a new StockLevel instance
    */
-  public static StockLevel create(
-      final ProductId productId,
-      final int initialQuantity) {
+  public static StockLevel create(final ProductId productId, final int initialQuantity) {
     if (productId == null) {
       throw new IllegalArgumentException("ProductId cannot be null");
     }
 
-    final StockLevel stockLevel = new StockLevel(
-        StockLevelId.generate(),
-        productId,
-        StockQuantity.of(initialQuantity),
-        StockQuantity.of(0));
+    final StockLevel stockLevel =
+        new StockLevel(
+            StockLevelId.generate(),
+            productId,
+            StockQuantity.of(initialQuantity),
+            StockQuantity.of(0));
 
-    stockLevel.registerEvent(StockLevelCreated.now(
-        stockLevel.id,
-        productId,
-        stockLevel.availableQuantity));
+    stockLevel.registerEvent(
+        StockLevelCreated.now(stockLevel.id, productId, stockLevel.availableQuantity));
 
     return stockLevel;
   }
@@ -111,11 +111,8 @@ public final class StockLevel extends BaseAggregateRoot<StockLevel, StockLevelId
     final StockQuantity addedQuantity = StockQuantity.of(amount);
     this.availableQuantity = StockQuantity.of(this.availableQuantity.value() + amount);
 
-    registerEvent(StockIncreased.now(
-        this.id,
-        this.productId,
-        addedQuantity,
-        this.availableQuantity));
+    registerEvent(
+        StockIncreased.now(this.id, this.productId, addedQuantity, this.availableQuantity));
   }
 
   /**
@@ -132,7 +129,11 @@ public final class StockLevel extends BaseAggregateRoot<StockLevel, StockLevelId
     }
     if (amount > this.availableQuantity.value()) {
       throw new IllegalArgumentException(
-          "Cannot decrease stock by " + amount + ", only " + this.availableQuantity.value() + " available");
+          "Cannot decrease stock by "
+              + amount
+              + ", only "
+              + this.availableQuantity.value()
+              + " available");
     }
 
     final StockQuantity removedQuantity = StockQuantity.of(amount);
@@ -143,11 +144,8 @@ public final class StockLevel extends BaseAggregateRoot<StockLevel, StockLevelId
       this.reservedQuantity = this.availableQuantity;
     }
 
-    registerEvent(StockDecreased.now(
-        this.id,
-        this.productId,
-        removedQuantity,
-        this.availableQuantity));
+    registerEvent(
+        StockDecreased.now(this.id, this.productId, removedQuantity, this.availableQuantity));
   }
 
   /**
@@ -172,10 +170,7 @@ public final class StockLevel extends BaseAggregateRoot<StockLevel, StockLevelId
     final StockQuantity reservedAmount = StockQuantity.of(amount);
     this.reservedQuantity = StockQuantity.of(this.reservedQuantity.value() + amount);
 
-    registerEvent(StockReserved.now(
-        this.id,
-        this.productId,
-        reservedAmount));
+    registerEvent(StockReserved.now(this.id, this.productId, reservedAmount));
   }
 
   /**
@@ -198,17 +193,14 @@ public final class StockLevel extends BaseAggregateRoot<StockLevel, StockLevelId
     final StockQuantity releasedQuantity = StockQuantity.of(amount);
     this.reservedQuantity = StockQuantity.of(this.reservedQuantity.value() - amount);
 
-    registerEvent(StockReleased.now(
-        this.id,
-        this.productId,
-        releasedQuantity));
+    registerEvent(StockReleased.now(this.id, this.productId, releasedQuantity));
   }
 
   /**
    * Sets the available stock quantity to a specific value.
    *
-   * <p>Use this for inventory reconciliation or manual stock level adjustments.
-   * If the new quantity is lower than the reserved quantity, reserved stock is adjusted accordingly.
+   * <p>Use this for inventory reconciliation or manual stock level adjustments. If the new quantity
+   * is lower than the reserved quantity, reserved stock is adjusted accordingly.
    *
    * @param quantity the new available quantity
    * @throws IllegalArgumentException if quantity is negative
@@ -228,13 +220,14 @@ public final class StockLevel extends BaseAggregateRoot<StockLevel, StockLevelId
       this.reservedQuantity = this.availableQuantity;
     }
 
-    registerEvent(StockChanged.now(
-        this.id,
-        this.productId,
-        previousAvailableQuantity,
-        this.availableQuantity,
-        previousReservedQuantity,
-        this.reservedQuantity));
+    registerEvent(
+        StockChanged.now(
+            this.id,
+            this.productId,
+            previousAvailableQuantity,
+            this.availableQuantity,
+            previousReservedQuantity,
+            this.reservedQuantity));
   }
 
   /**

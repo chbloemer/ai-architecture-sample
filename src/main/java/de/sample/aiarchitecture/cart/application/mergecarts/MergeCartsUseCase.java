@@ -5,8 +5,8 @@ import de.sample.aiarchitecture.cart.domain.model.CartId;
 import de.sample.aiarchitecture.cart.domain.model.CartItem;
 import de.sample.aiarchitecture.cart.domain.model.CustomerId;
 import de.sample.aiarchitecture.cart.domain.model.ShoppingCart;
-import de.sample.aiarchitecture.sharedkernel.marker.port.out.DomainEventPublisher;
 import de.sample.aiarchitecture.sharedkernel.domain.model.Money;
+import de.sample.aiarchitecture.sharedkernel.marker.port.out.DomainEventPublisher;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.stereotype.Service;
@@ -15,12 +15,13 @@ import org.springframework.transaction.annotation.Transactional;
 /**
  * Use case for merging carts based on user's chosen strategy.
  *
- * <p>When a user logs in and both their anonymous cart and account cart have items,
- * this use case executes the user's chosen strategy:
+ * <p>When a user logs in and both their anonymous cart and account cart have items, this use case
+ * executes the user's chosen strategy:
+ *
  * <ul>
- *   <li>MERGE_BOTH: Combine items from both carts</li>
- *   <li>USE_ACCOUNT_CART: Keep account cart, discard anonymous cart</li>
- *   <li>USE_ANONYMOUS_CART: Replace account cart with anonymous cart items</li>
+ *   <li>MERGE_BOTH: Combine items from both carts
+ *   <li>USE_ACCOUNT_CART: Keep account cart, discard anonymous cart
+ *   <li>USE_ANONYMOUS_CART: Replace account cart with anonymous cart items
  * </ul>
  *
  * <p><b>Hexagonal Architecture:</b> This class implements the {@link MergeCartsInputPort}
@@ -52,17 +53,22 @@ public class MergeCartsUseCase implements MergeCartsInputPort {
         shoppingCartRepository.findActiveCartByCustomerId(registeredCustomerId);
 
     // Get or create account cart
-    final ShoppingCart accountCart = accountCartOpt.orElseGet(() -> {
-      final ShoppingCart newCart = new ShoppingCart(CartId.generate(), registeredCustomerId);
-      return shoppingCartRepository.save(newCart);
-    });
+    final ShoppingCart accountCart =
+        accountCartOpt.orElseGet(
+            () -> {
+              final ShoppingCart newCart =
+                  new ShoppingCart(CartId.generate(), registeredCustomerId);
+              return shoppingCartRepository.save(newCart);
+            });
 
     final int originalAccountItems = accountCart.itemCount();
 
     return switch (input.strategy()) {
       case MERGE_BOTH -> mergeBothCarts(anonymousCartOpt, accountCart, input.strategy());
-      case USE_ACCOUNT_CART -> useAccountCartOnly(anonymousCartOpt, accountCart, originalAccountItems, input.strategy());
-      case USE_ANONYMOUS_CART -> useAnonymousCartOnly(anonymousCartOpt, accountCart, input.strategy());
+      case USE_ACCOUNT_CART ->
+          useAccountCartOnly(anonymousCartOpt, accountCart, originalAccountItems, input.strategy());
+      case USE_ANONYMOUS_CART ->
+          useAnonymousCartOnly(anonymousCartOpt, accountCart, input.strategy());
     };
   }
 
@@ -151,15 +157,17 @@ public class MergeCartsUseCase implements MergeCartsInputPort {
       final int itemsFromAccount,
       final boolean anonymousCartDeleted) {
 
-    final List<MergeCartsResult.CartItemSummary> items = cart.items().stream()
-        .map(item -> new MergeCartsResult.CartItemSummary(
-            item.id().value(),
-            item.productId().value(),
-            item.quantity().value(),
-            item.priceAtAddition().value().amount(),
-            item.priceAtAddition().value().currency().getCurrencyCode()
-        ))
-        .toList();
+    final List<MergeCartsResult.CartItemSummary> items =
+        cart.items().stream()
+            .map(
+                item ->
+                    new MergeCartsResult.CartItemSummary(
+                        item.id().value(),
+                        item.productId().value(),
+                        item.quantity().value(),
+                        item.priceAtAddition().value().amount(),
+                        item.priceAtAddition().value().currency().getCurrencyCode()))
+            .toList();
 
     final Money total = cart.calculateTotal();
 
@@ -172,7 +180,6 @@ public class MergeCartsUseCase implements MergeCartsInputPort {
         strategy,
         itemsFromAnonymous,
         itemsFromAccount,
-        anonymousCartDeleted
-    );
+        anonymousCartDeleted);
   }
 }

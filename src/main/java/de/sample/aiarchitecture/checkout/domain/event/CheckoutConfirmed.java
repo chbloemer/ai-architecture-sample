@@ -14,15 +14,16 @@ import java.util.UUID;
 /**
  * Integration Event indicating that a checkout was confirmed by the customer.
  *
- * <p>This event is raised when a customer reviews and confirms their order from the review step.
- * As an integration event, it is published across bounded contexts to trigger order creation
- * and payment processing in other contexts.
+ * <p>This event is raised when a customer reviews and confirms their order from the review step. As
+ * an integration event, it is published across bounded contexts to trigger order creation and
+ * payment processing in other contexts.
  *
  * <p><b>Consumers:</b>
+ *
  * <ul>
- *   <li>Order context - to create an Order from the confirmed checkout</li>
- *   <li>Payment context - to initiate payment processing</li>
- *   <li>Product context - to reduce product availability</li>
+ *   <li>Order context - to create an Order from the confirmed checkout
+ *   <li>Payment context - to initiate payment processing
+ *   <li>Product context - to reduce product availability
  * </ul>
  *
  * <p><b>Cross-Context Integration Pattern:</b> This event uses lightweight DTOs (LineItemInfo)
@@ -53,9 +54,10 @@ public record CheckoutConfirmed(
       final List<CheckoutLineItem> lineItems) {
 
     // Convert domain objects to DTOs for cross-context communication
-    final List<LineItemInfo> itemInfos = lineItems.stream()
-        .map(item -> new LineItemInfo(item.productId(), item.quantity()))
-        .toList();
+    final List<LineItemInfo> itemInfos =
+        lineItems.stream()
+            .map(item -> new LineItemInfo(item.productId(), item.quantity()))
+            .toList();
 
     return new CheckoutConfirmed(
         UUID.randomUUID(), sessionId, cartId, customerId, totalAmount, itemInfos, Instant.now(), 1);
@@ -69,8 +71,5 @@ public record CheckoutConfirmed(
    * @param productId the product ID from Shared Kernel
    * @param quantity the quantity (primitive type)
    */
-  public record LineItemInfo(
-      ProductId productId,
-      int quantity
-  ) {}
+  public record LineItemInfo(ProductId productId, int quantity) {}
 }

@@ -12,11 +12,8 @@ import java.util.List;
  * @param pageSize the page size
  * @param <T> the element type
  */
-public record PageResult<T>(
-    List<T> content,
-    long totalElements,
-    int pageNumber,
-    int pageSize) implements Value {
+public record PageResult<T>(List<T> content, long totalElements, int pageNumber, int pageSize)
+    implements Value {
 
   public PageResult {
     if (content == null) {

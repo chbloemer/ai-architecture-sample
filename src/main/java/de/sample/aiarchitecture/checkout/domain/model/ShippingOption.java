@@ -6,14 +6,10 @@ import de.sample.aiarchitecture.sharedkernel.marker.tactical.Value;
 /**
  * Value Object representing a shipping option for checkout.
  *
- * <p>Contains shipping method details including identifier, display name,
- * estimated delivery time, and cost.
+ * <p>Contains shipping method details including identifier, display name, estimated delivery time,
+ * and cost.
  */
-public record ShippingOption(
-    String id,
-    String name,
-    String estimatedDelivery,
-    Money cost)
+public record ShippingOption(String id, String name, String estimatedDelivery, Money cost)
     implements Value {
 
   public ShippingOption {

@@ -5,6 +5,7 @@ plugins {
   id 'org.springframework.boot' version '4.0.2'
   id 'io.spring.dependency-management' version '1.1.7'
   id 'io.franzbecker.gradle-lombok' version '5.0.0'
+  id 'com.diffplug.spotless' version '8.2.1'
 }
 
 // Test Configurations
@@ -27,6 +28,13 @@ java {
 lombok {
   version = '1.18.42'
   sha256 = ""
+}
+
+spotless {
+  java {
+    googleJavaFormat('1.34.1')
+    target 'src/*/java/**/*.java'
+  }
 }
 
 springBoot {

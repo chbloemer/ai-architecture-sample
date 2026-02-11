@@ -1,15 +1,15 @@
 package de.sample.aiarchitecture.cart.domain.service;
 
-import de.sample.aiarchitecture.sharedkernel.marker.tactical.DomainService;
 import de.sample.aiarchitecture.sharedkernel.domain.model.Money;
+import de.sample.aiarchitecture.sharedkernel.marker.tactical.DomainService;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
 /**
  * Domain Service for calculating shopping cart totals with tax and other charges.
  *
- * <p>Encapsulates complex cart total calculations that don't belong within the
- * ShoppingCart aggregate itself.
+ * <p>Encapsulates complex cart total calculations that don't belong within the ShoppingCart
+ * aggregate itself.
  */
 public final class CartTotalCalculator implements DomainService {
 
@@ -22,8 +22,7 @@ public final class CartTotalCalculator implements DomainService {
    * @param taxRate the tax rate (e.g., 0.19 for 19%)
    * @return the total including tax
    */
-  public Money calculateTotalWithTax(
-      final Money subtotal, final BigDecimal taxRate) {
+  public Money calculateTotalWithTax(final Money subtotal, final BigDecimal taxRate) {
     if (taxRate.compareTo(BigDecimal.ZERO) < 0) {
       throw new IllegalArgumentException("Tax rate cannot be negative");
     }
@@ -51,8 +50,7 @@ public final class CartTotalCalculator implements DomainService {
    * @param taxRate the tax rate
    * @return the tax amount
    */
-  public Money calculateTaxAmount(
-      final Money subtotal, final BigDecimal taxRate) {
+  public Money calculateTaxAmount(final Money subtotal, final BigDecimal taxRate) {
     if (taxRate.compareTo(BigDecimal.ZERO) < 0) {
       throw new IllegalArgumentException("Tax rate cannot be negative");
     }
@@ -70,9 +68,7 @@ public final class CartTotalCalculator implements DomainService {
    * @return the grand total
    */
   public Money calculateGrandTotal(
-      final Money subtotal,
-      final Money shipping,
-      final BigDecimal taxRate) {
+      final Money subtotal, final Money shipping, final BigDecimal taxRate) {
 
     final Money subtotalWithShipping = subtotal.add(shipping);
     return calculateTotalWithTax(subtotalWithShipping, taxRate);

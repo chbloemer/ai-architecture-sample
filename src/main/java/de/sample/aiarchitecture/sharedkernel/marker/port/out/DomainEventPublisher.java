@@ -23,6 +23,7 @@ import de.sample.aiarchitecture.sharedkernel.marker.tactical.DomainEvent;
  * </pre>
  *
  * <p><b>Benefits:</b>
+ *
  * <ul>
  *   <li>Application layer remains framework-independent
  *   <li>Events are published only after successful persistence

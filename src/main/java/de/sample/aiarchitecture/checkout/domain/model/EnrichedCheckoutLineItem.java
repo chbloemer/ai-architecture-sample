@@ -6,12 +6,10 @@ import de.sample.aiarchitecture.sharedkernel.marker.tactical.Value;
 /**
  * Value Object that combines a CheckoutLineItem with current CheckoutArticle data.
  *
- * <p>Enables domain logic like determining if the price has changed since the item
- * was added to the cart and whether there is sufficient stock for the requested quantity.
+ * <p>Enables domain logic like determining if the price has changed since the item was added to the
+ * cart and whether there is sufficient stock for the requested quantity.
  */
-public record EnrichedCheckoutLineItem(
-    CheckoutLineItem lineItem,
-    CheckoutArticle currentArticle)
+public record EnrichedCheckoutLineItem(CheckoutLineItem lineItem, CheckoutArticle currentArticle)
     implements Value {
 
   public EnrichedCheckoutLineItem {
@@ -94,8 +92,8 @@ public record EnrichedCheckoutLineItem(
   /**
    * Checks if this line item is valid for checkout.
    *
-   * <p>An item is valid for checkout if the product is available AND there is
-   * sufficient stock for the requested quantity.
+   * <p>An item is valid for checkout if the product is available AND there is sufficient stock for
+   * the requested quantity.
    *
    * @return true if the item can proceed to checkout
    */

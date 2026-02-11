@@ -5,11 +5,11 @@ import de.sample.aiarchitecture.sharedkernel.marker.port.in.UseCase;
 /**
  * Input port for synchronizing a checkout session with current cart state.
  *
- * <p>This port is used when cart contents change during an active checkout session.
- * It updates the checkout session's line items to match the current cart state.
+ * <p>This port is used when cart contents change during an active checkout session. It updates the
+ * checkout session's line items to match the current cart state.
  *
- * <p><b>Hexagonal Architecture:</b> This is a driving/primary port for write operations,
- * typically invoked by event consumers when cart events occur.
+ * <p><b>Hexagonal Architecture:</b> This is a driving/primary port for write operations, typically
+ * invoked by event consumers when cart events occur.
  */
 public interface SyncCheckoutWithCartInputPort
     extends UseCase<SyncCheckoutWithCartCommand, SyncCheckoutWithCartResult> {

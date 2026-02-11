@@ -52,5 +52,5 @@ package de.sample.aiarchitecture.sharedkernel.marker.tactical;
  * @see <a href="https://www.domainlanguage.com/ddd/">Domain-Driven Design Reference</a>
  */
 public interface Specification<T> {
-    boolean isSatisfiedBy(T candidate);
+  boolean isSatisfiedBy(T candidate);
 }

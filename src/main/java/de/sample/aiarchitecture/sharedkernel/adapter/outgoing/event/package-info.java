@@ -5,9 +5,11 @@
  * These adapters bridge the domain layer to Spring's event infrastructure.
  *
  * <p><b>Contents:</b>
+ *
  * <ul>
- *   <li>{@link de.sample.aiarchitecture.sharedkernel.adapter.outgoing.event.SpringDomainEventPublisher}
- *       - Spring-based implementation of DomainEventPublisher</li>
+ *   <li>{@link
+ *       de.sample.aiarchitecture.sharedkernel.adapter.outgoing.event.SpringDomainEventPublisher} -
+ *       Spring-based implementation of DomainEventPublisher
  * </ul>
  *
  * <p><b>Architectural Location:</b> Outgoing adapters in the shared kernel provide cross-cutting

@@ -1,4 +1,5 @@
 package de.sample.aiarchitecture.checkout.application.getconfirmedcheckoutsession;
+
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -9,20 +10,14 @@ import org.jspecify.annotations.Nullable;
  * @param customerId the customer ID (null if not found)
  */
 public record GetConfirmedCheckoutSessionResult(
-    boolean found,
-    @Nullable String sessionId,
-    @Nullable String customerId) {
+    boolean found, @Nullable String sessionId, @Nullable String customerId) {
 
-  /**
-   * Creates a response indicating no confirmed/completed session was found.
-   */
+  /** Creates a response indicating no confirmed/completed session was found. */
   public static GetConfirmedCheckoutSessionResult notFound() {
     return new GetConfirmedCheckoutSessionResult(false, null, null);
   }
 
-  /**
-   * Creates a response with the found session.
-   */
+  /** Creates a response with the found session. */
   public static GetConfirmedCheckoutSessionResult of(
       final String sessionId, final String customerId) {
     return new GetConfirmedCheckoutSessionResult(true, sessionId, customerId);

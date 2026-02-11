@@ -6,15 +6,13 @@ import org.jspecify.annotations.Nullable;
 /**
  * Output model containing checkout session data for display.
  *
- * <p>This result wraps a {@link CheckoutCartSnapshot} read model directly,
- * providing access to all checkout session state through the snapshot.
+ * <p>This result wraps a {@link CheckoutCartSnapshot} read model directly, providing access to all
+ * checkout session state through the snapshot.
  *
  * @param found whether the session was found
  * @param session the checkout cart snapshot (null if not found)
  */
-public record GetCheckoutSessionResult(
-    boolean found,
-    @Nullable CheckoutCartSnapshot session) {
+public record GetCheckoutSessionResult(boolean found, @Nullable CheckoutCartSnapshot session) {
 
   /**
    * Creates a not-found response.

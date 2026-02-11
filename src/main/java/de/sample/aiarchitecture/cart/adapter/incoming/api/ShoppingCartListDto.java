@@ -26,6 +26,5 @@ public record ShoppingCartListDto(List<CartSummaryDto> carts) {
       String status,
       int itemCount,
       BigDecimal total,
-      String currency
-  ) {}
+      String currency) {}
 }

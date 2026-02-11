@@ -10,16 +10,17 @@ import org.jspecify.annotations.Nullable;
  * Domain Service for validating checkout step navigation.
  *
  * <p>Enforces business rules for step access during checkout:
+ *
  * <ul>
- *   <li>Cannot access steps if session is invalid (null)</li>
- *   <li>Cannot skip ahead to steps without completing prerequisites</li>
- *   <li>Can go back to previously completed steps</li>
- *   <li>Cannot access steps in terminal session states</li>
- *   <li>Can only access CONFIRMATION step when session is completed</li>
+ *   <li>Cannot access steps if session is invalid (null)
+ *   <li>Cannot skip ahead to steps without completing prerequisites
+ *   <li>Can go back to previously completed steps
+ *   <li>Cannot access steps in terminal session states
+ *   <li>Can only access CONFIRMATION step when session is completed
  * </ul>
  *
- * <p>Returns redirect URLs when access is denied, allowing controllers
- * to redirect users to the appropriate step.
+ * <p>Returns redirect URLs when access is denied, allowing controllers to redirect users to the
+ * appropriate step.
  */
 public final class CheckoutStepValidator implements DomainService {
 
@@ -66,8 +67,8 @@ public final class CheckoutStepValidator implements DomainService {
   }
 
   /**
-   * Determines the appropriate redirect URL for a session that needs to be redirected
-   * to its current valid step.
+   * Determines the appropriate redirect URL for a session that needs to be redirected to its
+   * current valid step.
    *
    * @param session the checkout session
    * @return the URL path for the session's current step
@@ -129,15 +130,18 @@ public final class CheckoutStepValidator implements DomainService {
     return !arePrerequisitesMet(session, targetStep);
   }
 
-  private boolean arePrerequisitesMet(final CheckoutSession session, final CheckoutStep targetStep) {
+  private boolean arePrerequisitesMet(
+      final CheckoutSession session, final CheckoutStep targetStep) {
     return switch (targetStep) {
       case BUYER_INFO -> true; // First step, no prerequisites
       case DELIVERY -> session.isStepCompleted(CheckoutStep.BUYER_INFO);
-      case PAYMENT -> session.isStepCompleted(CheckoutStep.BUYER_INFO)
-          && session.isStepCompleted(CheckoutStep.DELIVERY);
-      case REVIEW -> session.isStepCompleted(CheckoutStep.BUYER_INFO)
-          && session.isStepCompleted(CheckoutStep.DELIVERY)
-          && session.isStepCompleted(CheckoutStep.PAYMENT);
+      case PAYMENT ->
+          session.isStepCompleted(CheckoutStep.BUYER_INFO)
+              && session.isStepCompleted(CheckoutStep.DELIVERY);
+      case REVIEW ->
+          session.isStepCompleted(CheckoutStep.BUYER_INFO)
+              && session.isStepCompleted(CheckoutStep.DELIVERY)
+              && session.isStepCompleted(CheckoutStep.PAYMENT);
       case CONFIRMATION -> session.isCompleted();
     };
   }

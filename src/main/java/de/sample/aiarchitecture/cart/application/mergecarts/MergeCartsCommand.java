@@ -3,18 +3,15 @@ package de.sample.aiarchitecture.cart.application.mergecarts;
 /**
  * Command to merge carts according to the user's chosen strategy.
  *
- * <p>This command executes the selected cart merge strategy when a user
- * logs in and has items in both their anonymous cart and account cart.
+ * <p>This command executes the selected cart merge strategy when a user logs in and has items in
+ * both their anonymous cart and account cart.
  *
  * @param anonymousUserId the user ID from the anonymous session
  * @param registeredUserId the user ID of the registered account
  * @param strategy the merge strategy chosen by the user
  */
 public record MergeCartsCommand(
-    String anonymousUserId,
-    String registeredUserId,
-    CartMergeStrategy strategy
-) {
+    String anonymousUserId, String registeredUserId, CartMergeStrategy strategy) {
 
   public MergeCartsCommand {
     if (anonymousUserId == null || anonymousUserId.isBlank()) {

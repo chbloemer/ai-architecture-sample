@@ -8,15 +8,11 @@ import java.util.UUID;
 /**
  * Domain Event indicating that all items were removed from a shopping cart.
  *
- * <p>This event is raised when a customer clears their entire shopping cart,
- * removing all items at once.
+ * <p>This event is raised when a customer clears their entire shopping cart, removing all items at
+ * once.
  */
 public record CartCleared(
-    UUID eventId,
-    CartId cartId,
-    int itemsCleared,
-    Instant occurredOn,
-    int version)
+    UUID eventId, CartId cartId, int itemsCleared, Instant occurredOn, int version)
     implements DomainEvent {
 
   public static CartCleared now(final CartId cartId, final int itemsCleared) {

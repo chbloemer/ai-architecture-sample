@@ -7,8 +7,8 @@ import java.util.UUID;
 /**
  * Value Object representing a Shopping Cart's unique identifier within the Checkout context.
  *
- * <p>This is the Checkout bounded context's own representation of a cart ID,
- * avoiding direct coupling to the Cart bounded context's domain model.
+ * <p>This is the Checkout bounded context's own representation of a cart ID, avoiding direct
+ * coupling to the Cart bounded context's domain model.
  */
 public record CartId(String value) implements Id, Value {
 

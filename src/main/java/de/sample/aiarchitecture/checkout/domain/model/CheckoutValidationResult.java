@@ -64,8 +64,7 @@ public record CheckoutValidationResult(List<ValidationError> errors) implements 
    * @param message a human-readable error message
    * @param type the type of validation error
    */
-  public record ValidationError(
-      ProductId productId, String message, ErrorType type)
+  public record ValidationError(ProductId productId, String message, ErrorType type)
       implements Value {
 
     public ValidationError {
@@ -97,8 +96,7 @@ public record CheckoutValidationResult(List<ValidationError> errors) implements 
         ProductId productId, int requested, int available) {
       return new ValidationError(
           productId,
-          String.format(
-              "Insufficient stock: requested %d, available %d", requested, available),
+          String.format("Insufficient stock: requested %d, available %d", requested, available),
           ErrorType.INSUFFICIENT_STOCK);
     }
   }

@@ -12,7 +12,8 @@ import de.sample.aiarchitecture.sharedkernel.marker.port.in.UseCase;
  *
  * @see de.sample.aiarchitecture.product.application.usecase.getallproducts.GetAllProductsUseCase
  */
-public interface GetAllProductsInputPort extends UseCase<GetAllProductsQuery, GetAllProductsResult> {
+public interface GetAllProductsInputPort
+    extends UseCase<GetAllProductsQuery, GetAllProductsResult> {
 
   /**
    * Retrieves all products from the catalog.

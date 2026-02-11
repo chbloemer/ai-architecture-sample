@@ -62,8 +62,7 @@ class ProductPriceTest {
       ProductId productId = ProductId.generate();
 
       // Money itself rejects negative values
-      assertThrows(
-          IllegalArgumentException.class, () -> Money.of(BigDecimal.valueOf(-10.00), EUR));
+      assertThrows(IllegalArgumentException.class, () -> Money.of(BigDecimal.valueOf(-10.00), EUR));
     }
 
     @Test

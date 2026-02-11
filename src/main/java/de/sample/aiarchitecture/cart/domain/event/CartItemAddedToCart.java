@@ -7,9 +7,7 @@ import de.sample.aiarchitecture.sharedkernel.marker.tactical.DomainEvent;
 import java.time.Instant;
 import java.util.UUID;
 
-/**
- * Domain Event indicating that an item was added to a shopping cart.
- */
+/** Domain Event indicating that an item was added to a shopping cart. */
 public record CartItemAddedToCart(
     UUID eventId,
     CartId cartId,
@@ -20,9 +18,8 @@ public record CartItemAddedToCart(
     implements DomainEvent {
 
   public static CartItemAddedToCart now(
-      final CartId cartId,
-      final ProductId productId,
-      final Quantity quantity) {
-    return new CartItemAddedToCart(UUID.randomUUID(), cartId, productId, quantity, Instant.now(), 1);
+      final CartId cartId, final ProductId productId, final Quantity quantity) {
+    return new CartItemAddedToCart(
+        UUID.randomUUID(), cartId, productId, quantity, Instant.now(), 1);
   }
 }

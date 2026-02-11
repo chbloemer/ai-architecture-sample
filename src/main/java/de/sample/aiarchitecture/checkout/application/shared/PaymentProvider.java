@@ -2,17 +2,17 @@ package de.sample.aiarchitecture.checkout.application.shared;
 
 import de.sample.aiarchitecture.checkout.domain.model.CheckoutSessionId;
 import de.sample.aiarchitecture.checkout.domain.model.PaymentProviderId;
-import de.sample.aiarchitecture.sharedkernel.marker.port.out.OutputPort;
 import de.sample.aiarchitecture.sharedkernel.domain.model.Money;
+import de.sample.aiarchitecture.sharedkernel.marker.port.out.OutputPort;
 
 /**
  * Output port for payment processing operations.
  *
- * <p>Represents a payment provider that can process payments. Different implementations
- * can integrate with various payment systems (Stripe, PayPal, bank transfers, etc.).
+ * <p>Represents a payment provider that can process payments. Different implementations can
+ * integrate with various payment systems (Stripe, PayPal, bank transfers, etc.).
  *
- * <p>This is a plugin interface following the Strategy pattern, allowing the checkout
- * system to work with multiple payment providers without coupling to specific implementations.
+ * <p>This is a plugin interface following the Strategy pattern, allowing the checkout system to
+ * work with multiple payment providers without coupling to specific implementations.
  */
 public interface PaymentProvider extends OutputPort {
 
@@ -21,7 +21,6 @@ public interface PaymentProvider extends OutputPort {
    *
    * @return the payment provider ID
    */
-  
   PaymentProviderId providerId();
 
   /**
@@ -29,34 +28,30 @@ public interface PaymentProvider extends OutputPort {
    *
    * @return the display name
    */
-  
   String displayName();
 
   /**
    * Initiates a payment for the given checkout session.
    *
-   * <p>This creates a payment intent or equivalent with the provider. The returned
-   * result contains a provider-specific reference that can be used to track or
-   * complete the payment.
+   * <p>This creates a payment intent or equivalent with the provider. The returned result contains
+   * a provider-specific reference that can be used to track or complete the payment.
    *
    * @param sessionId the checkout session to process payment for
    * @param amount the total amount to charge
    * @return the result of the payment initiation
    */
-  
   PaymentResult initiatePayment(CheckoutSessionId sessionId, Money amount);
 
   /**
    * Confirms a previously initiated payment.
    *
-   * <p>This is called after the customer has authorized the payment (if required
-   * by the provider). Some providers may complete payment in the initiation step,
-   * in which case this method may be a no-op.
+   * <p>This is called after the customer has authorized the payment (if required by the provider).
+   * Some providers may complete payment in the initiation step, in which case this method may be a
+   * no-op.
    *
    * @param providerReference the reference returned from {@link #initiatePayment}
    * @return the result of the payment confirmation
    */
-  
   PaymentResult confirmPayment(String providerReference);
 
   /**
@@ -67,7 +62,6 @@ public interface PaymentProvider extends OutputPort {
    * @param providerReference the reference returned from {@link #initiatePayment}
    * @return the result of the cancellation
    */
-  
   PaymentResult cancelPayment(String providerReference);
 
   /**

@@ -13,26 +13,28 @@ import org.springframework.stereotype.Component;
 /**
  * Infrastructure processor that IMPLEMENTS the behavior for {@link AsyncInitialize}.
  *
- * <p>This is where the framework-specific code lives (Spring BeanPostProcessor).
- * The annotation itself (in sharedkernel) is framework-agnostic.
+ * <p>This is where the framework-specific code lives (Spring BeanPostProcessor). The annotation
+ * itself (in sharedkernel) is framework-agnostic.
  *
  * <p><b>Separation of Concerns:</b>
+ *
  * <ul>
- *   <li>Annotation definition: {@code sharedkernel.marker.infrastructure} (pure Java)</li>
- *   <li>Annotation processing: {@code infrastructure.support} (Spring-specific)</li>
+ *   <li>Annotation definition: {@code sharedkernel.marker.infrastructure} (pure Java)
+ *   <li>Annotation processing: {@code infrastructure.support} (Spring-specific)
  * </ul>
  *
  * <p><b>How it works:</b>
+ *
  * <ol>
- *   <li>After a bean is initialized, this processor checks for {@link AsyncInitialize} annotation</li>
- *   <li>If found, looks for a method named {@code asyncInitialize()} with no parameters</li>
- *   <li>Invokes the method (should be marked with {@code @Async} for async execution)</li>
- *   <li>Logs any errors without breaking application startup</li>
+ *   <li>After a bean is initialized, this processor checks for {@link AsyncInitialize} annotation
+ *   <li>If found, looks for a method named {@code asyncInitialize()} with no parameters
+ *   <li>Invokes the method (should be marked with {@code @Async} for async execution)
+ *   <li>Logs any errors without breaking application startup
  * </ol>
  *
- * <p><b>Important:</b> The {@code asyncInitialize()} method should be annotated with
- * {@code @Async} to ensure true asynchronous execution. Without {@code @Async}, the method
- * will execute synchronously during bean post-processing.
+ * <p><b>Important:</b> The {@code asyncInitialize()} method should be annotated with {@code @Async}
+ * to ensure true asynchronous execution. Without {@code @Async}, the method will execute
+ * synchronously during bean post-processing.
  *
  * @see AsyncInitialize
  * @see de.sample.aiarchitecture.infrastructure.config.AsyncConfiguration
@@ -44,8 +46,7 @@ public class AsyncInitializationProcessor implements BeanPostProcessor, Ordered 
   private static final String INIT_METHOD_NAME = "asyncInitialize";
 
   @Override
-  public Object postProcessAfterInitialization(Object bean, String beanName)
-      throws BeansException {
+  public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
 
     // Check if bean is annotated with @AsyncInitialize
     AsyncInitialize annotation =

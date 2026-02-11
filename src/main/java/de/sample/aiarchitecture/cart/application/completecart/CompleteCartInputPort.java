@@ -5,8 +5,8 @@ import de.sample.aiarchitecture.sharedkernel.marker.port.in.UseCase;
 /**
  * Input port for completing a shopping cart after checkout confirmation.
  *
- * <p>This port defines the contract for marking a cart as completed after the checkout
- * process has been fully confirmed by the customer.
+ * <p>This port defines the contract for marking a cart as completed after the checkout process has
+ * been fully confirmed by the customer.
  *
  * <p><b>Hexagonal Architecture:</b> This is a driving/primary port for write operations.
  */

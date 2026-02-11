@@ -3,9 +3,7 @@ package de.sample.aiarchitecture.checkout.domain.model;
 import de.sample.aiarchitecture.sharedkernel.marker.tactical.Value;
 import org.jspecify.annotations.Nullable;
 
-/**
- * Value Object representing a delivery address for checkout.
- */
+/** Value Object representing a delivery address for checkout. */
 public record DeliveryAddress(
     String street,
     @Nullable String streetLine2,
@@ -41,10 +39,7 @@ public record DeliveryAddress(
   }
 
   public static DeliveryAddress of(
-      final String street,
-      final String city,
-      final String postalCode,
-      final String country) {
+      final String street, final String city, final String postalCode, final String country) {
     return new DeliveryAddress(street, null, city, postalCode, country, null);
   }
 

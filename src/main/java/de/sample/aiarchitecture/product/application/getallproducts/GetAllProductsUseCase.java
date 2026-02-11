@@ -19,9 +19,8 @@ import org.springframework.transaction.annotation.Transactional;
 /**
  * Use case for retrieving all products.
  *
- * <p>This is a query use case that retrieves all products without modifying state.
- * Creates enriched read models that combine aggregate state with external data
- * from Pricing and Inventory contexts.
+ * <p>This is a query use case that retrieves all products without modifying state. Creates enriched
+ * read models that combine aggregate state with external data from Pricing and Inventory contexts.
  *
  * <p><b>Hexagonal Architecture:</b> This class implements the {@link GetAllProductsInputPort}
  * interface, which is a primary/driving port in the application layer.
@@ -50,19 +49,19 @@ public class GetAllProductsUseCase implements GetAllProductsInputPort {
     final List<Product> products = productRepository.findAll();
 
     // Fetch prices and stock for all products from external contexts
-    final List<ProductId> productIds = products.stream()
-        .map(Product::id)
-        .toList();
+    final List<ProductId> productIds = products.stream().map(Product::id).toList();
     final Map<ProductId, PriceData> prices = pricingDataPort.getPrices(productIds);
     final Map<ProductId, StockData> stocks = productStockDataPort.getStockData(productIds);
 
     // Create enriched products using factory method
-    final List<EnrichedProduct> enrichedProducts = products.stream()
-        .map(product -> {
-          final ProductArticle articleData = buildArticleData(product.id(), prices, stocks);
-          return EnrichedProduct.from(product, articleData);
-        })
-        .toList();
+    final List<EnrichedProduct> enrichedProducts =
+        products.stream()
+            .map(
+                product -> {
+                  final ProductArticle articleData = buildArticleData(product.id(), prices, stocks);
+                  return EnrichedProduct.from(product, articleData);
+                })
+            .toList();
 
     return new GetAllProductsResult(enrichedProducts);
   }
@@ -73,9 +72,8 @@ public class GetAllProductsUseCase implements GetAllProductsInputPort {
       final Map<ProductId, StockData> stocks) {
 
     final PriceData priceData = prices.get(productId);
-    final Money currentPrice = priceData != null
-        ? priceData.currentPrice()
-        : Money.zero(DEFAULT_CURRENCY);
+    final Money currentPrice =
+        priceData != null ? priceData.currentPrice() : Money.zero(DEFAULT_CURRENCY);
 
     final StockData stockData = stocks.get(productId);
     final int stockQuantity = stockData != null ? stockData.availableStock() : 0;

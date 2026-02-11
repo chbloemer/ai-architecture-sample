@@ -13,14 +13,14 @@ import org.springframework.transaction.support.DefaultTransactionStatus;
  * Transaction management configuration.
  *
  * <p>This configuration enables transaction management for the application. Since this is a sample
- * project using in-memory repositories (no actual database), we use a simple
- * {@link InMemoryTransactionManager} which provides transaction semantics without requiring
- * a physical resource.
+ * project using in-memory repositories (no actual database), we use a simple {@link
+ * InMemoryTransactionManager} which provides transaction semantics without requiring a physical
+ * resource.
  *
  * <p><b>Transactional Boundaries:</b>
  *
- * <p>In this application, <b>application services are the transactional boundary</b>. Each use
- * case method in an application service runs within a single transaction. This ensures:
+ * <p>In this application, <b>application services are the transactional boundary</b>. Each use case
+ * method in an application service runs within a single transaction. This ensures:
  *
  * <ul>
  *   <li>Atomic operations: Either all changes succeed or all are rolled back
@@ -66,8 +66,8 @@ import org.springframework.transaction.support.DefaultTransactionStatus;
  * rollback) without requiring an actual transactional resource, making it perfect for this
  * educational sample.
  *
- * <p><b>Note:</b> In a real application with a database, simply adding
- * {@code spring-boot-starter-data-jpa} would auto-configure a proper transaction manager.
+ * <p><b>Note:</b> In a real application with a database, simply adding {@code
+ * spring-boot-starter-data-jpa} would auto-configure a proper transaction manager.
  */
 @Configuration
 @org.springframework.context.annotation.Profile("inmemory")
@@ -86,7 +86,8 @@ public class TransactionConfiguration {
    * @return a platform transaction manager for in-memory operations
    */
   @Bean
-  @org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean(PlatformTransactionManager.class)
+  @org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean(
+      PlatformTransactionManager.class)
   public PlatformTransactionManager transactionManager() {
     return new InMemoryTransactionManager();
   }
@@ -103,8 +104,9 @@ public class TransactionConfiguration {
    *   <li>Demonstrating transaction patterns
    * </ul>
    *
-   * <p>The main benefit is enabling {@link org.springframework.transaction.event.TransactionalEventListener}
-   * to work correctly, allowing event listeners to fire after transaction commit.
+   * <p>The main benefit is enabling {@link
+   * org.springframework.transaction.event.TransactionalEventListener} to work correctly, allowing
+   * event listeners to fire after transaction commit.
    *
    * <p><b>Important:</b> This is NOT suitable for production use. In production, use a real
    * transaction manager appropriate for your data access technology.

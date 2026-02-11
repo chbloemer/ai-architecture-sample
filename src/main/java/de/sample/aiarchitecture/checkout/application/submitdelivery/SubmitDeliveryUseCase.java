@@ -14,11 +14,12 @@ import org.springframework.transaction.annotation.Transactional;
  * Use case for submitting delivery information during checkout.
  *
  * <p>This use case handles the delivery step by:
+ *
  * <ul>
- *   <li>Loading and validating the checkout session</li>
- *   <li>Creating DeliveryAddress and ShippingOption value objects from command data</li>
- *   <li>Calling the domain method to submit delivery info</li>
- *   <li>Persisting the updated session</li>
+ *   <li>Loading and validating the checkout session
+ *   <li>Creating DeliveryAddress and ShippingOption value objects from command data
+ *   <li>Calling the domain method to submit delivery info
+ *   <li>Persisting the updated session
  * </ul>
  *
  * <p><b>Hexagonal Architecture:</b> This class implements the {@link SubmitDeliveryInputPort}

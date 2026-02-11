@@ -7,8 +7,6 @@ import de.sample.aiarchitecture.pricing.domain.model.PriceId;
 import de.sample.aiarchitecture.pricing.domain.model.ProductPrice;
 import de.sample.aiarchitecture.sharedkernel.domain.model.Money;
 import de.sample.aiarchitecture.sharedkernel.domain.model.ProductId;
-import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -142,16 +140,12 @@ class GetPricesForProductsUseCaseTest {
 
     @Override
     public Optional<ProductPrice> findByProductId(ProductId productId) {
-      return prices.values().stream()
-          .filter(p -> p.productId().equals(productId))
-          .findFirst();
+      return prices.values().stream().filter(p -> p.productId().equals(productId)).findFirst();
     }
 
     @Override
     public List<ProductPrice> findByProductIds(Collection<ProductId> productIds) {
-      return prices.values().stream()
-          .filter(p -> productIds.contains(p.productId()))
-          .toList();
+      return prices.values().stream().filter(p -> productIds.contains(p.productId())).toList();
     }
   }
 }

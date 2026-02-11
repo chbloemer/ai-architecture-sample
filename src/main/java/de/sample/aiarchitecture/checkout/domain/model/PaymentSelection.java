@@ -6,11 +6,10 @@ import org.jspecify.annotations.Nullable;
 /**
  * Value Object representing the selected payment method for checkout.
  *
- * <p>Contains the payment provider identifier and optional provider-specific
- * reference data (e.g., payment intent ID, saved card token).
+ * <p>Contains the payment provider identifier and optional provider-specific reference data (e.g.,
+ * payment intent ID, saved card token).
  */
-public record PaymentSelection(
-    PaymentProviderId providerId, @Nullable String providerReference)
+public record PaymentSelection(PaymentProviderId providerId, @Nullable String providerReference)
     implements Value {
 
   public PaymentSelection {

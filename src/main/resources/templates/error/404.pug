@@ -3,10 +3,10 @@ extends ../layout
 block content
   .error-page
     .error-page__code 404
-    h2.error-page__title Product Not Found
+    h2.error-page__title Page Not Found
     p.error-page__message.
-      The product you're looking for doesn't exist or has been removed
-      from our catalog.
+      The page you're looking for doesn't exist or has been removed.
+      Perhaps you were looking for one of our products?
     .error-page__action
-      a.btn.btn--primary(href="/products" data-test="error-browse-link") Browse All Products
+      a.btn.btn--accent(href="/products" data-test="error-browse-link") Browse All Products
       a.btn.btn--secondary(href="/" data-test="error-home-link") Go to Homepage

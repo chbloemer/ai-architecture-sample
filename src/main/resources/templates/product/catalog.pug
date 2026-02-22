@@ -12,7 +12,7 @@ block content
     .product-grid(data-test="product-grid")
       each product in productCatalog.products()
         .product-card(data-test="product-card")
-          .product-card__image
+          .product-card__image(style="view-transition-name: product-img-" + product.productId())
             if product.imageUrl() != null && product.imageUrl() != ''
               img(src=product.imageUrl() alt=product.name())
             else
@@ -27,7 +27,7 @@ block content
                 span.product-card__badge.product-card__badge--available In Stock
               else
                 span.product-card__badge.product-card__badge--out-of-stock Out of Stock
-              a.btn.btn--primary.product-card__action(href="/products/" + product.productId() data-test="view-product") View Details
+              a.product-card__action(href="/products/" + product.productId() data-test="view-product") View Details
   else
     .empty-state
       p.empty-state__title No products available

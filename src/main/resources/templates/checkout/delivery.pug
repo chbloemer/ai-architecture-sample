@@ -3,10 +3,18 @@ extends ../layout
 block content
   .checkout
     .checkout__progress(data-test="checkout-progress")
-      .checkout__step.checkout__step--completed Buyer Info
-      .checkout__step.checkout__step--active Delivery
-      .checkout__step Payment
-      .checkout__step Review
+      .checkout__step.checkout__step--completed
+        .checkout__step-marker 1
+        .checkout__step-label Buyer Info
+      .checkout__step.checkout__step--active
+        .checkout__step-marker 2
+        .checkout__step-label Delivery
+      .checkout__step
+        .checkout__step-marker 3
+        .checkout__step-label Payment
+      .checkout__step
+        .checkout__step-marker 4
+        .checkout__step-label Review
 
     if error
       .alert.alert--error(data-test="delivery-error-message")= error

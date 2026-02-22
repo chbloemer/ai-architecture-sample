@@ -46,7 +46,7 @@ block content
                 span.merge-options__item-qty Qty: #{item.quantity()}
                 span.merge-options__item-price #{item.unitPrice()} #{item.currencyCode()}
 
-    h3.merge-options__title Choose an Option
+    h3.merge-options__choose-title Choose an Option
 
     form(method="POST" action="/cart/merge" data-test="merge-form")
       input(type="hidden" name="anonymousUserId" value=cartMerge.anonymousUserId())

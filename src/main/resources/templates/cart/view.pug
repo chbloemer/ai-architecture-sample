@@ -26,7 +26,7 @@ block content
           .cart__item(data-test="cart-item")
             .cart__item-image
               if item.imageUrl()
-                img(src=item.imageUrl() alt=item.productName())
+                img(src=item.imageUrl() alt=item.productName() width="64" height="64")
             .cart__item-details
               .cart__item-name= item.productName()
               .cart__item-info
@@ -76,7 +76,7 @@ block content
 
     else
       .empty-state
-        .empty-state__icon &#128722;
+        .empty-state__icon
         h3.empty-state__title Your cart is empty
         p.empty-state__message Browse our products to find something you'll love.
         a.btn.btn--primary(href="/products" data-test="cart-browse-link") Browse Products

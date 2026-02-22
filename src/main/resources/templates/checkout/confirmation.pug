@@ -3,13 +3,21 @@ extends ../layout
 block content
   .confirmation
     .checkout__progress(data-test="checkout-progress")
-      .checkout__step.checkout__step--completed Buyer Info
-      .checkout__step.checkout__step--completed Delivery
-      .checkout__step.checkout__step--completed Payment
-      .checkout__step.checkout__step--completed Confirmed
+      .checkout__step.checkout__step--completed
+        .checkout__step-marker 1
+        .checkout__step-label Buyer Info
+      .checkout__step.checkout__step--completed
+        .checkout__step-marker 2
+        .checkout__step-label Delivery
+      .checkout__step.checkout__step--completed
+        .checkout__step-marker 3
+        .checkout__step-label Payment
+      .checkout__step.checkout__step--completed
+        .checkout__step-marker 4
+        .checkout__step-label Confirmed
 
     .confirmation__message(data-test="confirmation-message")
-      .confirmation__icon &#10003;
+      .confirmation__icon
       h3.confirmation__title(data-test="confirmation-title") Your order has been placed successfully
       p.confirmation__reference Order Reference: #{orderConfirmation.sessionId()}
 
@@ -78,5 +86,5 @@ block content
       p We've sent a confirmation email to #{orderConfirmation.buyerInfo() ? orderConfirmation.buyerInfo().email() : 'your email address'}.
       p You can track your order status using your order reference.
 
-    .form__actions
+    .confirmation__footer
       a.btn.btn--primary.btn--lg(href="/" data-test="confirmation-continue-link") Continue Shopping

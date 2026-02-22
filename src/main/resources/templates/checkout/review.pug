@@ -3,10 +3,18 @@ extends ../layout
 block content
   .checkout
     .checkout__progress(data-test="checkout-progress")
-      .checkout__step.checkout__step--completed Buyer Info
-      .checkout__step.checkout__step--completed Delivery
-      .checkout__step.checkout__step--completed Payment
-      .checkout__step.checkout__step--active Review
+      .checkout__step.checkout__step--completed
+        .checkout__step-marker 1
+        .checkout__step-label Buyer Info
+      .checkout__step.checkout__step--completed
+        .checkout__step-marker 2
+        .checkout__step-label Delivery
+      .checkout__step.checkout__step--completed
+        .checkout__step-marker 3
+        .checkout__step-label Payment
+      .checkout__step.checkout__step--active
+        .checkout__step-marker 4
+        .checkout__step-label Review
 
     if error
       .alert.alert--error(data-test="review-error-message")= error
@@ -93,7 +101,7 @@ block content
             span Total
             span #{orderReview.totals().total()} #{orderReview.totals().currencyCode()}
 
-    .form__actions
+    .review__actions
       a.btn.btn--secondary(href="/checkout/payment" data-test="review-back-link") Back
       form(method="post" action="/checkout/confirm" data-test="review-confirm-form")
         button.btn.btn--primary.btn--lg(type="submit" data-test="review-place-order-button") Place Order

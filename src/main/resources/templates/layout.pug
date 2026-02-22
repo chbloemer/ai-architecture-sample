@@ -7,10 +7,12 @@ html(lang="en")
     title= title || "DCA Commerce"
     link(rel="preconnect" href="https://fonts.googleapis.com")
     link(rel="preconnect" href="https://fonts.gstatic.com" crossorigin)
-    link(rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Nunito+Sans:ital,wght@0,300..700;1,300..700&display=swap")
+    link(rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Instrument+Sans:wght@400..700&family=Inter:wght@300..700&family=Nunito+Sans:ital,wght@0,300..700;1,300..700&family=Space+Grotesk:wght@400..700&display=swap")
     link(rel="stylesheet" href="/css/main.css")
+    script.
+      (function(){var t=localStorage.getItem('dca-theme');if(t&&t!=='organic')document.documentElement.setAttribute('data-theme',t)})();
     noscript
-      link(rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Nunito+Sans:ital,wght@0,300..700;1,300..700&display=swap")
+      link(rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Instrument+Sans:wght@400..700&family=Inter:wght@300..700&family=Nunito+Sans:ital,wght@0,300..700;1,300..700&family=Space+Grotesk:wght@400..700&display=swap")
   body
     header.site-header(data-test="site-header")
       .site-header__inner
@@ -52,4 +54,30 @@ html(lang="en")
         block content
 
     footer.site-footer(data-test="site-footer")
-      .site-footer__text DCA Commerce &mdash; Built with Domain-Centric Architecture
+      .site-footer__inner
+        .site-footer__text DCA Commerce &mdash; Built with Domain-Centric Architecture
+        .theme-switcher(data-test="theme-switcher")
+          label.theme-switcher__label(for="theme-select") Theme
+          select#theme-select.theme-switcher__select(data-test="theme-select")
+            option(value="organic") Organic
+            option(value="sharp") Sharp &amp; Minimal
+            option(value="classic") Classic
+            option(value="vibrant") Neon + Dark
+    script.
+      (function() {
+        var saved = localStorage.getItem('dca-theme');
+        if (saved) {
+          document.documentElement.setAttribute('data-theme', saved);
+          var sel = document.getElementById('theme-select');
+          if (sel) sel.value = saved;
+        }
+        document.getElementById('theme-select').addEventListener('change', function(e) {
+          var theme = e.target.value;
+          if (theme === 'organic') {
+            document.documentElement.removeAttribute('data-theme');
+          } else {
+            document.documentElement.setAttribute('data-theme', theme);
+          }
+          localStorage.setItem('dca-theme', theme);
+        });
+      })();

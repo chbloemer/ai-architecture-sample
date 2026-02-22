@@ -13,13 +13,12 @@ public record StockLevelCreated(
     StockLevelId stockLevelId,
     ProductId productId,
     StockQuantity quantity,
-    Instant occurredOn,
-    int version)
+    Instant occurredOn)
     implements DomainEvent {
 
   public static StockLevelCreated now(
       final StockLevelId stockLevelId, final ProductId productId, final StockQuantity quantity) {
     return new StockLevelCreated(
-        UUID.randomUUID(), stockLevelId, productId, quantity, Instant.now(), 1);
+        UUID.randomUUID(), stockLevelId, productId, quantity, Instant.now());
   }
 }

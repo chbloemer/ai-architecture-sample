@@ -20,8 +20,7 @@ public record CheckoutSessionStarted(
     CustomerId customerId,
     Money subtotal,
     int lineItemCount,
-    Instant occurredOn,
-    int version)
+    Instant occurredOn)
     implements DomainEvent {
 
   public static CheckoutSessionStarted now(
@@ -31,13 +30,6 @@ public record CheckoutSessionStarted(
       final Money subtotal,
       final int lineItemCount) {
     return new CheckoutSessionStarted(
-        UUID.randomUUID(),
-        sessionId,
-        cartId,
-        customerId,
-        subtotal,
-        lineItemCount,
-        Instant.now(),
-        1);
+        UUID.randomUUID(), sessionId, cartId, customerId, subtotal, lineItemCount, Instant.now());
   }
 }

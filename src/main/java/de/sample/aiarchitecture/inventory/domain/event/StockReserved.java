@@ -13,8 +13,7 @@ public record StockReserved(
     StockLevelId stockLevelId,
     ProductId productId,
     StockQuantity reservedQuantity,
-    Instant occurredOn,
-    int version)
+    Instant occurredOn)
     implements DomainEvent {
 
   public static StockReserved now(
@@ -22,6 +21,6 @@ public record StockReserved(
       final ProductId productId,
       final StockQuantity reservedQuantity) {
     return new StockReserved(
-        UUID.randomUUID(), stockLevelId, productId, reservedQuantity, Instant.now(), 1);
+        UUID.randomUUID(), stockLevelId, productId, reservedQuantity, Instant.now());
   }
 }

@@ -29,8 +29,7 @@ public record ProductCreated(
     ProductName name,
     Money initialPrice,
     int initialStock,
-    Instant occurredOn,
-    int version)
+    Instant occurredOn)
     implements DomainEvent {
 
   public static ProductCreated now(
@@ -40,6 +39,6 @@ public record ProductCreated(
       final Money initialPrice,
       final int initialStock) {
     return new ProductCreated(
-        UUID.randomUUID(), productId, sku, name, initialPrice, initialStock, Instant.now(), 1);
+        UUID.randomUUID(), productId, sku, name, initialPrice, initialStock, Instant.now());
   }
 }

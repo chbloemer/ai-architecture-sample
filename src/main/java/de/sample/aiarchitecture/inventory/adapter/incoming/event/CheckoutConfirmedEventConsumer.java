@@ -1,6 +1,6 @@
 package de.sample.aiarchitecture.inventory.adapter.incoming.event;
 
-import de.sample.aiarchitecture.checkout.domain.event.CheckoutConfirmed;
+import de.sample.aiarchitecture.checkout.adapter.outgoing.event.CheckoutConfirmedEvent;
 import de.sample.aiarchitecture.inventory.application.reducestock.ReduceStockCommand;
 import de.sample.aiarchitecture.inventory.application.reducestock.ReduceStockInputPort;
 import de.sample.aiarchitecture.inventory.application.reducestock.ReduceStockResult;
@@ -10,23 +10,11 @@ import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
 /**
- * Event listener for CheckoutConfirmed integration events in the Inventory context.
+ * Incoming event adapter consuming {@link CheckoutConfirmedEvent} integration events from the
+ * Checkout context.
  *
- * <p><b>Cross-Context Integration:</b> This listener enables eventual consistency between the
- * Checkout and Inventory bounded contexts. When a checkout is confirmed, the stock is reduced for
- * all ordered products.
- *
- * <p><b>Why Events Instead of Direct Calls?</b>
- *
- * <ul>
- *   <li>Maintains bounded context isolation - Checkout doesn't depend on Inventory internals
- *   <li>Eventual consistency - Stock reduction happens asynchronously
- *   <li>Loose coupling - Contexts communicate through events, not direct dependencies
- *   <li>Extensibility - Other contexts can listen to the same event
- * </ul>
- *
- * <p><b>Architectural Pattern:</b> This is an "incoming event adapter" in the Inventory context,
- * receiving integration events published by the Checkout context.
+ * <p>When a checkout is confirmed, this consumer reduces stock for all ordered products, enabling
+ * eventual consistency between the Checkout and Inventory bounded contexts.
  */
 @Component
 public class CheckoutConfirmedEventConsumer {
@@ -41,22 +29,14 @@ public class CheckoutConfirmedEventConsumer {
   }
 
   /**
-   * Handles the CheckoutConfirmed integration event by reducing stock for all ordered items.
-   *
-   * <p>This demonstrates <b>eventual consistency</b> between bounded contexts:
-   *
-   * <ol>
-   *   <li>Checkout context publishes CheckoutConfirmed event
-   *   <li>Inventory context listens and reduces stock for each item
-   *   <li>If stock reduction fails for an item, it's logged but doesn't roll back the checkout
-   * </ol>
+   * Handles the CheckoutConfirmedEvent integration event by reducing stock for all ordered items.
    *
    * @param event the checkout confirmed integration event from Checkout context
    */
   @EventListener
-  public void onCheckoutConfirmed(final CheckoutConfirmed event) {
+  public void onCheckoutConfirmed(final CheckoutConfirmedEvent event) {
     logger.info(
-        "Received CheckoutConfirmed integration event v{} for session: {}, cart: {}, {} items",
+        "Received CheckoutConfirmedEvent v{} for session: {}, cart: {}, {} items",
         event.version(),
         event.sessionId().value(),
         event.cartId().value(),
@@ -65,7 +45,7 @@ public class CheckoutConfirmedEventConsumer {
     int successCount = 0;
     int failureCount = 0;
 
-    for (final CheckoutConfirmed.LineItemInfo item : event.items()) {
+    for (final CheckoutConfirmedEvent.LineItemInfo item : event.items()) {
       try {
         final ReduceStockCommand command =
             new ReduceStockCommand(item.productId().value().toString(), item.quantity());
@@ -93,7 +73,6 @@ public class CheckoutConfirmedEventConsumer {
             "Exception while reducing stock for product {}: {}",
             item.productId().value(),
             e.getMessage());
-        // Continue processing other items - eventual consistency allows partial failures
       }
     }
 

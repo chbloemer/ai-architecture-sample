@@ -23,15 +23,9 @@ import java.util.UUID;
  * @param email the user's email address
  * @param linkedUserId the UserId linked to this account
  * @param occurredOn when the registration occurred
- * @param version event schema version
  */
 public record AccountRegistered(
-    UUID eventId,
-    AccountId accountId,
-    Email email,
-    UserId linkedUserId,
-    Instant occurredOn,
-    int version)
+    UUID eventId, AccountId accountId, Email email, UserId linkedUserId, Instant occurredOn)
     implements DomainEvent {
 
   /**
@@ -44,7 +38,6 @@ public record AccountRegistered(
    */
   public static AccountRegistered now(
       final AccountId accountId, final Email email, final UserId linkedUserId) {
-    return new AccountRegistered(
-        UUID.randomUUID(), accountId, email, linkedUserId, Instant.now(), 1);
+    return new AccountRegistered(UUID.randomUUID(), accountId, email, linkedUserId, Instant.now());
   }
 }

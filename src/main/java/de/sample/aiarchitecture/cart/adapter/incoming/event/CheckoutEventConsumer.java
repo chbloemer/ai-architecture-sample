@@ -2,30 +2,18 @@ package de.sample.aiarchitecture.cart.adapter.incoming.event;
 
 import de.sample.aiarchitecture.cart.application.completecart.CompleteCartCommand;
 import de.sample.aiarchitecture.cart.application.completecart.CompleteCartInputPort;
-import de.sample.aiarchitecture.checkout.domain.event.CheckoutConfirmed;
+import de.sample.aiarchitecture.checkout.adapter.outgoing.event.CheckoutConfirmedEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
 /**
- * Event listener for checkout-related integration events in the Cart context.
+ * Incoming event adapter consuming {@link CheckoutConfirmedEvent} integration events from the
+ * Checkout context.
  *
- * <p><b>Cross-Context Integration:</b> This listener enables eventual consistency between the
- * Checkout and Cart bounded contexts. When a checkout is confirmed, the cart is marked as
- * completed.
- *
- * <p><b>Why Events Instead of Direct Calls?</b>
- *
- * <ul>
- *   <li>Maintains bounded context isolation - Checkout doesn't depend on Cart internals
- *   <li>Eventual consistency - Cart status update happens asynchronously
- *   <li>Loose coupling - Contexts communicate through events, not direct dependencies
- *   <li>Extensibility - Other contexts can listen to the same event
- * </ul>
- *
- * <p><b>Architectural Pattern:</b> This is an "incoming event adapter" in the Cart context,
- * receiving integration events published by the Checkout context.
+ * <p>When a checkout is confirmed, this consumer marks the corresponding cart as completed,
+ * enabling eventual consistency between the Checkout and Cart bounded contexts.
  */
 @Component
 public class CheckoutEventConsumer {
@@ -39,22 +27,14 @@ public class CheckoutEventConsumer {
   }
 
   /**
-   * Handles the CheckoutConfirmed integration event by completing the cart.
-   *
-   * <p>This demonstrates <b>eventual consistency</b> between bounded contexts:
-   *
-   * <ol>
-   *   <li>Checkout context publishes CheckoutConfirmed event
-   *   <li>Cart context listens and marks cart as completed asynchronously
-   *   <li>If completion fails, the checkout is still confirmed (eventual consistency)
-   * </ol>
+   * Handles the CheckoutConfirmedEvent integration event by completing the cart.
    *
    * @param event the checkout confirmed integration event from Checkout context
    */
   @EventListener
-  public void onCheckoutConfirmed(final CheckoutConfirmed event) {
+  public void onCheckoutConfirmed(final CheckoutConfirmedEvent event) {
     logger.info(
-        "Received CheckoutConfirmed integration event v{} for cart: {}, session: {}",
+        "Received CheckoutConfirmedEvent v{} for cart: {}, session: {}",
         event.version(),
         event.cartId().value(),
         event.sessionId().value());
@@ -73,13 +53,11 @@ public class CheckoutEventConsumer {
           "Could not complete cart {} - may already be completed or in unexpected state: {}",
           event.cartId().value(),
           e.getMessage());
-      // Cart might already be completed - this is fine for idempotency
     } catch (IllegalArgumentException e) {
       logger.error(
           "Failed to complete cart {} after checkout confirmation - cart not found: {}",
           event.cartId().value(),
           e.getMessage());
-      // In production: consider compensating action or alert
     }
   }
 }

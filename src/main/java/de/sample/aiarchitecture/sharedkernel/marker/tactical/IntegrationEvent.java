@@ -1,116 +1,96 @@
 package de.sample.aiarchitecture.sharedkernel.marker.tactical;
 
+import java.time.Instant;
+import java.util.UUID;
+
 /**
- * Marker interface for Integration Events - events published across bounded contexts.
+ * Marker interface for Integration Events — adapter-layer DTOs published across bounded contexts.
  *
- * <p>Integration Events represent a <b>public contract</b> between bounded contexts and must be
- * treated differently from internal domain events. They enable cross-context communication while
- * maintaining bounded context autonomy.
+ * <p>Integration Events are <b>not</b> domain events. They are adapter-layer data transfer objects
+ * created when an outgoing event adapter consumes an internal {@link DomainEvent} and publishes a
+ * cross-context representation. This separation acts as an Anti-Corruption Layer (ACL) between the
+ * publishing context's domain model and external consumers.
  *
- * <p><b>Key Differences from Internal Domain Events:</b>
- *
- * <ul>
- *   <li><b>Scope:</b> Cross bounded context boundaries (internal events stay within one context)
- *   <li><b>Versioning:</b> Strict backward compatibility required (internal events can change
- *       freely)
- *   <li><b>Documentation:</b> Must be formally documented with schema (internal events are
- *       informal)
- *   <li><b>Consumption:</b> Should be consumed via Anti-Corruption Layer (internal events are
- *       direct)
- *   <li><b>Evolution:</b> Breaking changes require new versions (internal events can be refactored)
- * </ul>
- *
- * <p><b>When to Use Integration Events:</b>
+ * <p><b>Key Differences from Domain Events:</b>
  *
  * <ul>
- *   <li>Communication between different bounded contexts (e.g., Cart → Product)
- *   <li>Enabling eventual consistency across contexts
- *   <li>Decoupling autonomous services/modules
- *   <li>Events that external consumers depend on
+ *   <li><b>Layer:</b> Adapter layer ({@code adapter.outgoing.event}), not domain layer
+ *   <li><b>Purpose:</b> Cross bounded context communication (domain events are internal)
+ *   <li><b>Versioning:</b> Strict backward compatibility required (domain events can change freely)
+ *   <li><b>Naming:</b> Suffixed with {@code Event} (e.g., {@code CartCheckedOutEvent}), while
+ *       domain events have no suffix (e.g., {@code CartCheckedOut})
+ *   <li><b>Creation:</b> Created by outgoing event adapters via {@code from(DomainEvent)} factory
+ *       methods
+ *   <li><b>Consumption:</b> Consumed by incoming event adapters in other contexts
  * </ul>
  *
- * <p><b>When NOT to Use (Use {@link DomainEvent} instead):</b>
- *
- * <ul>
- *   <li>Communication within the same bounded context
- *   <li>Triggering side effects in the same aggregate
- *   <li>Internal notifications that don't cross context boundaries
- * </ul>
- *
- * <p><b>Best Practices:</b>
- *
- * <ul>
- *   <li>Use immutable records for implementation
- *   <li>Include only essential data (minimize coupling)
- *   <li>Use Shared Kernel types (e.g., ProductId) or primitives
- *   <li>Never include full domain objects from other contexts
- *   <li>Increment version on schema changes
- *   <li>Document schema in event catalog (YAML/AsyncAPI)
- *   <li>Consume via Anti-Corruption Layer to isolate contexts
- * </ul>
- *
- * <p><b>Example - Integration Event:</b>
+ * <p><b>Event Flow:</b>
  *
  * <pre>
- * // Cart context publishes this event for other contexts
- * public record CartCheckedOut(
+ * Aggregate raises DomainEvent
+ *   → Outgoing EventPublisher adapter listens
+ *     → Creates IntegrationEvent via from() factory
+ *       → Publishes IntegrationEvent
+ *         → Incoming EventConsumer in other context receives it
+ * </pre>
+ *
+ * <p><b>Example — Integration Event (adapter layer):</b>
+ *
+ * <pre>
+ * // In cart/adapter/outgoing/event/
+ * public record CartCheckedOutEvent(
  *     UUID eventId,
  *     CartId cartId,
  *     CustomerId customerId,
  *     Money totalAmount,
  *     int itemCount,
- *     List&lt;ItemInfo&gt; items,  // DTO, not full domain objects
+ *     List&lt;ItemInfo&gt; items,
  *     Instant occurredOn,
  *     int version) implements IntegrationEvent {
  *
- *   // Lightweight DTO using Shared Kernel types
  *   public record ItemInfo(ProductId productId, int quantity) {}
  *
- *   public static CartCheckedOut now(...) {
- *     return new CartCheckedOut(..., Instant.now(), 1);
+ *   public static CartCheckedOutEvent from(CartCheckedOut domainEvent) {
+ *     List&lt;ItemInfo&gt; items = domainEvent.items().stream()
+ *         .map(i -&gt; new ItemInfo(i.productId(), i.quantity()))
+ *         .toList();
+ *     return new CartCheckedOutEvent(
+ *         domainEvent.eventId(), domainEvent.cartId(), ...items, domainEvent.occurredOn(), 1);
  *   }
  * }
  * </pre>
  *
- * <p><b>Example - Consuming via Anti-Corruption Layer:</b>
+ * <p><b>Example — Outgoing Event Publisher (adapter):</b>
  *
  * <pre>
- * // Product context translates Cart's event into Product's language
  * &#64;Component
- * public class CartEventTranslator {
- *   public List&lt;ReduceStockCommand&gt; translate(CartCheckedOut event) {
- *     return event.items().stream()
- *         .map(item -&gt; new ReduceStockCommand(
- *             item.productId(),
- *             item.quantity()))
- *         .toList();
+ * public class CartCheckedOutEventPublisher {
+ *   private final ApplicationEventPublisher publisher;
+ *
+ *   &#64;EventListener
+ *   public void on(CartCheckedOut domainEvent) {
+ *     publisher.publishEvent(CartCheckedOutEvent.from(domainEvent));
  *   }
  * }
  * </pre>
  *
- * <p><b>Architecture Alignment:</b>
- *
- * <ul>
- *   <li><b>DDD Strategic Design:</b> Enables bounded context integration
- *   <li><b>Hexagonal Architecture:</b> Events flow through ports (inbound/outbound)
- *   <li><b>Event-Driven Architecture:</b> Async communication between services
- *   <li><b>Deployment Patterns:</b> Supports modular monolith → microservices evolution
- * </ul>
- *
- * <p><b>References:</b>
- *
- * <ul>
- *   <li>Vaughn Vernon's "Implementing Domain-Driven Design" (2013), Chapter 13: "Integrating
- *       Bounded Contexts"
- *   <li>Martin Fowler's "Event-Driven Architecture" patterns
- *   <li>Sam Newman's "Building Microservices" (2021), Chapter 4: "Microservice Communication
- *       Styles"
- * </ul>
- *
  * @see DomainEvent
- * @see <a href="https://www.domainlanguage.com/ddd/">Domain-Driven Design Reference</a>
  */
-public interface IntegrationEvent extends DomainEvent {
-  // Marker interface - inherits all DomainEvent methods
-  // No additional methods needed - the semantic distinction is the key
+public interface IntegrationEvent {
+
+  /** Unique identifier for this event instance. */
+  UUID eventId();
+
+  /** Timestamp when the event occurred. */
+  Instant occurredOn();
+
+  /**
+   * Event schema version to support event evolution and backward compatibility.
+   *
+   * <p>Consumers may depend on the event schema, so changes require version increments to maintain
+   * backward compatibility.
+   *
+   * @return the event version
+   */
+  int version();
 }

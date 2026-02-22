@@ -14,8 +14,7 @@ public record PriceCreated(
     ProductId productId,
     Money price,
     Instant effectiveFrom,
-    Instant occurredOn,
-    int version)
+    Instant occurredOn)
     implements DomainEvent {
 
   public static PriceCreated now(
@@ -24,6 +23,6 @@ public record PriceCreated(
       final Money price,
       final Instant effectiveFrom) {
     return new PriceCreated(
-        UUID.randomUUID(), priceId, productId, price, effectiveFrom, Instant.now(), 1);
+        UUID.randomUUID(), priceId, productId, price, effectiveFrom, Instant.now());
   }
 }

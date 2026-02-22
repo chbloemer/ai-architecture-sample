@@ -13,10 +13,9 @@ import java.util.UUID;
  * shopping cart.
  */
 public record ProductRemovedFromCart(
-    UUID eventId, CartId cartId, ProductId productId, Instant occurredOn, int version)
-    implements DomainEvent {
+    UUID eventId, CartId cartId, ProductId productId, Instant occurredOn) implements DomainEvent {
 
   public static ProductRemovedFromCart now(final CartId cartId, final ProductId productId) {
-    return new ProductRemovedFromCart(UUID.randomUUID(), cartId, productId, Instant.now(), 1);
+    return new ProductRemovedFromCart(UUID.randomUUID(), cartId, productId, Instant.now());
   }
 }

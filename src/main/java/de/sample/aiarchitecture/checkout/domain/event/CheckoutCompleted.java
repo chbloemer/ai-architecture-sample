@@ -17,8 +17,7 @@ public record CheckoutCompleted(
     CheckoutSessionId sessionId,
     Money totalAmount,
     @Nullable String orderReference,
-    Instant occurredOn,
-    int version)
+    Instant occurredOn)
     implements DomainEvent {
 
   public static CheckoutCompleted now(
@@ -26,6 +25,6 @@ public record CheckoutCompleted(
       final Money totalAmount,
       @Nullable final String orderReference) {
     return new CheckoutCompleted(
-        UUID.randomUUID(), sessionId, totalAmount, orderReference, Instant.now(), 1);
+        UUID.randomUUID(), sessionId, totalAmount, orderReference, Instant.now());
   }
 }

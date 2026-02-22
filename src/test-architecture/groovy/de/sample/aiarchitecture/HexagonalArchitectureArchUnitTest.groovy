@@ -61,10 +61,14 @@ class HexagonalArchitectureArchUnitTest extends BaseArchUnitTest {
   def "Port adapters (incoming and outgoing) must not communicate directly with each other within the same context"() {
     expect:
     // Incoming adapters within a context should not directly call outgoing adapters
+    // Exception: Event consumers (..adapter.incoming.event..) may depend on integration events
+    // in other contexts' outgoing event packages (..adapter.outgoing.event..) — this is the
+    // standard cross-context integration pattern via IntegrationEvent DTOs
     noClasses()
       .that().resideInAPackage(INCOMING_ADAPTER_PACKAGE)
+        .and().resideOutsideOfPackage("..adapter.incoming.event..")
       .should().dependOnClassesThat().resideInAPackage(OUTGOING_ADAPTER_PACKAGE)
-      .because("Port adapters should communicate through application services, not directly")
+      .because("Port adapters should communicate through application services, not directly (event consumers are the exception)")
       .check(allClasses)
 
     // Note: Outgoing adapters MAY access incoming adapters from OTHER contexts

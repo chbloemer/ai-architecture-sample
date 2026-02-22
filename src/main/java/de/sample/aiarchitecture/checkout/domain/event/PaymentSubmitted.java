@@ -13,16 +13,12 @@ import java.util.UUID;
  * payment method.
  */
 public record PaymentSubmitted(
-    UUID eventId,
-    CheckoutSessionId sessionId,
-    String paymentProviderId,
-    Instant occurredOn,
-    int version)
+    UUID eventId, CheckoutSessionId sessionId, String paymentProviderId, Instant occurredOn)
     implements DomainEvent {
 
   public static PaymentSubmitted now(
       final CheckoutSessionId sessionId, final PaymentSelection payment) {
     return new PaymentSubmitted(
-        UUID.randomUUID(), sessionId, payment.providerId().value(), Instant.now(), 1);
+        UUID.randomUUID(), sessionId, payment.providerId().value(), Instant.now());
   }
 }

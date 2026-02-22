@@ -13,8 +13,7 @@ public record StockReleased(
     StockLevelId stockLevelId,
     ProductId productId,
     StockQuantity releasedQuantity,
-    Instant occurredOn,
-    int version)
+    Instant occurredOn)
     implements DomainEvent {
 
   public static StockReleased now(
@@ -22,6 +21,6 @@ public record StockReleased(
       final ProductId productId,
       final StockQuantity releasedQuantity) {
     return new StockReleased(
-        UUID.randomUUID(), stockLevelId, productId, releasedQuantity, Instant.now(), 1);
+        UUID.randomUUID(), stockLevelId, productId, releasedQuantity, Instant.now());
   }
 }

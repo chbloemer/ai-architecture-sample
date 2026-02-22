@@ -6,10 +6,10 @@ import java.time.Instant;
 import java.util.UUID;
 
 /** Domain Event indicating that a user logged in to their account. */
-public record AccountLoggedIn(UUID eventId, AccountId accountId, Instant occurredOn, int version)
+public record AccountLoggedIn(UUID eventId, AccountId accountId, Instant occurredOn)
     implements DomainEvent {
 
   public static AccountLoggedIn now(final AccountId accountId) {
-    return new AccountLoggedIn(UUID.randomUUID(), accountId, Instant.now(), 1);
+    return new AccountLoggedIn(UUID.randomUUID(), accountId, Instant.now());
   }
 }

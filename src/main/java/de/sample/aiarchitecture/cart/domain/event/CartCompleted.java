@@ -6,10 +6,10 @@ import java.time.Instant;
 import java.util.UUID;
 
 /** Domain Event indicating that a shopping cart was completed after checkout confirmation. */
-public record CartCompleted(UUID eventId, CartId cartId, Instant occurredOn, int version)
+public record CartCompleted(UUID eventId, CartId cartId, Instant occurredOn)
     implements DomainEvent {
 
   public static CartCompleted now(final CartId cartId) {
-    return new CartCompleted(UUID.randomUUID(), cartId, Instant.now(), 1);
+    return new CartCompleted(UUID.randomUUID(), cartId, Instant.now());
   }
 }

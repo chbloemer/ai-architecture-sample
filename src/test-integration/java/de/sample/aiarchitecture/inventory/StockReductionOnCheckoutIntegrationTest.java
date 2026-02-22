@@ -2,7 +2,7 @@ package de.sample.aiarchitecture.inventory;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import de.sample.aiarchitecture.checkout.domain.event.CheckoutConfirmed;
+import de.sample.aiarchitecture.checkout.adapter.outgoing.event.CheckoutConfirmedEvent;
 import de.sample.aiarchitecture.checkout.domain.model.CartId;
 import de.sample.aiarchitecture.checkout.domain.model.CheckoutSessionId;
 import de.sample.aiarchitecture.checkout.domain.model.CustomerId;
@@ -34,7 +34,7 @@ import org.springframework.transaction.annotation.Transactional;
  * <p>This test suite validates the cross-context integration between Checkout and Inventory:
  *
  * <ul>
- *   <li>CheckoutConfirmed event triggers stock reduction
+ *   <li>CheckoutConfirmedEvent event triggers stock reduction
  *   <li>Stock is correctly reduced for single and multiple items
  *   <li>Partial failures are handled gracefully
  * </ul>
@@ -102,9 +102,9 @@ class StockReductionOnCheckoutIntegrationTest {
             () -> new AssertionError("Stock level should exist for product: " + productId.value()));
   }
 
-  private CheckoutConfirmed createCheckoutConfirmedEvent(
-      List<CheckoutConfirmed.LineItemInfo> items) {
-    return new CheckoutConfirmed(
+  private CheckoutConfirmedEvent createCheckoutConfirmedEvent(
+      List<CheckoutConfirmedEvent.LineItemInfo> items) {
+    return new CheckoutConfirmedEvent(
         UUID.randomUUID(),
         CheckoutSessionId.generate(),
         CartId.generate(),
@@ -136,9 +136,9 @@ class StockReductionOnCheckoutIntegrationTest {
               + orderQuantity
               + ")");
 
-      CheckoutConfirmed event =
+      CheckoutConfirmedEvent event =
           createCheckoutConfirmedEvent(
-              List.of(new CheckoutConfirmed.LineItemInfo(productId, orderQuantity)));
+              List.of(new CheckoutConfirmedEvent.LineItemInfo(productId, orderQuantity)));
 
       // Act
       eventConsumer.onCheckoutConfirmed(event);
@@ -172,11 +172,11 @@ class StockReductionOnCheckoutIntegrationTest {
           initialStock2 >= orderQuantity2,
           "Initial stock for product 2 should be >= order quantity");
 
-      CheckoutConfirmed event =
+      CheckoutConfirmedEvent event =
           createCheckoutConfirmedEvent(
               List.of(
-                  new CheckoutConfirmed.LineItemInfo(product1Id, orderQuantity1),
-                  new CheckoutConfirmed.LineItemInfo(product2Id, orderQuantity2)));
+                  new CheckoutConfirmedEvent.LineItemInfo(product1Id, orderQuantity1),
+                  new CheckoutConfirmedEvent.LineItemInfo(product2Id, orderQuantity2)));
 
       // Act
       eventConsumer.onCheckoutConfirmed(event);
@@ -207,11 +207,11 @@ class StockReductionOnCheckoutIntegrationTest {
 
       assertTrue(initialStock >= orderQuantity, "Initial stock should be >= order quantity");
 
-      CheckoutConfirmed event =
+      CheckoutConfirmedEvent event =
           createCheckoutConfirmedEvent(
               List.of(
-                  new CheckoutConfirmed.LineItemInfo(unknownProductId, 5),
-                  new CheckoutConfirmed.LineItemInfo(validProductId, orderQuantity)));
+                  new CheckoutConfirmedEvent.LineItemInfo(unknownProductId, 5),
+                  new CheckoutConfirmedEvent.LineItemInfo(validProductId, orderQuantity)));
 
       // Act - should not throw exception even with unknown product
       assertDoesNotThrow(
@@ -230,7 +230,7 @@ class StockReductionOnCheckoutIntegrationTest {
     @DisplayName("Should handle empty item list gracefully")
     void shouldHandleEmptyItemList() {
       // Arrange
-      CheckoutConfirmed event = createCheckoutConfirmedEvent(List.of());
+      CheckoutConfirmedEvent event = createCheckoutConfirmedEvent(List.of());
 
       // Act & Assert - should not throw exception
       assertDoesNotThrow(
@@ -255,9 +255,9 @@ class StockReductionOnCheckoutIntegrationTest {
 
         int stockBefore = getCurrentStock(productId);
 
-        CheckoutConfirmed event =
+        CheckoutConfirmedEvent event =
             createCheckoutConfirmedEvent(
-                List.of(new CheckoutConfirmed.LineItemInfo(productId, quantity)));
+                List.of(new CheckoutConfirmedEvent.LineItemInfo(productId, quantity)));
 
         // Act
         eventConsumer.onCheckoutConfirmed(event);
@@ -286,14 +286,14 @@ class StockReductionOnCheckoutIntegrationTest {
       CheckoutSessionId sessionId = CheckoutSessionId.generate();
       CartId cartId = CartId.generate();
 
-      CheckoutConfirmed event =
-          new CheckoutConfirmed(
+      CheckoutConfirmedEvent event =
+          new CheckoutConfirmedEvent(
               UUID.randomUUID(),
               sessionId,
               cartId,
               CustomerId.of("customer-123"),
               Money.euro(new BigDecimal("49.99")),
-              List.of(new CheckoutConfirmed.LineItemInfo(productId, 1)),
+              List.of(new CheckoutConfirmedEvent.LineItemInfo(productId, 1)),
               Instant.now(),
               1);
 
@@ -320,9 +320,9 @@ class StockReductionOnCheckoutIntegrationTest {
 
       // Act - process multiple events
       for (int i = 0; i < ordersToProcess; i++) {
-        CheckoutConfirmed event =
+        CheckoutConfirmedEvent event =
             createCheckoutConfirmedEvent(
-                List.of(new CheckoutConfirmed.LineItemInfo(productId, quantityPerOrder)));
+                List.of(new CheckoutConfirmedEvent.LineItemInfo(productId, quantityPerOrder)));
         eventConsumer.onCheckoutConfirmed(event);
       }
 

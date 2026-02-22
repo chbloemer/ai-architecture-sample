@@ -341,8 +341,7 @@ public final record ProductPriceChanged(
     @NonNull ProductId productId,
     @NonNull Price oldPrice,
     @NonNull Price newPrice,
-    @NonNull Instant occurredOn,
-    int version
+    @NonNull Instant occurredOn
 ) implements DomainEvent {
     public static ProductPriceChanged now(
         ProductId productId,
@@ -353,8 +352,7 @@ public final record ProductPriceChanged(
             productId,
             oldPrice,
             newPrice,
-            Instant.now(),
-            1
+            Instant.now()
         );
     }
 }
@@ -369,11 +367,10 @@ public record CartItemAddedToCart(
     @NonNull CartId cartId,
     @NonNull ProductId productId,
     @NonNull Quantity quantity,
-    @NonNull Instant occurredOn,
-    int version
+    @NonNull Instant occurredOn
 ) implements DomainEvent {
     public static CartItemAddedToCart now(CartId cartId, ProductId productId, Quantity quantity) {
-        return new CartItemAddedToCart(UUID.randomUUID(), cartId, productId, quantity, Instant.now(), 1);
+        return new CartItemAddedToCart(UUID.randomUUID(), cartId, productId, quantity, Instant.now());
     }
 }
 
@@ -382,11 +379,10 @@ public record ProductRemovedFromCart(
     @NonNull UUID eventId,
     @NonNull CartId cartId,
     @NonNull ProductId productId,
-    @NonNull Instant occurredOn,
-    int version
+    @NonNull Instant occurredOn
 ) implements DomainEvent {
     public static ProductRemovedFromCart now(CartId cartId, ProductId productId) {
-        return new ProductRemovedFromCart(UUID.randomUUID(), cartId, productId, Instant.now(), 1);
+        return new ProductRemovedFromCart(UUID.randomUUID(), cartId, productId, Instant.now());
     }
 }
 ```
@@ -394,9 +390,9 @@ public record ProductRemovedFromCart(
 **Rules:**
 1. Named in past tense (something that happened)
 2. Immutable (use records or final classes)
-3. Contains timestamp (occurredOn), unique ID (eventId), and version
+3. Contains timestamp (occurredOn) and unique ID (eventId)
 4. Framework-independent
-5. Version supports event schema evolution
+5. Internal to a bounded context — no versioning needed (see Integration Events for cross-context versioning)
 
 **Event Publishing Pattern:**
 
@@ -478,165 +474,125 @@ public class SpringDomainEventPublisher implements DomainEventPublisher {
 
 #### Integration Event
 
-Integration Events are domain events that cross bounded context boundaries and represent public contracts between contexts. They are a special category of domain events with stricter requirements for versioning, backward compatibility, and consumption patterns.
+Integration Events are **adapter-layer DTOs** published across bounded context boundaries. Unlike domain events, they do not extend `DomainEvent` — they are a separate concept created by outgoing event adapters when a domain event is consumed. This separation acts as an Anti-Corruption Layer between a context's domain model and external consumers.
 
-**Key Differences from Internal Domain Events:**
+**Key Differences from Domain Events:**
 
-| Aspect | Internal Events | Integration Events |
-|--------|----------------|-------------------|
-| **Scope** | Within one bounded context | Cross bounded context boundaries |
-| **Versioning** | Can change freely | Strict backward compatibility required |
-| **Documentation** | Informal JavaDoc | Formal schema documentation (YAML/AsyncAPI) |
-| **Consumption** | Direct usage | Via Anti-Corruption Layer |
-| **Evolution** | Refactor as needed | Breaking changes require new versions |
+| Aspect | Domain Events | Integration Events |
+|--------|--------------|-------------------|
+| **Layer** | Domain (`domain.event`) | Adapter (`adapter.outgoing.event`) |
+| **Interface** | `DomainEvent` | `IntegrationEvent` (separate hierarchy) |
+| **Naming** | No suffix (`CartCheckedOut`) | `Event` suffix (`CartCheckedOutEvent`) |
+| **Versioning** | None — can change freely | `int version()` for backward compatibility |
+| **Creation** | Raised by aggregates | Created by outgoing event adapters via `from()` factory |
+| **Consumption** | Within same context | By incoming event adapters in other contexts |
 
-**Example: CartCheckedOut Integration Event**
+**Event Flow:**
+
+```
+Aggregate raises DomainEvent (e.g., CartCheckedOut)
+  → Outgoing EventPublisher adapter listens (@EventListener)
+    → Creates IntegrationEvent via from() factory (CartCheckedOutEvent)
+      → Publishes IntegrationEvent via ApplicationEventPublisher
+        → Incoming EventConsumer in other context receives it
+```
+
+**Example: Domain Event (domain layer)**
 
 ```java
+// cart/domain/event/CartCheckedOut.java — internal, no version
 public record CartCheckedOut(
-    @NonNull UUID eventId,
-    @NonNull CartId cartId,
-    @NonNull CustomerId customerId,
-    @NonNull Money totalAmount,
+    UUID eventId,
+    CartId cartId,
+    CustomerId customerId,
+    Money totalAmount,
     int itemCount,
-    @NonNull List<ItemInfo> items,  // DTO, not domain objects
-    @NonNull Instant occurredOn,
+    List<ItemInfo> items,
+    Instant occurredOn
+) implements DomainEvent {
+
+    public record ItemInfo(ProductId productId, int quantity) {}
+
+    public static CartCheckedOut now(CartId cartId, ...) {
+        return new CartCheckedOut(UUID.randomUUID(), cartId, ..., Instant.now());
+    }
+}
+```
+
+**Example: Integration Event (adapter layer)**
+
+```java
+// cart/adapter/outgoing/event/CartCheckedOutEvent.java — versioned public contract
+public record CartCheckedOutEvent(
+    UUID eventId,
+    CartId cartId,
+    CustomerId customerId,
+    Money totalAmount,
+    int itemCount,
+    List<ItemInfo> items,
+    Instant occurredOn,
     int version
 ) implements IntegrationEvent {
 
-    // Lightweight DTO using Shared Kernel types only
-    public record ItemInfo(
-        @NonNull ProductId productId,  // From Shared Kernel
-        int quantity                    // Primitive
-    ) {}
+    public record ItemInfo(ProductId productId, int quantity) {}
 
-    public static CartCheckedOut now(
-        CartId cartId,
-        CustomerId customerId,
-        Money totalAmount,
-        int itemCount,
-        List<CartItem> cartItems) {
-
-        // Convert domain objects to DTOs for cross-context communication
-        List<ItemInfo> itemInfos = cartItems.stream()
-            .map(item -> new ItemInfo(item.productId(), item.quantity().value()))
+    public static CartCheckedOutEvent from(CartCheckedOut domainEvent) {
+        List<ItemInfo> items = domainEvent.items().stream()
+            .map(i -> new ItemInfo(i.productId(), i.quantity()))
             .toList();
-
-        return new CartCheckedOut(
-            UUID.randomUUID(),
-            cartId,
-            customerId,
-            totalAmount,
-            itemCount,
-            itemInfos,
-            Instant.now(),
-            1  // Version 1
-        );
+        return new CartCheckedOutEvent(
+            domainEvent.eventId(), domainEvent.cartId(), ...,
+            items, domainEvent.occurredOn(), 1);
     }
 }
 ```
 
-**Rules:**
-1. Use DTOs with Shared Kernel types or primitives only (never full domain objects from other contexts)
-2. Implement `IntegrationEvent` marker interface (not just `DomainEvent`)
-3. Version field must be actively managed for schema evolution
-4. Document schema in event catalog (see `docs/events/cart-checked-out.yaml`)
-5. Consumers must use Anti-Corruption Layer to translate events
-6. Maintain backward compatibility across versions
-
-**Anti-Corruption Layer Pattern:**
-
-When consuming integration events from other bounded contexts, use an Anti-Corruption Layer (ACL) to translate the event into your context's ubiquitous language.
+**Example: Outgoing Event Publisher (adapter)**
 
 ```java
-// ACL translates Cart events into Product commands
+// cart/adapter/outgoing/event/CartCheckedOutEventPublisher.java
 @Component
-public class CartEventTranslator {
-
-    public List<ReduceProductStockCommand> translate(CartCheckedOut event) {
-        // Handle version-specific translation
-        return switch (event.version()) {
-            case 1 -> translateV1(event);
-            case 2 -> translateV2(event);
-            default -> throw new UnsupportedEventVersionException(
-                "Unsupported CartCheckedOut version: " + event.version()
-            );
-        };
-    }
-
-    private List<ReduceProductStockCommand> translateV1(CartCheckedOut event) {
-        return event.items().stream()
-            .map(item -> new ReduceProductStockCommand(
-                item.productId().value().toString(),
-                item.quantity()
-            ))
-            .toList();
-    }
-
-    private List<ReduceProductStockCommand> translateV2(CartCheckedOut event) {
-        // Handle v2 schema changes (future)
-        return translateV1(event);
-    }
-}
-```
-
-**Event Consumer with ACL:**
-
-```java
-@Component
-public class CheckoutConfirmedEventListener {
-    private final ReduceProductStockUseCase reduceProductStockUseCase;
-    private final CartEventTranslator cartEventTranslator;  // ACL
+public class CartCheckedOutEventPublisher {
+    private final ApplicationEventPublisher publisher;
 
     @EventListener
-    public void onCartCheckedOut(CartCheckedOut event) {
-        try {
-            // Use ACL to translate Cart event → Product commands
-            List<ReduceProductStockCommand> commands =
-                cartEventTranslator.translate(event);
+    public void on(CartCheckedOut domainEvent) {
+        publisher.publishEvent(CartCheckedOutEvent.from(domainEvent));
+    }
+}
+```
 
-            // Execute commands in Product's ubiquitous language
-            commands.forEach(reduceProductStockUseCase::execute);
+**Example: Incoming Event Consumer (other context)**
 
-        } catch (UnsupportedEventVersionException e) {
-            logger.error("Unsupported event version: {}", event.version());
-            // Alert DevOps, version mismatch between contexts
+```java
+// inventory/adapter/incoming/event/CheckoutConfirmedEventConsumer.java
+@Component
+public class CheckoutConfirmedEventConsumer {
+    private final ReduceStockInputPort reduceStockUseCase;
+
+    @EventListener
+    public void onCheckoutConfirmed(CheckoutConfirmedEvent event) {
+        for (CheckoutConfirmedEvent.LineItemInfo item : event.items()) {
+            reduceStockUseCase.execute(
+                new ReduceStockCommand(item.productId().value().toString(), item.quantity()));
         }
     }
 }
 ```
 
-**Benefits:**
-- **Context Isolation:** Product context doesn't directly depend on Cart's event structure
-- **Evolution:** Cart can change event schema, only ACL needs updating
-- **Versioning:** ACL handles multiple event versions transparently
-- **Translation:** Converts Cart's language to Product's language
-- **Testability:** ACL can be tested independently
-
-**Event Versioning Strategy:**
-
-1. **Version 1 (current):** Basic event structure
-2. **Version 2 (future):** Add optional fields (e.g., warehouse allocation, batch numbers)
-3. **ACL handles both:** Consumers remain unaffected by version changes
-4. **Backward compatibility:** New fields must be optional
+**Rules:**
+1. Integration events live in `adapter.outgoing.event` (not `domain.event`)
+2. Implement `IntegrationEvent` (not `DomainEvent`) — separate interface hierarchies
+3. Named with `Event` suffix (e.g., `CartCheckedOutEvent`)
+4. Created via `from(DomainEvent)` factory method in outgoing event adapters
+5. Include `int version` field for schema evolution
+6. Use DTOs with Shared Kernel types or primitives only
 
 **Implementation:**
 - Interface: `de.sample.aiarchitecture.sharedkernel.marker.tactical.IntegrationEvent`
-- Example Event: `de.sample.aiarchitecture.cart.domain.event.CartCheckedOut`
-- ACL Example: `de.sample.aiarchitecture.product.adapter.incoming.event.acl.CheckoutEventTranslator`
-- Consumer Example: `de.sample.aiarchitecture.product.adapter.incoming.event.CheckoutConfirmedEventListener`
-- Schema Documentation: `docs/events/cart-checked-out.yaml`
-
-**When to Use Integration Events:**
-- ✅ Communication between different bounded contexts (e.g., Cart → Product)
-- ✅ Enabling eventual consistency across contexts
-- ✅ Decoupling autonomous services/modules
-- ✅ Events that external consumers depend on
-
-**When NOT to Use (use DomainEvent instead):**
-- ❌ Communication within the same bounded context
-- ❌ Triggering side effects in the same aggregate
-- ❌ Internal notifications that don't cross context boundaries
+- Example Event: `de.sample.aiarchitecture.cart.adapter.outgoing.event.CartCheckedOutEvent`
+- Example Publisher: `de.sample.aiarchitecture.cart.adapter.outgoing.event.CartCheckedOutEventPublisher`
+- Example Consumer: `de.sample.aiarchitecture.inventory.adapter.incoming.event.CheckoutConfirmedEventConsumer`
 
 #### Factory
 

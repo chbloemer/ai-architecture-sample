@@ -6,10 +6,10 @@ import java.time.Instant;
 import java.util.UUID;
 
 /** Domain Event indicating that a suspended account was reactivated. */
-public record AccountReactivated(UUID eventId, AccountId accountId, Instant occurredOn, int version)
+public record AccountReactivated(UUID eventId, AccountId accountId, Instant occurredOn)
     implements DomainEvent {
 
   public static AccountReactivated now(final AccountId accountId) {
-    return new AccountReactivated(UUID.randomUUID(), accountId, Instant.now(), 1);
+    return new AccountReactivated(UUID.randomUUID(), accountId, Instant.now());
   }
 }

@@ -6,10 +6,10 @@ import java.time.Instant;
 import java.util.UUID;
 
 /** Domain Event indicating that an account was permanently closed. */
-public record AccountClosed(UUID eventId, AccountId accountId, Instant occurredOn, int version)
+public record AccountClosed(UUID eventId, AccountId accountId, Instant occurredOn)
     implements DomainEvent {
 
   public static AccountClosed now(final AccountId accountId) {
-    return new AccountClosed(UUID.randomUUID(), accountId, Instant.now(), 1);
+    return new AccountClosed(UUID.randomUUID(), accountId, Instant.now());
   }
 }

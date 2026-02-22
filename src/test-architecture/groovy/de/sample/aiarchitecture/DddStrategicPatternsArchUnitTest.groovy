@@ -255,15 +255,15 @@ class DddStrategicPatternsArchUnitTest extends BaseArchUnitTest {
   // INTEGRATION EVENTS PATTERN
   // ============================================================================
 
-  def "Integration Events must be in domain event packages"() {
+  def "Integration Events must be in adapter outgoing event packages"() {
     expect:
-    // Integration Events represent public contracts between bounded contexts
-    // They must reside in the domain layer to be accessible to other contexts
+    // Integration Events are adapter-layer DTOs created from domain events
+    // They reside in outgoing adapters, acting as an ACL to the outside world
     classes()
       .that().implement(IntegrationEvent)
-      .should().resideInAPackage("..domain.event..")
+      .should().resideInAPackage("..adapter.outgoing.event..")
       .allowEmptyShould(true)
-      .because("Integration Events are domain concepts and must be in domain.event packages (DDD Strategic Pattern)")
+      .because("Integration Events are adapter-layer DTOs and must be in adapter.outgoing.event packages")
       .check(allClasses)
   }
 

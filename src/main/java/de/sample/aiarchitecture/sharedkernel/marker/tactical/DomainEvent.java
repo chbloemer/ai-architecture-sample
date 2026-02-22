@@ -7,17 +7,17 @@ import java.util.UUID;
  * Interface for Domain Events.
  *
  * <p>Domain Events represent something that happened in the domain that domain experts care about.
- * They capture important occurrences in the business process and enable loose coupling between
- * bounded contexts.
+ * They are internal to a bounded context and can evolve freely without versioning concerns.
  *
  * <p><b>Characteristics:</b>
  *
  * <ul>
  *   <li>Immutable (final classes or records)
- *   <li>Named in the past tense (e.g., ProductCreated, CartCheckedOut, PriceChanged)
+ *   <li>Named in the past tense (e.g., ProductCreated, CartCleared, PriceChanged)
  *   <li>Include timestamp, unique ID, and event-specific data
  *   <li>Should NOT have Spring annotations (@Component, @EventListener)
  *   <li>Part of the Ubiquitous Language
+ *   <li>Internal to a bounded context — no versioning needed
  * </ul>
  *
  * <p><b>Use Cases:</b>
@@ -34,8 +34,10 @@ import java.util.UUID;
  * <ul>
  *   <li>{@code eventId()} - Unique identifier for this event instance
  *   <li>{@code occurredOn()} - When the event occurred
- *   <li>{@code version()} - Event schema version for evolution
  * </ul>
+ *
+ * <p>For events that cross bounded context boundaries, see {@link IntegrationEvent} which adds
+ * versioning for backward compatibility.
  *
  * <p><b>Example:</b>
  *
@@ -43,11 +45,10 @@ import java.util.UUID;
  * public record ProductCreated(
  *     UUID eventId,
  *     ProductId productId,
- *     Instant occurredOn,
- *     int version) implements DomainEvent {
+ *     Instant occurredOn) implements DomainEvent {
  *
- *   public ProductCreated(ProductId productId) {
- *     this(UUID.randomUUID(), productId, Instant.now(), 1);
+ *   public static ProductCreated now(ProductId productId) {
+ *     return new ProductCreated(UUID.randomUUID(), productId, Instant.now());
  *   }
  * }
  * </pre>
@@ -76,13 +77,4 @@ public interface DomainEvent {
    * @return the occurrence timestamp
    */
   Instant occurredOn();
-
-  /**
-   * Event schema version to support event evolution.
-   *
-   * <p>Increment this version when the event structure changes to maintain backward compatibility.
-   *
-   * @return the event version
-   */
-  int version();
 }

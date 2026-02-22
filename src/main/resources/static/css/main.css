@@ -3161,9 +3161,8 @@ ul, ol {
     grid-template-columns: repeat(2, 1fr);
   }
 
+  /* Checkout progress — reduce padding but keep single row */
   .checkout__progress {
-    flex-wrap: wrap;
-    gap: var(--space-lg);
     padding: var(--space-lg);
   }
 }
@@ -3180,13 +3179,31 @@ ul, ol {
     padding-right: var(--space-md);
   }
 
+  /* Header — two-row layout: logo + actions top, nav bottom */
   .site-header__inner {
-    padding: 0 var(--space-md);
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    grid-template-rows: auto auto;
+    align-items: center;
     height: auto;
-    padding-top: var(--space-md);
-    padding-bottom: var(--space-md);
-    gap: var(--space-sm);
+    padding: var(--space-md);
+    gap: 0 var(--space-sm);
+  }
+
+  .site-header__logo {
+    grid-column: 1;
+    grid-row: 1;
+    font-size: 1.25rem;
+  }
+
+  .site-header__actions {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  .nav {
+    grid-column: 1 / -1;
+    grid-row: 2;
   }
 
   .nav__list {
@@ -3197,6 +3214,17 @@ ul, ol {
   .nav__link {
     padding: var(--space-xs) var(--space-sm);
     font-size: var(--font-size-xs);
+  }
+
+  .site-main {
+    min-height: calc(100vh - 100px - 80px);
+  }
+
+  /* Footer — stack on mobile */
+  .site-footer__inner {
+    flex-direction: column;
+    gap: var(--space-md);
+    text-align: center;
   }
 
   .hero {
@@ -3264,8 +3292,31 @@ ul, ol {
     text-align: left;
   }
 
+  /* Checkout progress — smaller markers, adjusted connector lines */
   .checkout__progress {
     padding: var(--space-md);
+    gap: 0;
+  }
+
+  .checkout__step-marker {
+    width: 32px;
+    height: 32px;
+    font-size: var(--font-size-xs);
+  }
+
+  .checkout__step:not(:last-child)::after {
+    top: 16px;
+    left: calc(50% + 16px);
+    right: calc(-50% + 16px);
+  }
+
+  .checkout__step--active .checkout__step-marker {
+    box-shadow: 0 0 0 3px var(--color-accent-light);
+  }
+
+  .checkout__step--completed .checkout__step-marker::after {
+    width: 10px;
+    height: 6px;
   }
 
   .review-sections {
@@ -3298,15 +3349,6 @@ ul, ol {
 
 /* Small mobile */
 @media (max-width: 480px) {
-  .site-header__inner {
-    justify-content: center;
-    text-align: center;
-  }
-
-  .nav__list {
-    justify-content: center;
-  }
-
   .hero__actions {
     flex-direction: column;
     align-items: center;
@@ -3314,6 +3356,33 @@ ul, ol {
 
   .hero__title {
     font-size: 2rem;
+  }
+
+  /* Checkout progress — hide connector lines, vertical layout */
+  .checkout__progress {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+    padding: var(--space-md);
+  }
+
+  .checkout__step {
+    flex-direction: row;
+    align-items: center;
+    gap: var(--space-md);
+    padding: var(--space-sm) 0;
+  }
+
+  .checkout__step:not(:last-child)::after {
+    display: none;
+  }
+
+  .checkout__step-marker {
+    flex-shrink: 0;
+  }
+
+  .checkout__step-label {
+    text-align: left;
   }
 }
 

@@ -21,8 +21,7 @@ public record CartItemQuantityChanged(
     ProductId productId,
     Quantity oldQuantity,
     Quantity newQuantity,
-    Instant occurredOn,
-    int version)
+    Instant occurredOn)
     implements DomainEvent {
 
   public static CartItemQuantityChanged now(
@@ -32,13 +31,6 @@ public record CartItemQuantityChanged(
       final Quantity oldQuantity,
       final Quantity newQuantity) {
     return new CartItemQuantityChanged(
-        UUID.randomUUID(),
-        cartId,
-        cartItemId,
-        productId,
-        oldQuantity,
-        newQuantity,
-        Instant.now(),
-        1);
+        UUID.randomUUID(), cartId, cartItemId, productId, oldQuantity, newQuantity, Instant.now());
   }
 }

@@ -6,10 +6,10 @@ import java.time.Instant;
 import java.util.UUID;
 
 /** Domain Event indicating that a shopping cart was abandoned by the customer. */
-public record CartAbandoned(UUID eventId, CartId cartId, Instant occurredOn, int version)
+public record CartAbandoned(UUID eventId, CartId cartId, Instant occurredOn)
     implements DomainEvent {
 
   public static CartAbandoned now(final CartId cartId) {
-    return new CartAbandoned(UUID.randomUUID(), cartId, Instant.now(), 1);
+    return new CartAbandoned(UUID.randomUUID(), cartId, Instant.now());
   }
 }

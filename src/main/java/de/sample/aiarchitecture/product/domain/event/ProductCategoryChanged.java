@@ -12,13 +12,12 @@ public record ProductCategoryChanged(
     ProductId productId,
     Category oldCategory,
     Category newCategory,
-    Instant occurredOn,
-    int version)
+    Instant occurredOn)
     implements DomainEvent {
 
   public static ProductCategoryChanged now(
       final ProductId productId, final Category oldCategory, final Category newCategory) {
     return new ProductCategoryChanged(
-        UUID.randomUUID(), productId, oldCategory, newCategory, Instant.now(), 1);
+        UUID.randomUUID(), productId, oldCategory, newCategory, Instant.now());
   }
 }

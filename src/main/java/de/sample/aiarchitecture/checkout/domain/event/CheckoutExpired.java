@@ -13,15 +13,11 @@ import java.util.UUID;
  * abandoned.
  */
 public record CheckoutExpired(
-    UUID eventId,
-    CheckoutSessionId sessionId,
-    CheckoutStep expiredAtStep,
-    Instant occurredOn,
-    int version)
+    UUID eventId, CheckoutSessionId sessionId, CheckoutStep expiredAtStep, Instant occurredOn)
     implements DomainEvent {
 
   public static CheckoutExpired now(
       final CheckoutSessionId sessionId, final CheckoutStep expiredAtStep) {
-    return new CheckoutExpired(UUID.randomUUID(), sessionId, expiredAtStep, Instant.now(), 1);
+    return new CheckoutExpired(UUID.randomUUID(), sessionId, expiredAtStep, Instant.now());
   }
 }

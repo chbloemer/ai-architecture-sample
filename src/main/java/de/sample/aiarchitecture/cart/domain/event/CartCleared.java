@@ -11,11 +11,10 @@ import java.util.UUID;
  * <p>This event is raised when a customer clears their entire shopping cart, removing all items at
  * once.
  */
-public record CartCleared(
-    UUID eventId, CartId cartId, int itemsCleared, Instant occurredOn, int version)
+public record CartCleared(UUID eventId, CartId cartId, int itemsCleared, Instant occurredOn)
     implements DomainEvent {
 
   public static CartCleared now(final CartId cartId, final int itemsCleared) {
-    return new CartCleared(UUID.randomUUID(), cartId, itemsCleared, Instant.now(), 1);
+    return new CartCleared(UUID.randomUUID(), cartId, itemsCleared, Instant.now());
   }
 }

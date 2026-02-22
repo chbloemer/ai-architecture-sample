@@ -6,10 +6,10 @@ import java.time.Instant;
 import java.util.UUID;
 
 /** Domain Event indicating that an account's password was changed. */
-public record AccountPasswordChanged(
-    UUID eventId, AccountId accountId, Instant occurredOn, int version) implements DomainEvent {
+public record AccountPasswordChanged(UUID eventId, AccountId accountId, Instant occurredOn)
+    implements DomainEvent {
 
   public static AccountPasswordChanged now(final AccountId accountId) {
-    return new AccountPasswordChanged(UUID.randomUUID(), accountId, Instant.now(), 1);
+    return new AccountPasswordChanged(UUID.randomUUID(), accountId, Instant.now());
   }
 }

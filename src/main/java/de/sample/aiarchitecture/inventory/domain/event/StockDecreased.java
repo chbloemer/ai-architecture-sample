@@ -14,8 +14,7 @@ public record StockDecreased(
     ProductId productId,
     StockQuantity removedQuantity,
     StockQuantity newQuantity,
-    Instant occurredOn,
-    int version)
+    Instant occurredOn)
     implements DomainEvent {
 
   public static StockDecreased now(
@@ -24,6 +23,6 @@ public record StockDecreased(
       final StockQuantity removedQuantity,
       final StockQuantity newQuantity) {
     return new StockDecreased(
-        UUID.randomUUID(), stockLevelId, productId, removedQuantity, newQuantity, Instant.now(), 1);
+        UUID.randomUUID(), stockLevelId, productId, removedQuantity, newQuantity, Instant.now());
   }
 }

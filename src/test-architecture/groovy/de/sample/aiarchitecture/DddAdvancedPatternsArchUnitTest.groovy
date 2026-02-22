@@ -3,6 +3,7 @@ package de.sample.aiarchitecture
 import de.sample.aiarchitecture.sharedkernel.marker.tactical.DomainEvent
 import de.sample.aiarchitecture.sharedkernel.marker.tactical.DomainService
 import de.sample.aiarchitecture.sharedkernel.marker.tactical.Factory
+import de.sample.aiarchitecture.sharedkernel.marker.tactical.IntegrationEvent
 
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses
@@ -81,6 +82,67 @@ class DddAdvancedPatternsArchUnitTest extends BaseArchUnitTest {
       .because("Domain events must be framework-independent POJOs")
       .allowEmptyShould(true)
       .check(allClasses)
+  }
+
+  def "Integration Events must have a version field"() {
+    when:
+    def integrationEventClasses = allClasses.stream()
+      .filter { it.isAssignableTo(IntegrationEvent.class) }
+      .filter { !it.isInterface() }
+      .collect()
+
+    def violations = []
+
+    integrationEventClasses.each { eventClass ->
+      def hasVersionField = eventClass.getAllFields().stream()
+        .anyMatch { field ->
+          field.getName() == "version" && field.getRawType().isEquivalentTo(int.class)
+        }
+
+      if (!hasVersionField) {
+        violations.add("${eventClass.getName()} does not have an int version field")
+      }
+    }
+
+    then:
+    if (!violations.isEmpty()) {
+      throw new AssertionError(
+      "Integration Events must have an int version field for backward-compatible schema evolution:\n" +
+      violations.join("\n")
+      )
+    }
+    true
+  }
+
+  def "Domain Events that are not Integration Events must not have a version field"() {
+    when:
+    def domainOnlyEventClasses = allClasses.stream()
+      .filter { it.isAssignableTo(DomainEvent.class) }
+      .filter { !it.isAssignableTo(IntegrationEvent.class) }
+      .filter { !it.isInterface() }
+      .collect()
+
+    def violations = []
+
+    domainOnlyEventClasses.each { eventClass ->
+      def hasVersionField = eventClass.getAllFields().stream()
+        .anyMatch { field ->
+          field.getName() == "version"
+        }
+
+      if (hasVersionField) {
+        violations.add("${eventClass.getName()} has a version field but is not an IntegrationEvent — only IntegrationEvents need versioning")
+      }
+    }
+
+    then:
+    if (!violations.isEmpty()) {
+      throw new AssertionError(
+      "Domain Events (non-IntegrationEvent) must not have a version field — versioning is only for IntegrationEvents:\n" +
+      violations.join("\n")
+      )
+    }
+    true
   }
 
   def "Domain Events must have a timestamp field"() {

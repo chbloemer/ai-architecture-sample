@@ -23,11 +23,9 @@ import java.util.UUID;
  * @param accountId the account that was linked
  * @param userId the UserId that was linked
  * @param occurredOn when the linking occurred
- * @param version event schema version
  */
 public record AccountLinkedToIdentity(
-    UUID eventId, AccountId accountId, UserId userId, Instant occurredOn, int version)
-    implements DomainEvent {
+    UUID eventId, AccountId accountId, UserId userId, Instant occurredOn) implements DomainEvent {
 
   /**
    * Creates an AccountLinkedToIdentity event with the current timestamp.
@@ -37,6 +35,6 @@ public record AccountLinkedToIdentity(
    * @return a new AccountLinkedToIdentity event
    */
   public static AccountLinkedToIdentity now(final AccountId accountId, final UserId userId) {
-    return new AccountLinkedToIdentity(UUID.randomUUID(), accountId, userId, Instant.now(), 1);
+    return new AccountLinkedToIdentity(UUID.randomUUID(), accountId, userId, Instant.now());
   }
 }

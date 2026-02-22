@@ -16,8 +16,7 @@ public record StockChanged(
     StockQuantity newAvailableQuantity,
     StockQuantity previousReservedQuantity,
     StockQuantity newReservedQuantity,
-    Instant occurredOn,
-    int version)
+    Instant occurredOn)
     implements DomainEvent {
 
   public static StockChanged now(
@@ -35,7 +34,6 @@ public record StockChanged(
         newAvailableQuantity,
         previousReservedQuantity,
         newReservedQuantity,
-        Instant.now(),
-        1);
+        Instant.now());
   }
 }

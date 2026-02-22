@@ -13,15 +13,11 @@ import java.util.UUID;
  * the checkout flow.
  */
 public record CheckoutAbandoned(
-    UUID eventId,
-    CheckoutSessionId sessionId,
-    CheckoutStep abandonedAtStep,
-    Instant occurredOn,
-    int version)
+    UUID eventId, CheckoutSessionId sessionId, CheckoutStep abandonedAtStep, Instant occurredOn)
     implements DomainEvent {
 
   public static CheckoutAbandoned now(
       final CheckoutSessionId sessionId, final CheckoutStep abandonedAtStep) {
-    return new CheckoutAbandoned(UUID.randomUUID(), sessionId, abandonedAtStep, Instant.now(), 1);
+    return new CheckoutAbandoned(UUID.randomUUID(), sessionId, abandonedAtStep, Instant.now());
   }
 }

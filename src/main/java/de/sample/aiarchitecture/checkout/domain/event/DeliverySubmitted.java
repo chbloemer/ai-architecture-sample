@@ -20,8 +20,7 @@ public record DeliverySubmitted(
     String deliveryAddress,
     String shippingOptionId,
     Money shippingCost,
-    Instant occurredOn,
-    int version)
+    Instant occurredOn)
     implements DomainEvent {
 
   public static DeliverySubmitted now(
@@ -34,7 +33,6 @@ public record DeliverySubmitted(
         address.formattedAddress(),
         shippingOption.id(),
         shippingOption.cost(),
-        Instant.now(),
-        1);
+        Instant.now());
   }
 }

@@ -18,8 +18,7 @@ public record BuyerInfoSubmitted(
     String email,
     String firstName,
     String lastName,
-    Instant occurredOn,
-    int version)
+    Instant occurredOn)
     implements DomainEvent {
 
   public static BuyerInfoSubmitted now(
@@ -30,7 +29,6 @@ public record BuyerInfoSubmitted(
         buyerInfo.email(),
         buyerInfo.firstName(),
         buyerInfo.lastName(),
-        Instant.now(),
-        1);
+        Instant.now());
   }
 }

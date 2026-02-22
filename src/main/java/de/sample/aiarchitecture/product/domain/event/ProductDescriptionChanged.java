@@ -12,8 +12,7 @@ public record ProductDescriptionChanged(
     ProductId productId,
     ProductDescription oldDescription,
     ProductDescription newDescription,
-    Instant occurredOn,
-    int version)
+    Instant occurredOn)
     implements DomainEvent {
 
   public static ProductDescriptionChanged now(
@@ -21,6 +20,6 @@ public record ProductDescriptionChanged(
       final ProductDescription oldDescription,
       final ProductDescription newDescription) {
     return new ProductDescriptionChanged(
-        UUID.randomUUID(), productId, oldDescription, newDescription, Instant.now(), 1);
+        UUID.randomUUID(), productId, oldDescription, newDescription, Instant.now());
   }
 }

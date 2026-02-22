@@ -16,8 +16,9 @@ This project showcases best practices for structuring a Spring Boot application 
 ### Key Features
 
 - **AI-Accessible Product Catalog** via MCP server (Spring AI 1.1.0-M3)
+- **Spring Modulith** for framework-enforced module boundaries and event-driven cross-module communication
 - **Complete Architecture Testing** with ArchUnit (10 test suites)
-- **23 Architecture Decision Records** documenting design choices
+- **24 Architecture Decision Records** documenting design choices
 - **Shared Kernel** pattern for cross-context value objects
 - **Framework-Independent Domain** layer (no Spring/JPA in core)
 - **Multi-step Checkout Flow** with 5 steps and session management
@@ -802,7 +803,7 @@ For comprehensive architecture documentation, see:
 
 ### Architecture Tests
 
-Architecture rules are **actively enforced** using ArchUnit with 10 comprehensive test suites:
+Architecture rules are **actively enforced** using ArchUnit (10 test suites) and Spring Modulith (module boundary verification):
 
 ```bash
 ./gradlew test-architecture
@@ -819,6 +820,7 @@ Architecture rules are **actively enforced** using ArchUnit with 10 comprehensiv
 - **PackageCyclesArchUnitTest** - Circular dependency detection
 - **UseCasePatternsArchUnitTest** - Application service patterns
 - **BaseArchUnitTest** - Common test infrastructure
+- **SpringModulithVerificationTest** - Module boundary and cycle verification
 
 These tests verify:
 - Domain layer has no framework dependencies
@@ -889,6 +891,7 @@ These tests verify:
 - **[Hexagonal Architecture](https://alistair.cockburn.us/hexagonal-architecture/)** by Alistair Cockburn
 - **[Clean Architecture](https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html)** by Robert C. Martin
 - **[ArchUnit](https://www.archunit.org/)** - Architecture testing framework
+- **[Spring Modulith](https://spring.io/projects/spring-modulith)** - Module boundary enforcement
 
 ## License
 

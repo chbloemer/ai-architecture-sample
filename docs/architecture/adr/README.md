@@ -30,6 +30,7 @@ Architecture Decision Records capture important architectural decisions with con
 | [ADR-021](adr-021-enriched-domain-model-pattern.md) | Enriched Domain Model Pattern | ✅ Accepted |
 | [ADR-022](adr-022-viewmodel-pattern.md) | ViewModel Pattern for Web Adapters | ✅ Accepted |
 | [ADR-023](adr-023-optional-results-not-found.md) | Optional Results for Not-Found Cases | ✅ Accepted |
+| [ADR-024](adr-024-interface-inversion-spring-modulith.md) | Interface Inversion Pattern for Spring Modulith Event Listeners | ✅ Accepted |
 
 ### Proposed 🟡
 

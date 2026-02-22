@@ -91,10 +91,7 @@ de.sample.aiarchitecture
 │       │   ├── openhost/
 │       │   │   └── ProductCatalogService
 │       │   └── event/
-│       │       ├── ProductEventConsumer
-│       │       ├── CheckoutConfirmedEventListener
-│       │       └── acl/
-│       │           └── CheckoutEventTranslator
+│       │       └── ProductEventConsumer
 │       └── outgoing/               # Outgoing Adapters (Secondary)
 │           ├── persistence/
 │           │   └── InMemoryProductRepository
@@ -104,6 +101,9 @@ de.sample.aiarchitecture
 │               └── InventoryStockDataAdapter
 │
 ├── cart/                            # Shopping Cart Bounded Context
+│   ├── events/                      # @NamedInterface("events") — trigger interfaces
+│   │   ├── CartContentsChangedEvent # Integration Event for cart changes
+│   │   └── CartCompletionTrigger    # Interface Inversion: consumer-defined trigger
 │   ├── domain/
 │   │   ├── model/                  # Domain Model
 │   │   │   ├── ShoppingCart (Aggregate Root)
@@ -177,7 +177,7 @@ de.sample.aiarchitecture
 │       │   │   ├── CartMergePageController, CartMergePageViewModel
 │       │   └── event/
 │       │       ├── CartEventConsumer
-│       │       └── CheckoutEventConsumer
+│       │       └── CartCompletionEventConsumer
 │       └── outgoing/
 │           ├── product/
 │           │   └── CompositeArticleDataAdapter
@@ -192,6 +192,8 @@ de.sample.aiarchitecture
 │                   └── CartSpecToJdbc
 │
 ├── checkout/                        # Checkout Bounded Context
+│   ├── events/                      # @NamedInterface("events") — integration events
+│   │   └── CheckoutConfirmedEvent   # Implements CartCompletionTrigger, StockReductionTrigger
 │   ├── domain/
 │   │   ├── model/                  # Domain Model
 │   │   │   ├── CheckoutSession (Aggregate Root)
@@ -317,6 +319,8 @@ de.sample.aiarchitecture
 │               └── AccountBasedRegisteredUserValidator
 │
 ├── inventory/                       # Inventory Bounded Context
+│   ├── events/                      # @NamedInterface("events") — trigger interfaces
+│   │   └── StockReductionTrigger    # Interface Inversion: consumer-defined trigger
 │   ├── domain/
 │   │   ├── model/
 │   │   │   ├── StockLevel (Aggregate Root)
@@ -342,7 +346,7 @@ de.sample.aiarchitecture
 │       │   ├── openhost/
 │       │   │   └── InventoryService
 │       │   └── event/
-│       │       └── CheckoutConfirmedEventConsumer
+│       │       └── StockReductionEventConsumer
 │       └── outgoing/
 │           └── persistence/
 │               └── InMemoryStockLevelRepository

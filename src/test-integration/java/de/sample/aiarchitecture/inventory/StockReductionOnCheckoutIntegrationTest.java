@@ -23,13 +23,13 @@ import org.springframework.transaction.annotation.Transactional;
 /**
  * Integration tests verifying stock reduction in the Inventory context.
  *
- * <p>This test suite validates stock reduction via the {@link ReduceStockInputPort} use case, which
- * is called by the Checkout context's {@code ConfirmCheckoutUseCase} through the {@code
- * StockReductionPort} → {@code InventoryService} API chain.
+ * <p>This test suite validates stock reduction via the {@link ReduceStockInputPort} use case. In
+ * production, stock reduction is triggered by {@code StockReductionEventConsumer} listening to
+ * {@code StockReductionTrigger} events (Interface Inversion pattern) published by the Checkout
+ * context's {@code CheckoutConfirmedEvent}.
  *
  * <ul>
  *   <li>Stock is correctly reduced for single and multiple items
- *   <li>Partial failures are handled gracefully
  *   <li>Multiple consecutive reductions work correctly
  * </ul>
  */

@@ -30,15 +30,4 @@ public interface CartDataPort extends OutputPort {
    * @param cartId the cart identifier to mark as checked out
    */
   void markAsCheckedOut(CartId cartId);
-
-  /**
-   * Marks a cart as completed after checkout confirmation.
-   *
-   * <p>This replaces the previous event-driven approach where cart listened to {@code
-   * CheckoutConfirmedEvent}. Making this a synchronous call through the Cart API breaks the
-   * cart↔checkout module cycle.
-   *
-   * @param cartId the cart identifier to mark as completed
-   */
-  void markAsCompleted(CartId cartId);
 }

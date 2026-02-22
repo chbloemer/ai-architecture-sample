@@ -8,6 +8,7 @@ This document describes the architectural patterns and principles used in the AI
 2. [Domain-Driven Design (DDD)](#domain-driven-design-ddd)
    - [Tactical Patterns](#tactical-patterns)
      - [Enriched Domain Model Pattern](#enriched-domain-model-pattern)
+     - [Interface Inversion for Cross-Module Events](#interface-inversion-for-cross-module-events)
 3. [Clean Architecture (Use Cases)](#clean-architecture-use-cases)
 4. [Hexagonal Architecture](#hexagonal-architecture)
    - [Advanced Adapter Patterns](#advanced-adapter-patterns)
@@ -593,6 +594,86 @@ public class CheckoutConfirmedEventConsumer {
 - Example Event: `de.sample.aiarchitecture.cart.adapter.outgoing.event.CartCheckedOutEvent`
 - Example Publisher: `de.sample.aiarchitecture.cart.adapter.outgoing.event.CartCheckedOutEventPublisher`
 - Example Consumer: `de.sample.aiarchitecture.inventory.adapter.incoming.event.CheckoutConfirmedEventConsumer`
+
+#### Interface Inversion for Cross-Module Events
+
+When a consumer module listens to a producer's integration event directly, it creates a dependency from consumer to producer. Spring Modulith's `@ApplicationModuleListener` dispatches by type, so if the consumer listens to the producer's event class, that class must be in the consumer's `allowedDependencies`.
+
+The **Interface Inversion pattern** eliminates this dependency: the consumer defines a trigger interface in its own `events/` named interface, and the producer's event implements it.
+
+**How It Works:**
+
+1. Consumer module defines a trigger interface in `{module}/events/` (published via `@NamedInterface("events")`)
+2. Producer module's integration event implements the trigger interface(s)
+3. Consumer listens to its own trigger interface via `@ApplicationModuleListener`
+4. Each listener runs in its own transaction (one aggregate per transaction)
+
+**Example: Checkout publishes, Cart and Inventory consume**
+
+```
+checkout/events/CheckoutConfirmedEvent
+    implements CartCompletionTrigger, StockReductionTrigger
+
+cart/events/CartCompletionTrigger          ← defined by Cart
+inventory/events/StockReductionTrigger     ← defined by Inventory
+```
+
+Cart and Inventory never import anything from Checkout. Instead, Checkout depends on `cart::events` and `inventory::events` to implement their trigger interfaces.
+
+**Trigger interface (consumer-defined):**
+
+```java
+// cart/events/CartCompletionTrigger.java — Cart defines what it needs
+public interface CartCompletionTrigger {
+    String cartId();
+}
+```
+
+**Producer event implements trigger interfaces:**
+
+```java
+// checkout/events/CheckoutConfirmedEvent.java
+public record CheckoutConfirmedEvent(...)
+    implements IntegrationEvent, CartCompletionTrigger, StockReductionTrigger { }
+```
+
+**Consumer listens to its own interface:**
+
+```java
+// cart/adapter/incoming/event/CartCompletionEventConsumer.java
+@Component
+public class CartCompletionEventConsumer {
+    @ApplicationModuleListener
+    void on(final CartCompletionTrigger event) {
+        completeCartInputPort.execute(new CompleteCartCommand(event.cartId()));
+    }
+}
+```
+
+**Module Dependency Graph:**
+
+```
+checkout → cart::api, cart::events, product::api, pricing::api, inventory::api, inventory::events
+cart     → product::api, pricing::api, inventory::api
+product  → pricing::api, inventory::api
+pricing, inventory → (leaf modules, no business context deps)
+```
+
+Dependencies flow toward leaf modules. Checkout depends on consumer trigger interfaces (`cart::events`, `inventory::events`), not the other way around. This keeps Cart and Inventory decoupled from the checkout process.
+
+**Rules:**
+1. Trigger interfaces live in `{module}/events/` with `@NamedInterface("events")`
+2. Each trigger interface exposes only the data the consumer needs
+3. The producer's integration event implements all relevant trigger interfaces
+4. Consumers use `@ApplicationModuleListener` on the trigger interface type
+5. Each listener runs in its own transaction (Spring Modulith default)
+
+**Implementation:**
+- `de.sample.aiarchitecture.cart.events.CartCompletionTrigger`
+- `de.sample.aiarchitecture.inventory.events.StockReductionTrigger`
+- `de.sample.aiarchitecture.checkout.events.CheckoutConfirmedEvent` (implements both)
+- `de.sample.aiarchitecture.cart.adapter.incoming.event.CartCompletionEventConsumer`
+- `de.sample.aiarchitecture.inventory.adapter.incoming.event.StockReductionEventConsumer`
 
 #### Factory
 

@@ -1,9 +1,7 @@
 package de.sample.aiarchitecture.checkout.application.confirmcheckout;
 
-import de.sample.aiarchitecture.checkout.application.shared.CartDataPort;
 import de.sample.aiarchitecture.checkout.application.shared.CheckoutArticleDataPort;
 import de.sample.aiarchitecture.checkout.application.shared.CheckoutSessionRepository;
-import de.sample.aiarchitecture.checkout.application.shared.StockReductionPort;
 import de.sample.aiarchitecture.checkout.domain.model.CheckoutArticle;
 import de.sample.aiarchitecture.checkout.domain.model.CheckoutArticlePriceResolver;
 import de.sample.aiarchitecture.checkout.domain.model.CheckoutSession;
@@ -26,14 +24,14 @@ import org.springframework.transaction.annotation.Transactional;
  *   <li>Building a resolver for current pricing validation
  *   <li>Calling the domain method to confirm with validation
  *   <li>Persisting the updated session
- *   <li>The domain raises the CheckoutConfirmed integration event
+ *   <li>Publishing domain events — triggers cart completion and stock reduction in separate
+ *       transactions via Interface Inversion pattern
  * </ul>
  *
- * <p><b>Hexagonal Architecture:</b> This class implements the {@link ConfirmCheckoutInputPort}
- * interface, which is a primary/driving port in the application layer.
- *
- * <p><b>Bounded Context Isolation:</b> This use case accesses article data (pricing, availability)
- * through {@link CheckoutArticleDataPort} output port to validate items before final confirmation.
+ * <p><b>One Aggregate Per Transaction:</b> This use case only modifies the {@code CheckoutSession}
+ * aggregate. Cart completion and stock reduction happen in separate transactions via event
+ * listeners (Interface Inversion pattern), respecting the DDD rule of one aggregate per
+ * transaction.
  */
 @Service
 @Transactional
@@ -41,20 +39,14 @@ public class ConfirmCheckoutUseCase implements ConfirmCheckoutInputPort {
 
   private final CheckoutSessionRepository checkoutSessionRepository;
   private final CheckoutArticleDataPort checkoutArticleDataPort;
-  private final CartDataPort cartDataPort;
-  private final StockReductionPort stockReductionPort;
   private final DomainEventPublisher domainEventPublisher;
 
   public ConfirmCheckoutUseCase(
       final CheckoutSessionRepository checkoutSessionRepository,
       final CheckoutArticleDataPort checkoutArticleDataPort,
-      final CartDataPort cartDataPort,
-      final StockReductionPort stockReductionPort,
       final DomainEventPublisher domainEventPublisher) {
     this.checkoutSessionRepository = checkoutSessionRepository;
     this.checkoutArticleDataPort = checkoutArticleDataPort;
-    this.cartDataPort = cartDataPort;
-    this.stockReductionPort = stockReductionPort;
     this.domainEventPublisher = domainEventPublisher;
   }
 
@@ -94,16 +86,10 @@ public class ConfirmCheckoutUseCase implements ConfirmCheckoutInputPort {
     // Save session
     checkoutSessionRepository.save(session);
 
-    // Publish domain events (triggers cross-context listeners: inventory, product)
+    // Publish domain events — triggers cross-module listeners via interface inversion:
+    // - CartCompletionEventConsumer completes the cart (separate transaction)
+    // - StockReductionEventConsumer reduces stock (separate transaction)
     domainEventPublisher.publishAndClearEvents(session);
-
-    // Complete the cart synchronously via Cart API (replaces event-driven cart↔checkout cycle)
-    cartDataPort.markAsCompleted(session.cartId());
-
-    // Reduce stock for all ordered items via Inventory API
-    session
-        .lineItems()
-        .forEach(item -> stockReductionPort.reduceStock(item.productId(), item.quantity()));
 
     // Map to response
     return mapToResponse(session);

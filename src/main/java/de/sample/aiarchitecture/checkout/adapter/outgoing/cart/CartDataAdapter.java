@@ -36,11 +36,6 @@ public class CartDataAdapter implements CartDataPort {
     cartService.markAsCheckedOut(UUID.fromString(cartId.value()));
   }
 
-  @Override
-  public void markAsCompleted(final CartId cartId) {
-    cartService.completeCart(UUID.fromString(cartId.value()));
-  }
-
   private CartData toCartData(final CartSnapshot snapshot) {
     final java.util.List<CartData.CartItemData> items =
         snapshot.items().stream()

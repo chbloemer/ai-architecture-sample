@@ -14,6 +14,7 @@
       "product :: api",
       "pricing :: api",
       "inventory :: api",
+      "inventory :: events",
       "cart :: api",
       "cart :: events"
     })

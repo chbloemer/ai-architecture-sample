@@ -39,18 +39,11 @@ class DddStrategicPatternsArchUnitTest extends BaseArchUnitTest {
    *
    * Format: "source-context" -> ["target-context", ...]
    *
-   * With the Open Host Service pattern in place:
-   * - Cart and Checkout NO LONGER directly access Product in their application layer
-   * - They define their own output ports (ProductDataPort, ProductInfoPort)
-   * - Outgoing adapters implement these ports by calling Product's Open Host Service
-   *
-   * Remaining allowed dependency:
-   * - Checkout -> Cart: Checkout accesses Cart domain via CartDataAdapter (ACL pattern)
-   *   to retrieve cart contents and mark carts as checked out
+   * With the Open Host Service (api/) and Events (events/) patterns in place:
+   * - All cross-context communication uses api/ packages (synchronous) or events/ packages (async)
+   * - No bounded context directly accesses another context's domain or application layer
    */
-  private static final Map<String, List<String>> ALLOWED_CROSS_CONTEXT_DEPENDENCIES = [
-    "checkout": ["cart"]   // Checkout accesses Cart for cart data via CartDataAdapter
-  ]
+  private static final Map<String, List<String>> ALLOWED_CROSS_CONTEXT_DEPENDENCIES = [:]
 
   /**
    * Allowed direct adapter-to-context dependencies for ACL patterns.
@@ -60,14 +53,9 @@ class DddStrategicPatternsArchUnitTest extends BaseArchUnitTest {
    *
    * Format: "source-context" -> ["target-context", ...]
    *
-   * Checkout -> Cart: CartDataAdapter directly accesses Cart's domain to:
-   * - Retrieve cart contents for checkout
-   * - Mark carts as checked out
-   * This is an intentional ACL pattern, not using Open Host Service.
+   * With Spring Modulith, all cross-context access uses api/ or events/ published packages.
    */
-  private static final Map<String, List<String>> ALLOWED_ADAPTER_CROSS_CONTEXT_ACCESS = [
-    "checkout": ["cart"]   // CartDataAdapter directly accesses Cart domain (ACL pattern)
-  ]
+  private static final Map<String, List<String>> ALLOWED_ADAPTER_CROSS_CONTEXT_ACCESS = [:]
 
   // ============================================================================
   // DIAGNOSTIC: BOUNDED CONTEXT DISCOVERY
@@ -191,13 +179,13 @@ class DddStrategicPatternsArchUnitTest extends BaseArchUnitTest {
   // OPEN HOST SERVICE PATTERN
   // ============================================================================
 
-  def "Open Host Services must reside in adapter.incoming.openhost packages"() {
+  def "Open Host Services must reside in api or adapter.incoming.openhost packages"() {
     expect:
     classes()
       .that().areAnnotatedWith(OpenHostService)
-      .should().resideInAPackage("..adapter.incoming.openhost..")
+      .should().resideInAnyPackage("..api..", "..adapter.incoming.openhost..")
       .allowEmptyShould(true)
-      .because("Open Host Services are incoming adapters that expose context capabilities to other contexts")
+      .because("Open Host Services expose context capabilities via api/ packages (Spring Modulith @NamedInterface) or adapter.incoming.openhost/ packages")
       .check(allClasses)
   }
 
@@ -225,7 +213,8 @@ class DddStrategicPatternsArchUnitTest extends BaseArchUnitTest {
       }
 
       if (!otherContexts.isEmpty()) {
-        // For each other context (not in ACL exceptions), outgoing adapters should only access openhost packages
+        // For each other context (not in ACL exceptions), outgoing adapters should only access
+        // api/ packages (Open Host Services) or events/ packages (Integration Events)
         otherContexts.each { targetContext ->
           String targetName = boundedContexts[targetContext].name()
 
@@ -235,7 +224,7 @@ class DddStrategicPatternsArchUnitTest extends BaseArchUnitTest {
             .should().accessClassesThat()
               .resideInAPackage("${targetContext}.domain..")
             .allowEmptyShould(true)
-            .because("Outgoing adapters in '${sourceName}' must not access domain layer of '${targetName}' - use Open Host Service instead")
+            .because("Outgoing adapters in '${sourceName}' must not access domain layer of '${targetName}' - use api/ or events/ packages instead")
             .check(allClasses)
 
           // Forbid access to application layers of other contexts
@@ -244,7 +233,7 @@ class DddStrategicPatternsArchUnitTest extends BaseArchUnitTest {
             .should().accessClassesThat()
               .resideInAPackage("${targetContext}.application..")
             .allowEmptyShould(true)
-            .because("Outgoing adapters in '${sourceName}' must not access application layer of '${targetName}' - use Open Host Service instead")
+            .because("Outgoing adapters in '${sourceName}' must not access application layer of '${targetName}' - use api/ or events/ packages instead")
             .check(allClasses)
         }
       }
@@ -255,15 +244,16 @@ class DddStrategicPatternsArchUnitTest extends BaseArchUnitTest {
   // INTEGRATION EVENTS PATTERN
   // ============================================================================
 
-  def "Integration Events must be in adapter outgoing event packages"() {
+  def "Integration Events must be in events or adapter outgoing event packages"() {
     expect:
-    // Integration Events are adapter-layer DTOs created from domain events
-    // They reside in outgoing adapters, acting as an ACL to the outside world
+    // Integration Events are published for cross-module consumption.
+    // With Spring Modulith, they reside in events/ packages (@NamedInterface("events"))
+    // or in adapter.outgoing.event/ packages (legacy location)
     classes()
       .that().implement(IntegrationEvent)
-      .should().resideInAPackage("..adapter.outgoing.event..")
+      .should().resideInAnyPackage("..events..", "..adapter.outgoing.event..")
       .allowEmptyShould(true)
-      .because("Integration Events are adapter-layer DTOs and must be in adapter.outgoing.event packages")
+      .because("Integration Events must be in events/ packages (Spring Modulith @NamedInterface) or adapter.outgoing.event/ packages")
       .check(allClasses)
   }
 

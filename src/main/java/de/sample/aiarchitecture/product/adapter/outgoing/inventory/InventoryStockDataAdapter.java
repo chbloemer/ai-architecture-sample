@@ -1,7 +1,7 @@
 package de.sample.aiarchitecture.product.adapter.outgoing.inventory;
 
-import de.sample.aiarchitecture.inventory.adapter.incoming.openhost.InventoryService;
-import de.sample.aiarchitecture.inventory.adapter.incoming.openhost.InventoryService.StockInfo;
+import de.sample.aiarchitecture.inventory.api.InventoryService;
+import de.sample.aiarchitecture.inventory.api.InventoryService.StockInfo;
 import de.sample.aiarchitecture.product.application.shared.ProductStockDataPort;
 import de.sample.aiarchitecture.sharedkernel.domain.model.ProductId;
 import java.util.Collection;

@@ -31,12 +31,12 @@ import de.sample.aiarchitecture.checkout.application.submitdelivery.SubmitDelive
 import de.sample.aiarchitecture.checkout.application.submitpayment.SubmitPaymentCommand;
 import de.sample.aiarchitecture.checkout.application.submitpayment.SubmitPaymentInputPort;
 import de.sample.aiarchitecture.infrastructure.AiArchitectureApplication;
-import de.sample.aiarchitecture.inventory.adapter.incoming.openhost.InventoryService;
-import de.sample.aiarchitecture.pricing.adapter.incoming.openhost.PricingService;
+import de.sample.aiarchitecture.inventory.api.InventoryService;
+import de.sample.aiarchitecture.pricing.api.PricingService;
 import de.sample.aiarchitecture.pricing.application.setproductprice.SetProductPriceCommand;
 import de.sample.aiarchitecture.pricing.application.setproductprice.SetProductPriceInputPort;
-import de.sample.aiarchitecture.product.adapter.incoming.openhost.ProductCatalogService;
-import de.sample.aiarchitecture.product.adapter.incoming.openhost.ProductCatalogService.ProductInfo;
+import de.sample.aiarchitecture.product.api.ProductCatalogService;
+import de.sample.aiarchitecture.product.api.ProductCatalogService.ProductInfo;
 import de.sample.aiarchitecture.product.application.shared.ProductRepository;
 import de.sample.aiarchitecture.product.domain.model.Product;
 import de.sample.aiarchitecture.sharedkernel.domain.model.ProductId;

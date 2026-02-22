@@ -1,34 +1,22 @@
 package de.sample.aiarchitecture.checkout.adapter.incoming.event;
 
-import de.sample.aiarchitecture.cart.domain.event.CartCleared;
-import de.sample.aiarchitecture.cart.domain.event.CartItemAddedToCart;
-import de.sample.aiarchitecture.cart.domain.event.CartItemQuantityChanged;
-import de.sample.aiarchitecture.cart.domain.event.ProductRemovedFromCart;
+import de.sample.aiarchitecture.cart.events.CartContentsChangedEvent;
 import de.sample.aiarchitecture.checkout.application.synccheckoutwithcart.SyncCheckoutWithCartCommand;
 import de.sample.aiarchitecture.checkout.application.synccheckoutwithcart.SyncCheckoutWithCartInputPort;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.modulith.events.ApplicationModuleListener;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.event.TransactionPhase;
-import org.springframework.transaction.event.TransactionalEventListener;
 
 /**
- * Event listener for cart-related domain events in the Checkout context.
+ * Event listener for cart content changes in the Checkout context.
  *
  * <p><b>Cross-Context Integration:</b> This listener enables eventual consistency between the Cart
  * and Checkout bounded contexts. When the cart contents change during an active checkout session,
  * the session's line items are synchronized.
  *
- * <p><b>Why Events Instead of Direct Calls?</b>
- *
- * <ul>
- *   <li>Maintains bounded context isolation - Cart doesn't depend on Checkout internals
- *   <li>Eventual consistency - Checkout session sync happens after cart transaction commits
- *   <li>Loose coupling - Contexts communicate through events, not direct dependencies
- * </ul>
- *
- * <p><b>Architectural Pattern:</b> This is an "incoming event adapter" in the Checkout context,
- * receiving domain events published by the Cart context.
+ * <p>Consumes the consolidated {@link CartContentsChangedEvent} integration event instead of
+ * individual cart domain events, respecting module boundaries.
  */
 @Component
 public class CartChangeEventConsumer {
@@ -42,67 +30,29 @@ public class CartChangeEventConsumer {
   }
 
   /**
-   * Handles CartItemAddedToCart events by syncing the checkout session.
+   * Handles CartContentsChangedEvent by syncing the checkout session.
    *
-   * <p>When a customer adds an item to their cart while in checkout, the checkout session's line
-   * items are updated to reflect the change.
+   * <p>When cart contents change (item added, removed, quantity changed), the checkout session's
+   * line items are updated to reflect the change. Cart cleared events are logged but do not trigger
+   * sync.
    *
-   * @param event the cart item added event
+   * @param event the cart contents changed integration event
    */
-  @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-  public void onCartItemAdded(final CartItemAddedToCart event) {
-    logger.debug(
-        "Cart item added event for cart {}, syncing checkout session", event.cartId().value());
-    syncCheckoutSession(event.cartId().value().toString());
-  }
+  @ApplicationModuleListener
+  public void onCartContentsChanged(final CartContentsChangedEvent event) {
+    if (event.changeType() == CartContentsChangedEvent.ChangeType.CART_CLEARED) {
+      logger.warn(
+          "Cart {} was cleared during checkout - checkout session will have stale data",
+          event.cartId());
+      return;
+    }
 
-  /**
-   * Handles ProductRemovedFromCart events by syncing the checkout session.
-   *
-   * <p>When a customer removes a product from their cart while in checkout, the checkout session's
-   * line items are updated to reflect the change.
-   *
-   * @param event the product removed event
-   */
-  @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-  public void onProductRemoved(final ProductRemovedFromCart event) {
     logger.debug(
-        "Product removed event for cart {}, syncing checkout session", event.cartId().value());
-    syncCheckoutSession(event.cartId().value().toString());
-  }
+        "Cart contents changed [{}] for cart {}, syncing checkout session",
+        event.changeType(),
+        event.cartId());
 
-  /**
-   * Handles CartItemQuantityChanged events by syncing the checkout session.
-   *
-   * <p>When a customer changes the quantity of an item in their cart while in checkout, the
-   * checkout session's line items are updated to reflect the change.
-   *
-   * @param event the quantity changed event
-   */
-  @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-  public void onCartItemQuantityChanged(final CartItemQuantityChanged event) {
-    logger.debug(
-        "Cart item quantity changed event for cart {}, syncing checkout session",
-        event.cartId().value());
-    syncCheckoutSession(event.cartId().value().toString());
-  }
-
-  /**
-   * Handles CartCleared events by syncing the checkout session.
-   *
-   * <p>When a customer clears their cart while in checkout, this is logged but the checkout session
-   * is not modified (empty cart cannot be synced). The user will see an error when trying to
-   * continue checkout.
-   *
-   * @param event the cart cleared event
-   */
-  @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-  public void onCartCleared(final CartCleared event) {
-    logger.warn(
-        "Cart {} was cleared during checkout - checkout session will have stale data",
-        event.cartId().value());
-    // Note: We don't sync here because an empty cart cannot be synced.
-    // The checkout flow will handle this gracefully when the user tries to proceed.
+    syncCheckoutSession(event.cartId().toString());
   }
 
   private void syncCheckoutSession(final String cartId) {
@@ -119,7 +69,6 @@ public class CartChangeEventConsumer {
       }
     } catch (Exception e) {
       logger.error("Failed to sync checkout session with cart {}: {}", cartId, e.getMessage(), e);
-      // Swallow exception - don't fail the cart operation because of checkout sync failure
     }
   }
 }

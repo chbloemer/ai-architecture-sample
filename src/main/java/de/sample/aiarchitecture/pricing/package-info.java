@@ -8,7 +8,9 @@
 @BoundedContext(
     name = "Pricing",
     description = "Product pricing management and price change tracking")
+@ApplicationModule(allowedDependencies = {"sharedkernel", "infrastructure"})
 package de.sample.aiarchitecture.pricing;
 
 import de.sample.aiarchitecture.sharedkernel.marker.strategic.BoundedContext;
 import org.jspecify.annotations.NullMarked;
+import org.springframework.modulith.ApplicationModule;

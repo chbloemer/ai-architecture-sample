@@ -1,7 +1,7 @@
 package de.sample.aiarchitecture.product.adapter.outgoing.pricing;
 
-import de.sample.aiarchitecture.pricing.adapter.incoming.openhost.PricingService;
-import de.sample.aiarchitecture.pricing.adapter.incoming.openhost.PricingService.PriceInfo;
+import de.sample.aiarchitecture.pricing.api.PricingService;
+import de.sample.aiarchitecture.pricing.api.PricingService.PriceInfo;
 import de.sample.aiarchitecture.product.application.shared.PricingDataPort;
 import de.sample.aiarchitecture.sharedkernel.domain.model.ProductId;
 import java.util.Collection;

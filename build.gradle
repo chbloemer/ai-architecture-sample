@@ -68,6 +68,7 @@ repositories {
 ext {
   set('springCloudVersion', "2025.1.1")
   set('springAiVersion', "2.0.0-M2")
+  set('springModulithVersion', "2.0.3")
 }
 
 // Dependencies
@@ -104,6 +105,10 @@ dependencies {
   // Spring AI MCP Server
   implementation 'org.springframework.ai:spring-ai-starter-mcp-server-webmvc'
 
+  // Spring Modulith
+  implementation 'org.springframework.modulith:spring-modulith-starter-core'
+  implementation 'org.springframework.modulith:spring-modulith-starter-jdbc'
+
   // Test dependencies are configured in test-common.gradle
 }
 
@@ -112,6 +117,7 @@ dependencyManagement {
   imports {
     mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
     mavenBom "org.springframework.ai:spring-ai-bom:${springAiVersion}"
+    mavenBom "org.springframework.modulith:spring-modulith-bom:${springModulithVersion}"
   }
   // Override transitive version used by spring-pug4j
   dependencies {

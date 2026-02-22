@@ -7,7 +7,9 @@
 @BoundedContext(
     name = "Account",
     description = "User account management, authentication, and profile handling")
+@ApplicationModule(allowedDependencies = {"sharedkernel", "infrastructure"})
 package de.sample.aiarchitecture.account;
 
 import de.sample.aiarchitecture.sharedkernel.marker.strategic.BoundedContext;
 import org.jspecify.annotations.NullMarked;
+import org.springframework.modulith.ApplicationModule;

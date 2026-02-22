@@ -29,6 +29,12 @@ spring:
     console:
       enabled: true
       path: /h2-console
+  modulith:
+    events:
+      jdbc:
+        schema-initialization:
+          enabled: true
+      republish-outstanding-events-on-restart: true
   ai:
     mcp:
       server:

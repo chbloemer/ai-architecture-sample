@@ -2,12 +2,12 @@ package de.sample.aiarchitecture.checkout.adapter.outgoing.product;
 
 import de.sample.aiarchitecture.checkout.application.shared.CheckoutArticleDataPort;
 import de.sample.aiarchitecture.checkout.domain.model.CheckoutArticle;
-import de.sample.aiarchitecture.inventory.adapter.incoming.openhost.InventoryService;
-import de.sample.aiarchitecture.inventory.adapter.incoming.openhost.InventoryService.StockInfo;
-import de.sample.aiarchitecture.pricing.adapter.incoming.openhost.PricingService;
-import de.sample.aiarchitecture.pricing.adapter.incoming.openhost.PricingService.PriceInfo;
-import de.sample.aiarchitecture.product.adapter.incoming.openhost.ProductCatalogService;
-import de.sample.aiarchitecture.product.adapter.incoming.openhost.ProductCatalogService.ProductInfo;
+import de.sample.aiarchitecture.inventory.api.InventoryService;
+import de.sample.aiarchitecture.inventory.api.InventoryService.StockInfo;
+import de.sample.aiarchitecture.pricing.api.PricingService;
+import de.sample.aiarchitecture.pricing.api.PricingService.PriceInfo;
+import de.sample.aiarchitecture.product.api.ProductCatalogService;
+import de.sample.aiarchitecture.product.api.ProductCatalogService.ProductInfo;
 import de.sample.aiarchitecture.sharedkernel.domain.model.Money;
 import de.sample.aiarchitecture.sharedkernel.domain.model.ProductId;
 import java.util.Collection;

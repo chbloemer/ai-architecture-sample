@@ -1,6 +1,8 @@
 package de.sample.aiarchitecture.cart.adapter.outgoing.event;
 
 import de.sample.aiarchitecture.cart.domain.event.CartCheckedOut;
+import de.sample.aiarchitecture.cart.events.CartCheckedOutEvent;
+import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
@@ -29,12 +31,26 @@ public class CartCheckedOutEventPublisher {
   /** Listens for the internal domain event and publishes the integration event. */
   @EventListener
   public void on(final CartCheckedOut domainEvent) {
-    final CartCheckedOutEvent integrationEvent = CartCheckedOutEvent.from(domainEvent);
+    final var items =
+        domainEvent.items().stream()
+            .map(item -> new CartCheckedOutEvent.ItemInfo(item.productId(), item.quantity()))
+            .toList();
+
+    final var integrationEvent =
+        new CartCheckedOutEvent(
+            domainEvent.eventId(),
+            UUID.fromString(domainEvent.cartId().value()),
+            domainEvent.customerId().value(),
+            domainEvent.totalAmount(),
+            domainEvent.itemCount(),
+            items,
+            domainEvent.occurredOn(),
+            1);
 
     logger.info(
         "Publishing CartCheckedOutEvent v{} for cart: {}",
         integrationEvent.version(),
-        integrationEvent.cartId().value());
+        integrationEvent.cartId());
 
     publisher.publishEvent(integrationEvent);
   }

@@ -1,198 +1,185 @@
 package de.sample.aiarchitecture.infrastructure.init;
 
-import de.sample.aiarchitecture.inventory.application.shared.StockLevelRepository;
-import de.sample.aiarchitecture.inventory.domain.model.StockLevel;
-import de.sample.aiarchitecture.pricing.application.shared.ProductPriceRepository;
-import de.sample.aiarchitecture.pricing.domain.model.ProductPrice;
-import de.sample.aiarchitecture.product.application.shared.ProductRepository;
-import de.sample.aiarchitecture.product.domain.model.Category;
-import de.sample.aiarchitecture.product.domain.model.ImageUrl;
-import de.sample.aiarchitecture.product.domain.model.Product;
-import de.sample.aiarchitecture.product.domain.model.ProductDescription;
-import de.sample.aiarchitecture.product.domain.model.ProductFactory;
-import de.sample.aiarchitecture.product.domain.model.ProductName;
-import de.sample.aiarchitecture.product.domain.model.SKU;
+import de.sample.aiarchitecture.inventory.api.InventoryService;
+import de.sample.aiarchitecture.pricing.api.PricingService;
+import de.sample.aiarchitecture.product.api.ProductCatalogService;
+import de.sample.aiarchitecture.product.api.ProductCatalogService.CreatedProduct;
 import de.sample.aiarchitecture.sharedkernel.domain.model.Money;
-import jakarta.annotation.PostConstruct;
+import de.sample.aiarchitecture.sharedkernel.domain.model.ProductId;
+import java.math.BigDecimal;
+import org.springframework.boot.ApplicationArguments;
+import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.support.TransactionTemplate;
 
 /**
  * Initializes sample product data for demonstration purposes.
  *
- * <p>This component loads sample products into repositories on application startup. It directly
- * creates entries in all related bounded contexts since @PostConstruct does not run within a
- * transaction (so TransactionalEventListener won't fire).
+ * <p>Uses the published APIs of Product, Pricing, and Inventory contexts to create products with
+ * initial prices and stock levels. This cross-cutting initializer lives in infrastructure because
+ * it orchestrates multiple bounded contexts.
  *
- * <p><b>Infrastructure Layer:</b> This component lives in the infrastructure layer because it needs
- * to coordinate across multiple bounded contexts (Product, Pricing, Inventory) for sample data
- * initialization. This is acceptable for demo/test data setup.
+ * <p>Runs as an {@link ApplicationRunner} within a {@link TransactionTemplate} to ensure all
+ * operations complete within a proper transaction.
  */
 @Component
-public class SampleDataInitializer {
+public class SampleDataInitializer implements ApplicationRunner {
 
-  private final ProductRepository productRepository;
-  private final ProductFactory productFactory;
-  private final ProductPriceRepository productPriceRepository;
-  private final StockLevelRepository stockLevelRepository;
+  private final ProductCatalogService productCatalogService;
+  private final PricingService pricingService;
+  private final InventoryService inventoryService;
+  private final TransactionTemplate transactionTemplate;
 
   public SampleDataInitializer(
-      final ProductRepository productRepository,
-      final ProductFactory productFactory,
-      final ProductPriceRepository productPriceRepository,
-      final StockLevelRepository stockLevelRepository) {
-    this.productRepository = productRepository;
-    this.productFactory = productFactory;
-    this.productPriceRepository = productPriceRepository;
-    this.stockLevelRepository = stockLevelRepository;
+      final ProductCatalogService productCatalogService,
+      final PricingService pricingService,
+      final InventoryService inventoryService,
+      final TransactionTemplate transactionTemplate) {
+    this.productCatalogService = productCatalogService;
+    this.pricingService = pricingService;
+    this.inventoryService = inventoryService;
+    this.transactionTemplate = transactionTemplate;
   }
 
-  @PostConstruct
-  public void initialize() {
-    loadSampleProducts();
+  @Override
+  public void run(final ApplicationArguments args) {
+    transactionTemplate.executeWithoutResult(status -> loadSampleProducts());
   }
 
   private void loadSampleProducts() {
     // Electronics
-    createAndSaveProduct(
+    createProduct(
         "LAPTOP-001",
         "Professional Laptop",
         "Unleash your productivity with this high-performance laptop featuring 16GB RAM, a blazing-fast 512GB SSD, and a stunning 15.6-inch Retina display. Built for professionals who demand power and portability, it delivers all-day battery life and whisper-quiet operation.",
         "/images/products/laptop.svg",
         1299.99,
-        Category.electronics(),
+        "Electronics",
         15);
 
-    createAndSaveProduct(
+    createProduct(
         "PHONE-001",
         "Smartphone Pro",
         "Capture every moment in breathtaking detail with our flagship smartphone. The triple-lens 108MP camera system, edge-to-edge AMOLED display, and 5G connectivity make this the ultimate mobile companion for work and play.",
         "/images/products/smartphone.svg",
         899.99,
-        Category.electronics(),
+        "Electronics",
         25);
 
-    createAndSaveProduct(
+    createProduct(
         "TABLET-001",
         "Tablet Air",
         "The perfect blend of power and portability. This ultra-lightweight tablet features a vibrant 11-inch display, Apple M2 chip, and supports stylus input for creative professionals. Ideal for sketching, note-taking, and streaming on the go.",
         "/images/products/tablet.svg",
         599.99,
-        Category.electronics(),
+        "Electronics",
         30);
 
     // Clothing
-    createAndSaveProduct(
+    createProduct(
         "SHIRT-001",
         "Cotton T-Shirt",
         "Made from 100% organic combed cotton, this premium t-shirt offers unmatched softness and breathability. Available in 12 vibrant colors with a modern relaxed fit that looks great whether you dress it up or keep it casual.",
         "/images/products/tshirt.svg",
         29.99,
-        Category.clothing(),
+        "Clothing",
         100);
 
-    createAndSaveProduct(
+    createProduct(
         "JEANS-001",
         "Classic Jeans",
         "Crafted from premium selvedge denim with a classic straight-leg fit that never goes out of style. Features reinforced stitching, copper rivets, and a comfortable mid-rise waist. These jeans only get better with age.",
         "/images/products/jeans.svg",
         79.99,
-        Category.clothing(),
+        "Clothing",
         50);
 
     // Books
-    createAndSaveProduct(
+    createProduct(
         "BOOK-001",
         "Domain-Driven Design",
         "The seminal work by Eric Evans that introduced the software industry to Domain-Driven Design. This essential guide teaches you how to tackle complexity in the heart of software by connecting implementation to an evolving model of the business domain.",
         "/images/products/ddd-book.svg",
         54.99,
-        Category.books(),
+        "Books",
         20);
 
-    createAndSaveProduct(
+    createProduct(
         "BOOK-002",
         "Clean Architecture",
         "Robert C. Martin's definitive guide to software structure and design. Learn the universal rules of software architecture that dramatically improve developer productivity throughout the life of any software system.",
         "/images/products/clean-architecture-book.svg",
         39.99,
-        Category.books(),
+        "Books",
         35);
 
     // Home & Garden
-    createAndSaveProduct(
+    createProduct(
         "CHAIR-001",
         "Ergonomic Office Chair",
         "Designed in collaboration with orthopedic specialists, this premium office chair features adjustable lumbar support, breathable mesh back, and a 4D armrest system. Work in comfort for hours with proper spinal alignment and pressure distribution.",
         "/images/products/office-chair.svg",
         299.99,
-        Category.homeAndGarden(),
+        "Home & Garden",
         12);
 
-    createAndSaveProduct(
+    createProduct(
         "DESK-001",
         "Standing Desk",
         "Transform your workspace with this electric height-adjustable standing desk. Smooth dual-motor system transitions between sitting and standing in seconds, with programmable memory presets. The spacious 60x30 inch bamboo surface provides plenty of room for dual monitors.",
         "/images/products/standing-desk.svg",
         499.99,
-        Category.homeAndGarden(),
+        "Home & Garden",
         8);
 
     // Sports
-    createAndSaveProduct(
+    createProduct(
         "YOGA-001",
         "Yoga Mat Premium",
         "Elevate your practice with this professional-grade yoga mat. The dual-layer design provides superior cushioning and a non-slip surface that grips better the more you sweat. Includes a cotton carrying strap and is made from eco-friendly, biodegradable natural rubber.",
         "/images/products/yoga-mat.svg",
         49.99,
-        Category.sports(),
+        "Sports",
         40);
 
-    createAndSaveProduct(
+    createProduct(
         "DUMBBELL-001",
         "Adjustable Dumbbells Set",
         "Replace an entire rack of weights with one smart set. These space-saving adjustable dumbbells let you switch between 5kg and 25kg in seconds with a simple twist-lock mechanism. Perfect for home workouts with professional-grade cast iron construction.",
         "/images/products/dumbbells.svg",
         199.99,
-        Category.sports(),
+        "Sports",
         18);
 
-    System.out.println(
-        "Sample data initialized: " + productRepository.findAll().size() + " products loaded");
+    System.out.println("Sample data initialized: 11 products with prices and stock levels");
   }
 
-  private void createAndSaveProduct(
+  private void createProduct(
       final String sku,
       final String name,
       final String description,
       final String imageUrl,
       final double price,
-      final Category category,
+      final String category,
       final int initialStock) {
 
-    final Money initialPrice = Money.euro(price);
-
-    // Create product (stock is not stored in Product - managed by Inventory context)
-    final Product product =
-        productFactory.createProduct(
-            SKU.of(sku),
-            ProductName.of(name),
-            ProductDescription.of(description),
+    CreatedProduct created =
+        productCatalogService.createProduct(
+            sku,
+            name,
+            description,
+            imageUrl,
+            BigDecimal.valueOf(price),
+            "EUR",
             category,
-            ImageUrl.of(imageUrl),
-            initialPrice,
             initialStock);
 
-    productRepository.save(product);
+    ProductId productId = created.productId();
 
-    // Directly create price entry in Pricing context
-    // (We do this directly because @PostConstruct doesn't run in a transaction,
-    // so @TransactionalEventListener won't fire for the ProductCreated event)
-    ProductPrice productPrice = ProductPrice.create(product.id(), initialPrice);
-    productPriceRepository.save(productPrice);
+    // Set initial price via Pricing API
+    pricingService.setInitialPrice(productId, Money.euro(BigDecimal.valueOf(price)));
 
-    // Directly create stock level entry in Inventory context
-    // (We do this directly because @PostConstruct doesn't run in a transaction)
-    StockLevel stockLevel = StockLevel.create(product.id(), initialStock);
-    stockLevelRepository.save(stockLevel);
+    // Set initial stock via Inventory API
+    inventoryService.setInitialStock(productId, initialStock);
   }
 }

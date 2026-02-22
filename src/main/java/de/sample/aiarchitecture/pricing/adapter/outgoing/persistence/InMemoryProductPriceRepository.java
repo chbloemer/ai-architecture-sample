@@ -20,12 +20,8 @@ import org.springframework.stereotype.Repository;
  * <p>This secondary adapter provides a thread-safe in-memory storage for product prices using
  * ConcurrentHashMap. A secondary index on ProductId enables efficient lookups by product.
  *
- * <p><b>Initialization:</b> Pricing data is initialized via two mechanisms:
- *
- * <ul>
- *   <li>ProductCreatedEventConsumer - creates prices when products are created
- *   <li>SampleDataInitializer - triggers ProductCreated events with initial prices
- * </ul>
+ * <p><b>Initialization:</b> Pricing data is initialized by the SampleDataInitializer, which calls
+ * the Pricing API ({@code PricingService.setInitialPrice}) after creating each product.
  *
  * <p>In a production system, this would be replaced with a database implementation.
  *
@@ -86,10 +82,10 @@ public class InMemoryProductPriceRepository implements ProductPriceRepository {
    * Asynchronous initialization method triggered by {@link AsyncInitialize}.
    *
    * <p>This method performs cache warmup and logs initialization status. Actual pricing data is
-   * populated via ProductCreatedEventConsumer when products are created.
+   * populated via PricingService.setInitialPrice when products are created by
+   * SampleDataInitializer.
    *
    * @see AsyncInitialize
-   * @see de.sample.aiarchitecture.pricing.adapter.incoming.event.ProductCreatedEventConsumer
    * @see de.sample.aiarchitecture.infrastructure.config.AsyncConfiguration
    * @see de.sample.aiarchitecture.infrastructure.support.AsyncInitializationProcessor
    */

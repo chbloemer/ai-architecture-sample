@@ -16,6 +16,7 @@ addCommonTestDependencies('testArchitectureImplementation')
 dependencies {
   testArchitectureImplementation sourceSets.main.output
   testArchitectureImplementation("com.tngtech.archunit:archunit:${archunitVersion}")
+  testArchitectureImplementation("org.springframework.modulith:spring-modulith-starter-test")
 }
 
 tasks.register('test-architecture', Test) {

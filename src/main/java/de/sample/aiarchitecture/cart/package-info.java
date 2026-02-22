@@ -7,7 +7,16 @@
 @BoundedContext(
     name = "Shopping Cart",
     description = "Cart management, item additions/removals, and cart lifecycle")
+@ApplicationModule(
+    allowedDependencies = {
+      "sharedkernel",
+      "infrastructure",
+      "product :: api",
+      "pricing :: api",
+      "inventory :: api"
+    })
 package de.sample.aiarchitecture.cart;
 
 import de.sample.aiarchitecture.sharedkernel.marker.strategic.BoundedContext;
 import org.jspecify.annotations.NullMarked;
+import org.springframework.modulith.ApplicationModule;

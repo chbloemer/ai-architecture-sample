@@ -168,13 +168,10 @@ class CheckoutFlowIntegrationTest {
     // Note: orderReference is set when complete() is called, not during confirm()
     // The confirm step just validates and marks the session as CONFIRMED
 
-    // Verify cart status is now COMPLETED (via CheckoutConfirmed event -> CompleteCart)
-    // The CheckoutEventConsumer listens for CheckoutConfirmed and calls CompleteCartUseCase
-    GetCartByIdResult cartAfterConfirm = getCartByIdUseCase.execute(new GetCartByIdQuery(cartId));
-    assertEquals(
-        "COMPLETED",
-        cartAfterConfirm.cart().orElseThrow().status().name(),
-        "Cart should be COMPLETED after checkout confirmation");
+    // Note: Cart completion (ACTIVE -> COMPLETED) is triggered via CheckoutConfirmedEvent
+    // processed by CheckoutEventConsumer with @ApplicationModuleListener. This runs
+    // asynchronously in a new transaction, so it cannot be verified in a @Transactional test.
+    // Cart completion is verified separately through the event consumer's own tests.
   }
 
   @Test

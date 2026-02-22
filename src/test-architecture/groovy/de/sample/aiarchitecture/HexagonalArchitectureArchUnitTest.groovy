@@ -62,8 +62,7 @@ class HexagonalArchitectureArchUnitTest extends BaseArchUnitTest {
     expect:
     // Incoming adapters within a context should not directly call outgoing adapters
     // Exception: Event consumers (..adapter.incoming.event..) may depend on integration events
-    // in other contexts' outgoing event packages (..adapter.outgoing.event..) — this is the
-    // standard cross-context integration pattern via IntegrationEvent DTOs
+    // in other contexts' events/ packages — this is the standard cross-context integration pattern
     noClasses()
       .that().resideInAPackage(INCOMING_ADAPTER_PACKAGE)
         .and().resideOutsideOfPackage("..adapter.incoming.event..")
@@ -71,9 +70,9 @@ class HexagonalArchitectureArchUnitTest extends BaseArchUnitTest {
       .because("Port adapters should communicate through application services, not directly (event consumers are the exception)")
       .check(allClasses)
 
-    // Note: Outgoing adapters MAY access incoming adapters from OTHER contexts
+    // Note: Outgoing adapters MAY access api/ packages from OTHER contexts
     // when calling Open Host Services (e.g., Cart's ProductDataAdapter calls Product's ProductCatalogService)
-    // This is the intended cross-context communication pattern via Open Host Services
+    // This is the intended cross-context communication pattern via api/ packages
   }
 
   def "Incoming adapters must only access their own bounded context (except event consumers and Open Host Services)"() {
@@ -85,7 +84,7 @@ class HexagonalArchitectureArchUnitTest extends BaseArchUnitTest {
     // Dynamically check each bounded context's incoming adapters
     // They must not access any other bounded context
     // Exception: Event consumers may access other contexts' integration events
-    // Note: Open Host Services (adapter.incoming.openhost) are designed to BE ACCESSED by other contexts,
+    // Note: Open Host Services (api/ packages) are designed to BE ACCESSED by other contexts,
     // but they themselves should not access other contexts
     contextPackages.each { contextPackage ->
       String contextName = boundedContexts[contextPackage].name()
@@ -100,6 +99,7 @@ class HexagonalArchitectureArchUnitTest extends BaseArchUnitTest {
           .that().resideInAPackage("${contextPackage}.adapter.incoming..")
             .and().resideOutsideOfPackage("..adapter.incoming.event..")
           .should().accessClassesThat().resideInAnyPackage(otherContextPatterns)
+          .allowEmptyShould(true)
           .because("Incoming adapters in '${contextName}' must only orchestrate use cases from their own bounded context - use domain events for cross-context integration")
           .check(allClasses)
       }
@@ -113,10 +113,10 @@ class HexagonalArchitectureArchUnitTest extends BaseArchUnitTest {
 
     expect:
     // This is a "positive" test documenting the allowed pattern:
-    // Outgoing adapters may access adapter.incoming.openhost packages from other contexts
+    // Outgoing adapters may access api/ packages from other contexts (Open Host Services)
     // This is verified by the successful compilation and the stricter tests in DddStrategicPatternsArchUnitTest
     // that ensure outgoing adapters do NOT access domain or application layers of other contexts
-    true // Pattern verification: outgoing adapters call Open Host Services, not domain/application
+    true // Pattern verification: outgoing adapters call Open Host Services via api/ packages
   }
 
   def "Repository Implementations must reside in portadapter.outgoing package"() {

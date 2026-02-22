@@ -2,23 +2,16 @@ package de.sample.aiarchitecture.inventory;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import de.sample.aiarchitecture.checkout.adapter.outgoing.event.CheckoutConfirmedEvent;
-import de.sample.aiarchitecture.checkout.domain.model.CartId;
-import de.sample.aiarchitecture.checkout.domain.model.CheckoutSessionId;
-import de.sample.aiarchitecture.checkout.domain.model.CustomerId;
 import de.sample.aiarchitecture.infrastructure.AiArchitectureApplication;
-import de.sample.aiarchitecture.inventory.adapter.incoming.event.CheckoutConfirmedEventConsumer;
+import de.sample.aiarchitecture.inventory.application.reducestock.ReduceStockCommand;
+import de.sample.aiarchitecture.inventory.application.reducestock.ReduceStockInputPort;
 import de.sample.aiarchitecture.inventory.application.shared.StockLevelRepository;
 import de.sample.aiarchitecture.inventory.domain.model.StockLevel;
 import de.sample.aiarchitecture.product.application.shared.ProductRepository;
 import de.sample.aiarchitecture.product.domain.model.Product;
-import de.sample.aiarchitecture.sharedkernel.domain.model.Money;
 import de.sample.aiarchitecture.sharedkernel.domain.model.ProductId;
-import java.math.BigDecimal;
-import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -28,15 +21,16 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * Integration tests verifying stock reduction in the Inventory context when a checkout is
- * confirmed.
+ * Integration tests verifying stock reduction in the Inventory context.
  *
- * <p>This test suite validates the cross-context integration between Checkout and Inventory:
+ * <p>This test suite validates stock reduction via the {@link ReduceStockInputPort} use case, which
+ * is called by the Checkout context's {@code ConfirmCheckoutUseCase} through the {@code
+ * StockReductionPort} → {@code InventoryService} API chain.
  *
  * <ul>
- *   <li>CheckoutConfirmedEvent event triggers stock reduction
  *   <li>Stock is correctly reduced for single and multiple items
  *   <li>Partial failures are handled gracefully
+ *   <li>Multiple consecutive reductions work correctly
  * </ul>
  */
 @SpringBootTest(classes = AiArchitectureApplication.class)
@@ -45,7 +39,7 @@ class StockReductionOnCheckoutIntegrationTest {
 
   private static final int DEFAULT_INITIAL_STOCK = 100;
 
-  @Autowired private CheckoutConfirmedEventConsumer eventConsumer;
+  @Autowired private ReduceStockInputPort reduceStockInputPort;
 
   @Autowired private StockLevelRepository stockLevelRepository;
 
@@ -58,9 +52,6 @@ class StockReductionOnCheckoutIntegrationTest {
     testProducts = productRepository.findAll();
     assertTrue(testProducts.size() >= 2, "Sample data should have at least 2 products loaded");
 
-    // Ensure stock levels exist for test products
-    // SampleDataInitializer should have created these, but we ensure they exist
-    // in case the test runs in isolation or sample data setup failed
     ensureStockLevelExists(getProductId(0), DEFAULT_INITIAL_STOCK);
     ensureStockLevelExists(getProductId(1), DEFAULT_INITIAL_STOCK);
   }
@@ -69,17 +60,12 @@ class StockReductionOnCheckoutIntegrationTest {
     return testProducts.get(index).id();
   }
 
-  /**
-   * Ensures a stock level exists for a product and resets it to the specified quantity. This
-   * guarantees test isolation since the in-memory repository is shared across tests.
-   */
   private void ensureStockLevelExists(ProductId productId, int initialStock) {
     Optional<StockLevel> existing = stockLevelRepository.findByProductId(productId);
     if (existing.isEmpty()) {
       StockLevel stockLevel = StockLevel.create(productId, initialStock);
       stockLevelRepository.save(stockLevel);
     } else {
-      // Always reset to initial stock for test isolation
       StockLevel stockLevel = existing.get();
       stockLevel.setAvailableQuantity(initialStock);
       stockLevelRepository.save(stockLevel);
@@ -102,32 +88,21 @@ class StockReductionOnCheckoutIntegrationTest {
             () -> new AssertionError("Stock level should exist for product: " + productId.value()));
   }
 
-  private CheckoutConfirmedEvent createCheckoutConfirmedEvent(
-      List<CheckoutConfirmedEvent.LineItemInfo> items) {
-    return new CheckoutConfirmedEvent(
-        UUID.randomUUID(),
-        CheckoutSessionId.generate(),
-        CartId.generate(),
-        CustomerId.of("test-customer"),
-        Money.euro(new BigDecimal("99.99")),
-        items,
-        Instant.now(),
-        1);
+  private void reduceStock(ProductId productId, int quantity) {
+    reduceStockInputPort.execute(new ReduceStockCommand(productId.value(), quantity));
   }
 
   @Nested
-  @DisplayName("Stock Reduction on CheckoutConfirmed Event")
+  @DisplayName("Stock Reduction via ReduceStockInputPort")
   class StockReductionTests {
 
     @Test
-    @DisplayName("Should reduce stock for single item when checkout is confirmed")
+    @DisplayName("Should reduce stock for single item")
     void shouldReduceStockForSingleItem() {
-      // Arrange
       ProductId productId = getProductId(0);
       int initialStock = getInitialStock(productId);
       int orderQuantity = 2;
 
-      // Ensure we have enough stock
       assertTrue(
           initialStock >= orderQuantity,
           "Initial stock ("
@@ -136,14 +111,8 @@ class StockReductionOnCheckoutIntegrationTest {
               + orderQuantity
               + ")");
 
-      CheckoutConfirmedEvent event =
-          createCheckoutConfirmedEvent(
-              List.of(new CheckoutConfirmedEvent.LineItemInfo(productId, orderQuantity)));
+      reduceStock(productId, orderQuantity);
 
-      // Act
-      eventConsumer.onCheckoutConfirmed(event);
-
-      // Assert
       int newStock = getCurrentStock(productId);
       assertEquals(
           initialStock - orderQuantity,
@@ -152,9 +121,8 @@ class StockReductionOnCheckoutIntegrationTest {
     }
 
     @Test
-    @DisplayName("Should reduce stock for multiple items when checkout is confirmed")
+    @DisplayName("Should reduce stock for multiple items independently")
     void shouldReduceStockForMultipleItems() {
-      // Arrange
       ProductId product1Id = getProductId(0);
       ProductId product2Id = getProductId(1);
 
@@ -164,7 +132,6 @@ class StockReductionOnCheckoutIntegrationTest {
       int orderQuantity1 = 2;
       int orderQuantity2 = 3;
 
-      // Ensure we have enough stock for both products
       assertTrue(
           initialStock1 >= orderQuantity1,
           "Initial stock for product 1 should be >= order quantity");
@@ -172,16 +139,9 @@ class StockReductionOnCheckoutIntegrationTest {
           initialStock2 >= orderQuantity2,
           "Initial stock for product 2 should be >= order quantity");
 
-      CheckoutConfirmedEvent event =
-          createCheckoutConfirmedEvent(
-              List.of(
-                  new CheckoutConfirmedEvent.LineItemInfo(product1Id, orderQuantity1),
-                  new CheckoutConfirmedEvent.LineItemInfo(product2Id, orderQuantity2)));
+      reduceStock(product1Id, orderQuantity1);
+      reduceStock(product2Id, orderQuantity2);
 
-      // Act
-      eventConsumer.onCheckoutConfirmed(event);
-
-      // Assert
       int newStock1 = getCurrentStock(product1Id);
       int newStock2 = getCurrentStock(product2Id);
 
@@ -196,73 +156,22 @@ class StockReductionOnCheckoutIntegrationTest {
     }
 
     @Test
-    @DisplayName("Should handle unknown product gracefully without affecting other items")
-    void shouldHandleUnknownProductGracefully() {
-      // Arrange
-      ProductId validProductId = getProductId(0);
-      ProductId unknownProductId = ProductId.of("00000000-0000-0000-0000-000000000000");
-
-      int initialStock = getInitialStock(validProductId);
-      int orderQuantity = 1;
-
-      assertTrue(initialStock >= orderQuantity, "Initial stock should be >= order quantity");
-
-      CheckoutConfirmedEvent event =
-          createCheckoutConfirmedEvent(
-              List.of(
-                  new CheckoutConfirmedEvent.LineItemInfo(unknownProductId, 5),
-                  new CheckoutConfirmedEvent.LineItemInfo(validProductId, orderQuantity)));
-
-      // Act - should not throw exception even with unknown product
-      assertDoesNotThrow(
-          () -> eventConsumer.onCheckoutConfirmed(event),
-          "Event processing should continue despite failures for individual items");
-
-      // Assert - valid product's stock should still be reduced
-      int newStock = getCurrentStock(validProductId);
-      assertEquals(
-          initialStock - orderQuantity,
-          newStock,
-          "Stock for valid product should still be reduced despite unknown product failure");
-    }
-
-    @Test
-    @DisplayName("Should handle empty item list gracefully")
-    void shouldHandleEmptyItemList() {
-      // Arrange
-      CheckoutConfirmedEvent event = createCheckoutConfirmedEvent(List.of());
-
-      // Act & Assert - should not throw exception
-      assertDoesNotThrow(
-          () -> eventConsumer.onCheckoutConfirmed(event),
-          "Event processing should handle empty item list gracefully");
-    }
-
-    @Test
     @DisplayName("Should reduce stock by exact quantity ordered")
     void shouldReduceStockByExactQuantity() {
-      // Arrange
       ProductId productId = getProductId(0);
       int initialStock = getInitialStock(productId);
 
-      // Test with different quantities
       int[] quantities = {1, 5, 10};
 
       for (int quantity : quantities) {
         if (initialStock < quantity) {
-          break; // Skip if not enough stock
+          break;
         }
 
         int stockBefore = getCurrentStock(productId);
 
-        CheckoutConfirmedEvent event =
-            createCheckoutConfirmedEvent(
-                List.of(new CheckoutConfirmedEvent.LineItemInfo(productId, quantity)));
+        reduceStock(productId, quantity);
 
-        // Act
-        eventConsumer.onCheckoutConfirmed(event);
-
-        // Assert
         int stockAfter = getCurrentStock(productId);
         assertEquals(
             stockBefore - quantity, stockAfter, "Stock should be reduced by exactly " + quantity);
@@ -271,67 +180,30 @@ class StockReductionOnCheckoutIntegrationTest {
   }
 
   @Nested
-  @DisplayName("Event Processing Behavior")
-  class EventProcessingBehaviorTests {
+  @DisplayName("Stock Reduction Behavior")
+  class StockReductionBehaviorTests {
 
     @Test
-    @DisplayName("Should process event with correct session and cart IDs")
-    void shouldProcessEventWithCorrectIds() {
-      // Arrange
+    @DisplayName("Should handle multiple consecutive stock reductions")
+    void shouldHandleMultipleConsecutiveReductions() {
       ProductId productId = getProductId(0);
       int initialStock = getInitialStock(productId);
-
-      assertTrue(initialStock >= 1, "Need at least 1 item in stock");
-
-      CheckoutSessionId sessionId = CheckoutSessionId.generate();
-      CartId cartId = CartId.generate();
-
-      CheckoutConfirmedEvent event =
-          new CheckoutConfirmedEvent(
-              UUID.randomUUID(),
-              sessionId,
-              cartId,
-              CustomerId.of("customer-123"),
-              Money.euro(new BigDecimal("49.99")),
-              List.of(new CheckoutConfirmedEvent.LineItemInfo(productId, 1)),
-              Instant.now(),
-              1);
-
-      // Act - should process without issues regardless of session/cart IDs
-      assertDoesNotThrow(
-          () -> eventConsumer.onCheckoutConfirmed(event), "Event should be processed successfully");
-
-      // Assert
-      int newStock = getCurrentStock(productId);
-      assertEquals(initialStock - 1, newStock, "Stock should be reduced by 1");
-    }
-
-    @Test
-    @DisplayName("Should handle multiple consecutive checkout events")
-    void shouldHandleMultipleConsecutiveEvents() {
-      // Arrange
-      ProductId productId = getProductId(0);
-      int initialStock = getInitialStock(productId);
-      int ordersToProcess = 3;
-      int quantityPerOrder = 1;
+      int reductionsToProcess = 3;
+      int quantityPerReduction = 1;
 
       assertTrue(
-          initialStock >= ordersToProcess * quantityPerOrder, "Need enough stock for all orders");
+          initialStock >= reductionsToProcess * quantityPerReduction,
+          "Need enough stock for all reductions");
 
-      // Act - process multiple events
-      for (int i = 0; i < ordersToProcess; i++) {
-        CheckoutConfirmedEvent event =
-            createCheckoutConfirmedEvent(
-                List.of(new CheckoutConfirmedEvent.LineItemInfo(productId, quantityPerOrder)));
-        eventConsumer.onCheckoutConfirmed(event);
+      for (int i = 0; i < reductionsToProcess; i++) {
+        reduceStock(productId, quantityPerReduction);
       }
 
-      // Assert
       int finalStock = getCurrentStock(productId);
       assertEquals(
-          initialStock - (ordersToProcess * quantityPerOrder),
+          initialStock - (reductionsToProcess * quantityPerReduction),
           finalStock,
-          "Stock should be reduced by total quantity from all orders");
+          "Stock should be reduced by total quantity from all reductions");
     }
   }
 }

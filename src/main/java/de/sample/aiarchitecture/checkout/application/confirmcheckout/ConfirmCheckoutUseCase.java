@@ -1,7 +1,9 @@
 package de.sample.aiarchitecture.checkout.application.confirmcheckout;
 
+import de.sample.aiarchitecture.checkout.application.shared.CartDataPort;
 import de.sample.aiarchitecture.checkout.application.shared.CheckoutArticleDataPort;
 import de.sample.aiarchitecture.checkout.application.shared.CheckoutSessionRepository;
+import de.sample.aiarchitecture.checkout.application.shared.StockReductionPort;
 import de.sample.aiarchitecture.checkout.domain.model.CheckoutArticle;
 import de.sample.aiarchitecture.checkout.domain.model.CheckoutArticlePriceResolver;
 import de.sample.aiarchitecture.checkout.domain.model.CheckoutSession;
@@ -39,14 +41,20 @@ public class ConfirmCheckoutUseCase implements ConfirmCheckoutInputPort {
 
   private final CheckoutSessionRepository checkoutSessionRepository;
   private final CheckoutArticleDataPort checkoutArticleDataPort;
+  private final CartDataPort cartDataPort;
+  private final StockReductionPort stockReductionPort;
   private final DomainEventPublisher domainEventPublisher;
 
   public ConfirmCheckoutUseCase(
       final CheckoutSessionRepository checkoutSessionRepository,
       final CheckoutArticleDataPort checkoutArticleDataPort,
+      final CartDataPort cartDataPort,
+      final StockReductionPort stockReductionPort,
       final DomainEventPublisher domainEventPublisher) {
     this.checkoutSessionRepository = checkoutSessionRepository;
     this.checkoutArticleDataPort = checkoutArticleDataPort;
+    this.cartDataPort = cartDataPort;
+    this.stockReductionPort = stockReductionPort;
     this.domainEventPublisher = domainEventPublisher;
   }
 
@@ -86,8 +94,16 @@ public class ConfirmCheckoutUseCase implements ConfirmCheckoutInputPort {
     // Save session
     checkoutSessionRepository.save(session);
 
-    // Publish domain events (triggers CheckoutEventConsumer to complete the cart)
+    // Publish domain events (triggers cross-context listeners: inventory, product)
     domainEventPublisher.publishAndClearEvents(session);
+
+    // Complete the cart synchronously via Cart API (replaces event-driven cart↔checkout cycle)
+    cartDataPort.markAsCompleted(session.cartId());
+
+    // Reduce stock for all ordered items via Inventory API
+    session
+        .lineItems()
+        .forEach(item -> stockReductionPort.reduceStock(item.productId(), item.quantity()));
 
     // Map to response
     return mapToResponse(session);

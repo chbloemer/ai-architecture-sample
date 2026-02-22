@@ -1,6 +1,7 @@
 package de.sample.aiarchitecture.checkout.adapter.outgoing.event;
 
 import de.sample.aiarchitecture.checkout.domain.event.CheckoutConfirmed;
+import de.sample.aiarchitecture.checkout.events.CheckoutConfirmedEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
@@ -30,12 +31,26 @@ public class CheckoutConfirmedEventPublisher {
   /** Listens for the internal domain event and publishes the integration event. */
   @EventListener
   public void on(final CheckoutConfirmed domainEvent) {
-    final CheckoutConfirmedEvent integrationEvent = CheckoutConfirmedEvent.from(domainEvent);
+    final var items =
+        domainEvent.items().stream()
+            .map(item -> new CheckoutConfirmedEvent.LineItemInfo(item.productId(), item.quantity()))
+            .toList();
+
+    final var integrationEvent =
+        new CheckoutConfirmedEvent(
+            domainEvent.eventId(),
+            domainEvent.sessionId().value(),
+            domainEvent.cartId().value(),
+            domainEvent.customerId().value(),
+            domainEvent.totalAmount(),
+            items,
+            domainEvent.occurredOn(),
+            1);
 
     logger.info(
         "Publishing CheckoutConfirmedEvent v{} for session: {}",
         integrationEvent.version(),
-        integrationEvent.sessionId().value());
+        integrationEvent.sessionId());
 
     publisher.publishEvent(integrationEvent);
   }

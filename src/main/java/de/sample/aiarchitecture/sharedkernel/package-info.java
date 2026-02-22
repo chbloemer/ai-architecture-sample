@@ -18,7 +18,9 @@
  */
 @NullMarked
 @SharedKernel(description = "Common value objects, DDD markers, and cross-cutting concerns")
+@ApplicationModule(type = ApplicationModule.Type.OPEN)
 package de.sample.aiarchitecture.sharedkernel;
 
 import de.sample.aiarchitecture.sharedkernel.marker.strategic.SharedKernel;
 import org.jspecify.annotations.NullMarked;
+import org.springframework.modulith.ApplicationModule;

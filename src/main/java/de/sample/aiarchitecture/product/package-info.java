@@ -7,7 +7,10 @@
 @BoundedContext(
     name = "Product Catalog",
     description = "Product management, catalog browsing, and inventory tracking")
+@ApplicationModule(
+    allowedDependencies = {"sharedkernel", "infrastructure", "pricing :: api", "inventory :: api"})
 package de.sample.aiarchitecture.product;
 
 import de.sample.aiarchitecture.sharedkernel.marker.strategic.BoundedContext;
 import org.jspecify.annotations.NullMarked;
+import org.springframework.modulith.ApplicationModule;

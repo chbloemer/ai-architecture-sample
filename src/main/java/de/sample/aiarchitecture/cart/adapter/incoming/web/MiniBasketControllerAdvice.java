@@ -54,7 +54,16 @@ public class MiniBasketControllerAdvice {
   /** Adds mini basket data and identity to the model for every request. */
   @ModelAttribute
   public void addMiniBasketAndIdentity(final Model model) {
-    final IdentityProvider.Identity identity = identityProvider.getCurrentIdentity();
+    final IdentityProvider.Identity identity;
+    try {
+      identity = identityProvider.getCurrentIdentity();
+    } catch (final IllegalStateException ex) {
+      // Non-JWT security context (e.g., backoffice form login) — skip mini basket
+      model.addAttribute("miniBasketItemCount", 0);
+      model.addAttribute("miniBasketTotal", "");
+      model.addAttribute("miniBasketItems", List.of());
+      return;
+    }
     model.addAttribute("identity", identity);
 
     try {

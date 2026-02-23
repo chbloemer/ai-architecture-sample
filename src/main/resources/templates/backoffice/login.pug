@@ -1,0 +1,27 @@
+extends ../layout
+
+block content
+  .auth
+    .auth__card
+      h2.auth__title Backoffice Login
+
+      if logout
+        .alert.alert--success(data-test="logout-message") You have been logged out.
+
+      if error
+        .alert.alert--error(data-test="login-error-message") Invalid username or password.
+
+      form.auth__form(method="POST" action="/backoffice/login" data-test="backoffice-login-form")
+        if _csrf
+          input(type="hidden" name=_csrf.parameterName value=_csrf.token)
+
+        .form__group
+          label.form__label(for="username") Username
+          input.form__input#username(type="text" name="username" required autofocus placeholder="admin" data-test="backoffice-username-input")
+
+        .form__group
+          label.form__label(for="password") Password
+          input.form__input#password(type="password" name="password" required placeholder="Enter password" data-test="backoffice-password-input")
+
+        .form__actions
+          button.btn.btn--primary.btn--full-width(type="submit" data-test="backoffice-login-submit") Login

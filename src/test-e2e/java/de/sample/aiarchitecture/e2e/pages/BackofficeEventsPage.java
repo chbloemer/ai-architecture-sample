@@ -1,0 +1,183 @@
+package de.sample.aiarchitecture.e2e.pages;
+
+import com.microsoft.playwright.Page;
+import java.util.List;
+
+/**
+ * Page object for the backoffice event publication log page.
+ *
+ * <p>Provides methods to inspect published domain events and their completion status.
+ */
+public class BackofficeEventsPage extends BasePage {
+
+  private static final String URL_PATTERN = "/backoffice/events**";
+  private static final String EVENT_LOG = "event-log";
+  private static final String EVENT_LOG_SUMMARY = "event-log-summary";
+  private static final String EVENT_LOG_TOTAL = "event-log-total";
+  private static final String EVENT_LOG_COMPLETED = "event-log-completed";
+  private static final String EVENT_LOG_INCOMPLETE = "event-log-incomplete";
+  private static final String EVENT_LOG_LIST = "event-log-list";
+  private static final String EVENT_LOG_ITEM = "event-log-item";
+  private static final String EVENT_TYPE = "event-type";
+  private static final String EVENT_STATUS = "event-status";
+  private static final String EVENT_LISTENER = "event-listener";
+  private static final String EVENT_PUBLICATION_DATE = "event-publication-date";
+  private static final String EVENT_COMPLETION_DATE = "event-completion-date";
+  private static final String EVENT_PAYLOAD = "event-payload";
+  private static final String EVENT_LOG_REFRESH = "event-log-refresh";
+  private static final String EVENT_LOG_LOGOUT = "event-log-logout";
+
+  /**
+   * Creates a new BackofficeEventsPage and waits for it to load.
+   *
+   * @param page the Playwright page instance
+   */
+  public BackofficeEventsPage(Page page) {
+    super(page, URL_PATTERN);
+  }
+
+  /**
+   * Navigates directly to the backoffice events page and creates a page object.
+   *
+   * @param page the Playwright page instance
+   * @return a new BackofficeEventsPage
+   */
+  public static BackofficeEventsPage navigateTo(Page page) {
+    page.navigate(BASE_URL + "/backoffice/events");
+    return new BackofficeEventsPage(page);
+  }
+
+  /**
+   * Checks if the event log container is present on the page.
+   *
+   * @return true if the event log is displayed
+   */
+  public boolean isOnPage() {
+    return exists(EVENT_LOG);
+  }
+
+  /**
+   * Checks if the summary section is present.
+   *
+   * @return true if the summary section is displayed
+   */
+  public boolean hasSummary() {
+    return exists(EVENT_LOG_SUMMARY);
+  }
+
+  /**
+   * Checks if the event list container is present.
+   *
+   * @return true if the event list is displayed
+   */
+  public boolean hasEvents() {
+    return exists(EVENT_LOG_LIST);
+  }
+
+  /**
+   * Gets the total number of events as shown in the summary.
+   *
+   * @return the total event count
+   */
+  public int getTotalEvents() {
+    waitFor(EVENT_LOG_TOTAL);
+    return Integer.parseInt(
+        page.locator("[data-test='" + EVENT_LOG_TOTAL + "']").textContent().trim());
+  }
+
+  /**
+   * Gets the number of completed events as shown in the summary.
+   *
+   * @return the completed event count
+   */
+  public int getCompletedCount() {
+    waitFor(EVENT_LOG_COMPLETED);
+    return Integer.parseInt(
+        page.locator("[data-test='" + EVENT_LOG_COMPLETED + "']").textContent().trim());
+  }
+
+  /**
+   * Gets the number of incomplete events as shown in the summary.
+   *
+   * @return the incomplete event count
+   */
+  public int getIncompleteCount() {
+    waitFor(EVENT_LOG_INCOMPLETE);
+    return Integer.parseInt(
+        page.locator("[data-test='" + EVENT_LOG_INCOMPLETE + "']").textContent().trim());
+  }
+
+  /**
+   * Gets the number of event items rendered in the list.
+   *
+   * @return the count of event-log-item elements
+   */
+  public int getEventCount() {
+    return page.locator("[data-test='" + EVENT_LOG_ITEM + "']").count();
+  }
+
+  /**
+   * Gets the text of all event-type labels in the list.
+   *
+   * @return list of event type strings, one per event item
+   */
+  public List<String> getEventTypes() {
+    return page.locator("[data-test='" + EVENT_TYPE + "']").allTextContents();
+  }
+
+  /**
+   * Gets the event type text of the first event in the list.
+   *
+   * @return the first event type string
+   */
+  public String getFirstEventType() {
+    waitFor(EVENT_TYPE);
+    return page.locator("[data-test='" + EVENT_TYPE + "']").first().textContent().trim();
+  }
+
+  /**
+   * Gets the status badge text of the first event in the list.
+   *
+   * @return the first event status string
+   */
+  public String getFirstEventStatus() {
+    waitFor(EVENT_STATUS);
+    return page.locator("[data-test='" + EVENT_STATUS + "']").first().textContent().trim();
+  }
+
+  /**
+   * Clicks the refresh button and returns a fresh page object.
+   *
+   * @return a new BackofficeEventsPage after the refresh
+   */
+  public BackofficeEventsPage clickRefresh() {
+    click(EVENT_LOG_REFRESH);
+    return new BackofficeEventsPage(page);
+  }
+
+  /**
+   * Clicks the logout button and returns the backoffice login page.
+   *
+   * @return the BackofficeLoginPage after logout
+   */
+  public BackofficeLoginPage clickLogout() {
+    click(EVENT_LOG_LOGOUT);
+    return new BackofficeLoginPage(page);
+  }
+
+  /** Clicks the payload details element for the first event to expand its content. */
+  public void expandFirstEventPayload() {
+    waitFor(EVENT_PAYLOAD);
+    page.locator("[data-test='" + EVENT_PAYLOAD + "']").first().click();
+  }
+
+  /**
+   * Gets the text content of the payload area of the first event.
+   *
+   * @return the payload text
+   */
+  public String getFirstEventPayloadText() {
+    waitFor(EVENT_PAYLOAD);
+    return page.locator("[data-test='" + EVENT_PAYLOAD + "']").first().textContent().trim();
+  }
+}

@@ -3,8 +3,10 @@ package de.sample.aiarchitecture.account.adapter.config;
 import de.sample.aiarchitecture.account.adapter.outgoing.security.JwtAuthenticationFilter;
 import de.sample.aiarchitecture.account.adapter.outgoing.security.JwtProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -54,6 +56,7 @@ public class SecurityConfiguration {
   }
 
   @Bean
+  @Order(2)
   public SecurityFilterChain securityFilterChain(final HttpSecurity http) throws Exception {
     http
         // Stateless session management - no HTTP sessions
@@ -125,5 +128,25 @@ public class SecurityConfiguration {
   @Bean
   public PasswordEncoder passwordEncoder() {
     return new BCryptPasswordEncoder(12);
+  }
+
+  /**
+   * Prevents the JWT filter from being auto-registered as a Servlet filter.
+   *
+   * <p>Without this, Spring Boot registers the {@code @Component}-annotated filter as both a
+   * Security chain filter (via {@code addFilterBefore}) AND a standalone Servlet filter. The
+   * standalone registration applies to ALL requests, including those handled by other security
+   * chains (e.g., the backoffice form-login chain).
+   *
+   * @param filter the JWT filter bean
+   * @return registration bean with auto-registration disabled
+   */
+  @Bean
+  public FilterRegistrationBean<JwtAuthenticationFilter> jwtFilterRegistration(
+      final JwtAuthenticationFilter filter) {
+    final FilterRegistrationBean<JwtAuthenticationFilter> registration =
+        new FilterRegistrationBean<>(filter);
+    registration.setEnabled(false);
+    return registration;
   }
 }

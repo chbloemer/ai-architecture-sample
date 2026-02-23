@@ -50,7 +50,7 @@ class UseCasePatternsArchUnitTest extends BaseArchUnitTest {
     classes()
       .that().haveSimpleNameEndingWith("Command")
       .and().resideInAnyPackage(BASE_PACKAGE + "..")
-      .should().resideInAnyPackage(PRODUCT_APPLICATION_PACKAGE, CART_APPLICATION_PACKAGE, CHECKOUT_APPLICATION_PACKAGE, ACCOUNT_APPLICATION_PACKAGE, INVENTORY_APPLICATION_PACKAGE, PRICING_APPLICATION_PACKAGE)
+      .should().resideInAnyPackage(PRODUCT_APPLICATION_PACKAGE, CART_APPLICATION_PACKAGE, CHECKOUT_APPLICATION_PACKAGE, ACCOUNT_APPLICATION_PACKAGE, INVENTORY_APPLICATION_PACKAGE, PRICING_APPLICATION_PACKAGE, BACKOFFICE_APPLICATION_PACKAGE)
       .because("Use case commands should be in application layer (CQRS pattern)")
       .allowEmptyShould(true)
       .check(allClasses)
@@ -61,7 +61,7 @@ class UseCasePatternsArchUnitTest extends BaseArchUnitTest {
     classes()
       .that().haveSimpleNameEndingWith("Query")
       .and().resideInAnyPackage(BASE_PACKAGE + "..")
-      .should().resideInAnyPackage(PRODUCT_APPLICATION_PACKAGE, CART_APPLICATION_PACKAGE, CHECKOUT_APPLICATION_PACKAGE, ACCOUNT_APPLICATION_PACKAGE, INVENTORY_APPLICATION_PACKAGE, PRICING_APPLICATION_PACKAGE)
+      .should().resideInAnyPackage(PRODUCT_APPLICATION_PACKAGE, CART_APPLICATION_PACKAGE, CHECKOUT_APPLICATION_PACKAGE, ACCOUNT_APPLICATION_PACKAGE, INVENTORY_APPLICATION_PACKAGE, PRICING_APPLICATION_PACKAGE, BACKOFFICE_APPLICATION_PACKAGE)
       .because("Use case queries should be in application layer (CQRS pattern)")
       .allowEmptyShould(true)
       .check(allClasses)
@@ -71,7 +71,7 @@ class UseCasePatternsArchUnitTest extends BaseArchUnitTest {
     expect:
     classes()
       .that().haveSimpleNameEndingWith("Command")
-      .and().resideInAnyPackage(PRODUCT_APPLICATION_PACKAGE, CART_APPLICATION_PACKAGE, CHECKOUT_APPLICATION_PACKAGE, ACCOUNT_APPLICATION_PACKAGE, INVENTORY_APPLICATION_PACKAGE, PRICING_APPLICATION_PACKAGE)
+      .and().resideInAnyPackage(PRODUCT_APPLICATION_PACKAGE, CART_APPLICATION_PACKAGE, CHECKOUT_APPLICATION_PACKAGE, ACCOUNT_APPLICATION_PACKAGE, INVENTORY_APPLICATION_PACKAGE, PRICING_APPLICATION_PACKAGE, BACKOFFICE_APPLICATION_PACKAGE)
       .and().areNotInterfaces()
       .and().areNotRecords()
       .should().haveModifier(JavaModifier.FINAL)
@@ -84,7 +84,7 @@ class UseCasePatternsArchUnitTest extends BaseArchUnitTest {
     expect:
     classes()
       .that().haveSimpleNameEndingWith("Query")
-      .and().resideInAnyPackage(PRODUCT_APPLICATION_PACKAGE, CART_APPLICATION_PACKAGE, CHECKOUT_APPLICATION_PACKAGE, ACCOUNT_APPLICATION_PACKAGE, INVENTORY_APPLICATION_PACKAGE, PRICING_APPLICATION_PACKAGE)
+      .and().resideInAnyPackage(PRODUCT_APPLICATION_PACKAGE, CART_APPLICATION_PACKAGE, CHECKOUT_APPLICATION_PACKAGE, ACCOUNT_APPLICATION_PACKAGE, INVENTORY_APPLICATION_PACKAGE, PRICING_APPLICATION_PACKAGE, BACKOFFICE_APPLICATION_PACKAGE)
       .and().areNotInterfaces()
       .and().areNotRecords()
       .should().haveModifier(JavaModifier.FINAL)
@@ -104,7 +104,7 @@ class UseCasePatternsArchUnitTest extends BaseArchUnitTest {
       .that().haveSimpleNameEndingWith("Result")
       .and().resideInAnyPackage(BASE_PACKAGE + "..")
       .and().doNotImplement(de.sample.aiarchitecture.sharedkernel.marker.tactical.Value.class)
-      .should().resideInAnyPackage(PRODUCT_APPLICATION_PACKAGE, CART_APPLICATION_PACKAGE, CHECKOUT_APPLICATION_PACKAGE, ACCOUNT_APPLICATION_PACKAGE, INVENTORY_APPLICATION_PACKAGE, PRICING_APPLICATION_PACKAGE)
+      .should().resideInAnyPackage(PRODUCT_APPLICATION_PACKAGE, CART_APPLICATION_PACKAGE, CHECKOUT_APPLICATION_PACKAGE, ACCOUNT_APPLICATION_PACKAGE, INVENTORY_APPLICATION_PACKAGE, PRICING_APPLICATION_PACKAGE, BACKOFFICE_APPLICATION_PACKAGE)
       .because("Use case result models should be in application layer (ADR-020: Application layer uses *Result). Domain Value Objects with 'Result' in name are allowed in domain layer.")
       .allowEmptyShould(true)
       .check(allClasses)
@@ -114,7 +114,7 @@ class UseCasePatternsArchUnitTest extends BaseArchUnitTest {
     expect:
     classes()
       .that().haveSimpleNameEndingWith("Result")
-      .and().resideInAnyPackage(PRODUCT_APPLICATION_PACKAGE, CART_APPLICATION_PACKAGE, CHECKOUT_APPLICATION_PACKAGE, ACCOUNT_APPLICATION_PACKAGE, INVENTORY_APPLICATION_PACKAGE, PRICING_APPLICATION_PACKAGE)
+      .and().resideInAnyPackage(PRODUCT_APPLICATION_PACKAGE, CART_APPLICATION_PACKAGE, CHECKOUT_APPLICATION_PACKAGE, ACCOUNT_APPLICATION_PACKAGE, INVENTORY_APPLICATION_PACKAGE, PRICING_APPLICATION_PACKAGE, BACKOFFICE_APPLICATION_PACKAGE)
       .and().areNotInterfaces()
       .and().areNotRecords()
       .should().haveModifier(JavaModifier.FINAL)
@@ -134,7 +134,8 @@ class UseCasePatternsArchUnitTest extends BaseArchUnitTest {
         BASE_PACKAGE + ".checkout.adapter.incoming..",
         BASE_PACKAGE + ".account.adapter.incoming..",
         BASE_PACKAGE + ".inventory.adapter.incoming..",
-        BASE_PACKAGE + ".pricing.adapter.incoming.."
+        BASE_PACKAGE + ".pricing.adapter.incoming..",
+        BASE_PACKAGE + ".backoffice.adapter.incoming.."
       )
       .because("HTTP response models should be in adapter incoming layer (ADR-020: Adapter layer uses *Response)")
       .allowEmptyShould(true)
@@ -157,7 +158,7 @@ class UseCasePatternsArchUnitTest extends BaseArchUnitTest {
   def "DTOs must not be used in the Application Layer"() {
     expect:
     noClasses()
-      .that().resideInAnyPackage(PRODUCT_APPLICATION_PACKAGE, CART_APPLICATION_PACKAGE, CHECKOUT_APPLICATION_PACKAGE, ACCOUNT_APPLICATION_PACKAGE, INVENTORY_APPLICATION_PACKAGE, PRICING_APPLICATION_PACKAGE)
+      .that().resideInAnyPackage(PRODUCT_APPLICATION_PACKAGE, CART_APPLICATION_PACKAGE, CHECKOUT_APPLICATION_PACKAGE, ACCOUNT_APPLICATION_PACKAGE, INVENTORY_APPLICATION_PACKAGE, PRICING_APPLICATION_PACKAGE, BACKOFFICE_APPLICATION_PACKAGE)
       .should().dependOnClassesThat().haveSimpleNameEndingWith("Dto")
       .because("Application layer should use Command/Query/Response models, not presentation DTOs (Clean Architecture)")
       .allowEmptyShould(true)

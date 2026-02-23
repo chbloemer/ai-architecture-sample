@@ -94,6 +94,11 @@ abstract class BaseArchUnitTest extends Specification {
   protected static final String PRICING_APPLICATION_PACKAGE = "${BASE_PACKAGE}.pricing.application.."
   protected static final String PRICING_ADAPTER_PACKAGE = "${BASE_PACKAGE}.pricing.adapter.."
 
+  // Backoffice module (operational, not a bounded context)
+  protected static final String BACKOFFICE_PACKAGE = "${BASE_PACKAGE}.backoffice.."
+  protected static final String BACKOFFICE_APPLICATION_PACKAGE = "${BASE_PACKAGE}.backoffice.application.."
+  protected static final String BACKOFFICE_ADAPTER_PACKAGE = "${BASE_PACKAGE}.backoffice.adapter.."
+
   // Generic patterns (matching all bounded contexts)
   protected static final String DOMAIN_PACKAGE = "${BASE_PACKAGE}.*.domain.."
   protected static final String DOMAIN_MODEL_PACKAGE = "${BASE_PACKAGE}.*.domain.model.."

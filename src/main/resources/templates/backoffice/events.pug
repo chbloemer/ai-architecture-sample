@@ -1,0 +1,57 @@
+extends ../layout
+
+block content
+  .breadcrumb(data-test="breadcrumb")
+    a.breadcrumb__link(href="/") Home
+    span.breadcrumb__separator /
+    span.breadcrumb__current Event Publication Log
+
+  h1 Event Publication Log
+
+  .event-log(data-test="event-log")
+    .event-log__summary(data-test="event-log-summary")
+      .event-log__stat-card
+        .event-log__stat-value(data-test="event-log-total")= eventLog.totalEvents()
+        .event-log__stat-label Total Events
+      .event-log__stat-card.event-log__stat-card--success
+        .event-log__stat-value(data-test="event-log-completed")= eventLog.completedCount()
+        .event-log__stat-label Completed
+      .event-log__stat-card.event-log__stat-card--warning
+        .event-log__stat-value(data-test="event-log-incomplete")= eventLog.incompleteCount()
+        .event-log__stat-label Incomplete
+
+    if eventLog.totalEvents() > 0
+      .event-log__list(data-test="event-log-list")
+        each event in eventLog.events()
+          .event-log__item(data-test="event-log-item")
+            .event-log__item-header
+              span.event-log__event-type(data-test="event-type")= event.shortEventType()
+              if event.completed()
+                span.event-log__badge.event-log__badge--completed(data-test="event-status") Completed
+              else
+                span.event-log__badge.event-log__badge--incomplete(data-test="event-status") Incomplete
+
+            .event-log__item-details
+              .event-log__detail
+                span.event-log__detail-label Listener
+                span.event-log__detail-value(data-test="event-listener")= event.listenerId()
+              .event-log__detail
+                span.event-log__detail-label Published
+                span.event-log__detail-value(data-test="event-publication-date")= event.publicationDate()
+              if event.completionDate()
+                .event-log__detail
+                  span.event-log__detail-label Completed
+                  span.event-log__detail-value(data-test="event-completion-date")= event.completionDate()
+
+            details.event-log__payload(data-test="event-payload")
+              summary.event-log__payload-toggle Event Payload
+              pre.event-log__payload-content= event.serializedEvent()
+
+    else
+      .empty-state
+        p.empty-state__title No events published yet
+        p.empty-state__message Events will appear here as the application processes domain events.
+
+    .event-log__footer
+      a.btn.btn--secondary(href="/backoffice/events" data-test="event-log-refresh") Refresh
+      a.btn.btn--secondary(href="/backoffice/logout" data-test="event-log-logout") Logout

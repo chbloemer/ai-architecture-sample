@@ -3910,6 +3910,113 @@
         ]
       },
       "passes": true
+    },
+    {
+      "id": "US-135",
+      "epic": "architecture",
+      "title": "Spring Modulith Refactoring",
+      "description": "Refactor the application to use Spring Modulith for module structure and inter-context communication. Replace direct cross-context calls with event-driven communication, introduce API service classes as open-host services, and apply the Interface Inversion pattern (ADR-024) to break cross-module event listener cycles. Ensure only one aggregate change per transaction.",
+      "depends_on": ["US-134"],
+      "acceptance_criteria": [
+        "Spring Modulith dependency added and configured in build.gradle",
+        "All bounded contexts have package-info.java with Spring Modulith module declarations",
+        "API service classes created: CartService, InventoryService, PricingService, ProductCatalogService",
+        "Interface Inversion pattern applied to break cart<->checkout and inventory->checkout cycles (ADR-024)",
+        "Trigger interfaces (CartCompletionTrigger, StockReductionTrigger) defined in consumer modules",
+        "CheckoutConfirmedEvent implements trigger interfaces from consumer modules",
+        "Event consumers rewritten to listen to own trigger interfaces instead of foreign events",
+        "Direct cross-context adapter calls replaced with event-driven communication",
+        "Only one aggregate change per transaction enforced",
+        "SpringModulithVerificationTest passes",
+        "Architecture documentation and README updated",
+        "ADR-024 (Interface Inversion Pattern for Spring Modulith) created"
+      ],
+      "architectural_guidance": {
+        "affected_layers": [
+          "domain",
+          "application",
+          "adapter",
+          "infrastructure"
+        ],
+        "locations": [
+          "src/main/java/de/sample/aiarchitecture/cart/api/",
+          "src/main/java/de/sample/aiarchitecture/product/api/",
+          "src/main/java/de/sample/aiarchitecture/inventory/api/",
+          "src/main/java/de/sample/aiarchitecture/pricing/api/",
+          "src/main/java/de/sample/aiarchitecture/checkout/events/",
+          "src/main/java/de/sample/aiarchitecture/cart/events/",
+          "src/main/java/de/sample/aiarchitecture/inventory/events/",
+          "docs/architecture/adr/adr-024-interface-inversion-spring-modulith.md",
+          "src/test-architecture/groovy/de/sample/aiarchitecture/SpringModulithVerificationTest.groovy"
+        ],
+        "patterns": [
+          "Spring Modulith",
+          "Interface Inversion",
+          "Open Host Service",
+          "Event-Driven Communication",
+          "Module Declarations"
+        ],
+        "constraints": [
+          "No cyclic module dependencies (Spring Modulith verify must pass)",
+          "One aggregate change per transaction",
+          "Consumer modules define their own trigger interfaces",
+          "Producer events implement consumer trigger interfaces",
+          "Security configuration moved into account adapter"
+        ]
+      },
+      "passes": true
+    },
+    {
+      "id": "US-136",
+      "epic": "backoffice",
+      "title": "Backoffice Event Publication Log",
+      "description": "Add a backoffice bounded context with a secured admin UI to view the Spring Modulith event publication log. Includes basic auth security, JDBC-based event log repository, use case, page controller with view model, and E2E tests.",
+      "depends_on": ["US-135"],
+      "acceptance_criteria": [
+        "New backoffice bounded context with domain, application, and adapter layers",
+        "GetEventPublications use case with InputPort, UseCase, Query, and Result",
+        "EventPublicationLogRepository as output port with JDBC implementation",
+        "EventPublicationPageController serving backoffice/events view",
+        "EventPublicationPageViewModel for presentation",
+        "Dedicated BackofficeSecurityConfiguration with basic auth",
+        "BackofficeSecurityProperties for configurable credentials",
+        "Login page for backoffice access",
+        "Logout and refresh buttons in top-right of backoffice UI",
+        "Backoffice navigation link added to main layout",
+        "E2E test (BackofficeE2ETest) with BackofficeEventsPage and BackofficeLoginPage page objects",
+        "ArchUnit tests updated to include backoffice context"
+      ],
+      "architectural_guidance": {
+        "affected_layers": [
+          "domain",
+          "application",
+          "adapter",
+          "infrastructure"
+        ],
+        "locations": [
+          "src/main/java/de/sample/aiarchitecture/backoffice/",
+          "src/main/resources/templates/backoffice/",
+          "src/main/resources/static/css/main.css",
+          "src/test/java/de/sample/aiarchitecture/e2e/BackofficeE2ETest.java",
+          "src/test/java/de/sample/aiarchitecture/e2e/pages/BackofficeEventsPage.java",
+          "src/test/java/de/sample/aiarchitecture/e2e/pages/BackofficeLoginPage.java"
+        ],
+        "patterns": [
+          "Use Case Pattern",
+          "ViewModel Pattern",
+          "Page Controller",
+          "Repository Pattern (JDBC)",
+          "Bounded Context",
+          "E2E Testing with Page Objects"
+        ],
+        "constraints": [
+          "Backoffice security isolated from storefront security",
+          "Basic auth for backoffice (not JWT)",
+          "Event publication log read via JDBC (not Spring Modulith internals)",
+          "Follow existing naming conventions (*PageController, *ViewModel, *InputPort, *UseCase)"
+        ]
+      },
+      "passes": true
     }
   ]
 }

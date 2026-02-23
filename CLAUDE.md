@@ -37,9 +37,11 @@ This is a **sample e-commerce application** demonstrating best practices for:
 - **Clean Architecture** - Framework-independent business logic
 
 **Tech Stack:**
-- Java 21
-- Spring Boot 3.5.6
-- Gradle 9.x
+- Java 25
+- Spring Boot 4.0.2
+- Gradle 9.3.1
+- Spring Modulith 2.0.3
+- Spring AI 2.0.0-M2 (milestone)
 - ArchUnit for architecture testing
 - Spock/Groovy for architecture tests
 - JSpecify for nullability annotations
@@ -216,7 +218,7 @@ If architecture tests fail:
 #### Repositories
 - Interface in domain layer (`domain.model.*`)
 - Extend `Repository<T, ID>` base interface
-- Implementation in outgoing adapters (`portadapter.outgoing.*`)
+- Implementation in outgoing adapters (`adapter.outgoing.*`)
 - Use domain language in method names
 
 #### Domain Events
@@ -238,7 +240,7 @@ de.sample.aiarchitecture
 │   ├── marker/               # Architectural markers (tactical, strategic, port)
 │   ├── domain/               # Shared value objects and specifications
 │   └── adapter/outgoing/     # Shared adapters (e.g., SpringDomainEventPublisher)
-├── {boundedcontext}/         # Each bounded context (product, cart, checkout, account)
+├── {boundedcontext}/         # Each bounded context (product, cart, checkout, account, portal, inventory, pricing, backoffice)
 │   ├── domain/               # Domain model (aggregates, entities, events)
 │   ├── application/          # Use cases, ports, orchestration
 │   └── adapter/              # Incoming and outgoing adapters
@@ -506,7 +508,7 @@ For significant architectural decisions, create an Architecture Decision Record 
 - Put business logic in application services
 - Have application services call other application services
 - Make application services stateful
-- Access portadapters from application services
+- Access adapters from application services
 
 ✅ **Do:**
 - Keep application services thin (orchestration only)

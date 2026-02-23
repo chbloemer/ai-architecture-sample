@@ -4,7 +4,7 @@ A comprehensive demonstration of **Domain-Driven Design (DDD)**, **Clean Archite
 
 ## Overview
 
-This project showcases best practices for structuring a Spring Boot application with clean architecture principles. It implements seven bounded contexts:
+This project showcases best practices for structuring a Spring Boot application with clean architecture principles. It implements eight bounded contexts:
 - **Product Catalog** - Product management with enriched views (pricing + stock from other contexts)
 - **Shopping Cart** - Customer shopping cart management with article price resolution
 - **Checkout** - Multi-step checkout flow with session management
@@ -12,12 +12,13 @@ This project showcases best practices for structuring a Spring Boot application 
 - **Portal** - Application home page and navigation
 - **Inventory** - Stock level management (Open Host Service)
 - **Pricing** - Product pricing management (Open Host Service)
+- **Backoffice** - Event publication log viewer and administrative tools
 
 ### Key Features
 
-- **AI-Accessible Product Catalog** via MCP server (Spring AI 1.1.0-M3)
+- **AI-Accessible Product Catalog** via MCP server (Spring AI 2.0.0-M2)
 - **Spring Modulith** for framework-enforced module boundaries and event-driven cross-module communication
-- **Complete Architecture Testing** with ArchUnit (10 test suites)
+- **Complete Architecture Testing** with ArchUnit (10 test suites) and Spring Modulith verification
 - **24 Architecture Decision Records** documenting design choices
 - **Shared Kernel** pattern for cross-context value objects
 - **Framework-Independent Domain** layer (no Spring/JPA in core)
@@ -30,17 +31,17 @@ This project showcases best practices for structuring a Spring Boot application 
 ### Domain-Driven Design (DDD)
 
 **Strategic Patterns:**
-- **Bounded Contexts**: Product Catalog, Shopping Cart, Checkout, Account, Portal, Inventory, Pricing
+- **Bounded Contexts**: Product Catalog, Shopping Cart, Checkout, Account, Portal, Inventory, Pricing, Backoffice
 - **Shared Kernel**: Cross-context value objects (Money, Price, ProductId, UserId)
-- **Context Mapping**: Contexts communicate via shared kernel and domain events
-- **Open Host Service**: ProductCatalogService provides cross-context API
+- **Context Mapping**: Contexts communicate via shared kernel, domain events, and integration events
+- **Open Host Service**: ProductCatalogService, InventoryService, PricingService, and CartService provide cross-context APIs
 
 **Tactical Patterns:**
 - **Aggregates**: Product, ShoppingCart, CheckoutSession, Account, StockLevel, ProductPrice
 - **Entities**: CartItem, CheckoutLineItem
 - **Value Objects**: ProductId, SKU, Price, Money, Quantity, Category, BuyerInfo, DeliveryAddress, Email, HashedPassword, etc.
 - **Repositories**: Interfaces in application layer, implementations in adapters
-- **Domain Services**: PricingService, CartTotalCalculator, CheckoutStepValidator, PasswordHasher
+- **Domain Services**: PricingService, CartTotalCalculator, CheckoutStepValidator
 - **Domain Events**: ProductCreated, CartCheckedOut, CartItemAddedToCart, CartItemQuantityChanged, ProductRemovedFromCart, CartCleared, CheckoutSessionStarted, CheckoutConfirmed, AccountRegistered, PriceChanged, StockChanged, etc.
 - **Factories**: ProductFactory, EnrichedCartFactory, CheckoutCartFactory
 - **Specifications**: ProductAvailabilitySpecification, CartSpecification (with Visitor pattern: ActiveCart, HasMinTotal, HasAnyAvailableItem, LastUpdatedBefore, CustomerAllowsMarketing)
@@ -56,7 +57,7 @@ This project showcases best practices for structuring a Spring Boot application 
 ### Hexagonal Architecture (Ports and Adapters)
 
 - **Input Ports**: Use case interfaces (defined in application layer)
-- **Output Ports**: Repository and service interfaces (defined in sharedkernel.application.port)
+- **Output Ports**: Repository and service interfaces (defined in application/shared)
 - **Incoming Adapters** (Primary): REST Controllers, MCP Server, Web MVC, Event Consumers, Open Host Services
 - **Outgoing Adapters** (Secondary): In-memory, JPA, and JDBC repository implementations
 
@@ -106,7 +107,9 @@ src/main/java/de/sample/aiarchitecture/
 │   │   │   ├── ProductId.java            # Cross-context ID
 │   │   │   ├── UserId.java               # Cross-context ID
 │   │   │   ├── Money.java                # Cross-context value
-│   │   │   └── Price.java                # Cross-context value
+│   │   │   ├── Price.java                # Cross-context value
+│   │   │   ├── PageResult.java           # Pagination result
+│   │   │   └── PagingRequest.java        # Pagination request
 │   │   └── specification/                # Composable specification pattern
 │   │       ├── CompositeSpecification.java
 │   │       ├── AndSpecification.java
@@ -119,6 +122,10 @@ src/main/java/de/sample/aiarchitecture/
 │               └── SpringDomainEventPublisher.java  # Domain event publishing
 │
 ├── product/                              # Product Catalog bounded context
+│   ├── api/                              # Spring Modulith @NamedInterface API
+│   │   └── ProductCatalogService.java    # Open Host Service
+│   ├── events/                           # Spring Modulith integration events
+│   │   └── ProductCreatedEvent.java
 │   ├── domain/
 │   │   ├── model/                        # Domain model
 │   │   │   ├── Product.java              # Aggregate Root
@@ -127,15 +134,19 @@ src/main/java/de/sample/aiarchitecture/
 │   │   │   ├── ProductDescription.java
 │   │   │   ├── ProductArticle.java
 │   │   │   ├── ProductStock.java
-│   │   │   ├── EnrichedProduct.java       # Enriched read model
+│   │   │   ├── EnrichedProduct.java      # Enriched read model
 │   │   │   ├── Category.java
+│   │   │   ├── ImageUrl.java
 │   │   │   └── ProductFactory.java       # Factory
 │   │   ├── specification/                # Specifications
 │   │   │   └── ProductAvailabilitySpecification.java
 │   │   ├── service/                      # Domain services
 │   │   │   └── PricingService.java
 │   │   └── event/                        # Domain events
-│   │       └── ProductCreated.java
+│   │       ├── ProductCreated.java
+│   │       ├── ProductNameChanged.java
+│   │       ├── ProductDescriptionChanged.java
+│   │       └── ProductCategoryChanged.java
 │   ├── application/                      # Application layer
 │   │   ├── createproduct/                # Use case: Create Product
 │   │   │   ├── CreateProductInputPort.java
@@ -159,9 +170,11 @@ src/main/java/de/sample/aiarchitecture/
 │   │   │   └── ReduceProductStockResult.java
 │   │   └── shared/                       # Shared output ports
 │   │       ├── ProductRepository.java
-│   │       ├── PricingDataPort.java       # Port for pricing data from Pricing context
-│   │       └── ProductStockDataPort.java  # Port for stock data from Inventory context
+│   │       ├── PricingDataPort.java      # Port for pricing data from Pricing context
+│   │       └── ProductStockDataPort.java # Port for stock data from Inventory context
 │   └── adapter/                          # Adapters
+│       ├── config/
+│       │   └── ProductDomainConfiguration.java
 │       ├── incoming/                     # Incoming adapters (primary)
 │       │   ├── api/
 │       │   │   ├── ProductResource.java
@@ -174,14 +187,13 @@ src/main/java/de/sample/aiarchitecture/
 │       │   │   ├── ProductPageController.java
 │       │   │   ├── ProductCatalogPageViewModel.java
 │       │   │   └── ProductDetailPageViewModel.java
-│       │   ├── openhost/
-│       │   │   └── ProductCatalogService.java    # Open Host Service
 │       │   └── event/
 │       │       ├── ProductEventConsumer.java
-│       │       ├── CheckoutConfirmedEventListener.java
 │       │       └── acl/
 │       │           └── CheckoutEventTranslator.java  # Anti-corruption layer
 │       └── outgoing/                     # Outgoing adapters (secondary)
+│           ├── event/
+│           │   └── ProductCreatedEventPublisher.java
 │           ├── persistence/
 │           │   └── InMemoryProductRepository.java
 │           ├── pricing/
@@ -190,6 +202,12 @@ src/main/java/de/sample/aiarchitecture/
 │               └── InventoryStockDataAdapter.java  # Adapter to Inventory context
 │
 ├── cart/                                 # Shopping Cart bounded context
+│   ├── api/                              # Spring Modulith @NamedInterface API
+│   │   └── CartService.java             # Open Host Service
+│   ├── events/                           # Spring Modulith integration events
+│   │   ├── CartCheckedOutEvent.java
+│   │   ├── CartCompletionTrigger.java
+│   │   └── CartContentsChangedEvent.java
 │   ├── domain/
 │   │   ├── model/                        # Domain model
 │   │   │   ├── ShoppingCart.java         # Aggregate Root
@@ -202,10 +220,10 @@ src/main/java/de/sample/aiarchitecture/
 │   │   │   ├── ArticlePrice.java         # Price from Pricing context
 │   │   │   ├── ArticlePriceResolver.java # Resolver for fresh prices
 │   │   │   ├── CartArticle.java          # Article data for cart items
-│   │   │   ├── EnrichedCart.java          # Enriched read model
-│   │   │   ├── EnrichedCartFactory.java   # Factory for enriched carts
-│   │   │   ├── EnrichedCartItem.java      # Enriched cart item with prices
-│   │   │   └── CartValidationResult.java  # Validation result
+│   │   │   ├── EnrichedCart.java         # Enriched read model
+│   │   │   ├── EnrichedCartFactory.java  # Factory for enriched carts
+│   │   │   ├── EnrichedCartItem.java     # Enriched cart item with prices
+│   │   │   └── CartValidationResult.java # Validation result
 │   │   ├── specification/                # Cart specifications (Visitor pattern)
 │   │   │   ├── CartSpecification.java    # Base specification interface
 │   │   │   ├── CartSpecificationVisitor.java  # Visitor for database-agnostic filtering
@@ -222,7 +240,9 @@ src/main/java/de/sample/aiarchitecture/
 │   │       ├── CartItemAddedToCart.java
 │   │       ├── CartItemQuantityChanged.java
 │   │       ├── ProductRemovedFromCart.java
-│   │       └── CartCleared.java
+│   │       ├── CartCleared.java
+│   │       ├── CartCompleted.java
+│   │       └── CartAbandoned.java
 │   ├── application/                      # Application layer
 │   │   ├── createcart/                   # Use case: Create Cart
 │   │   │   ├── CreateCartInputPort.java
@@ -263,7 +283,8 @@ src/main/java/de/sample/aiarchitecture/
 │   │   │   ├── MergeCartsInputPort.java
 │   │   │   ├── MergeCartsUseCase.java
 │   │   │   ├── MergeCartsCommand.java
-│   │   │   └── MergeCartsResult.java
+│   │   │   ├── MergeCartsResult.java
+│   │   │   └── CartMergeStrategy.java
 │   │   ├── getcartmergeoptions/          # Use case: Get Cart Merge Options
 │   │   │   ├── GetCartMergeOptionsInputPort.java
 │   │   │   ├── GetCartMergeOptionsUseCase.java
@@ -274,16 +295,18 @@ src/main/java/de/sample/aiarchitecture/
 │   │   │   ├── CompleteCartUseCase.java
 │   │   │   ├── CompleteCartCommand.java
 │   │   │   └── CompleteCartResult.java
-│   │   ├── recovercart/                  # Use case: Recover Abandoned Cart
-│   │   │   ├── RecoverCartInputPort.java
-│   │   │   ├── RecoverCartUseCase.java
-│   │   │   ├── RecoverCartCommand.java
+│   │   ├── recovercart/                  # Use case: Recover Cart on Login
+│   │   │   ├── RecoverCartOnLoginInputPort.java
+│   │   │   ├── RecoverCartOnLoginUseCase.java
+│   │   │   ├── RecoverCartOnLoginCommand.java
 │   │   │   └── RecoverCartOnLoginResult.java
 │   │   └── shared/                       # Shared output ports
 │   │       ├── ShoppingCartRepository.java
-│   │       ├── ArticleDataPort.java       # Port for article data (prices + stock)
-│   │       └── ProductDataPort.java       # Port for product data from other context
+│   │       ├── ArticleDataPort.java      # Port for article data (prices + stock)
+│   │       └── ProductDataPort.java      # Port for product data from other context
 │   └── adapter/                          # Adapters
+│       ├── config/
+│       │   └── CartDomainConfiguration.java
 │       ├── incoming/                     # Incoming adapters
 │       │   ├── api/
 │       │   │   ├── ShoppingCartResource.java
@@ -296,26 +319,33 @@ src/main/java/de/sample/aiarchitecture/
 │       │   │   ├── CartPageController.java
 │       │   │   ├── CartPageViewModel.java
 │       │   │   ├── CartMergePageController.java
-│       │   │   └── CartMergePageViewModel.java
+│       │   │   ├── CartMergePageViewModel.java
+│       │   │   ├── MiniBasketControllerAdvice.java
+│       │   │   └── MiniBasketItemViewModel.java
 │       │   └── event/
 │       │       ├── CartEventConsumer.java
-│       │       └── CheckoutEventConsumer.java
+│       │       └── CartCompletionEventConsumer.java
 │       └── outgoing/                     # Outgoing adapters
+│           ├── event/
+│           │   ├── CartCheckedOutEventPublisher.java
+│           │   └── CartContentsChangedEventPublisher.java
 │           ├── product/
 │           │   └── CompositeArticleDataAdapter.java  # Composite adapter for article data
 │           └── persistence/
 │               ├── InMemoryShoppingCartRepository.java
 │               ├── JdbcShoppingCartRepository.java
-│               └── jpa/                  # JPA persistence alternative
-│                   ├── JpaShoppingCartRepository.java
-│                   ├── CartJpaRepository.java
-│                   ├── CartEntity.java
-│                   ├── CartItemEntity.java
-│                   └── CartSpecToJpa.java    # Specification visitor for JPA
+│               ├── jpa/                  # JPA persistence alternative
+│               │   ├── JpaShoppingCartRepository.java
+│               │   ├── CartJpaRepository.java
+│               │   ├── CartEntity.java
+│               │   ├── CartItemEntity.java
+│               │   └── CartSpecToJpa.java    # Specification visitor for JPA
 │               └── jdbc/
 │                   └── CartSpecToJdbc.java   # Specification visitor for JDBC
 │
 ├── checkout/                             # Checkout bounded context
+│   ├── events/                           # Spring Modulith integration events
+│   │   └── CheckoutConfirmedEvent.java
 │   ├── domain/
 │   │   ├── model/                        # Domain model
 │   │   │   ├── CheckoutSession.java      # Aggregate Root
@@ -333,14 +363,14 @@ src/main/java/de/sample/aiarchitecture/
 │   │   │   ├── PaymentProviderId.java
 │   │   │   ├── CustomerId.java
 │   │   │   ├── CartId.java
-│   │   │   ├── CheckoutArticle.java       # Article data for checkout
+│   │   │   ├── CheckoutArticle.java      # Article data for checkout
 │   │   │   ├── CheckoutArticlePriceResolver.java  # Price resolver
-│   │   │   ├── CheckoutCart.java           # Cart snapshot for checkout
-│   │   │   ├── CheckoutCartFactory.java    # Factory for checkout cart
+│   │   │   ├── CheckoutCart.java          # Cart snapshot for checkout
+│   │   │   ├── CheckoutCartFactory.java   # Factory for checkout cart
 │   │   │   └── EnrichedCheckoutLineItem.java  # Enriched line item with prices
 │   │   ├── readmodel/                    # Read Models
-│   │   │   ├── CheckoutCartSnapshot.java  # Cart snapshot for display
-│   │   │   └── LineItemSnapshot.java      # Line item snapshot for display
+│   │   │   ├── CheckoutCartSnapshot.java # Cart snapshot for display
+│   │   │   └── LineItemSnapshot.java     # Line item snapshot for display
 │   │   ├── service/                      # Domain services
 │   │   │   └── CheckoutStepValidator.java
 │   │   └── event/                        # Domain events
@@ -433,6 +463,8 @@ src/main/java/de/sample/aiarchitecture/
 │       │   └── event/
 │       │       └── CartChangeEventConsumer.java
 │       └── outgoing/                     # Outgoing adapters
+│           ├── event/
+│           │   └── CheckoutConfirmedEventPublisher.java
 │           ├── persistence/
 │           │   └── InMemoryCheckoutSessionRepository.java
 │           ├── cart/
@@ -456,7 +488,12 @@ src/main/java/de/sample/aiarchitecture/
 │   │   │   └── PasswordHasher.java       # Interface for password hashing
 │   │   └── event/                        # Domain events
 │   │       ├── AccountRegistered.java
-│   │       └── AccountLinkedToIdentity.java
+│   │       ├── AccountLinkedToIdentity.java
+│   │       ├── AccountLoggedIn.java
+│   │       ├── AccountPasswordChanged.java
+│   │       ├── AccountSuspended.java
+│   │       ├── AccountReactivated.java
+│   │       └── AccountClosed.java
 │   ├── application/                      # Application layer
 │   │   ├── registeraccount/              # Use case: Register Account
 │   │   │   ├── RegisterAccountInputPort.java
@@ -474,6 +511,8 @@ src/main/java/de/sample/aiarchitecture/
 │   │       ├── TokenService.java
 │   │       └── IdentitySession.java
 │   └── adapter/                          # Adapters
+│       ├── config/
+│       │   └── SecurityConfiguration.java
 │       ├── incoming/                     # Incoming adapters
 │       │   ├── api/
 │       │   │   ├── AuthResource.java
@@ -489,9 +528,20 @@ src/main/java/de/sample/aiarchitecture/
 │           │   └── InMemoryAccountRepository.java
 │           └── security/
 │               ├── SpringSecurityPasswordHasher.java
-│               └── AccountBasedRegisteredUserValidator.java
+│               ├── AccountBasedRegisteredUserValidator.java
+│               ├── SpringSecurityIdentityProvider.java
+│               ├── JwtTokenService.java
+│               ├── JwtIdentitySession.java
+│               ├── JwtIdentity.java
+│               ├── JwtIdentityType.java
+│               ├── JwtProperties.java
+│               └── JwtAuthenticationFilter.java
 │
 ├── inventory/                            # Inventory bounded context
+│   ├── api/                              # Spring Modulith @NamedInterface API
+│   │   └── InventoryService.java         # Open Host Service
+│   ├── events/                           # Spring Modulith integration events
+│   │   └── StockReductionTrigger.java
 │   ├── domain/
 │   │   ├── model/                        # Domain model
 │   │   │   ├── StockLevel.java           # Aggregate Root
@@ -502,7 +552,8 @@ src/main/java/de/sample/aiarchitecture/
 │   │       ├── StockChanged.java
 │   │       ├── StockIncreased.java
 │   │       ├── StockDecreased.java
-│   │       └── StockReserved.java
+│   │       ├── StockReserved.java
+│   │       └── StockReleased.java
 │   ├── application/                      # Application layer
 │   │   ├── setstocklevel/                # Use case: Set Stock Level
 │   │   │   ├── SetStockLevelInputPort.java
@@ -523,19 +574,19 @@ src/main/java/de/sample/aiarchitecture/
 │   │       └── StockLevelRepository.java
 │   └── adapter/                          # Adapters
 │       ├── incoming/                     # Incoming adapters
-│       │   ├── openhost/
-│       │   │   └── InventoryService.java     # Open Host Service
 │       │   └── event/
-│       │       └── CheckoutConfirmedEventConsumer.java
+│       │       └── StockReductionEventConsumer.java
 │       └── outgoing/                     # Outgoing adapters
 │           └── persistence/
 │               └── InMemoryStockLevelRepository.java
 │
 ├── pricing/                              # Pricing bounded context
+│   ├── api/                              # Spring Modulith @NamedInterface API
+│   │   └── PricingService.java           # Open Host Service
 │   ├── domain/
 │   │   ├── model/                        # Domain model
 │   │   │   ├── ProductPrice.java         # Aggregate Root
-│   │   │   └── PriceId.java             # Value Objects
+│   │   │   └── PriceId.java              # Value Objects
 │   │   └── event/                        # Domain events
 │   │       ├── PriceCreated.java
 │   │       └── PriceChanged.java
@@ -553,11 +604,6 @@ src/main/java/de/sample/aiarchitecture/
 │   │   └── shared/                       # Shared output ports
 │   │       └── ProductPriceRepository.java
 │   └── adapter/                          # Adapters
-│       ├── incoming/                     # Incoming adapters
-│       │   ├── openhost/
-│       │   │   └── PricingService.java       # Open Host Service
-│       │   └── event/
-│       │       └── ProductCreatedEventConsumer.java
 │       └── outgoing/                     # Outgoing adapters
 │           └── persistence/
 │               └── InMemoryProductPriceRepository.java
@@ -568,34 +614,44 @@ src/main/java/de/sample/aiarchitecture/
 │           └── web/
 │               └── HomePageController.java
 │
+├── backoffice/                           # Backoffice bounded context
+│   ├── application/
+│   │   ├── geteventpublications/         # Use case: Get Event Publications
+│   │   │   ├── GetEventPublicationsInputPort.java
+│   │   │   ├── GetEventPublicationsUseCase.java
+│   │   │   ├── GetEventPublicationsQuery.java
+│   │   │   └── GetEventPublicationsResult.java
+│   │   └── shared/                       # Shared output ports
+│   │       └── EventPublicationLogRepository.java
+│   └── adapter/                          # Adapters
+│       ├── config/
+│       │   ├── BackofficeSecurityConfiguration.java
+│       │   └── BackofficeSecurityProperties.java
+│       ├── incoming/                     # Incoming adapters
+│       │   └── web/
+│       │       ├── EventPublicationPageController.java
+│       │       └── EventPublicationPageViewModel.java
+│       └── outgoing/                     # Outgoing adapters
+│           └── persistence/
+│               └── JdbcEventPublicationLogRepository.java
+│
 └── infrastructure/                       # Infrastructure (cross-cutting)
     ├── AiArchitectureApplication.java    # Spring Boot main class
     ├── config/                           # Spring @Configuration classes
-    │   ├── SecurityConfiguration.java
     │   ├── TransactionConfiguration.java
     │   ├── AsyncConfiguration.java
-    │   ├── DomainConfiguration.java
     │   └── Pug4jConfiguration.java
     ├── init/                             # Initialization
     │   └── SampleDataInitializer.java    # Sample data seeding
-    ├── support/                          # Framework support components
-    │   └── AsyncInitializationProcessor.java
-    └── security/                         # Security infrastructure
-        ├── SpringSecurityIdentityProvider.java
-        ├── JwtIdentity.java
-        ├── JwtIdentityType.java
-        └── jwt/                          # JWT authentication
-            ├── JwtTokenService.java
-            ├── JwtIdentitySession.java
-            ├── JwtProperties.java
-            └── JwtAuthenticationFilter.java
+    └── support/                          # Framework support components
+        └── AsyncInitializationProcessor.java
 ```
 
 ## Getting Started
 
 ### Prerequisites
-- Java 21
-- Gradle 9.1 or higher
+- Java 25
+- Gradle 9.3.1 or higher
 
 ### Running the Application
 
@@ -772,11 +828,11 @@ For comprehensive architecture documentation, see:
   - `adapter.incoming.api` - REST APIs (@RestController) returning JSON via DTOs
   - `adapter.incoming.web` - Web MVC (@Controller) returning HTML via page-specific ViewModels
   - `adapter.incoming.mcp` - MCP Server for AI assistants
-  - `adapter.incoming.openhost` - Open Host Services for cross-context APIs
   - `adapter.incoming.event` - Domain event consumers
   - `adapter.incoming.event.acl` - Anti-corruption layer event translators
 - Outgoing Adapters (Secondary):
   - `adapter.outgoing.persistence` - Repository implementations (InMemory, JPA, JDBC)
+  - `adapter.outgoing.event` - Integration event publishers
   - `adapter.outgoing.cart`, `adapter.outgoing.product` - Cross-context data adapters
   - `adapter.outgoing.payment` - Payment provider adapters
   - `adapter.outgoing.security` - Security-related adapters
@@ -784,20 +840,27 @@ For comprehensive architecture documentation, see:
 - ViewModels use primitives only, created from domain read models
 - Adapters don't communicate directly
 
+**Open Host Services** (Spring Modulith `@NamedInterface` API packages)
+- `{context}.api` - Cross-context APIs exposed as Spring Modulith named interfaces
+- ProductCatalogService, CartService, InventoryService, PricingService
+
+**Integration Events** (Spring Modulith event packages)
+- `{context}.events` - Integration events published via Spring Modulith for cross-module communication
+- Separate from internal domain events in `domain.event`
+
 **Shared Kernel** - Cross-context shared concepts
 - `sharedkernel.marker.tactical` - DDD tactical patterns (Entity, Value, AggregateRoot, DomainEvent, etc.)
 - `sharedkernel.marker.strategic` - DDD strategic patterns (BoundedContext, SharedKernel, OpenHostService)
 - `sharedkernel.marker.port.in` - Input ports (UseCase, InputPort)
 - `sharedkernel.marker.port.out` - Output ports (Repository, DomainEventPublisher, IdentityProvider)
 - `sharedkernel.marker.infrastructure` - Framework integration markers (AsyncInitialize)
-- `sharedkernel.domain.model` - Shared value objects (Money, Price, ProductId, UserId)
+- `sharedkernel.domain.model` - Shared value objects (Money, Price, ProductId, UserId, PageResult, PagingRequest)
 - `sharedkernel.domain.specification` - Composable specification pattern
 - `sharedkernel.adapter.outgoing.event` - Shared outgoing adapters (SpringDomainEventPublisher)
 
 **Infrastructure Layer** - Cross-cutting concerns
 - `infrastructure.config` - Spring @Configuration classes
 - `infrastructure.support` - Framework support components (processors, listeners)
-- `infrastructure.security` - Security infrastructure (JWT, authentication, identity)
 
 ## Testing
 
@@ -809,7 +872,7 @@ Architecture rules are **actively enforced** using ArchUnit (10 test suites) and
 ./gradlew test-architecture
 ```
 
-**Test Suites:**
+**ArchUnit Test Suites:**
 - **DddTacticalPatternsArchUnitTest** - Aggregate, Entity, Value Object, Repository patterns
 - **DddAdvancedPatternsArchUnitTest** - Domain Events, Services, Factories, Specifications
 - **DddStrategicPatternsArchUnitTest** - Bounded Context isolation
@@ -819,17 +882,22 @@ Architecture rules are **actively enforced** using ArchUnit (10 test suites) and
 - **NamingConventionsArchUnitTest** - Naming standards
 - **PackageCyclesArchUnitTest** - Circular dependency detection
 - **UseCasePatternsArchUnitTest** - Application service patterns
-- **BaseArchUnitTest** - Common test infrastructure
+
+**Spring Modulith Verification:**
 - **SpringModulithVerificationTest** - Module boundary and cycle verification
+
+**Shared Infrastructure:**
+- **BaseArchUnitTest** - Common test constants and helpers
 
 These tests verify:
 - Domain layer has no framework dependencies
 - Aggregates only reference other aggregates by ID
 - Value objects are immutable records
-- Repository interfaces live in domain
+- Repository interfaces live in application/shared
 - No circular package dependencies
 - Naming conventions are followed
 - Bounded contexts are properly isolated
+- Spring Modulith module boundaries are respected
 
 ### Unit Tests
 ```bash
@@ -849,10 +917,12 @@ These tests verify:
 9. **Multi-step Checkout Flow**: 5 steps (Buyer Info → Delivery → Payment → Review → Confirmation) with session management
 10. **Specification Pattern with Visitor**: Database-agnostic filtering via CartSpecification and CartSpecificationVisitor
 11. **Multiple Persistence Strategies**: InMemory (default), JPA, and JDBC implementations for shopping cart
-12. **OpenHost Service Pattern**: ProductCatalogService provides cross-context API for checkout
+12. **OpenHost Service Pattern**: Cross-context APIs via Spring Modulith `@NamedInterface` API packages
 13. **UserId Continuity on Registration**: When a user registers, their anonymous UserId is preserved
+14. **Spring Modulith Integration Events**: Cross-module communication via dedicated `events` packages, separate from internal domain events
+15. **Interface Inversion for Event Listeners**: Event consumers listen on integration events published by source context (ADR-024)
 
-**Architecture Decision Records:** See [docs/architecture/adr/README.md](docs/architecture/adr/README.md) for 23 documented architectural decisions.
+**Architecture Decision Records:** See [docs/architecture/adr/README.md](docs/architecture/adr/README.md) for 24 documented architectural decisions.
 
 ## Business Rules Demonstrated
 

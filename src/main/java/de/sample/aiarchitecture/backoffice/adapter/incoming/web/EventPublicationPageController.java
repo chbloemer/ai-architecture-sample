@@ -62,7 +62,7 @@ public class EventPublicationPageController {
    * @return the Pug template name
    */
   @GetMapping("/events")
-  public String showEventPublicationLog(final Model model) {
+  public String showEventPublicationLog(final Model model, final HttpServletRequest request) {
     final GetEventPublicationsResult result =
         getEventPublicationsInputPort.execute(new GetEventPublicationsQuery());
 
@@ -70,6 +70,11 @@ public class EventPublicationPageController {
 
     model.addAttribute("eventLog", viewModel);
     model.addAttribute("title", "Event Publication Log");
+
+    final CsrfToken csrfToken = (CsrfToken) request.getAttribute(CsrfToken.class.getName());
+    if (csrfToken != null) {
+      model.addAttribute("_csrf", csrfToken);
+    }
 
     return "backoffice/events";
   }

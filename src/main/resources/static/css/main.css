@@ -1923,6 +1923,8 @@ ul, ol {
   white-space: nowrap;
   gap: var(--space-sm);
   letter-spacing: 0.03em;
+  appearance: none;
+  background: none;
 }
 
 .btn:focus-visible {
@@ -3710,10 +3712,23 @@ ul, ol {
   word-break: break-all;
 }
 
-.event-log__footer {
+.event-log__header {
   display: flex;
-  gap: var(--space-md);
-  margin-top: var(--space-xl);
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-md);
+}
+
+.event-log__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.event-log__logout-form {
+  display: inline-flex;
+  margin: 0;
+  padding: 0;
 }
 
 .site-footer__links {

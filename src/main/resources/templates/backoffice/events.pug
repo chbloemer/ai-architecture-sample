@@ -1,10 +1,17 @@
 extends ../layout
 
 block content
-  .breadcrumb(data-test="breadcrumb")
-    a.breadcrumb__link(href="/") Home
-    span.breadcrumb__separator /
-    span.breadcrumb__current Event Publication Log
+  .event-log__header
+    .breadcrumb(data-test="breadcrumb")
+      a.breadcrumb__link(href="/") Home
+      span.breadcrumb__separator /
+      span.breadcrumb__current Event Publication Log
+    .event-log__actions
+      a.btn.btn--secondary.btn--sm(href="/backoffice/events" data-test="event-log-refresh") Refresh
+      form.event-log__logout-form(method="POST" action="/backoffice/logout" data-test="event-log-logout-form")
+        if _csrf
+          input(type="hidden" name=_csrf.parameterName value=_csrf.token)
+        button.btn.btn--secondary.btn--sm(type="submit" data-test="event-log-logout") Logout
 
   h1 Event Publication Log
 
@@ -52,6 +59,3 @@ block content
         p.empty-state__title No events published yet
         p.empty-state__message Events will appear here as the application processes domain events.
 
-    .event-log__footer
-      a.btn.btn--secondary(href="/backoffice/events" data-test="event-log-refresh") Refresh
-      a.btn.btn--secondary(href="/backoffice/logout" data-test="event-log-logout") Logout

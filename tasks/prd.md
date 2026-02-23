@@ -2699,3 +2699,91 @@ Before starting, check tasks/logs/ folder for US-94 and US-99 results to see the
   - Naming conventions in prompt.md must match project conventions
 
 ---
+
+### US-132: Spotless Autoformat with Google Java Format ✅
+**Epic:** code-quality
+**Depends on:** —
+
+**As a** developer
+**I want** Spotless with Google Java Format enforcing consistent code formatting
+**So that** the entire codebase follows a uniform style without manual effort
+
+**Acceptance Criteria:**
+- Spotless plugin configured in `build.gradle` with Google Java Format
+- All Java source files reformatted to comply
+- 388 files touched (formatting-only changes)
+
+**Architectural Guidance:**
+- **Affected Layers:** Infrastructure
+- **Locations:**
+  - `build.gradle`
+- **Patterns:** Code Formatting, Build Tooling
+- **Constraints:**
+  - Google Java Format style must be applied consistently
+  - No functional code changes — formatting only
+
+---
+
+### US-133: Multi-Theme Support with View Transitions ✅
+**Epic:** storefront-redesign
+**Depends on:** —
+
+**As a** user
+**I want** multiple switchable themes and smooth view transitions
+**So that** I can personalize the storefront appearance and enjoy seamless page navigations
+
+**Acceptance Criteria:**
+- Organic style theme as default
+- Multiple switchable themes via CSS custom properties + `data-theme`
+- Theme switcher in layout template
+- View transitions across page navigations
+- Documentation in `docs/theming-and-view-transitions.md`
+
+**Architectural Guidance:**
+- **Affected Layers:** Adapter
+- **Locations:**
+  - `src/main/resources/static/css/`
+  - `src/main/resources/templates/`
+  - `docs/theming-and-view-transitions.md`
+- **Patterns:** CSS Custom Properties, View Transitions API, Theme Switching
+- **Constraints:**
+  - Themes use `data-theme` attribute on root element
+  - CSS custom properties for all theme-variable values
+  - No JavaScript framework dependency for theme switching
+
+---
+
+### US-134: Correct DomainEvent and IntegrationEvent Usage ✅
+**Epic:** code-quality
+**Depends on:** —
+
+**As a** developer
+**I want** DomainEvent and IntegrationEvent markers used correctly across all bounded contexts
+**So that** internal domain events stay within a context and cross-context communication uses dedicated integration events
+
+**Acceptance Criteria:**
+- All domain events correctly implement `DomainEvent` (internal, within aggregate)
+- Cross-context events use `IntegrationEvent` with dedicated publisher adapters
+- New `CartCheckedOutEvent` + `CartCheckedOutEventPublisher` in cart adapter
+- New `CheckoutConfirmedEvent` + `CheckoutConfirmedEventPublisher` in checkout adapter
+- Event consumers simplified (consume integration events, not domain events)
+- `DomainEvent` and `IntegrationEvent` marker interfaces clarified
+- New ArchUnit rules enforcing correct event usage
+- `architecture-principles.md` updated with corrected event documentation
+
+**Architectural Guidance:**
+- **Affected Layers:** Domain, Application, Adapter
+- **Locations:**
+  - `src/main/java/de/sample/aiarchitecture/sharedkernel/marker/tactical/`
+  - `src/main/java/de/sample/aiarchitecture/cart/`
+  - `src/main/java/de/sample/aiarchitecture/checkout/`
+  - `src/test-architecture/groovy/de/sample/aiarchitecture/`
+  - `docs/architecture/architecture-principles.md`
+- **Patterns:** Domain Events, Integration Events, Event Publisher Adapter, Cross-Context Communication
+- **Constraints:**
+  - DomainEvent stays internal to bounded context
+  - IntegrationEvent used for cross-context communication
+  - Each integration event needs a dedicated publisher adapter
+  - ArchUnit rules must enforce correct event marker usage
+
+---

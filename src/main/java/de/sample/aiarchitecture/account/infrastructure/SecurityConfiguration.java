@@ -1,4 +1,4 @@
-package de.sample.aiarchitecture.account.adapter.config;
+package de.sample.aiarchitecture.account.infrastructure;
 
 import de.sample.aiarchitecture.account.adapter.outgoing.security.JwtAuthenticationFilter;
 import de.sample.aiarchitecture.account.adapter.outgoing.security.JwtProperties;

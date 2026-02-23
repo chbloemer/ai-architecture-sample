@@ -76,6 +76,8 @@ de.sample.aiarchitecture
 │   │       ├── ProductRepository
 │   │       ├── PricingDataPort
 │   │       └── ProductStockDataPort
+│   ├── infrastructure/            # Per-context infrastructure
+│   │   └── ProductDomainConfiguration
 │   └── adapter/
 │       ├── incoming/               # Incoming Adapters (Primary)
 │       │   ├── api/
@@ -165,6 +167,8 @@ de.sample.aiarchitecture
 │   │       ├── ShoppingCartRepository
 │   │       ├── ArticleDataPort
 │   │       └── ProductDataPort
+│   ├── infrastructure/            # Per-context infrastructure
+│   │   └── CartDomainConfiguration
 │   └── adapter/
 │       ├── incoming/
 │       │   ├── api/
@@ -302,6 +306,8 @@ de.sample.aiarchitecture
 │   │       ├── AccountRepository
 │   │       ├── RegisteredUserValidator, TokenService
 │   │       └── IdentitySession
+│   ├── infrastructure/            # Per-context infrastructure
+│   │   └── SecurityConfiguration
 │   └── adapter/
 │       ├── incoming/
 │       │   ├── api/
@@ -383,6 +389,25 @@ de.sample.aiarchitecture
 │       └── incoming/
 │           └── web/
 │               └── HomePageController
+│
+├── backoffice/                      # Backoffice Bounded Context
+│   ├── application/
+│   │   ├── geteventpublications/
+│   │   │   ├── GetEventPublicationsInputPort, GetEventPublicationsUseCase
+│   │   │   ├── GetEventPublicationsQuery, GetEventPublicationsResult
+│   │   └── shared/
+│   │       └── EventPublicationLogRepository
+│   ├── infrastructure/              # Per-context infrastructure
+│   │   ├── BackofficeSecurityConfiguration
+│   │   └── BackofficeSecurityProperties
+│   └── adapter/
+│       ├── incoming/
+│       │   └── web/
+│       │       ├── EventPublicationPageController
+│       │       └── EventPublicationPageViewModel
+│       └── outgoing/
+│           └── persistence/
+│               └── JdbcEventPublicationLogRepository
 │
 └── infrastructure/                  # Infrastructure (cross-cutting)
     ├── AiArchitectureApplication

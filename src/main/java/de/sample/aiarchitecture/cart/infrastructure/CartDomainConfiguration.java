@@ -1,4 +1,4 @@
-package de.sample.aiarchitecture.cart.adapter.config;
+package de.sample.aiarchitecture.cart.infrastructure;
 
 import de.sample.aiarchitecture.cart.domain.service.CartTotalCalculator;
 import org.springframework.context.annotation.Bean;

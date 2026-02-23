@@ -172,9 +172,9 @@ src/main/java/de/sample/aiarchitecture/
 │   │       ├── ProductRepository.java
 │   │       ├── PricingDataPort.java      # Port for pricing data from Pricing context
 │   │       └── ProductStockDataPort.java # Port for stock data from Inventory context
+│   ├── infrastructure/                   # Per-context infrastructure
+│   │   └── ProductDomainConfiguration.java
 │   └── adapter/                          # Adapters
-│       ├── config/
-│       │   └── ProductDomainConfiguration.java
 │       ├── incoming/                     # Incoming adapters (primary)
 │       │   ├── api/
 │       │   │   ├── ProductResource.java
@@ -304,9 +304,9 @@ src/main/java/de/sample/aiarchitecture/
 │   │       ├── ShoppingCartRepository.java
 │   │       ├── ArticleDataPort.java      # Port for article data (prices + stock)
 │   │       └── ProductDataPort.java      # Port for product data from other context
+│   ├── infrastructure/                   # Per-context infrastructure
+│   │   └── CartDomainConfiguration.java
 │   └── adapter/                          # Adapters
-│       ├── config/
-│       │   └── CartDomainConfiguration.java
 │       ├── incoming/                     # Incoming adapters
 │       │   ├── api/
 │       │   │   ├── ShoppingCartResource.java
@@ -510,9 +510,9 @@ src/main/java/de/sample/aiarchitecture/
 │   │       ├── RegisteredUserValidator.java
 │   │       ├── TokenService.java
 │   │       └── IdentitySession.java
+│   ├── infrastructure/                   # Per-context infrastructure
+│   │   └── SecurityConfiguration.java
 │   └── adapter/                          # Adapters
-│       ├── config/
-│       │   └── SecurityConfiguration.java
 │       ├── incoming/                     # Incoming adapters
 │       │   ├── api/
 │       │   │   ├── AuthResource.java
@@ -623,10 +623,10 @@ src/main/java/de/sample/aiarchitecture/
 │   │   │   └── GetEventPublicationsResult.java
 │   │   └── shared/                       # Shared output ports
 │   │       └── EventPublicationLogRepository.java
+│   ├── infrastructure/                   # Per-context infrastructure
+│   │   ├── BackofficeSecurityConfiguration.java
+│   │   └── BackofficeSecurityProperties.java
 │   └── adapter/                          # Adapters
-│       ├── config/
-│       │   ├── BackofficeSecurityConfiguration.java
-│       │   └── BackofficeSecurityProperties.java
 │       ├── incoming/                     # Incoming adapters
 │       │   └── web/
 │       │       ├── EventPublicationPageController.java

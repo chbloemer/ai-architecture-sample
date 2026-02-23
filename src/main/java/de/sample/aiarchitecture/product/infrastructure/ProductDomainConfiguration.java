@@ -1,4 +1,4 @@
-package de.sample.aiarchitecture.product.adapter.config;
+package de.sample.aiarchitecture.product.infrastructure;
 
 import de.sample.aiarchitecture.product.domain.model.ProductFactory;
 import de.sample.aiarchitecture.product.domain.service.PricingService;

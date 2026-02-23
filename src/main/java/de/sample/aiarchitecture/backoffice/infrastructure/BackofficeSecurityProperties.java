@@ -1,4 +1,4 @@
-package de.sample.aiarchitecture.backoffice.adapter.config;
+package de.sample.aiarchitecture.backoffice.infrastructure;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 

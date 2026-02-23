@@ -3802,6 +3802,114 @@
         ]
       },
       "passes": true
+    },
+    {
+      "id": "US-132",
+      "epic": "code-quality",
+      "title": "Spotless Autoformat with Google Java Format",
+      "description": "Add Spotless Gradle plugin with Google Java Format to enforce consistent code formatting across the entire codebase.",
+      "depends_on": [],
+      "acceptance_criteria": [
+        "Spotless plugin configured in build.gradle with Google Java Format",
+        "All Java source files reformatted to comply",
+        "388 files touched (formatting-only changes)"
+      ],
+      "architectural_guidance": {
+        "affected_layers": [
+          "infrastructure"
+        ],
+        "locations": [
+          "build.gradle"
+        ],
+        "patterns": [
+          "Code Formatting",
+          "Build Tooling"
+        ],
+        "constraints": [
+          "Google Java Format style must be applied consistently",
+          "No functional code changes — formatting only"
+        ]
+      },
+      "passes": true
+    },
+    {
+      "id": "US-133",
+      "epic": "storefront-redesign",
+      "title": "Multi-Theme Support with View Transitions",
+      "description": "Implement a theme system using CSS custom properties and data-theme attributes, add multiple themes (including organic style), and enable MPA view transitions.",
+      "depends_on": [],
+      "acceptance_criteria": [
+        "Organic style theme as default",
+        "Multiple switchable themes via CSS custom properties + data-theme",
+        "Theme switcher in layout template",
+        "View transitions across page navigations",
+        "Documentation in docs/theming-and-view-transitions.md"
+      ],
+      "architectural_guidance": {
+        "affected_layers": [
+          "adapter"
+        ],
+        "locations": [
+          "src/main/resources/static/css/",
+          "src/main/resources/templates/",
+          "docs/theming-and-view-transitions.md"
+        ],
+        "patterns": [
+          "CSS Custom Properties",
+          "View Transitions API",
+          "Theme Switching"
+        ],
+        "constraints": [
+          "Themes use data-theme attribute on root element",
+          "CSS custom properties for all theme-variable values",
+          "No JavaScript framework dependency for theme switching"
+        ]
+      },
+      "passes": true
+    },
+    {
+      "id": "US-134",
+      "epic": "code-quality",
+      "title": "Correct DomainEvent and IntegrationEvent Usage",
+      "description": "Fix incorrect usage of DomainEvent and IntegrationEvent markers across all bounded contexts. DomainEvents stay internal to a context; IntegrationEvents are published for cross-context communication via dedicated event publisher adapters.",
+      "depends_on": [],
+      "acceptance_criteria": [
+        "All domain events correctly implement DomainEvent (internal, within aggregate)",
+        "Cross-context events use IntegrationEvent with dedicated publisher adapters",
+        "New CartCheckedOutEvent + CartCheckedOutEventPublisher in cart adapter",
+        "New CheckoutConfirmedEvent + CheckoutConfirmedEventPublisher in checkout adapter",
+        "Event consumers simplified (consume integration events, not domain events)",
+        "DomainEvent and IntegrationEvent marker interfaces clarified",
+        "New ArchUnit rules enforcing correct event usage",
+        "architecture-principles.md updated with corrected event documentation"
+      ],
+      "architectural_guidance": {
+        "affected_layers": [
+          "domain",
+          "application",
+          "adapter"
+        ],
+        "locations": [
+          "src/main/java/de/sample/aiarchitecture/sharedkernel/marker/tactical/",
+          "src/main/java/de/sample/aiarchitecture/cart/",
+          "src/main/java/de/sample/aiarchitecture/checkout/",
+          "src/test-architecture/groovy/de/sample/aiarchitecture/",
+          "docs/architecture/architecture-principles.md"
+        ],
+        "patterns": [
+          "Domain Events",
+          "Integration Events",
+          "Event Publisher Adapter",
+          "Cross-Context Communication"
+        ],
+        "constraints": [
+          "DomainEvent stays internal to bounded context",
+          "IntegrationEvent used for cross-context communication",
+          "Each integration event needs a dedicated publisher adapter",
+          "ArchUnit rules must enforce correct event marker usage"
+        ]
+      },
+      "passes": true
     }
   ]
 }

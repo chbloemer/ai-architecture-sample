@@ -102,6 +102,10 @@ public class SecurityConfiguration {
                     .anyRequest()
                     .authenticated())
 
+        // Disable Spring Security's default LogoutFilter — JWT cookie cleanup is handled by
+        // LogoutPageController via IdentitySession.clearIdentity()
+        .logout(logout -> logout.disable())
+
         // Allow iframes (development only - enables embedding in Slidev presentations)
         .headers(headers -> headers.frameOptions(frame -> frame.disable()))
 

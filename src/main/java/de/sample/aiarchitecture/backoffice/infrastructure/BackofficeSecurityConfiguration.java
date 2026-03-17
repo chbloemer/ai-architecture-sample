@@ -71,7 +71,9 @@ public class BackofficeSecurityConfiguration {
             logout ->
                 logout
                     .logoutUrl("/backoffice/logout")
-                    .logoutSuccessUrl("/backoffice/login?logout=true"));
+                    .logoutSuccessUrl("/backoffice/login?logout=true"))
+        // Allow iframes (development only - enables embedding in Slidev presentations)
+        .headers(headers -> headers.frameOptions(frame -> frame.disable()));
 
     return http.build();
   }

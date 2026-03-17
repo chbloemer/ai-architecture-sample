@@ -3916,7 +3916,9 @@
       "epic": "architecture",
       "title": "Spring Modulith Refactoring",
       "description": "Refactor the application to use Spring Modulith for module structure and inter-context communication. Replace direct cross-context calls with event-driven communication, introduce API service classes as open-host services, and apply the Interface Inversion pattern (ADR-024) to break cross-module event listener cycles. Ensure only one aggregate change per transaction.",
-      "depends_on": ["US-134"],
+      "depends_on": [
+        "US-134"
+      ],
       "acceptance_criteria": [
         "Spring Modulith dependency added and configured in build.gradle",
         "All bounded contexts have package-info.java with Spring Modulith module declarations",
@@ -3971,7 +3973,9 @@
       "epic": "backoffice",
       "title": "Backoffice Event Publication Log",
       "description": "Add a backoffice bounded context with a secured admin UI to view the Spring Modulith event publication log. Includes basic auth security, JDBC-based event log repository, use case, page controller with view model, and E2E tests.",
-      "depends_on": ["US-135"],
+      "depends_on": [
+        "US-135"
+      ],
       "acceptance_criteria": [
         "New backoffice bounded context with domain, application, and adapter layers",
         "GetEventPublications use case with InputPort, UseCase, Query, and Result",
@@ -4014,6 +4018,43 @@
           "Basic auth for backoffice (not JWT)",
           "Event publication log read via JDBC (not Spring Modulith internals)",
           "Follow existing naming conventions (*PageController, *ViewModel, *InputPort, *UseCase)"
+        ]
+      },
+      "passes": true
+    },
+    {
+      "id": "US-137",
+      "epic": "account-context",
+      "title": "Shop User Logout",
+      "description": "As a logged-in shop user, I want to log out via a button in the header so that I can end my session after shopping. Currently the email is shown in the header after login, but there is no way to log out.",
+      "depends_on": [],
+      "acceptance_criteria": [
+        "A 'Logout' button is visible in the header next to the user's email greeting when logged in",
+        "Clicking Logout clears the JWT cookie and redirects to the home page",
+        "After logout, the Login and Register links are shown again in the header",
+        "A POST /logout web endpoint exists in the account context (LogoutPageController)",
+        "The /logout endpoint is publicly accessible (permitAll) in SecurityConfiguration",
+        "Architecture tests pass without violations"
+      ],
+      "architectural_guidance": {
+        "affected_layers": [
+          "adapter",
+          "infrastructure"
+        ],
+        "locations": [
+          "src/main/java/de/sample/aiarchitecture/account/adapter/incoming/web/LogoutPageController.java",
+          "src/main/java/de/sample/aiarchitecture/account/infrastructure/SecurityConfiguration.java",
+          "src/main/resources/templates/layout.pug"
+        ],
+        "patterns": [
+          "Page Controller",
+          "JWT Cookie Session Management"
+        ],
+        "constraints": [
+          "LogoutPageController uses IdentitySession (application/shared output port) — not the JWT implementation directly",
+          "No new Use Case needed — logout is a session operation, not a domain operation",
+          "POST method for logout (not GET) to prevent CSRF via link prefetching",
+          "Run `./gradlew test-architecture` to verify architectural compliance"
         ]
       },
       "passes": true

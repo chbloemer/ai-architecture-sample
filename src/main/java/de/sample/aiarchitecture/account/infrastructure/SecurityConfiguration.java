@@ -79,7 +79,7 @@ public class SecurityConfiguration {
                     .permitAll()
                     .requestMatchers("/auth/**")
                     .permitAll()
-                    .requestMatchers("/login", "/register")
+                    .requestMatchers("/login", "/register", "/logout")
                     .permitAll()
 
                     // H2 console (development only)
@@ -102,8 +102,8 @@ public class SecurityConfiguration {
                     .anyRequest()
                     .authenticated())
 
-        // Allow H2 console frames (development only)
-        .headers(headers -> headers.frameOptions(frame -> frame.sameOrigin()))
+        // Allow iframes (development only - enables embedding in Slidev presentations)
+        .headers(headers -> headers.frameOptions(frame -> frame.disable()))
 
         // Add JWT filter before UsernamePasswordAuthenticationFilter
         .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);

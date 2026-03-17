@@ -2871,3 +2871,34 @@ Before starting, check tasks/logs/ folder for US-94 and US-99 results to see the
   - Follow existing naming conventions (`*PageController`, `*ViewModel`, `*InputPort`, `*UseCase`)
 
 ---
+
+### US-137: Shop User Logout
+**Epic:** account-context
+**Depends on:** —
+
+**As a** logged-in shop user
+**I want** a logout button in the header next to my email
+**So that** I can end my session after shopping
+
+**Acceptance Criteria:**
+- A "Logout" button is visible in the header next to the user's email greeting when logged in
+- Clicking Logout clears the JWT cookie and redirects to the home page
+- After logout, the Login and Register links are shown again in the header
+- A `POST /logout` web endpoint exists in the account context (`LogoutPageController`)
+- The `/logout` endpoint is publicly accessible (`permitAll`) in `SecurityConfiguration`
+- Architecture tests pass without violations
+
+**Architectural Guidance:**
+- **Affected Layers:** Adapter, Infrastructure
+- **Locations:**
+  - `src/main/java/de/sample/aiarchitecture/account/adapter/incoming/web/LogoutPageController.java` *(neu)*
+  - `src/main/java/de/sample/aiarchitecture/account/infrastructure/SecurityConfiguration.java`
+  - `src/main/resources/templates/layout.pug`
+- **Patterns:** Page Controller, JWT Cookie Session Management
+- **Constraints:**
+  - `LogoutPageController` uses `IdentitySession` (application/shared output port) — nicht die JWT-Implementierung direkt
+  - Kein neuer Use Case nötig — Logout ist eine Session-Operation, keine Domain-Operation
+  - `POST` für Logout (nicht `GET`) zum Schutz vor CSRF via Link-Prefetching
+  - Run `./gradlew test-architecture` to verify architectural compliance
+
+---

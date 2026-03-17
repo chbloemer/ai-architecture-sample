@@ -41,6 +41,8 @@ html(lang="en")
                 a.mini-basket__link.btn.btn--primary.btn--sm(href="/cart" data-test="mini-basket-view-cart-link") View Cart
           if identity != null && !identity.anonymous
             span.nav__link(data-test="user-greeting") Welcome, #{identity.email().orElse('User')}
+            form.nav__logout-form(method="post" action="/logout" data-test="logout-form")
+              button.nav__link.nav__logout-btn(type="submit" data-test="logout-button") Logout
           else
             a.nav__link(href="/login" data-test="nav-login-link") Login
             a.nav__link(href="/register" data-test="nav-register-link") Register

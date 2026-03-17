@@ -26,16 +26,47 @@ Examples: `/sprint --dry-run`, `/sprint --epic pricing-context`, `/sprint --next
 
 ---
 
-## Phase 1: Read PRD and Resolve Dependencies
+## Phase 0: PRD Query
 
-1. **Read** `tasks/prd.json`
+Bevor irgendeine Datei gelesen wird: Führe den passenden `jq`-Befehl aus, um nur die relevanten Stories zu extrahieren.
+
+**Default / `--all`:**
+```bash
+jq '[.stories[] | select(.passes == false)]' tasks/prd.json
+```
+
+**`--epic <name>`:**
+```bash
+jq '[.stories[] | select(.passes == false and .epic == "<name>")]' tasks/prd.json
+```
+
+**`--stories US-X,US-Y`:**
+```bash
+jq '[.stories[] | select(.passes == false and (.id == "US-X" or .id == "US-Y"))]' tasks/prd.json
+```
+
+**Dependency-Prüfung** (welche IDs sind bereits erfüllt):
+```bash
+jq '[.stories[] | select(.passes == true) | .id]' tasks/prd.json
+```
+
+**Wenn das Ergebnis ein leeres Array `[]` ist**: Sprint sofort abbrechen mit der Meldung:
+> "Keine offenen Stories gefunden — alle Stories haben `passes: true`."
+
+Die Ausgabe dieser Befehle ersetzt das vollständige Lesen der PRD-Datei. `tasks/prd.json` wird in Phase 1 **nicht** mehr direkt gelesen.
+
+---
+
+## Phase 1: Resolve Dependencies
+
+1. **Verwende die Ausgabe aus Phase 0** (keine erneute Dateilektüre)
 2. **Filter stories** based on arguments:
    - Default (no args): all stories where `passes == false`
    - `--epic <name>`: stories where `epic == <name>` AND `passes == false`
    - `--stories US-X,US-Y`: exactly those story IDs (must have `passes == false`)
    - `--next N`: target N completions total (start with ready ones, wave through deps)
    - `--all`: all `passes == false` stories (wave through deps)
-3. **Build dependency graph**: a story is **ready** when ALL stories in its `depends_on` array have `passes: true`
+3. **Build dependency graph** aus Phase-0-Ergebnissen: a story is **ready** when ALL stories in its `depends_on` array have `passes: true`
 4. **Classify** each filtered story as:
    - **Ready**: all dependencies satisfied — can start immediately
    - **Blocked**: has unsatisfied dependencies — must wait for prerequisite stories

@@ -28,13 +28,15 @@ public class LogoutPageController {
   }
 
   /**
-   * Handles logout by clearing the identity cookie and redirecting to the home page.
+   * Handles logout by clearing the identity cookie and redirecting to the login page.
    *
-   * @return redirect to home page
+   * <p>Redirects to {@code /login?logout=true} so the login page can display a success message.
+   *
+   * @return redirect to login page with logout flag
    */
   @PostMapping
   public String handleLogout() {
     identitySession.clearIdentity();
-    return "redirect:/";
+    return "redirect:/login?logout=true";
   }
 }

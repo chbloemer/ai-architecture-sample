@@ -53,14 +53,20 @@ public class LoginPageController {
    *
    * @param model Spring MVC model
    * @param returnUrl optional URL to redirect to after login
+   * @param logout optional flag indicating the user just logged out
    * @return view name "account/login"
    */
   @GetMapping
   public String showLoginPage(
-      final Model model, @RequestParam(required = false) final String returnUrl) {
+      final Model model,
+      @RequestParam(required = false) final String returnUrl,
+      @RequestParam(required = false) final String logout) {
 
     model.addAttribute("title", "Login");
     model.addAttribute("returnUrl", returnUrl);
+    if (logout != null) {
+      model.addAttribute("logoutSuccess", true);
+    }
     return "account/login";
   }
 

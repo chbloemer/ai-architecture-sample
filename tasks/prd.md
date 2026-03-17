@@ -2902,3 +2902,61 @@ Before starting, check tasks/logs/ folder for US-94 and US-99 results to see the
   - Run `./gradlew test-architecture` to verify architectural compliance
 
 ---
+
+### US-138: Fix: Logout-Button bei nicht-eingeloggten Nutzern sichtbar
+**Epic:** account-context
+**Depends on:** US-137
+
+**As a** visitor (not logged in)
+**I want** the logout button to be hidden
+**So that** the navigation only shows relevant actions for my current auth state
+
+**Acceptance Criteria:**
+- The logout button and form are NOT visible when no user is logged in
+- The logout button and form remain visible when a user is logged in
+- Login and Register links are shown when not logged in
+- Pug template condition correctly evaluates `identity.anonymous` via supported method
+- Architecture tests pass without violations
+
+**Architectural Guidance:**
+- **Affected Layers:** Adapter
+- **Locations:**
+  - `src/main/resources/templates/layout.pug`
+  - `src/main/java/de/sample/aiarchitecture/sharedkernel/marker/port/out/IdentityProvider.java` *(optional: add `getAnonymous()`)*
+- **Patterns:** Template Rendering, JavaBean Property Access
+- **Constraints:**
+  - Pug4j 3.0.0-alpha-2 does not reliably resolve `is*` boolean getters — use `identity.isAnonymous()` directly in template or add `getAnonymous()` alias to `IdentityProvider.Identity`
+  - Do not change the `isAnonymous()` method signature in `IdentityProvider.Identity`
+  - Run `./gradlew test-architecture` to verify architectural compliance
+
+---
+
+### US-139: Nach Logout Login-Seite mit Erfolgsmeldung anzeigen
+**Epic:** account-context
+**Depends on:** US-137
+
+**As a** shop user who just logged out
+**I want** to see a "You have been successfully logged out" message on the login page
+**So that** I get clear feedback that my session has ended
+
+**Acceptance Criteria:**
+- After clicking Logout, the user is redirected to `/login?logout=true`
+- The login page shows a success message "You have been successfully logged out" when `?logout=true` is present
+- The success message is not shown on the regular `/login` page (without `?logout`)
+- Login and Register links are shown in the header after logout
+- Architecture tests pass without violations
+
+**Architectural Guidance:**
+- **Affected Layers:** Adapter
+- **Locations:**
+  - `src/main/java/de/sample/aiarchitecture/account/adapter/incoming/web/LogoutPageController.java`
+  - `src/main/java/de/sample/aiarchitecture/account/adapter/incoming/web/LoginPageController.java`
+  - `src/main/resources/templates/account/login.pug`
+- **Patterns:** Page Controller, Redirect-After-POST, Flash Message
+- **Constraints:**
+  - `LogoutPageController` redirects to `/login?logout=true` instead of `/`
+  - `LoginPageController` reads optional `@RequestParam("logout")` and passes flag to model
+  - No new Use Case needed — this is a session/UI concern only
+  - Run `./gradlew test-architecture` to verify architectural compliance
+
+---

@@ -4058,6 +4058,79 @@
         ]
       },
       "passes": true
+    },
+    {
+      "id": "US-138",
+      "epic": "account-context",
+      "title": "Fix: Logout-Button bei nicht-eingeloggten Nutzern sichtbar",
+      "description": "The logout button in the navigation header is incorrectly visible to unauthenticated users. Root cause: the Pug template uses identity.anonymous which does not resolve to isAnonymous() in pug4j (JavaBeans is* getter pattern not supported in alpha). Fix by using identity.isAnonymous() directly in the template or adding a getAnonymous() method to the Identity interface.",
+      "depends_on": [
+        "US-137"
+      ],
+      "acceptance_criteria": [
+        "The logout button and form are NOT visible when no user is logged in",
+        "The logout button and form remain visible when a user is logged in",
+        "Login and Register links are shown when not logged in",
+        "Pug template condition correctly evaluates identity.anonymous via supported method",
+        "Architecture tests pass without violations"
+      ],
+      "architectural_guidance": {
+        "affected_layers": [
+          "adapter"
+        ],
+        "locations": [
+          "src/main/resources/templates/layout.pug",
+          "src/main/java/de/sample/aiarchitecture/sharedkernel/marker/port/out/IdentityProvider.java (optional: add getAnonymous())"
+        ],
+        "patterns": [
+          "Template Rendering",
+          "JavaBean Property Access"
+        ],
+        "constraints": [
+          "Pug4j 3.0.0-alpha-2 does not reliably resolve is* boolean getters — use identity.isAnonymous() directly in template or add getAnonymous() alias",
+          "Do not change the isAnonymous() method signature in IdentityProvider.Identity",
+          "Run ./gradlew test-architecture to verify architectural compliance"
+        ]
+      },
+      "passes": true
+    },
+    {
+      "id": "US-139",
+      "epic": "account-context",
+      "title": "Nach Logout Login-Seite mit Erfolgsmeldung anzeigen",
+      "description": "Currently, after logout the user is redirected to the home page (/) with no feedback. Redirect to /login?logout=true instead and show a success message (\"You have been successfully logged out\") on the login page, consistent with the backoffice pattern.",
+      "depends_on": [
+        "US-137"
+      ],
+      "acceptance_criteria": [
+        "After clicking Logout, the user is redirected to /login?logout=true",
+        "The login page shows a success message \"You have been successfully logged out\" when ?logout=true is present",
+        "The success message is not shown on the regular /login page (without ?logout)",
+        "Login and Register links are shown in the header after logout",
+        "Architecture tests pass without violations"
+      ],
+      "architectural_guidance": {
+        "affected_layers": [
+          "adapter"
+        ],
+        "locations": [
+          "src/main/java/de/sample/aiarchitecture/account/adapter/incoming/web/LogoutPageController.java",
+          "src/main/java/de/sample/aiarchitecture/account/adapter/incoming/web/LoginPageController.java",
+          "src/main/resources/templates/account/login.pug"
+        ],
+        "patterns": [
+          "Page Controller",
+          "Redirect-After-POST",
+          "Flash Message"
+        ],
+        "constraints": [
+          "LogoutPageController redirects to /login?logout=true instead of /",
+          "LoginPageController reads optional @RequestParam(\"logout\") and passes flag to model",
+          "No new Use Case needed — this is a session/UI concern only",
+          "Run ./gradlew test-architecture to verify architectural compliance"
+        ]
+      },
+      "passes": true
     }
   ]
 }

@@ -301,6 +301,66 @@ public class InMemoryProductRepository implements ProductRepository {
 - Domain Interfaces: `ProductRepository`, `ShoppingCartRepository`
 - Implementations: `InMemoryProductRepository`, `InMemoryShoppingCartRepository` (in `portadapter.outgoing`)
 
+#### Store
+
+A **Store** is the second persistence-shaped output port in DCA, sitting alongside Repository. Both extend `OutputPort`, but the business semantics differ:
+
+- **Repository** — collection-like interface for **Aggregate Roots** (identity + lifecycle: `findById`, `save`, `delete`).
+- **Store** — records or queries **operational data** that has no aggregate lifecycle of its own (Value Objects, events, technical state).
+
+**When to use Store instead of Repository:**
+
+The stored object has no own identity-based lifecycle. You don't load it by ID, mutate it, and save it back — you append records and query aggregates over them.
+
+**Base Store Interface**
+
+A Store extends `OutputPort` directly (not the `Repository` marker):
+
+```java
+package de.sample.aiarchitecture.sharedkernel.marker.port.out;
+
+/**
+ * Marker interface for Stores — output ports that record or query
+ * operational data without an own aggregate lifecycle.
+ *
+ * <p>Use Store for Value Objects, Events, or technical state.
+ * Use Repository for Aggregate Roots.
+ */
+public interface Store extends OutputPort {}
+```
+
+**Example: Login Protection Store**
+
+```java
+public interface LoginProtectionStore extends Store {
+    void record(LoginAttempt attempt);
+    int  countRecentFailures(BaseStore baseStore, Email email, Duration window);
+    boolean isLoginBlocked(BaseStore baseStore, Email email);
+}
+```
+
+`LoginAttempt` is a Value Object — there is no `LoginAttempt.findById(...)` because individual attempts have no identity worth retrieving. The Store records them and aggregates over them.
+
+**Decision matrix:**
+
+| Criterion | Repository | Store |
+|---|---|---|
+| Stored object | Aggregate Root | Value Object / operational data |
+| Identity & lifecycle | yes — `findById`, `save`, `delete` | no — `record`, `count`, `exists` |
+| Marker | `extends Repository<T, ID>` | `extends Store` |
+| Examples | `ProductRepository`, `ShoppingCartRepository` | `LoginProtectionStore`, `AuditLogStore`, `EventStore` |
+
+**Rules of thumb:**
+
+1. Need `findById()`? → Repository (the object has identity).
+2. Need `record()` or `count()`? → Store (the object is recorded, not managed).
+3. In doubt: if the stored object implements the `Value` marker or is a record, it's almost always a Store.
+
+**Naming as Ubiquitous Language:**
+A reader should know from the interface name alone whether they're dealing with a managed aggregate (Repository) or recorded data (Store) — without opening the implementation.
+
+> **Note on `EventStore` (Event Sourcing):** The `EventStore` from Event Sourcing is a *specialization* of Store — one specifically for Domain Events that supports aggregate reconstruction. The general `Store` is the broader pattern.
+
 #### Domain Service
 
 A domain service contains domain logic that doesn't naturally fit within an entity or value object.

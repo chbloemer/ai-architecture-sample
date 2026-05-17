@@ -125,18 +125,14 @@ class UseCasePatternsArchUnitTest extends BaseArchUnitTest {
 
   def "HTTP Response Models must end with 'Response' and reside in adapter incoming package"() {
     expect:
+    // Use allIncomingAdapterPatterns() — covers all bounded contexts via @BoundedContext
+    // discovery PLUS the @SharedKernel-annotated module's adapter, where cross-cutting
+    // Response classes (ErrorResponse, base Response, SimpleResponse) typically live.
+    // Hardcoded context lists are fragile — they break the moment a new context is added.
     classes()
       .that().haveSimpleNameEndingWith("Response")
       .and().resideInAnyPackage(BASE_PACKAGE + "..")
-      .should().resideInAnyPackage(
-        BASE_PACKAGE + ".product.adapter.incoming..",
-        BASE_PACKAGE + ".cart.adapter.incoming..",
-        BASE_PACKAGE + ".checkout.adapter.incoming..",
-        BASE_PACKAGE + ".account.adapter.incoming..",
-        BASE_PACKAGE + ".inventory.adapter.incoming..",
-        BASE_PACKAGE + ".pricing.adapter.incoming..",
-        BASE_PACKAGE + ".backoffice.adapter.incoming.."
-      )
+      .should().resideInAnyPackage(allIncomingAdapterPatterns())
       .because("HTTP response models should be in adapter incoming layer (ADR-020: Adapter layer uses *Response)")
       .allowEmptyShould(true)
       .check(allClasses)

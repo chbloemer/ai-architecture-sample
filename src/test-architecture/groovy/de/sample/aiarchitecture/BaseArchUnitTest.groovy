@@ -6,8 +6,23 @@ import com.tngtech.archunit.core.domain.JavaClasses
 import com.tngtech.archunit.core.importer.ClassFileImporter
 import com.tngtech.archunit.core.importer.ImportOption
 import com.tngtech.archunit.core.importer.Location
+import de.sample.aiarchitecture.sharedkernel.marker.port.in.InputPort
+import de.sample.aiarchitecture.sharedkernel.marker.port.in.UseCase
+import de.sample.aiarchitecture.sharedkernel.marker.port.out.OutputPort
+import de.sample.aiarchitecture.sharedkernel.marker.port.out.Repository
+import de.sample.aiarchitecture.sharedkernel.marker.port.out.Store
 import de.sample.aiarchitecture.sharedkernel.marker.strategic.BoundedContext
+import de.sample.aiarchitecture.sharedkernel.marker.strategic.OpenHostService
 import de.sample.aiarchitecture.sharedkernel.marker.strategic.SharedKernel
+import de.sample.aiarchitecture.sharedkernel.marker.tactical.AggregateRoot
+import de.sample.aiarchitecture.sharedkernel.marker.tactical.DomainEvent
+import de.sample.aiarchitecture.sharedkernel.marker.tactical.DomainService
+import de.sample.aiarchitecture.sharedkernel.marker.tactical.Entity
+import de.sample.aiarchitecture.sharedkernel.marker.tactical.Factory
+import de.sample.aiarchitecture.sharedkernel.marker.tactical.Id
+import de.sample.aiarchitecture.sharedkernel.marker.tactical.IntegrationEvent
+import de.sample.aiarchitecture.sharedkernel.marker.tactical.Specification as DomainSpecification
+import de.sample.aiarchitecture.sharedkernel.marker.tactical.Value
 import spock.lang.Shared
 import spock.lang.Specification
 
@@ -37,8 +52,51 @@ abstract class BaseArchUnitTest extends Specification {
   "org.jspecify.annotations.."
   )
 
+  // ============================================================================
+  // CONFIGURATION (mirrors dca-bootstrap skill — kept here for portability)
+  // ============================================================================
+
   // Base package for all classes
   protected static final String BASE_PACKAGE = "de.sample.aiarchitecture"
+
+  // Layer subpackage names — DCA defaults. Adapt if the project uses different conventions.
+  protected static final String DOMAIN_SUBPKG         = "domain"
+  protected static final String APP_SUBPKG            = "application"
+  protected static final String ADAPTER_SUBPKG        = "adapter"
+  protected static final String INCOMING_SUBFOLDER    = "incoming"      // "in" in Hombergs-style projects
+  protected static final String OUTGOING_SUBFOLDER    = "outgoing"      // "out" in Hombergs-style projects
+  protected static final String INFRASTRUCTURE_SUBPKG = "infrastructure"
+
+  // Naming suffixes — adjust if a project uses *ApplicationService etc.
+  protected static final String USE_CASE_IMPL_SUFFIX  = "UseCase"
+  protected static final String REST_CONTROLLER_SUFFIX = "Resource"
+
+  // Marker class constants — let rule classes reference these instead of importing markers directly.
+  // This makes the rules portable to projects with their own marker namespaces.
+  protected static final Class<?> AGGREGATE_ROOT_MARKER     = AggregateRoot
+  protected static final Class<?> ENTITY_MARKER             = Entity
+  protected static final Class<?> VALUE_MARKER              = Value
+  protected static final Class<?> ID_MARKER                 = Id
+  protected static final Class<?> REPOSITORY_MARKER         = Repository
+  protected static final Class<?> STORE_MARKER              = Store
+  protected static final Class<?> USE_CASE_MARKER           = UseCase
+  protected static final Class<?> INPUT_PORT_MARKER         = InputPort
+  protected static final Class<?> OUTPUT_PORT_MARKER        = OutputPort
+  protected static final Class<?> DOMAIN_EVENT_MARKER       = DomainEvent
+  protected static final Class<?> INTEGRATION_EVENT_MARKER  = IntegrationEvent
+  protected static final Class<?> DOMAIN_SERVICE_MARKER     = DomainService
+  protected static final Class<?> FACTORY_MARKER            = Factory
+  protected static final Class<?> SPECIFICATION_MARKER      = DomainSpecification
+
+  protected static final Class<? extends java.lang.annotation.Annotation> BOUNDED_CONTEXT_ANNOTATION   = BoundedContext
+  protected static final Class<? extends java.lang.annotation.Annotation> SHARED_KERNEL_ANNOTATION     = SharedKernel
+  protected static final Class<? extends java.lang.annotation.Annotation> OPEN_HOST_SERVICE_ANNOTATION = OpenHostService
+
+  // Extra non-context modules (e.g. backoffice) that belong in some layer rules but aren't bounded contexts.
+  protected static final List<String> EXTRA_APPLICATION_PACKAGES = List.of("${BASE_PACKAGE}.backoffice.application..")
+  protected static final List<String> EXTRA_ADAPTER_PACKAGES     = List.of("${BASE_PACKAGE}.backoffice.adapter..")
+
+  // ============================================================================
 
   // Shared Kernel packages (new structure)
   protected static final String SHAREDKERNEL_PACKAGE = "${BASE_PACKAGE}.sharedkernel.."
@@ -256,5 +314,112 @@ abstract class BaseArchUnitTest extends Specification {
     return discoverBoundedContextPackages().keySet()
       .findAll { it != excludePackage }
       .collect { it + ".." }
+  }
+
+  /**
+   * Incoming adapter patterns for all bounded contexts PLUS the shared kernel's incoming
+   * adapter package (if it exists). Cross-cutting Response classes (ErrorResponse, base
+   * Response, generic SimpleResponse) typically live in the shared kernel adapter — without
+   * including it, rules that check for *Response placement will miss them.
+   *
+   * <p>The shared kernel package is discovered dynamically via the @SharedKernel annotation
+   * on its package-info.java — works regardless of the package name (shared/common/sharedkernel).
+   *
+   * @return array of patterns like "de.sample.aiarchitecture.product.adapter.incoming..", plus
+   *         the shared kernel adapter pattern if a @SharedKernel package exists
+   */
+  protected String[] allIncomingAdapterPatterns() {
+    def patterns = discoverBoundedContextPackages().keySet().collect {
+      it + ".adapter.incoming.."
+    }
+    String sharedKernelPkg = discoverSharedKernelPackage()
+    if (sharedKernelPkg != null) {
+      patterns.add(sharedKernelPkg + ".adapter.incoming..")
+    }
+    return patterns.toArray(new String[0])
+  }
+
+  /**
+   * Outgoing adapter patterns for all bounded contexts plus the shared kernel's outgoing
+   * adapter package. Mirrors {@link #allIncomingAdapterPatterns()}.
+   */
+  protected String[] allOutgoingAdapterPatterns() {
+    def patterns = discoverBoundedContextPackages().keySet().collect {
+      it + ".adapter.outgoing.."
+    }
+    String sharedKernelPkg = discoverSharedKernelPackage()
+    if (sharedKernelPkg != null) {
+      patterns.add(sharedKernelPkg + ".adapter.outgoing..")
+    }
+    return patterns.toArray(new String[0])
+  }
+
+  // ============================================================================
+  // GENERIC PATTERN HELPERS (per-context, dynamic via @BoundedContext)
+  // ============================================================================
+
+  /** Domain patterns (full domain layer) for all discovered bounded contexts. */
+  protected String[] getBoundedContextDomainPatterns() {
+    return discoverBoundedContextPackages().keySet()
+        .collect { "${it}.${DOMAIN_SUBPKG}.." }
+        .toArray(new String[0])
+  }
+
+  /** Domain-model patterns for all discovered bounded contexts. */
+  protected String[] getBoundedContextDomainModelPatterns() {
+    return discoverBoundedContextPackages().keySet()
+        .collect { "${it}.${DOMAIN_SUBPKG}.model.." }
+        .toArray(new String[0])
+  }
+
+  /** Application patterns for all discovered bounded contexts. */
+  protected String[] getBoundedContextApplicationPatterns() {
+    return discoverBoundedContextPackages().keySet()
+        .collect { "${it}.${APP_SUBPKG}.." }
+        .toArray(new String[0])
+  }
+
+  /** Adapter patterns for all discovered bounded contexts. */
+  protected String[] getBoundedContextAdapterPatterns() {
+    return discoverBoundedContextPackages().keySet()
+        .collect { "${it}.${ADAPTER_SUBPKG}.." }
+        .toArray(new String[0])
+  }
+
+  /** Bounded-context patterns as an array (varargs-ready). */
+  protected String[] getBoundedContextPackagePatternsArray() {
+    return getBoundedContextPackagePatterns().toArray(new String[0])
+  }
+
+  // ============================================================================
+  // COMBINED PATTERN HELPERS (shared kernel and/or extra modules included)
+  // ============================================================================
+
+  /** Domain patterns for all bounded contexts PLUS the shared kernel domain. */
+  protected String[] allDomainPatternsWithSharedKernel() {
+    def patterns = getBoundedContextDomainPatterns().toList()
+    patterns.add(SHAREDKERNEL_DOMAIN_PACKAGE)
+    return patterns.toArray(new String[0])
+  }
+
+  /** Domain-model patterns for all bounded contexts PLUS the shared kernel domain. */
+  protected String[] allDomainModelPatternsWithSharedKernel() {
+    def patterns = getBoundedContextDomainModelPatterns().toList()
+    patterns.add(SHAREDKERNEL_DOMAIN_PACKAGE)
+    return patterns.toArray(new String[0])
+  }
+
+  /** Application patterns for all contexts PLUS extra non-context modules (backoffice). */
+  protected String[] allApplicationPatterns() {
+    def patterns = getBoundedContextApplicationPatterns().toList()
+    patterns.addAll(EXTRA_APPLICATION_PACKAGES)
+    return patterns.toArray(new String[0])
+  }
+
+  /** Adapter patterns for all contexts PLUS extra non-context modules (backoffice). */
+  protected String[] allAdapterPatterns() {
+    def patterns = getBoundedContextAdapterPatterns().toList()
+    patterns.addAll(EXTRA_ADAPTER_PACKAGES)
+    return patterns.toArray(new String[0])
   }
 }

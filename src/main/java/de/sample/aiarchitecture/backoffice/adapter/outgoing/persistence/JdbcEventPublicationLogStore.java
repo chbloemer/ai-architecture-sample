@@ -1,6 +1,6 @@
 package de.sample.aiarchitecture.backoffice.adapter.outgoing.persistence;
 
-import de.sample.aiarchitecture.backoffice.application.shared.EventPublicationLogRepository;
+import de.sample.aiarchitecture.backoffice.application.shared.EventPublicationLogStore;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
@@ -10,14 +10,14 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
 /**
- * JDBC-based implementation of {@link EventPublicationLogRepository}.
+ * JDBC-based implementation of {@link EventPublicationLogStore}.
  *
  * <p>Reads directly from the {@code EVENT_PUBLICATION} table managed by Spring Modulith's JDBC
  * event publication registry. This adapter is read-only — event lifecycle is managed by Spring
  * Modulith.
  */
 @Component
-public class JdbcEventPublicationLogRepository implements EventPublicationLogRepository {
+public class JdbcEventPublicationLogStore implements EventPublicationLogStore {
 
   private static final String FIND_ALL_SQL =
       "SELECT ID, EVENT_TYPE, SERIALIZED_EVENT, LISTENER_ID, PUBLICATION_DATE, COMPLETION_DATE "
@@ -25,7 +25,7 @@ public class JdbcEventPublicationLogRepository implements EventPublicationLogRep
 
   private final JdbcTemplate jdbcTemplate;
 
-  public JdbcEventPublicationLogRepository(final JdbcTemplate jdbcTemplate) {
+  public JdbcEventPublicationLogStore(final JdbcTemplate jdbcTemplate) {
     this.jdbcTemplate = jdbcTemplate;
   }
 

@@ -1,18 +1,19 @@
 package de.sample.aiarchitecture.backoffice.application.shared;
 
-import de.sample.aiarchitecture.sharedkernel.marker.port.out.OutputPort;
+import de.sample.aiarchitecture.sharedkernel.marker.port.out.Store;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 import org.jspecify.annotations.Nullable;
 
 /**
- * Output port for reading the Spring Modulith event publication log.
+ * Store for the Spring Modulith event publication log.
  *
- * <p>Provides read-only access to the {@code EVENT_PUBLICATION} table managed by Spring Modulith's
- * JDBC event publication registry.
+ * <p>Append-only operational data with no aggregate lifecycle — Spring Modulith manages writes;
+ * this port only reads. Modelled as a {@link Store} (not a {@code Repository}) because the stored
+ * entries have no own identity-based load/mutate/save lifecycle.
  */
-public interface EventPublicationLogRepository extends OutputPort {
+public interface EventPublicationLogStore extends Store {
 
   /**
    * Retrieves all event publications ordered by publication date descending (newest first).

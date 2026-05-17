@@ -1,7 +1,7 @@
 package de.sample.aiarchitecture.backoffice.application.geteventpublications;
 
-import de.sample.aiarchitecture.backoffice.application.shared.EventPublicationLogRepository;
-import de.sample.aiarchitecture.backoffice.application.shared.EventPublicationLogRepository.EventPublicationEntry;
+import de.sample.aiarchitecture.backoffice.application.shared.EventPublicationLogStore;
+import de.sample.aiarchitecture.backoffice.application.shared.EventPublicationLogStore.EventPublicationEntry;
 import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,16 +16,15 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = true)
 public class GetEventPublicationsUseCase implements GetEventPublicationsInputPort {
 
-  private final EventPublicationLogRepository eventPublicationLogRepository;
+  private final EventPublicationLogStore eventPublicationLogStore;
 
-  public GetEventPublicationsUseCase(
-      final EventPublicationLogRepository eventPublicationLogRepository) {
-    this.eventPublicationLogRepository = eventPublicationLogRepository;
+  public GetEventPublicationsUseCase(final EventPublicationLogStore eventPublicationLogStore) {
+    this.eventPublicationLogStore = eventPublicationLogStore;
   }
 
   @Override
   public GetEventPublicationsResult execute(final GetEventPublicationsQuery query) {
-    final List<EventPublicationEntry> entries = eventPublicationLogRepository.findAll();
+    final List<EventPublicationEntry> entries = eventPublicationLogStore.findAll();
     return GetEventPublicationsResult.from(entries);
   }
 }

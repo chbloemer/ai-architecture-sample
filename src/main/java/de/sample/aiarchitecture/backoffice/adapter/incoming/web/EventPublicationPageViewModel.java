@@ -2,8 +2,8 @@ package de.sample.aiarchitecture.backoffice.adapter.incoming.web;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import de.sample.aiarchitecture.backoffice.application.geteventpublications.EventPublicationSummary;
 import de.sample.aiarchitecture.backoffice.application.geteventpublications.GetEventPublicationsResult;
-import de.sample.aiarchitecture.backoffice.application.shared.EventPublicationLogRepository.EventPublicationEntry;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -49,17 +49,18 @@ public record EventPublicationPageViewModel(
         result.totalCount(), result.completedCount(), result.incompleteCount(), items);
   }
 
-  private static EventPublicationItemViewModel toItemViewModel(final EventPublicationEntry entry) {
+  private static EventPublicationItemViewModel toItemViewModel(
+      final EventPublicationSummary summary) {
     return new EventPublicationItemViewModel(
-        entry.id().toString(),
-        entry.shortEventType(),
-        entry.eventType(),
-        prettyPrintJson(entry.serializedEvent()),
-        entry.listenerId(),
-        DATE_FORMATTER.format(entry.publicationDate()),
-        entry.completionDate() != null ? DATE_FORMATTER.format(entry.completionDate()) : null,
-        entry.isCompleted(),
-        entry.isCompleted() ? "Completed" : "Incomplete");
+        summary.id().toString(),
+        summary.shortEventType(),
+        summary.eventType(),
+        prettyPrintJson(summary.serializedEvent()),
+        summary.listenerId(),
+        DATE_FORMATTER.format(summary.publicationDate()),
+        summary.completionDate() != null ? DATE_FORMATTER.format(summary.completionDate()) : null,
+        summary.isCompleted(),
+        summary.isCompleted() ? "Completed" : "Incomplete");
   }
 
   /**

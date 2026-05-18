@@ -1,9 +1,9 @@
 package de.sample.aiarchitecture.account.application.registeraccount;
 
 import de.sample.aiarchitecture.account.application.shared.AccountRepository;
+import de.sample.aiarchitecture.account.domain.gateway.PasswordHasher;
 import de.sample.aiarchitecture.account.domain.model.Account;
 import de.sample.aiarchitecture.account.domain.model.Email;
-import de.sample.aiarchitecture.account.domain.service.PasswordHasher;
 import de.sample.aiarchitecture.sharedkernel.domain.model.UserId;
 import de.sample.aiarchitecture.sharedkernel.marker.port.out.DomainEventPublisher;
 import org.springframework.stereotype.Service;
@@ -64,7 +64,7 @@ public class RegisterAccountUseCase implements RegisterAccountInputPort {
       throw new IllegalStateException("User already has an account");
     }
 
-    // Create the account (password validation and hashing done by domain)
+    // Create the account (password validation and hashing done by aggregate via gateway)
     final Account account =
         Account.register(email, command.password(), currentUserId, passwordHasher);
 

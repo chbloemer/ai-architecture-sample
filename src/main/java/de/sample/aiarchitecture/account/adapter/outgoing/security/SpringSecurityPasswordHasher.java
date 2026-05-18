@@ -1,24 +1,25 @@
 package de.sample.aiarchitecture.account.adapter.outgoing.security;
 
-import de.sample.aiarchitecture.account.domain.service.PasswordHasher;
+import de.sample.aiarchitecture.account.domain.gateway.PasswordHasher;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 /**
- * Spring Security implementation of the PasswordHasher domain service.
+ * Spring Security implementation of the {@link PasswordHasher} domain gateway.
  *
- * <p>This adapter bridges the domain's PasswordHasher interface to Spring Security's
- * PasswordEncoder, keeping the domain layer framework-independent.
+ * <p>This adapter bridges the domain gateway to Spring Security's {@link PasswordEncoder},
+ * keeping the domain layer framework-independent while routing the actual cryptographic work to
+ * BCrypt.
  *
  * <p><b>Implementation Details:</b>
  *
  * <ul>
- *   <li>Uses the configured PasswordEncoder bean (typically BCrypt)
+ *   <li>Uses the configured {@link PasswordEncoder} bean (typically BCrypt)
  *   <li>BCrypt provides: random salt, configurable cost factor, timing-safe comparison
  * </ul>
  *
- * <p><b>Configuration:</b> The PasswordEncoder is configured in SecurityConfig with BCrypt (cost
- * factor 12).
+ * <p><b>Configuration:</b> The {@link PasswordEncoder} is configured in {@code SecurityConfig}
+ * with BCrypt (cost factor 12).
  *
  * @see PasswordHasher
  * @see org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder

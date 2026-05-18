@@ -1,6 +1,6 @@
 package de.sample.aiarchitecture.account.domain.model;
 
-import de.sample.aiarchitecture.account.domain.service.PasswordHasher;
+import de.sample.aiarchitecture.account.domain.gateway.PasswordHasher;
 import de.sample.aiarchitecture.sharedkernel.marker.tactical.Value;
 
 /**
@@ -10,21 +10,14 @@ import de.sample.aiarchitecture.sharedkernel.marker.tactical.Value;
  *
  * <ul>
  *   <li>Never stores plaintext passwords
- *   <li>Validates password strength requirements
- *   <li>Delegates hashing to a {@link PasswordHasher} domain service
- * </ul>
- *
- * <p><b>Security:</b>
- *
- * <ul>
- *   <li>Passwords are hashed with BCrypt (cost factor 12)
- *   <li>toString() does not reveal the hash
+ *   <li>Validates password strength requirements on construction from plaintext
+ *   <li>Delegates the actual hashing/verification to a {@link PasswordHasher} domain gateway
  * </ul>
  *
  * <p><b>Usage:</b>
  *
  * <pre>{@code
- * // Create from plaintext (validates strength and hashes)
+ * // Create from plaintext (validates strength, hashes via gateway)
  * HashedPassword password = HashedPassword.fromPlaintext("MyP@ssw0rd!", hasher);
  *
  * // Verify password
@@ -33,6 +26,8 @@ import de.sample.aiarchitecture.sharedkernel.marker.tactical.Value;
  * // Restore from persistence
  * HashedPassword restored = HashedPassword.of("$2a$12$...");
  * }</pre>
+ *
+ * <p>{@link #toString()} never reveals the hash.
  */
 public record HashedPassword(String hash) implements Value {
 
@@ -46,17 +41,10 @@ public record HashedPassword(String hash) implements Value {
   }
 
   /**
-   * Creates a HashedPassword from plaintext by validating and hashing.
-   *
-   * <p>This factory method:
-   *
-   * <ol>
-   *   <li>Validates password strength requirements
-   *   <li>Hashes the password using the provided hasher
-   * </ol>
+   * Creates a HashedPassword from plaintext by validating strength and hashing via the gateway.
    *
    * @param plaintext the plaintext password
-   * @param hasher the password hasher service
+   * @param hasher the password hashing domain gateway
    * @return a HashedPassword wrapping the generated hash
    * @throws IllegalArgumentException if password doesn't meet strength requirements
    */
@@ -66,12 +54,9 @@ public record HashedPassword(String hash) implements Value {
   }
 
   /**
-   * Creates a HashedPassword from an existing hash.
+   * Creates a HashedPassword from an existing hash string.
    *
-   * <p>This factory method creates a HashedPassword from a pre-computed hash, such as one loaded
-   * from storage.
-   *
-   * @param hash the BCrypt hash
+   * @param hash the existing hash
    * @return a HashedPassword wrapping the hash
    */
   public static HashedPassword of(final String hash) {
@@ -81,7 +66,7 @@ public record HashedPassword(String hash) implements Value {
   /**
    * Alias for {@link #of(String)} - restores a HashedPassword from storage.
    *
-   * @param hash the existing BCrypt hash
+   * @param hash the existing hash
    * @return a HashedPassword wrapping the hash
    */
   public static HashedPassword fromHash(final String hash) {
@@ -89,11 +74,11 @@ public record HashedPassword(String hash) implements Value {
   }
 
   /**
-   * Checks if a plaintext password matches this hashed password.
+   * Verifies a plaintext password against this hash via the gateway (timing-safe).
    *
    * @param plaintext the plaintext password to verify
-   * @param hasher the password hasher service
-   * @return true if the password matches
+   * @param hasher the password hashing domain gateway
+   * @return true if the plaintext matches
    */
   public boolean matches(final String plaintext, final PasswordHasher hasher) {
     return hasher.matches(plaintext, hash);

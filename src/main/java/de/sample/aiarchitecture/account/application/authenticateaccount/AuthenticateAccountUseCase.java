@@ -1,9 +1,9 @@
 package de.sample.aiarchitecture.account.application.authenticateaccount;
 
 import de.sample.aiarchitecture.account.application.shared.AccountRepository;
+import de.sample.aiarchitecture.account.domain.gateway.PasswordHasher;
 import de.sample.aiarchitecture.account.domain.model.Account;
 import de.sample.aiarchitecture.account.domain.model.Email;
-import de.sample.aiarchitecture.account.domain.service.PasswordHasher;
 import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -76,7 +76,7 @@ public class AuthenticateAccountUseCase implements AuthenticateAccountInputPort 
 
     final Account account = accountOpt.get();
 
-    // Check password using the domain method
+    // Check password via the aggregate (which delegates to the domain gateway)
     if (!account.checkPassword(command.password(), passwordHasher)) {
       LOG.warn("Failed login attempt for email: {}", email.value());
       return AuthenticateAccountResult.failure(GENERIC_ERROR);

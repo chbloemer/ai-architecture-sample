@@ -7,7 +7,7 @@ import de.sample.aiarchitecture.account.domain.event.AccountPasswordChanged;
 import de.sample.aiarchitecture.account.domain.event.AccountReactivated;
 import de.sample.aiarchitecture.account.domain.event.AccountRegistered;
 import de.sample.aiarchitecture.account.domain.event.AccountSuspended;
-import de.sample.aiarchitecture.account.domain.service.PasswordHasher;
+import de.sample.aiarchitecture.account.domain.gateway.PasswordHasher;
 import de.sample.aiarchitecture.sharedkernel.domain.model.UserId;
 import de.sample.aiarchitecture.sharedkernel.marker.tactical.BaseAggregateRoot;
 import java.time.Instant;
@@ -83,7 +83,7 @@ public final class Account extends BaseAggregateRoot<Account, AccountId> {
    *
    * <ol>
    *   <li>Validates password strength
-   *   <li>Hashes the password
+   *   <li>Hashes the password via the {@link PasswordHasher} domain gateway
    *   <li>Generates a new AccountId
    *   <li>Links the existing UserId (preserving cart and checkout session)
    *   <li>Raises AccountRegistered and AccountLinkedToIdentity events
@@ -95,7 +95,7 @@ public final class Account extends BaseAggregateRoot<Account, AccountId> {
    * @param email the user's email address (login credential)
    * @param plainPassword the plaintext password (will be validated and hashed)
    * @param currentUserId the UserId to link to (from the user's JWT)
-   * @param passwordHasher the password hasher domain service
+   * @param passwordHasher the password hashing domain gateway
    * @return a new Account instance
    * @throws IllegalArgumentException if email or password is invalid
    */
@@ -183,9 +183,10 @@ public final class Account extends BaseAggregateRoot<Account, AccountId> {
   }
 
   /**
-   * Gets the hashed password for persistence.
+   * Returns the hashed password (used by adapters for persistence).
    *
-   * <p>Use {@link #checkPassword(String, PasswordHasher)} for authentication.
+   * <p>For authentication, prefer {@link #checkPassword(String, PasswordHasher)} which keeps the
+   * verification step inside the aggregate.
    *
    * @return the hashed password
    */
@@ -194,10 +195,11 @@ public final class Account extends BaseAggregateRoot<Account, AccountId> {
   }
 
   /**
-   * Verifies if the given plaintext password matches the account's password.
+   * Verifies whether a plaintext password matches the account's stored hash, using the supplied
+   * {@link PasswordHasher} domain gateway.
    *
    * @param plainPassword the plaintext password to verify
-   * @param passwordHasher the password hasher domain service
+   * @param passwordHasher the password hashing domain gateway
    * @return true if the password matches
    */
   public boolean checkPassword(final String plainPassword, final PasswordHasher passwordHasher) {
@@ -220,12 +222,13 @@ public final class Account extends BaseAggregateRoot<Account, AccountId> {
   }
 
   /**
-   * Changes the account password.
+   * Changes the account password. The new plaintext is validated and hashed via the supplied
+   * {@link PasswordHasher} domain gateway.
    *
-   * @param newPlainPassword the new plaintext password (will be validated and hashed)
-   * @param passwordHasher the password hasher domain service
+   * @param newPlainPassword the new plaintext password
+   * @param passwordHasher the password hashing domain gateway
    * @throws IllegalStateException if the account is closed
-   * @throws IllegalArgumentException if the password doesn't meet requirements
+   * @throws IllegalArgumentException if the password doesn't meet strength requirements
    */
   public void changePassword(final String newPlainPassword, final PasswordHasher passwordHasher) {
     if (status.isTerminal()) {

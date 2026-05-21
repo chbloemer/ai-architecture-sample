@@ -2,6 +2,19 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Documentation Language
+
+**⚠️ All documentation files (`*.md`, JavaDoc, code comments, and any other written artifacts checked into the repository) MUST be written in English.**
+
+This applies to:
+- All files under `docs/`
+- `README.md` and all other top-level Markdown files
+- JavaDoc and inline code comments
+- Commit messages and PR descriptions
+- ADRs, glossaries, context maps, and any generated documentation
+
+Conversational replies to the user may follow the user's language preference, but persisted artifacts are always English to keep the reference implementation accessible to an international audience.
+
 ## Build Commands
 
 ```bash

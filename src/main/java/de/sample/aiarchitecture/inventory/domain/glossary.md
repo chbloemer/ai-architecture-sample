@@ -33,7 +33,7 @@ open orders, and ensures that reservations never exceed the available quantity.
 - `decreaseStock(amount)` — Record outgoing goods (e.g. shipment)
 - `reserve(amount)` — Reserve stock for an order
 - `release(amount)` — Release previously reserved stock
-- `setAvailableQuantity(quantity)` — Manual correction / stocktake (see Open Issues)
+- `adjustStockTo(quantity)` — Manual correction / stocktake (see Open Issues)
 - `isAvailable()` — Checks whether unreserved stock is available
 
 **Notes:** Invariant: `reservedQuantity <= availableQuantity`. If the available
@@ -155,7 +155,7 @@ or stocktake (delta-agnostic).
 replaced by more business-precise events (`StockReconciled` for stocktake), or
 reduced entirely to `StockIncreased`/`StockDecreased`.
 
-**Related terms:** `StockLevel.setAvailableQuantity`
+**Related terms:** `StockLevel.adjustStockTo`
 
 **Notes:** See Open Issues — "too generic".
 
@@ -220,7 +220,7 @@ still be reserved.
 These points are intentionally left open and should be clarified with the
 business before the model is consolidated:
 
-1. **Use-case split for `setAvailableQuantity`** — the method name conflates
+1. **Use-case split for `adjustStockTo`** (formerly `setAvailableQuantity`) — the method conflates
    three business-distinct operations:
    - **Set** (initial capture / master-data correction)
    - **Adjust** (correction posting with reason)

@@ -43,6 +43,36 @@ class DddTacticalPatternsArchUnitTest extends BaseArchUnitTest {
       .check(allClasses)
   }
 
+  def "Aggregate Roots must not hold references to Repositories or other Output Ports"() {
+    when:
+    // Aggregates must be persistence-ignorant: dependencies like repositories or
+    // domain services are looked up by the use case and passed as method parameters,
+    // never injected as fields (Vernon, IDDD Ch10; Wrox PPP-DDD).
+
+    def aggregateRootClasses = allClasses.stream()
+      .filter { it.isAssignableTo(AggregateRoot.class) }
+      .filter { !it.isInterface() }
+      .collect()
+
+    def violations = []
+    aggregateRootClasses.each { aggregateClass ->
+      aggregateClass.getAllFields().each { field ->
+        def fieldType = field.getRawType()
+        if (fieldType.isAssignableTo(REPOSITORY_MARKER) || fieldType.isAssignableTo(OUTPUT_PORT_MARKER)) {
+          violations.add("${aggregateClass.getName()} has field '${field.getName()}' of type ${fieldType.getName()} which is a repository/output port")
+        }
+      }
+    }
+
+    then:
+    if (!violations.isEmpty()) {
+      throw new AssertionError(
+      "Aggregates must not have injected repositories or output ports - pass dependencies as method parameters.\n" +
+      "Violations found:\n" + violations.join("\n"))
+    }
+    true
+  }
+
   def "Aggregate Roots must not have fields with other Aggregate Root types"() {
     expect:
     // This test enforces Vaughn Vernon's Aggregate Design Rule #2:
@@ -151,6 +181,40 @@ class DddTacticalPatternsArchUnitTest extends BaseArchUnitTest {
       throw new AssertionError(
       "Entities should not have public constructors (access only through aggregate root).\n" +
       "Note: Records are excluded from this rule.\n" +
+      "Violations found:\n" + violations.join("\n"))
+    }
+    true
+  }
+
+  def "Domain model classes must not have public setter methods"() {
+    when:
+    // Behavior-rich domain models change state through intention-revealing methods
+    // (e.g. activate(), changePrice()) - never through public setters.
+    // Mirrors the Value Object setter rule, extended to Entities and Aggregate Roots.
+
+    def domainClasses = allClasses.stream()
+      .filter { it.isAssignableTo(Entity.class) }
+      .filter { !it.isInterface() }
+      .collect()
+
+    def violations = []
+    domainClasses.each { domainClass ->
+      domainClass.getMethods().each { method ->
+        if (method.getName().startsWith("set") &&
+          method.getName().length() > 3 &&
+          Character.isUpperCase(method.getName().charAt(3)) &&
+          method.getRawParameterTypes().size() == 1 &&
+          method.getRawReturnType().getName() == "void" &&
+          method.getModifiers().contains(JavaModifier.PUBLIC)) {
+          violations.add("${domainClass.getName()} has public setter '${method.getName()}'")
+        }
+      }
+    }
+
+    then:
+    if (!violations.isEmpty()) {
+      throw new AssertionError(
+      "Domain model classes must not expose public setters - use intention-revealing methods from the ubiquitous language.\n" +
       "Violations found:\n" + violations.join("\n"))
     }
     true

@@ -27,7 +27,8 @@ public record GetEventPublicationsResult(
   public static GetEventPublicationsResult from(final List<EventPublicationEntry> entries) {
     final List<EventPublicationSummary> summaries =
         entries.stream().map(EventPublicationSummary::from).toList();
-    final int completed = (int) summaries.stream().filter(EventPublicationSummary::isCompleted).count();
+    final int completed =
+        (int) summaries.stream().filter(EventPublicationSummary::isCompleted).count();
     return new GetEventPublicationsResult(
         summaries, summaries.size(), completed, summaries.size() - completed);
   }

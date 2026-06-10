@@ -1,6 +1,8 @@
 # Comprehensive Architecture Analysis
 ## AI-Architecture Sample Project - DDD & Clean Architecture Assessment
 
+> **Historical snapshot** -- reflects the codebase as of the analysis date below. Some details have since changed (notably: repository interfaces moved from the domain layer to the application layer as output ports, see [ADR-008](adr/adr-008-repository-interfaces-as-output-ports.md)). For current rules see [architecture-principles.md](architecture-principles.md).
+
 **Analysis Date**: October 24, 2025
 
 **Reference Frameworks**:

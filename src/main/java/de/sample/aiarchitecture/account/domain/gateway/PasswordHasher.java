@@ -8,15 +8,14 @@ import de.sample.aiarchitecture.sharedkernel.marker.tactical.DomainGateway;
  * <p>This interface is owned by the domain and used by the {@code Account} aggregate (and the
  * {@code HashedPassword} value object) to delegate the technology-bound act of hashing a plaintext
  * password and verifying a candidate plaintext against a stored hash. The interface is
- * framework-free; the implementation lives in the outgoing adapter layer
- * ({@code SpringSecurityPasswordHasher} → BCrypt).
+ * framework-free; the implementation lives in the outgoing adapter layer ({@code
+ * SpringSecurityPasswordHasher} → BCrypt).
  *
  * <p><b>Classification:</b> This is a {@link DomainGateway}, not an Output Port. The aggregate
- * itself consults the gateway when it needs to apply a domain rule that requires hashed
- * credentials (registration, password change, login check), following the pattern Vaughn Vernon
- * uses in IDDD ({@code User} aggregate calling {@code EncryptionService} via {@code
- * DomainRegistry}). DCA replaces the service-locator lookup with a typed parameter passed by the
- * use case.
+ * itself consults the gateway when it needs to apply a domain rule that requires hashed credentials
+ * (registration, password change, login check), following the pattern Vaughn Vernon uses in IDDD
+ * ({@code User} aggregate calling {@code EncryptionService} via {@code DomainRegistry}). DCA
+ * replaces the service-locator lookup with a typed parameter passed by the use case.
  *
  * <p><b>Security requirements for any implementation:</b>
  *

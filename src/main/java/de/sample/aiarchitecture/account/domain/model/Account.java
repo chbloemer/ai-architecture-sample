@@ -222,8 +222,8 @@ public final class Account extends BaseAggregateRoot<Account, AccountId> {
   }
 
   /**
-   * Changes the account password. The new plaintext is validated and hashed via the supplied
-   * {@link PasswordHasher} domain gateway.
+   * Changes the account password. The new plaintext is validated and hashed via the supplied {@link
+   * PasswordHasher} domain gateway.
    *
    * @param newPlainPassword the new plaintext password
    * @param passwordHasher the password hashing domain gateway

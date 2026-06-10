@@ -1,5 +1,7 @@
 # Code Review: Main Branch
 
+> **Historical snapshot** -- point-in-time review. Repository interfaces have since moved to the application layer as output ports (see [architecture/adr/adr-008-repository-interfaces-as-output-ports.md](architecture/adr/adr-008-repository-interfaces-as-output-ports.md)).
+
 ## Overview
 
 This is an **exceptionally well-crafted educational/reference implementation** of Domain-Driven Design, Hexagonal Architecture, and Onion Architecture patterns. The codebase demonstrates professional-grade architectural discipline with comprehensive testing and documentation.

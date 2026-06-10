@@ -40,6 +40,20 @@ class HexagonalArchitectureArchUnitTest extends BaseArchUnitTest {
       .check(allClasses)
   }
 
+  def "Controllers and Resources must never access repositories directly"() {
+    expect:
+    // Incoming web adapters drive the application through input ports (use cases) only.
+    // Direct repository access would bypass the application layer and its
+    // transaction/authorization/orchestration responsibilities.
+    noClasses()
+      .that().haveSimpleNameEndingWith("Controller")
+      .or().haveSimpleNameEndingWith(REST_CONTROLLER_SUFFIX)
+      .should().dependOnClassesThat().areAssignableTo(REPOSITORY_MARKER)
+      .because("Controllers must go through use cases (input ports), never directly to repositories")
+      .allowEmptyShould(true)
+      .check(allClasses)
+  }
+
   def "Incoming Adapters must only use outbound ports (not infrastructure implementations)"() {
     expect:
     noClasses()

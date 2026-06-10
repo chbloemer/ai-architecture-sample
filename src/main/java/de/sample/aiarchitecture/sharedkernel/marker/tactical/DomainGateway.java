@@ -13,14 +13,14 @@ package de.sample.aiarchitecture.sharedkernel.marker.tactical;
  *
  * <ul>
  *   <li><b>vs Domain Service</b> — A {@link DomainService} contains pure domain logic; both
- *       interface and implementation live in the domain layer (framework-free). A Domain Gateway
- *       is a <i>port</i> to the outside world; only the interface is in the domain.
+ *       interface and implementation live in the domain layer (framework-free). A Domain Gateway is
+ *       a <i>port</i> to the outside world; only the interface is in the domain.
  *   <li><b>vs Output Port</b> — An Output Port (see {@code OutputPort}) lives in the application
  *       layer and is used by use cases. A Domain Gateway lives in the domain layer and is used by
  *       aggregates, entities, or domain services to enforce invariants or perform domain-bound
  *       operations.
- *   <li><b>vs Repository</b> — A Repository persists and reconstitutes aggregates. A Domain
- *       Gateway exposes external capability (cryptography, availability check, geocoding, …).
+ *   <li><b>vs Repository</b> — A Repository persists and reconstitutes aggregates. A Domain Gateway
+ *       exposes external capability (cryptography, availability check, geocoding, …).
  * </ul>
  *
  * <p><b>Characteristics:</b>
@@ -41,8 +41,8 @@ package de.sample.aiarchitecture.sharedkernel.marker.tactical;
  *   <li>Tax rate lookup when the aggregate computes totals
  * </ul>
  *
- * <p><b>Reference:</b> The pattern follows Vaughn Vernon's IDDD (2013) sample code
- * ({@code iddd_identityaccess}, {@code User} aggregate using {@code EncryptionService} via the
- * {@code DomainRegistry}), generalized as a typed marker rather than a service locator.
+ * <p><b>Reference:</b> The pattern follows Vaughn Vernon's IDDD (2013) sample code ({@code
+ * iddd_identityaccess}, {@code User} aggregate using {@code EncryptionService} via the {@code
+ * DomainRegistry}), generalized as a typed marker rather than a service locator.
  */
 public interface DomainGateway {}

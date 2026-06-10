@@ -6,16 +6,22 @@ and observed cross-context imports.
 
 ## Bounded Contexts
 
-| Context | Responsibility | Type |
+| Context | Responsibility | Subdomain |
 |---|---|---|
-| `product` | Product Catalog: master data, categories, composite-article aggregation | Core domain |
+| `product` | Product Catalog: master data, categories, composite-article aggregation | Core |
 | `pricing` | Price determination and price-change tracking; OHS for other contexts | Supporting |
 | `inventory` | Stock management and stock reduction | Supporting |
-| `cart` | Shopping cart for guest and authenticated users | Core domain |
-| `checkout` | Checkout process, payment orchestration, order confirmation | Core domain |
+| `cart` | Shopping cart for guest and authenticated users | Core |
+| `checkout` | Checkout process, payment orchestration, order confirmation | Core |
 | `account` | User accounts, authentication, profile management | Supporting |
 | `portal` | Storefront UI / cross-context views (aggregated client-side) | Generic (UI) |
 | `backoffice` | Admin / operational views (e.g. event publication log) | Generic (Ops) — **not a business bounded context** |
+
+The subdomain classification drives pattern choice and ArchUnit rule-set
+strictness per context — see
+[ADR-025: Pattern Selection per Subdomain Type](architecture/adr/adr-025-pattern-selection-per-subdomain.md).
+(In this sample all contexts use the rich domain-model style for didactic
+reasons; the ADR documents what a production system would relax.)
 
 Shared Kernel: `sharedkernel/` contains the cross-cutting architectural markers
 (`@BoundedContext`, `@OpenHostService`, `DomainEvent`, `IntegrationEvent`, ports)
@@ -75,16 +81,22 @@ graph LR
   checkout -.->|PL — Interface Inversion<br/>CartCompletionTrigger| cart
   checkout -.->|PL — Interface Inversion<br/>StockReductionTrigger| inventory
 
+  product:::core
+  cart:::core
+  checkout:::core
+
   account:::sep
   portal:::sep
   backoffice:::sep
 
+  classDef core stroke-width:3px;
   classDef sep stroke-dasharray: 4 4,stroke:#888,color:#666;
 ```
 
 **Legend:** Solid arrow = synchronous OHS call (REST / service); dotted arrow =
-asynchronous integration event (Published Language). Dashed-border nodes =
-Separate Ways (no compile-time cross-context dependency).
+asynchronous integration event (Published Language). Thick-border nodes = core
+subdomain; dashed-border nodes = Separate Ways (no compile-time cross-context
+dependency).
 
 ## Notable design choices
 

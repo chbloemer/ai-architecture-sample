@@ -229,7 +229,7 @@ If architecture tests fail:
 - Equality based on attributes
 
 #### Repositories
-- Interface in domain layer (`domain.model.*`)
+- Interface in application layer as output port (`application.shared.*`, see ADR-008)
 - Extend `Repository<T, ID>` base interface
 - Implementation in outgoing adapters (`adapter.outgoing.*`)
 - Use domain language in method names
@@ -440,7 +440,7 @@ For significant architectural decisions, create an Architecture Decision Record 
 
 1. **Dependencies Point Inward** - Toward the domain core
 2. **Framework-Free Domain** - No Spring, JPA, or infrastructure in domain
-3. **Ports Define Contracts** - Interfaces in domain, implementations in adapters
+3. **Ports Define Contracts** - Interfaces in application layer (ports), implementations in adapters
 4. **Application Services Orchestrate** - Thin coordination layer
 5. **Adapters Are Replaceable** - Easy to swap implementations
 
@@ -453,7 +453,7 @@ For significant architectural decisions, create an Architecture Decision Record 
 1. Create aggregate root class extending `BaseAggregateRoot`
 2. Create value objects for properties
 3. Create entity classes for aggregate entities
-4. Create repository interface in domain
+4. Create repository interface in application layer (output port)
 5. Implement repository in outgoing adapter
 6. Create domain events for important state changes
 7. Create factory if creation is complex
@@ -474,7 +474,7 @@ For significant architectural decisions, create an Architecture Decision Record 
 
 ### Adding a New Repository Method
 
-1. Add method to repository interface in domain layer
+1. Add method to repository interface in application layer (output port)
 2. Use domain language in method name
 3. Implement method in repository implementation
 4. Update application service to use new method

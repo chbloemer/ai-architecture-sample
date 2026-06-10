@@ -197,7 +197,7 @@ public final class StockLevel extends BaseAggregateRoot<StockLevel, StockLevelId
   }
 
   /**
-   * Sets the available stock quantity to a specific value.
+   * Adjusts the available stock to a counted quantity.
    *
    * <p>Use this for inventory reconciliation or manual stock level adjustments. If the new quantity
    * is lower than the reserved quantity, reserved stock is adjusted accordingly.
@@ -205,7 +205,7 @@ public final class StockLevel extends BaseAggregateRoot<StockLevel, StockLevelId
    * @param quantity the new available quantity
    * @throws IllegalArgumentException if quantity is negative
    */
-  public void setAvailableQuantity(final int quantity) {
+  public void adjustStockTo(final int quantity) {
     if (quantity < 0) {
       throw new IllegalArgumentException("Quantity cannot be negative");
     }

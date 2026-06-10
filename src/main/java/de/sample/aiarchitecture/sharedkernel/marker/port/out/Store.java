@@ -1,14 +1,14 @@
 package de.sample.aiarchitecture.sharedkernel.marker.port.out;
 
 /**
- * Marker interface for Stores — output ports that record or query operational data
- * without an own aggregate lifecycle.
+ * Marker interface for Stores — output ports that record or query operational data without an own
+ * aggregate lifecycle.
  *
  * <p><b>Repository vs. Store:</b>
  *
  * <ul>
- *   <li>Use {@link Repository} for <b>Aggregate Roots</b> with identity and lifecycle
- *       (findById, save, delete).
+ *   <li>Use {@link Repository} for <b>Aggregate Roots</b> with identity and lifecycle (findById,
+ *       save, delete).
  *   <li>Use {@link Store} for <b>Value Objects, Events, or operational data</b> without
  *       identity-based access (record, count, exists).
  * </ul>

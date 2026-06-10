@@ -93,8 +93,8 @@ abstract class BaseArchUnitTest extends Specification {
   protected static final Class<? extends java.lang.annotation.Annotation> OPEN_HOST_SERVICE_ANNOTATION = OpenHostService
 
   // Extra non-context modules (e.g. backoffice) that belong in some layer rules but aren't bounded contexts.
-  protected static final List<String> EXTRA_APPLICATION_PACKAGES = List.of("${BASE_PACKAGE}.backoffice.application..")
-  protected static final List<String> EXTRA_ADAPTER_PACKAGES     = List.of("${BASE_PACKAGE}.backoffice.adapter..")
+  protected static final List<String> EXTRA_APPLICATION_PACKAGES = List.of("${BASE_PACKAGE}.backoffice.application..".toString())
+  protected static final List<String> EXTRA_ADAPTER_PACKAGES     = List.of("${BASE_PACKAGE}.backoffice.adapter..".toString())
 
   // ============================================================================
 
@@ -361,28 +361,28 @@ abstract class BaseArchUnitTest extends Specification {
   /** Domain patterns (full domain layer) for all discovered bounded contexts. */
   protected String[] getBoundedContextDomainPatterns() {
     return discoverBoundedContextPackages().keySet()
-        .collect { "${it}.${DOMAIN_SUBPKG}.." }
+        .collect { "${it}.${DOMAIN_SUBPKG}..".toString() }
         .toArray(new String[0])
   }
 
   /** Domain-model patterns for all discovered bounded contexts. */
   protected String[] getBoundedContextDomainModelPatterns() {
     return discoverBoundedContextPackages().keySet()
-        .collect { "${it}.${DOMAIN_SUBPKG}.model.." }
+        .collect { "${it}.${DOMAIN_SUBPKG}.model..".toString() }
         .toArray(new String[0])
   }
 
   /** Application patterns for all discovered bounded contexts. */
   protected String[] getBoundedContextApplicationPatterns() {
     return discoverBoundedContextPackages().keySet()
-        .collect { "${it}.${APP_SUBPKG}.." }
+        .collect { "${it}.${APP_SUBPKG}..".toString() }
         .toArray(new String[0])
   }
 
   /** Adapter patterns for all discovered bounded contexts. */
   protected String[] getBoundedContextAdapterPatterns() {
     return discoverBoundedContextPackages().keySet()
-        .collect { "${it}.${ADAPTER_SUBPKG}.." }
+        .collect { "${it}.${ADAPTER_SUBPKG}..".toString() }
         .toArray(new String[0])
   }
 

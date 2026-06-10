@@ -4,8 +4,11 @@ import com.tngtech.archunit.base.DescribedPredicate
 import com.tngtech.archunit.core.domain.JavaClass
 
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes
+import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.methods
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses
 import static com.tngtech.archunit.library.Architectures.layeredArchitecture
+
+import org.springframework.transaction.annotation.Transactional
 
 /**
  * ArchUnit tests for Layered Architecture pattern.
@@ -55,6 +58,31 @@ class LayeredArchitectureArchUnitTest extends BaseArchUnitTest {
       .should().dependOnClassesThat(INFRASTRUCTURE_IMPLEMENTATION)
       .because("Application services should only use outbound ports from sharedkernel.application.port, not infrastructure implementation details")
       .check(allClasses)
+  }
+
+  def "Transaction boundaries belong to the application layer"() {
+    expect:
+    // The use case owns the unit of work. @Transactional is allowed in the application
+    // layer (transaction boundary) and in outgoing persistence adapters (multi-statement
+    // operations that must stay atomic even when invoked outside a use-case transaction;
+    // with default REQUIRED propagation they join the caller's transaction).
+    // It is never allowed in the domain layer or in incoming adapters.
+    def transactionalMethods = methods()
+      .that().areAnnotatedWith(Transactional.class)
+      .should().beDeclaredInClassesThat().resideInAnyPackage(
+        (allApplicationPatterns().toList() + ["..adapter.outgoing.."]) as String[])
+      .because("Transactions are an application-layer concern - domain and incoming adapters must not manage them")
+      .allowEmptyShould(true)
+
+    def transactionalClasses = classes()
+      .that().areAnnotatedWith(Transactional.class)
+      .should().resideInAnyPackage(
+        (allApplicationPatterns().toList() + ["..adapter.outgoing.."]) as String[])
+      .because("Transactions are an application-layer concern - domain and incoming adapters must not manage them")
+      .allowEmptyShould(true)
+
+    transactionalMethods.check(allClasses)
+    transactionalClasses.check(allClasses)
   }
 
   def "sharedkernel.application.port should only contain interfaces (Outbound Ports)"() {

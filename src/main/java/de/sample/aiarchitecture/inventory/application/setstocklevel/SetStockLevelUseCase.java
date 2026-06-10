@@ -48,7 +48,7 @@ public class SetStockLevelUseCase implements SetStockLevelInputPort {
     if (existingStockLevel.isPresent()) {
       // Update existing stock level
       stockLevel = existingStockLevel.get();
-      stockLevel.setAvailableQuantity(command.quantity());
+      stockLevel.adjustStockTo(command.quantity());
       created = false;
     } else {
       // Create new stock level

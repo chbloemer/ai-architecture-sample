@@ -1574,8 +1574,8 @@ Ports are interfaces that define how the application can be used or how it can u
 - Location: `de.sample.aiarchitecture.application`
 
 **Secondary Ports (Driven Side):**
-- Repository interfaces
-- Location: `de.sample.aiarchitecture.domain.model.*`
+- Repository interfaces and other output ports
+- Location: `de.sample.aiarchitecture.{context}.application.shared` (see ADR-008)
 
 #### Adapters
 
@@ -1880,14 +1880,15 @@ Onion Architecture ensures that dependencies flow inward toward the domain core,
 
 #### Domain Model (Core)
 
-**Location:** `de.sample.aiarchitecture.domain.model`
+**Location:** `de.sample.aiarchitecture.{context}.domain.model`
 
 **Contains:**
 - Aggregates, Entities, Value Objects
-- Repository interfaces
 - Domain Services
 - Domain Events
 - Factories, Specifications
+
+(Repository interfaces are NOT part of the domain model — they are output ports in the application layer, see ADR-008.)
 
 **Rules:**
 - NO dependencies on outer layers
@@ -2223,9 +2224,11 @@ All architectural rules are automatically tested and enforced using ArchUnit.
 2. **Entities** must implement `Entity` interface
 3. **Value Objects** must be immutable (records or final classes)
 4. **Value Objects** must implement `Value` interface
-5. **Repositories** must be interfaces in domain layer
+5. **Repositories** must be interfaces in the application layer (output ports, see ADR-008)
 6. **Repository implementations** must be in outgoing adapters
 7. **Aggregates reference other aggregates by ID only** (Vernon's Rule #2)
+8. **Aggregates must not hold references to repositories or output ports** - dependencies are passed as method parameters
+9. **Domain model classes must not have public setters** - state changes go through intention-revealing methods
 
 #### Domain Layer Rules
 
@@ -2237,23 +2240,22 @@ All architectural rules are automatically tested and enforced using ArchUnit.
 
 #### Application Layer Rules
 
-1. Application Services must end with "ApplicationService" (legacy pattern)
-2. Application Services must be annotated with `@Service`
-3. Application Services must NOT depend on portadapters
-4. Application Services may only use `sharedkernel.application.port` (not infrastructure implementations)
+1. Use Cases (InputPort implementations) must end with "UseCase"
+2. Use Cases must be annotated with `@Service`
+3. Application layer must NOT depend on portadapters
+4. Application layer may only use ports (not infrastructure implementations)
 
 #### Clean Architecture (Use Case) Rules
 
-1. Use Case interfaces must end with "UseCase"
-2. Use Case interfaces must reside in `application` package
-3. Use Case Input models must end with "Input"
-4. Use Case Input models must be immutable (records or final classes)
-5. Use Case Input models must reside in `application` package
-6. Use Case Output models must end with "Output"
-7. Use Case Output models must be immutable (records or final classes)
-8. Use Case Output models must reside in `application` package
-9. Application layer must NOT depend on DTOs (presentation concern)
-10. Input/Output models must contain only primitives, Strings, or nested records (no domain entities)
+1. InputPort interfaces must end with "InputPort"
+2. Use Case classes must reside in `application` package
+3. Commands must end with "Command" and be immutable (records or final classes)
+4. Queries must end with "Query" and be immutable
+5. Results must end with "Result" and be immutable
+6. Commands, Queries, and Results must reside in `application` package
+7. HTTP Response models must end with "Response" and reside in incoming adapters
+8. Application layer must NOT depend on DTOs (presentation concern)
+9. Command/Query/Result models must contain only primitives, Strings, value types, or nested records (no domain entities)
 
 #### Hexagonal Architecture Rules
 
@@ -2261,6 +2263,7 @@ All architectural rules are automatically tested and enforced using ArchUnit.
 2. Secondary adapters implement domain repository interfaces
 3. Adapters must NOT communicate directly with each other
 4. Repository implementations must be in `portadapter.outgoing`
+5. Controllers and Resources must never access repositories directly - they drive the application through input ports only
 
 #### Onion Architecture Rules
 
@@ -2276,18 +2279,21 @@ All architectural rules are automatically tested and enforced using ArchUnit.
 3. Secondary adapters may not be accessed by any layer
 4. Application services may only be accessed by primary adapters
 5. **sharedkernel.application.port must contain only interfaces** (Shared Kernel outbound ports pattern)
+6. **`@Transactional` only in the application layer** - the use case owns the unit of work; outgoing persistence adapters are the documented exception (multi-statement atomicity, joins the caller's transaction via REQUIRED propagation)
 
 #### Naming Conventions
 
-1. Application Services must end with "ApplicationService"
+1. Use Cases must end with "UseCase"
 2. Repository interfaces must end with "Repository"
-3. Controllers must end with "Controller"
-4. DTOs must end with "Dto" and reside in portadapter
-5. Converters must end with "Converter" and reside in portadapter
+3. Controllers must end with "Controller", REST controllers with "Resource"
+4. DTOs must end with "Dto" and reside in adapter packages
+5. Converters must end with "Converter" and reside in adapter packages
 6. Domain Services must implement `DomainService`
 7. Domain Events must implement `DomainEvent`
 8. Factories must implement `Factory`
 9. Specifications must end with "Specification"
+10. No technical bucket packages (`entities`, `valueobjects`, `helpers`, `util`) - package by domain concept
+11. No `Manager`/`Helper`/`Util`/`Impl` suffixes in the domain layer - name by specialty from the ubiquitous language
 
 #### Advanced DDD Patterns
 

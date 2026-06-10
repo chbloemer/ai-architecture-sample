@@ -7,9 +7,8 @@ import org.springframework.stereotype.Component;
 /**
  * Spring Security implementation of the {@link PasswordHasher} domain gateway.
  *
- * <p>This adapter bridges the domain gateway to Spring Security's {@link PasswordEncoder},
- * keeping the domain layer framework-independent while routing the actual cryptographic work to
- * BCrypt.
+ * <p>This adapter bridges the domain gateway to Spring Security's {@link PasswordEncoder}, keeping
+ * the domain layer framework-independent while routing the actual cryptographic work to BCrypt.
  *
  * <p><b>Implementation Details:</b>
  *
@@ -18,8 +17,8 @@ import org.springframework.stereotype.Component;
  *   <li>BCrypt provides: random salt, configurable cost factor, timing-safe comparison
  * </ul>
  *
- * <p><b>Configuration:</b> The {@link PasswordEncoder} is configured in {@code SecurityConfig}
- * with BCrypt (cost factor 12).
+ * <p><b>Configuration:</b> The {@link PasswordEncoder} is configured in {@code SecurityConfig} with
+ * BCrypt (cost factor 12).
  *
  * @see PasswordHasher
  * @see org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder

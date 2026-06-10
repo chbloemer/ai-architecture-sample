@@ -67,7 +67,7 @@ class StockReductionOnCheckoutIntegrationTest {
       stockLevelRepository.save(stockLevel);
     } else {
       StockLevel stockLevel = existing.get();
-      stockLevel.setAvailableQuantity(initialStock);
+      stockLevel.adjustStockTo(initialStock);
       stockLevelRepository.save(stockLevel);
     }
   }

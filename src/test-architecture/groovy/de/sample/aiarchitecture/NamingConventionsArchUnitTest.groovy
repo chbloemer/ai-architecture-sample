@@ -1,6 +1,7 @@
 package de.sample.aiarchitecture
 
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes
+import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses
 
 import de.sample.aiarchitecture.sharedkernel.marker.port.in.UseCase
 import org.springframework.stereotype.Service
@@ -109,6 +110,34 @@ class NamingConventionsArchUnitTest extends BaseArchUnitTest {
       .and().resideInAnyPackage(BASE_PACKAGE + "..")
       .should().resideInAPackage(ADAPTER_PACKAGE)
       .because("Converters/Mappers translate between layers and should be in adapters")
+      .allowEmptyShould(true)
+      .check(allClasses)
+  }
+
+  def "No technical bucket packages - package by domain concept"() {
+    expect:
+    // Top-level structure must scream business capabilities (screaming architecture).
+    // Technical buckets like 'entities' or 'util' hide the domain and attract
+    // unrelated code. DTOs/Converters/ViewModels have their own placement rules above.
+    noClasses()
+      .should().resideInAnyPackage("..entities..", "..valueobjects..", "..helpers..", "..util..", "..utils..")
+      .because("Packages are named after domain concepts from the ubiquitous language, not technical patterns")
+      .allowEmptyShould(true)
+      .check(allClasses)
+  }
+
+  def "Domain classes must not use technical suffixes (Manager, Helper, Util, Impl)"() {
+    expect:
+    // Domain concepts carry ubiquitous-language names. 'Manager'/'Helper'/'Util' signal
+    // a missing domain concept; 'Impl' signals naming by pattern instead of by specialty.
+    noClasses()
+      .that().resideInAnyPackage(allDomainPatternsWithSharedKernel())
+      .should().haveSimpleNameEndingWith("Manager")
+      .orShould().haveSimpleNameEndingWith("Helper")
+      .orShould().haveSimpleNameEndingWith("Util")
+      .orShould().haveSimpleNameEndingWith("Utils")
+      .orShould().haveSimpleNameEndingWith("Impl")
+      .because("Domain names come from the ubiquitous language - name services by their specialty, not by technical role")
       .allowEmptyShould(true)
       .check(allClasses)
   }

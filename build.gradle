@@ -61,8 +61,6 @@ repositories {
   mavenCentral()
   // Spring milestones for Spring AI 2.0.0-M2
   maven { url 'https://repo.spring.io/milestone' }
-  // Sonatype snapshots for pug4j 3.0.0-SNAPSHOT
-  maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
 }
 
 ext {
@@ -100,7 +98,7 @@ dependencies {
   implementation('org.apache.commons:commons-lang3:3.17.0')
 
   // Pug4j Template Engine
-  implementation 'de.neuland-bfi:spring-pug4j:3.4.0'
+  implementation 'de.neuland-bfi:spring-pug4j:3.5.0'
 
   // Spring AI MCP Server
   implementation 'org.springframework.ai:spring-ai-starter-mcp-server-webmvc'
@@ -118,10 +116,6 @@ dependencyManagement {
     mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
     mavenBom "org.springframework.ai:spring-ai-bom:${springAiVersion}"
     mavenBom "org.springframework.modulith:spring-modulith-bom:${springModulithVersion}"
-  }
-  // Override transitive version used by spring-pug4j
-  dependencies {
-    dependency 'de.neuland-bfi:pug4j:3.0.0-alpha-2'
   }
 }
 

@@ -1,6 +1,7 @@
 package de.sample.aiarchitecture.infrastructure.config;
 
-import de.neuland.pug4j.PugConfiguration;
+import de.neuland.pug4j.PugEngine;
+import de.neuland.pug4j.RenderContext;
 import de.neuland.pug4j.spring.template.SpringTemplateLoader;
 import de.neuland.pug4j.spring.view.PugViewResolver;
 import org.springframework.context.annotation.Bean;
@@ -33,24 +34,35 @@ public class Pug4jConfiguration {
   public SpringTemplateLoader templateLoader() {
     final SpringTemplateLoader templateLoader = new SpringTemplateLoader();
     templateLoader.setTemplateLoaderPath("classpath:/templates/");
+    templateLoader.setEncoding("UTF-8");
     templateLoader.setSuffix(".pug");
     return templateLoader;
   }
 
   /**
-   * Configures the Pug configuration with caching and pretty-print settings.
+   * Configures the Pug engine with caching settings.
    *
    * @param templateLoader the template loader
-   * @return configured PugConfiguration
+   * @return configured PugEngine
    */
   @Bean
-  public PugConfiguration pugConfiguration(final SpringTemplateLoader templateLoader) {
-    final PugConfiguration configuration = new PugConfiguration();
-    //    configuration.setExpressionHandler(new GraalJsExpressionHandler());
-    configuration.setTemplateLoader(templateLoader);
-    configuration.setCaching(false); // Disable for development (enable in production)
-    configuration.setPrettyPrint(true); // Pretty-print HTML output
-    return configuration;
+  public PugEngine pugEngine(final SpringTemplateLoader templateLoader) {
+    return PugEngine.builder()
+        .templateLoader(templateLoader)
+        .caching(false) // Disable for development (enable in production)
+        .build();
+  }
+
+  /**
+   * Configures the render context with output settings.
+   *
+   * @return configured RenderContext
+   */
+  @Bean
+  public RenderContext renderContext() {
+    return RenderContext.builder()
+        .prettyPrint(true) // Pretty-print HTML output
+        .build();
   }
 
   /**
@@ -59,13 +71,16 @@ public class Pug4jConfiguration {
    * <p>This resolver handles views returned by @Controller methods. It has order 0 to be processed
    * before other view resolvers.
    *
-   * @param pugConfiguration the Pug configuration
+   * @param pugEngine the Pug engine
+   * @param renderContext the render context
    * @return configured view resolver
    */
   @Bean
-  public ViewResolver pugViewResolver(final PugConfiguration pugConfiguration) {
+  public ViewResolver pugViewResolver(
+      final PugEngine pugEngine, final RenderContext renderContext) {
     final PugViewResolver viewResolver = new PugViewResolver();
-    viewResolver.setConfiguration(pugConfiguration);
+    viewResolver.setEngine(pugEngine);
+    viewResolver.setRenderContext(renderContext);
     viewResolver.setOrder(0); // Process Pug templates first
     return viewResolver;
   }

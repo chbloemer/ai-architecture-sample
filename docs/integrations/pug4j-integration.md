@@ -6,7 +6,7 @@ Pug4j is a Java implementation of the Pug template engine for server-side HTML r
 
 ```gradle
 dependencies {
-  implementation 'de.neuland-bfi:spring-pug4j:3.4.0'
+  implementation 'de.neuland-bfi:spring-pug4j:3.5.0'
 }
 ```
 
@@ -22,23 +22,32 @@ public class Pug4jConfiguration {
   public SpringTemplateLoader templateLoader() {
     final SpringTemplateLoader templateLoader = new SpringTemplateLoader();
     templateLoader.setTemplateLoaderPath("classpath:/templates/");
+    templateLoader.setEncoding("UTF-8");
     templateLoader.setSuffix(".pug");
     return templateLoader;
   }
 
   @Bean
-  public PugConfiguration pugConfiguration(final SpringTemplateLoader templateLoader) {
-    final PugConfiguration configuration = new PugConfiguration();
-    configuration.setTemplateLoader(templateLoader);
-    configuration.setCaching(false); // Disable for development
-    configuration.setPrettyPrint(true);
-    return configuration;
+  public PugEngine pugEngine(final SpringTemplateLoader templateLoader) {
+    return PugEngine.builder()
+        .templateLoader(templateLoader)
+        .caching(false) // Disable for development
+        .build();
   }
 
   @Bean
-  public ViewResolver pugViewResolver(final PugConfiguration pugConfiguration) {
+  public RenderContext renderContext() {
+    return RenderContext.builder()
+        .prettyPrint(true)
+        .build();
+  }
+
+  @Bean
+  public ViewResolver pugViewResolver(
+      final PugEngine pugEngine, final RenderContext renderContext) {
     final PugViewResolver viewResolver = new PugViewResolver();
-    viewResolver.setConfiguration(pugConfiguration);
+    viewResolver.setEngine(pugEngine);
+    viewResolver.setRenderContext(renderContext);
     viewResolver.setOrder(0);
     return viewResolver;
   }

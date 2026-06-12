@@ -6,7 +6,6 @@ import de.neuland.pug4j.spring.template.SpringTemplateLoader;
 import de.neuland.pug4j.spring.view.PugViewResolver;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.servlet.ViewResolver;
 
 /**
  * Configuration for Pug4j template engine.
@@ -76,7 +75,7 @@ public class Pug4jConfiguration {
    * @return configured view resolver
    */
   @Bean
-  public ViewResolver pugViewResolver(
+  public PugViewResolver pugViewResolver(
       final PugEngine pugEngine, final RenderContext renderContext) {
     final PugViewResolver viewResolver = new PugViewResolver();
     viewResolver.setEngine(pugEngine);

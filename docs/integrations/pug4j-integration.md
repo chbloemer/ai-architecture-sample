@@ -6,7 +6,7 @@ Pug4j is a Java implementation of the Pug template engine for server-side HTML r
 
 ```gradle
 dependencies {
-  implementation 'de.neuland-bfi:spring-pug4j:3.5.0'
+  implementation 'de.neuland-bfi:spring-pug4j:3.6.0'
 }
 ```
 
@@ -43,7 +43,7 @@ public class Pug4jConfiguration {
   }
 
   @Bean
-  public ViewResolver pugViewResolver(
+  public PugViewResolver pugViewResolver(
       final PugEngine pugEngine, final RenderContext renderContext) {
     final PugViewResolver viewResolver = new PugViewResolver();
     viewResolver.setEngine(pugEngine);
@@ -53,6 +53,37 @@ public class Pug4jConfiguration {
   }
 }
 ```
+
+## Debug Error Page
+
+On template errors, a debug page shows the template source with the failing line highlighted.
+
+**Enable** (development only — exposes template source):
+
+```yaml
+# application.yml
+spring:
+  pug4j:
+    debug-error-page: true
+```
+
+Since spring-pug4j 3.6.0 this works on Spring Boot 4 out of the box
+(`Boot4PugDebugErrorViewResolver` auto-configuration). The old property
+`pug4j.spring.debug-error-page` still works but is deprecated. Requests with
+`Accept: text/html` get the debug page; other clients get Spring Boot's JSON error response.
+
+spring-pug4j 3.6.0 also auto-configures `SpringTemplateLoader`, `PugEngine`, and
+`PugViewResolver` (configurable via `spring.pug4j.*` properties, analogous to
+`spring.thymeleaf.*`). The manual configuration above takes precedence — the
+auto-configuration backs off via `@ConditionalOnMissingBean`.
+
+The error dispatch to `/error` must be permitted in the security configuration
+(`.dispatcherTypeMatchers(DispatcherType.ERROR).permitAll()`), otherwise template errors surface
+as a bare 403.
+
+**Demo:** `GET /debug/pug-error` renders the intentionally broken template
+`templates/debug/broken.pug` (see `PugDebugDemoPageController`) — kept as a learning artifact to
+showcase the debug error page; not production code.
 
 ## Controller Example
 

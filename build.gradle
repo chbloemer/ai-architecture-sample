@@ -98,7 +98,7 @@ dependencies {
   implementation('org.apache.commons:commons-lang3:3.17.0')
 
   // Pug4j Template Engine
-  implementation 'de.neuland-bfi:spring-pug4j:3.5.0'
+  implementation 'de.neuland-bfi:spring-pug4j:3.6.0'
 
   // Spring AI MCP Server
   implementation 'org.springframework.ai:spring-ai-starter-mcp-server-webmvc'

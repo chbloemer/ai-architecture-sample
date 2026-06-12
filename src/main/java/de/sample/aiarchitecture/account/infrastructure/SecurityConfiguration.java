@@ -2,6 +2,7 @@ package de.sample.aiarchitecture.account.infrastructure;
 
 import de.sample.aiarchitecture.account.adapter.outgoing.security.JwtAuthenticationFilter;
 import de.sample.aiarchitecture.account.adapter.outgoing.security.JwtProperties;
+import jakarta.servlet.DispatcherType;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
@@ -96,6 +97,11 @@ public class SecurityConfiguration {
 
                     // Static resources
                     .requestMatchers("/css/**", "/js/**", "/images/**", "/fonts/**", "/favicon.ico")
+                    .permitAll()
+
+                    // Error dispatch (Spring Boot forwards to /error, e.g. for the
+                    // Pug4j debug error page) — without this the error page is a bare 403
+                    .dispatcherTypeMatchers(DispatcherType.ERROR)
                     .permitAll()
 
                     // All other requests require authentication (JWT - anonymous or registered)

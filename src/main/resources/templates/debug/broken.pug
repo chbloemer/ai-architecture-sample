@@ -1,0 +1,12 @@
+//- Intentionally broken template to test the Pug4j debug error page.
+//- The expression below calls a method on an undefined variable and
+//- fails at render time with a PugException.
+doctype html
+html(lang="en")
+  head
+    title= title
+  body
+    h1 Pug4j Debug Error Page Test
+    p This line renders fine.
+    p= brokenVariable.thisMethodDoesNotExist()
+    p This line is never reached.
